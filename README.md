@@ -28,9 +28,9 @@ and the flow of information is clear. Simulink is the
 highest-profile example.
 
 The highest profile noncausal modeling tools are in the
-[Modelica](www.modelica.org) family. The MathWorks also has Simscape
-that uses Matlab notation. Modelica is an object-oriented, open
-language with multiple implementations. It is a large, complex,
+[Modelica](www.modelica.org) family. The MathWorks company also has
+Simscape that uses Matlab notation. Modelica is an object-oriented,
+open language with multiple implementations. It is a large, complex,
 powerful language with an extensive standard library of components.
 
 This implementation follows the work of David Broman
