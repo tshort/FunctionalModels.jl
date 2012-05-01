@@ -173,7 +173,7 @@ ckt_y = sim(ckt, 0.1)
 
 For further examples, see here:
     
-https://github.com/tshort-/Sims/example-sims.jl
+https://github.com/tshort-/Sims/blob/master/example_sims.jl
 
 
 
