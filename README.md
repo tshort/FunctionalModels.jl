@@ -9,7 +9,7 @@ Sims is the beginnings of a Julia package to support
 equation-based modeling for simulations. Sims is like a lite
 version of Modelica or Simscape from Mathworks.
 
-[Julia][http://julialang.org] is a fast, Matlab-like language that is well suited to
+[Julia](http://julialang.org) is a fast, Matlab-like language that is well suited to
 modeling and simulations.
 
 
@@ -65,13 +65,13 @@ other devices that also return lists of equations. The equations
 each are assumed equal to zero. So,
 
 ``` .jl
-   der(y) = x + 1
+der(y) = x + 1
 ```
 
 Should be entered as:
 
 ``` .jl
-   der(y) - (x+1)
+der(y) - (x+1)
 ```
 
 der indicates a derivative.
@@ -80,28 +80,28 @@ The Van Der Pol oscillator is a simple problem with two equations
 and two unknowns:
 
 ``` .jl
-    function Vanderpol()
-        y = Unknown(1.0)   # The 1.0 is the initial value.
-        x = Unknown()      # The initial value is zero if not given.
-        # The following gives the return value which is a list of equations.
-        # Expressions with Unknowns are kept as expressions. Expressions of
-        # regular variables are evaluated immediately.
-        {
-         # The -1.0 in der(x, -1.0) is the initial value for the derivative 
-         der(x, -1.0) - ((1 - y^2) * x - y)      # == 0 is assumed
-         der(y) - x
-         }
-    end
-    
-    y = sim(Vanderpol(), 10.0) # Run the simulation to 10 seconds and return
-                               # the result as an array.
-    # plot the results
-    plot(y[:,1], y[:,2], y[:,1], y[:,3])
+function Vanderpol()
+    y = Unknown(1.0)   # The 1.0 is the initial value.
+    x = Unknown()      # The initial value is zero if not given.
+    # The following gives the return value which is a list of equations.
+    # Expressions with Unknowns are kept as expressions. Expressions of
+    # regular variables are evaluated immediately.
+    {
+     # The -1.0 in der(x, -1.0) is the initial value for the derivative 
+     der(x, -1.0) - ((1 - y^2) * x - y)      # == 0 is assumed
+     der(y) - x
+     }
+end
+
+y = sim(Vanderpol(), 10.0) # Run the simulation to 10 seconds and return
+                           # the result as an array.
+# plot the results
+plot(y[:,1], y[:,2], y[:,1], y[:,3])
 ``` 
 
 Here are the results:
 
-![plot results]([[vanderpol.png]] "Van Der Pol results")
+![plot results](https://github.com/tshort-/Sims/raw/master/vanderpol.png "Van Der Pol results")
 
 
 Electrical example
