@@ -93,7 +93,9 @@ end
 y = sim(Vanderpol(), 10.0) # Run the simulation to 10 seconds and return
                            # the result as an array.
 # plot the results
-plot(y[:,1], y[:,2], y[:,1], y[:,3])
+plot(y[:,1], y[:,2], y[:,1], y[:,3],
+     "xlabel","Time (s)",
+     "title", "Van Der Pol oscillator")
 ``` 
 
 Here are the results:
