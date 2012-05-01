@@ -175,7 +175,8 @@ For further examples, see here:
     
 https://github.com/tshort-/Sims/blob/master/example_sims.jl
 
-The main code that performs the simulation is here:
+The main code that defines functions and types for simulations is
+here:
 
 https://github.com/tshort-/Sims/blob/master/sims.jl
 
