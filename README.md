@@ -1,5 +1,4 @@
 
-
 Julia Sims
 ==========
 Introduction
@@ -151,7 +150,7 @@ assigned zero volts.
 All of the equations returned in the list of equations are other
 models with various parameters.
    
-``` t.jl
+``` .jl
 function Circuit()
     n1 = ElectricalNode()
     n2 = ElectricalNode()
