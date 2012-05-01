@@ -50,12 +50,13 @@ Sims defines a basic symbolic class used for unknown variables in
 the model. As unknown variables are evaluated, expressions (of
 type MExpr) are built up.
 
-    .jl
-    julia> a = Unknown()
-    ##1243
+``` .jl
+julia> a = Unknown()
+##1243
 
-    julia> a * (a + 1)
-    MExpr(*(##1243,+(##1243,1)))
+julia> a * (a + 1)
+MExpr(*(##1243,+(##1243,1)))
+```
 
 In a simulation, the unknowns are to be solved based on a set of
 equations. Equations are built from device models. 
