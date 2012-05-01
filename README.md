@@ -7,10 +7,10 @@ Introduction
 
 Sims is the beginnings of a Julia package to support
 equation-based modeling for simulations. Sims is like a lite
-version of Modelica or Simscape from Mathworks.
+version of Modelica.
 
-[Julia](http://julialang.org) is a fast, Matlab-like language that is well suited to
-modeling and simulations.
+[Julia](http://julialang.org) is a fast, Matlab-like language that is
+well suited to modeling and simulations.
 
 
 Background
@@ -27,11 +27,11 @@ Causal modeling is where all signals have an input and an output,
 and the flow of information is clear. Simulink is the
 highest-profile example.
 
-The highest profile noncausal modeling tools are in the Modelica
-(www.modelica.org) family. The MathWorks also has Simscape that uses
-Matlab notation. Modelica is an object-oriented, open language with
-multiple implementations. It is a large, complex, powerful language
-with an extensive standard library of components.
+The highest profile noncausal modeling tools are in the
+[Modelica](www.modelica.org) family. The MathWorks also has Simscape
+that uses Matlab notation. Modelica is an object-oriented, open
+language with multiple implementations. It is a large, complex,
+powerful language with an extensive standard library of components.
 
 This implementation follows the work of David Broman
 ([thesis](http://www.bromans.com/david/publ/thesis-2010-david-broman.pdf),
