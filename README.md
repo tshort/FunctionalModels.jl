@@ -33,15 +33,11 @@ Matlab notation. Modelica is an object-oriented, open language with
 multiple implementations. It is a large, complex, powerful language
 with an extensive standard library of components.
 
-This implementation follows the work of David Broman:
-
-  http://www.bromans.com/david/publ/thesis-2010-david-broman.pdf
-  
-  http://www.bromans.com/software/mkl/mkl-source-1.0.0.zip
-  
-  http://www.ida.liu.se/~davbr/
-
-The DASSL solver is used to solve the implicit DAE's generated.
+This implementation follows the work of David Broman
+([thesis](http://www.bromans.com/david/publ/thesis-2010-david-broman.pdf),
+[code](http://www.bromans.com/software/mkl/mkl-source-1.0.0.zip), and
+[home page](http://www.ida.liu.se/~davbr/)). The DASSL solver is used
+to solve the implicit DAE's generated.
     
 Basic example
 -------------
@@ -178,6 +174,8 @@ ckt_y = sim(ckt, 0.1)
 For further examples, see here:
     
 https://github.com/tshort-/Sims/example-sims.jl
+
+
 
 
     
