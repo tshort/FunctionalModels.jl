@@ -54,7 +54,8 @@ v_yout = sim(v_s, 10.0) # run the simulation to 10 seconds and return
 # and I need to load it:
 # push(LOAD_PATH, "/home/tshort/julia/julia/extras/gaston-0.3")
 # load("gaston.jl")
-plot(v_yout[:,1], v_yout[:,2])
+plot(v_yout[:,1], v_yout[:,2], v_yout[:,1], v_yout[:,2],
+     "xlabel","Time (s)", "title", "Van Der Pol oscillator")
 plot(v_yout[:,2], v_yout[:,3])
 
 # The result of a "sim" run is a two-dimensional array with time

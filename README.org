@@ -35,7 +35,9 @@
     This implementation follows the work of David Broman:
     
       http://www.bromans.com/david/publ/thesis-2010-david-broman.pdf
+      
       http://www.bromans.com/software/mkl/mkl-source-1.0.0.zip
+      
       http://www.ida.liu.se/~davbr/
 
     The DASSL solver is used to solve the implicit DAE's generated.
@@ -117,7 +119,7 @@ plot(y[:,1], y[:,2], y[:,1], y[:,3])
     unknown voltage.
  
     
-``` .jl
+``` t.jl
 function Resistor(n1, n2, R::Real) 
     i = Current()   # This is simply an Unknown. 
     v = Voltage()
@@ -144,7 +146,7 @@ end
     All of the equations returned in the list of equations are other
     models with various parameters.
    
-``` .jl
+``` t.jl
 function Circuit()
     n1 = ElectricalNode()
     n2 = ElectricalNode()
