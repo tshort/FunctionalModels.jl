@@ -9,10 +9,9 @@ Sims is the beginnings of a Julia package to support
 equation-based modeling for simulations. Sims is like a lite
 version of Modelica or Simscape from Mathworks.
 
-Julia is a fast, Matlab-like language that is well suited to
+[Julia][http://julialang.org] is a fast, Matlab-like language that is well suited to
 modeling and simulations.
 
-julialang.org
 
 Background
 ----------
@@ -65,18 +64,22 @@ A device model is a function that returns a list of equations or
 other devices that also return lists of equations. The equations
 each are assumed equal to zero. So,
 
+``` .jl
    der(y) = x + 1
-   
+```
+
 Should be entered as:
 
+``` .jl
    der(y) - (x+1)
+```
 
 der indicates a derivative.
 
 The Van Der Pol oscillator is a simple problem with two equations
 and two unknowns:
 
-    .jl
+``` .jl
     function Vanderpol()
         y = Unknown(1.0)   # The 1.0 is the initial value.
         x = Unknown()      # The initial value is zero if not given.
@@ -94,10 +97,12 @@ and two unknowns:
                                # the result as an array.
     # plot the results
     plot(y[:,1], y[:,2], y[:,1], y[:,3])
+``` 
 
 Here are the results:
 
-[[vanderpol.png]]
+![plot results]([[vanderpol.png]] "Van Der Pol results")
+
 
 Electrical example
 ------------------
@@ -125,24 +130,25 @@ simply unknowns. For these electrical examples, a node is simply an
 unknown voltage.
  
     
-    .jl
-    function Resistor(n1, n2, R::Real) 
-        i = Current()   # This is simply an Unknown. 
-        v = Voltage()
-        {
-         Branch(n1, n2, v, i)
-         R * i - v   # == 0 is implied
-         }
-    end
-    
-    function Capacitor(n1, n2, C::Real) 
-        i = Current()
-        v = Voltage()
-        {
-         Branch(n1, n2, v, i)
-         C * der(v) - i     
-         }
-    end
+``` .jl
+function Resistor(n1, n2, R::Real) 
+    i = Current()   # This is simply an Unknown. 
+    v = Voltage()
+    {
+     Branch(n1, n2, v, i)
+     R * i - v   # == 0 is implied
+     }
+end
+
+function Capacitor(n1, n2, C::Real) 
+    i = Current()
+    v = Voltage()
+    {
+     Branch(n1, n2, v, i)
+     C * der(v) - i     
+     }
+end
+```
 
 What follows is a top-level circuit definition. In this case,
 there are no input parameters. The ground reference "g" is
@@ -151,7 +157,7 @@ assigned zero volts.
 All of the equations returned in the list of equations are other
 models with various parameters.
    
-``` t.jl
+``` .jl
 function Circuit()
     n1 = ElectricalNode()
     n2 = ElectricalNode()
