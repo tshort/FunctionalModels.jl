@@ -156,10 +156,15 @@ end
 # All of the equations returned in the list of equations are other
 # models with different parameters.
 #
-# In this top-level model, two new unknowns are introduced (n1 and
-# n2). Because these are nodes, each unknown node will also cause an
-# equation to be generated that sums the flows into the node to be
+# In this top-level model, three new unknowns are introduced (n1, n2,
+# and n2). Because these are nodes, each unknown node will also cause
+# an equation to be generated that sums the flows into the node to be
 # zero.
+#
+# In this model, the voltages n1 and n2 are labeled, so they will
+# appear in the output. A SeriesProbe is used to label the current
+# through the capacitor.
+#
 function Circuit()
     n1 = ElectricalNode("Source voltage")   # The string indicates labeling for plots
     n2 = ElectricalNode("Output voltage")
