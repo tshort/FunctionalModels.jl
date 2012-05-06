@@ -29,8 +29,8 @@
 # and two unknowns:
 
 function Vanderpol()
-    y = Unknown(1.0, "y ")   # The 1.0 is the initial value. "y" is for plotting.
-    x = Unknown("x ")        # The initial value is zero if not given.
+    y = Unknown(1.0, "y")   # The 1.0 is the initial value. "y" is for plotting.
+    x = Unknown("x")        # The initial value is zero if not given.
     # The following gives the return value which is a list of equations.
     # Expressions with Unknowns are kept as expressions. Expressions of
     # regular variables are evaluated immediately (like normal).
@@ -51,8 +51,9 @@ v_yout = sim(v_s, 10.0) # run the simulation to 10 seconds and return
 #   push(LOAD_PATH, "/home/tshort/julia/julia/extras/gaston-0.4")
 #   load("gaston.jl")
 plot(v_yout)
-# plot the signals against each other:
-plot(v_yout.y[:,2], v_yout.y[:,3])
+
+# # plot the signals against each other:
+# plot(v_yout.y[:,2], v_yout.y[:,3])
 
 # The result of a "sim" run is an object with components "y" and
 # "colnames". "y" is a two-dimensional array with time slices along

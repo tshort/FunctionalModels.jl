@@ -5,9 +5,8 @@ Julia Sims
 Introduction
 ------------
 
-Sims is the beginnings of a Julia package to support
-equation-based modeling for simulations. Sims is like a lite
-version of Modelica.
+Sims is the beginnings of a Julia package to support equation-based
+modeling for simulations. Sims is like a lite version of Modelica.
 
 [Julia](http://julialang.org) is a fast, Matlab-like language that is
 well suited to modeling and simulations.
@@ -23,9 +22,10 @@ tool can then transform the equations and solve the differential
 algebraic equations. Non-causal models tend to match their physical
 counterparts in terms of their specification and implementation.
 
-Causal modeling is where all signals have an input and an output,
-and the flow of information is clear. Simulink is the
-highest-profile example.
+Causal modeling is where all signals have an input and an output, and
+the flow of information is clear. Simulink is the highest-profile
+example. The problem with causal modeling is that it is difficult to
+build up models of components.
 
 The highest profile noncausal modeling tools are in the
 [Modelica](www.modelica.org) family. The MathWorks company also has
@@ -78,8 +78,8 @@ and two unknowns:
 
 ``` .jl
 function Vanderpol()
-    y = Unknown(1.0)   # The 1.0 is the initial value.
-    x = Unknown()      # The initial value is zero if not given.
+    y = Unknown(1.0, "y")   # The 1.0 is the initial value. "y" is for plotting.
+    x = Unknown("x")        # The initial value is zero if not given.
     # The following gives the return value which is a list of equations.
     # Expressions with Unknowns are kept as expressions. Expressions of
     # regular variables are evaluated immediately.
@@ -93,9 +93,7 @@ end
 y = sim(Vanderpol(), 10.0) # Run the simulation to 10 seconds and return
                            # the result as an array.
 # plot the results
-plot(y[:,1], y[:,2], y[:,1], y[:,3],
-     "xlabel","Time (s)",
-     "title", "Van Der Pol oscillator")
+plot(y)
 ``` 
 
 Here are the results:
@@ -106,27 +104,26 @@ Here are the results:
 Electrical example
 ------------------
 
-This example shows
-definitions of several electrical components. Each is again a
-function that returns a list of equations. Equations are
-expressions (type MExpr) that includes other expressions and
-unknowns (type Unknown).
+This example shows definitions of several electrical components. Each
+is again a function that returns a list of equations. Equations are
+expressions (type MExpr) that includes other expressions and unknowns
+(type Unknown).
 
 Arguments to each function are model parameters. These are normally
-nodes specifying connectivity followed by parameters specifying
-model characteristics.
+nodes specifying connectivity followed by parameters specifying model
+characteristics.
 
 Models can contain models or other functions that return equations.
 The function Branch is a special function that returns an equation
 specifying relationships between nodes and flows. It also acts as an
-indicator to mark nodes. In the flattening/elaboration process, equations are
-created to sum flows (in this case electrical currents) to zero at
-all nodes. RefBranch is another special function for marking nodes
-and flow variables.
+indicator to mark nodes. In the flattening/elaboration process,
+equations are created to sum flows (in this case electrical currents)
+to zero at all nodes. RefBranch is another special function for
+marking nodes and flow variables.
 
-Nodes passed as parameters or created with ElectricalNode() are
-simply unknowns. For these electrical examples, a node is simply an
-unknown voltage.
+Nodes passed as parameters or created with ElectricalNode() are simply
+unknowns. For these electrical examples, a node is simply an unknown
+voltage.
  
     
 ``` .jl
@@ -158,20 +155,26 @@ models with various parameters.
    
 ``` .jl
 function Circuit()
-    n1 = ElectricalNode()
-    n2 = ElectricalNode()
+    n1 = ElectricalNode("Source voltage")   # The string indicates labeling for plots
+    n2 = ElectricalNode("Output voltage")
+    n3 = ElectricalNode()
     g = 0.0  # A ground has zero volts; it's not an unknown.
     {
      VSource(n1, g, 10.0, 60.0)
      Resistor(n1, n2, 10.0)
      Resistor(n2, g, 5.0)
-     Capacitor(n2, g, 5.0e-3)
+     SeriesProbe(n2, n3, "Capacitor current")
+     Capacitor(n3, g, 5.0e-3)
      }
 end
 
 ckt = Circuit()
-ckt_y = sim(ckt, 0.1)  
+ckt_y = sim(ckt, 0.1)
+plot(ckt_y)
 ```
+Here are the results:
+
+![plot results](https://github.com/tshort-/Sims/raw/master/circuit.png "Circuit results")
 
 For further examples, see here:
     
