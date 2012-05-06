@@ -29,8 +29,8 @@
 # and two unknowns:
 
 function Vanderpol()
-    y = Unknown(1.0)   # The 1.0 is the initial value.
-    x = Unknown()      # The initial value is zero if not given.
+    y = Unknown(1.0, "y ")   # The 1.0 is the initial value. "y" is for plotting.
+    x = Unknown("x ")        # The initial value is zero if not given.
     # The following gives the return value which is a list of equations.
     # Expressions with Unknowns are kept as expressions. Expressions of
     # regular variables are evaluated immediately (like normal).
@@ -47,24 +47,19 @@ v_s = create_sim(v_f) # returns a "Sim" ready for simulation
 v_yout = sim(v_s, 10.0) # run the simulation to 10 seconds and return
                         # the result as an array
 
-#
-# plot results:
-#
-# I used the Gaston library for this, so I need it in my LOAD_PATH,
-# and I need to load it:
-# push(LOAD_PATH, "/home/tshort/julia/julia/extras/gaston-0.3")
-# load("gaston.jl")
-plot(v_yout[:,1], v_yout[:,2], v_yout[:,1], v_yout[:,3],
-     "xlabel","Time (s)", "title", "Van Der Pol oscillator")
-plot(v_yout[:,2], v_yout[:,3])
+# Plotting requires the Gaston library, and I need to load it:
+#   push(LOAD_PATH, "/home/tshort/julia/julia/extras/gaston-0.4")
+#   load("gaston.jl")
+plot(v_yout)
+# plot the signals against each other:
+plot(v_yout.y[:,2], v_yout.y[:,3])
 
-# The result of a "sim" run is a two-dimensional array with time
-# slices along rows and variables along columns. The first column is
-# simulation time. The remaining columns are for each unknown in the
-# model including derivatives. For now, it's tough to figure out which
-# column goes with which model variable. Unknowns are numbered
-# according to the order they are used in the flattened model
-# equations. Better labeling would be nice.
+# The result of a "sim" run is an object with components "y" and
+# "colnames". "y" is a two-dimensional array with time slices along
+# rows and variables along columns. The first column is simulation
+# time. The remaining columns are for each unknown in the model
+# including derivatives. "colnames" contains the names of each of
+# the columns in "y" after the time column.
 
 
 
@@ -148,6 +143,12 @@ function VConst(n1, n2, V::Real)
      }
 end
 
+function SeriesProbe(n1, n2, name::String) 
+    i = Unknown(name)   
+    Branch(n1, n2, fill(0.0, length(n1.value)), i)
+end
+
+
 #
 # This is the top-level circuit definition. In this case, there are no
 # input parameters. The ground reference "g" is assigned zero volts.
@@ -160,14 +161,16 @@ end
 # equation to be generated that sums the flows into the node to be
 # zero.
 function Circuit()
-    n1 = ElectricalNode()
-    n2 = ElectricalNode()
+    n1 = ElectricalNode("Source voltage")   # The string indicates labeling for plots
+    n2 = ElectricalNode("Output voltage")
+    n3 = ElectricalNode()
     g = 0.0  # a ground has zero volts; it's not an unknown.
     {
      VSource(n1, g, 10.0, 60.0)
      Resistor(n1, n2, 10.0)
      Resistor(n2, g, 5.0)
-     Capacitor(n2, g, 5.0e-3)
+     SeriesProbe(n2, n3, "Capacitor current")
+     Capacitor(n3, g, 5.0e-3)
      }
 end
 
@@ -176,6 +179,8 @@ ckt_af = elaborate(ckt_a)
 ckt_as = create_sim(ckt_af)
 # Here we do the elaboration, sim creating, and simulation in one step: 
 ckt_a_yout = sim(ckt_a, 0.1)  
+
+plot(ckt_a_yout)
 
 
 
@@ -190,27 +195,25 @@ ckt_a_yout = sim(ckt_a, 0.1)
 
 
 function SubCircuit(n1, n2)
-    n1 = ElectricalNode()
-    n2 = ElectricalNode()
     {
      Resistor(n1, n2, 5.0)
      Capacitor(n1, n2, 5.0e-3)
      }
 end
 
-function SubCircuit()
-    n1 = ElectricalNode()
-    n2 = ElectricalNode()
+function SCircuit()
+    n1 = ElectricalNode("Source voltage")   # The string indicates labeling for plots
+    n2 = ElectricalNode("Output voltage")
     g = 0.0  # a ground has zero volts; it's not an unknown.
     {
      VSource(n1, g, 10.0, 60.0)
      Resistor(n1, n2, 10.0)
-     SubCircuit(n1, g)
+     SubCircuit(n2, g)
      }
 end
 
 
-sckt = Circuit()
+sckt = SCircuit()
 sckt_yout = sim(sckt, 0.1)
 
 
@@ -225,13 +228,15 @@ sckt_yout = sim(sckt, 0.1)
 # Unknown's can contain arrays. 
 # 
 
+
+
 function Circuit3Phase()
     V = 10. 
     f = 60.
     ang = [0, -2 / 3 * pi, 2 / 3 * pi]
     R = [3., 4., 5.]
-    i = Current(zeros(3))
-    v = Voltage(zeros(3))
+    i = Current(zeros(3), "currents")
+    v = Voltage(zeros(3), "voltages")
     {
      v - V * sin(2 * pi * f * MTime + ang)
      v - R .* i   # Need to use .* here instead of *
@@ -281,8 +286,8 @@ function VSource3(n1, n2, V::Real, f::Real)
 end
 
 function CircuitThreePhase()
-    n1 = ElectricalNode(zeros(3))
-    n2 = ElectricalNode(zeros(3))
+    n1 = ElectricalNode(zeros(3), "Source voltage")
+    n2 = ElectricalNode(zeros(3), "Output voltage")
     g = 0.0
     {
      VSource3(n1, g, 10.0, 60.0)
@@ -333,8 +338,8 @@ function VSquare(n1, n2, V::Real, f::Real)
 end
 
 function CircuitSq()
-    n1 = ElectricalNode()
-    n2 = ElectricalNode()
+    n1 = ElectricalNode("Source voltage")
+    n2 = ElectricalNode("Output voltage")
     g = 0.0  # a ground has zero volts; it's not an unknown.
     {
      VSquare(n1, g, 10.0, 6.0)
@@ -348,7 +353,6 @@ ckt_b = CircuitSq()
 ckt_b_yout = sim(ckt_b, 0.5)  
 
 plot(ckt_b_yout)
-
 
 
 
@@ -373,10 +377,10 @@ end
 
 
 function HalfWaveRectifier()
-    n1 = ElectricalNode()
+    n1 = ElectricalNode("Source voltage")
     n2 = ElectricalNode()
     n3 = ElectricalNode()
-    n4 = ElectricalNode()
+    n4 = ElectricalNode("Output voltage")
     g = 0.0 
     {
      VSource(n1, g, 1.0, 1.0)
@@ -506,12 +510,13 @@ end
 # Modelica.Mechanics.Examples.First
 function FirstMechSys()
     g = 0.0
-    r1 = RotationalNode() # could use an array here
-    r2 = RotationalNode() # or a macro to generate them
+    # Could use an array or a macro to generate the following:
+    r1 = RotationalNode("Source angle") 
+    r2 = RotationalNode() 
     r3 = RotationalNode()
     r4 = RotationalNode()
     r5 = RotationalNode()
-    r6 = RotationalNode()
+    r6 = RotationalNode("End angle")
     {
      TorqueSrc(r1, g, 10 * sin(2 * pi * 5 * MTime))
      Inertia(r1, r2, 0.1)
@@ -558,9 +563,9 @@ function FlexibleShaft(flangeA, flangeB, n::Int)
 end
 
 function MechSys()
-    r1 = RotationalNode()
+    r1 = RotationalNode("Source angle") 
     r2 = RotationalNode()
-    r3 = RotationalNode()
+    r3 = RotationalNode("End-of-shaft angle")
     {
      DCMotor(r1)
      Inertia(r1, r2, 0.02)
@@ -573,4 +578,5 @@ m = MechSys()
 m_yout = sim(m, 1.0)
 
 
+# stophere()
 

@@ -138,26 +138,32 @@ abstract ModelType
 
 type Unknown{T} <: ModelType
     sym::Symbol
-    placeholder::T   # could also hold initial values
+    value::T   # holds initial values
+    output_label::String 
 end
-Unknown() = Unknown{Float64}(gensym(), 0.0)
-Unknown(u::Unknown) = Unknown(gensym(), u.placeholder .* 0.0)
-Unknown(x) = Unknown{typeof(x)}(gensym(), x)
-Unknown(s::Symbol, x) = Unknown{typeof(x)}(s, x)
+Unknown() = Unknown{Float64}(gensym(), 0.0, "")
+Unknown(u::Unknown) = Unknown(gensym(), u.value .* 0.0, "")
+Unknown(u::Unknown, output_label::String) = Unknown(gensym(), u.value .* 0.0, output_label)
+Unknown(output_label::String) = Unknown(gensym(), 0.0, output_label)
+Unknown(x) = Unknown{typeof(x)}(gensym(), x, "")
+Unknown(x, output_label::String) = Unknown{typeof(x)}(gensym(), x, output_label)
+Unknown(s::Symbol, x) = Unknown{typeof(x)}(s, x, "")
+Unknown(s::Symbol, x, output_label::String) = Unknown{typeof(x)}(s, x, output_label)
 sym = Unknown
 
 is_unknown(x) = isa(x, Unknown)
     
 type DerUnknown{T} <: ModelType
     sym::Symbol
-    placeholder::T   # could also hold initial values
+    value::T   # holds initial values
+    # output_label::String    # Do we want this? 
 end
 DerUnknown() = DerUnknown{Float64}(gensym(), 0.0)
 DerUnknown(u::DerUnknown) = DerUnknown(gensym())
-DerUnknown(u::Unknown) = DerUnknown(gensym(), u.placeholder)
+DerUnknown(u::Unknown) = DerUnknown(gensym(), u.value)
 DerUnknown(x) = DerUnknown{typeof(x)}(gensym(), x)
 DerUnknown(s::Symbol, x) = DerUnknown{typeof(x)}(s, x)
-der(x::Unknown) = DerUnknown(x.sym, x.placeholder)
+der(x::Unknown) = DerUnknown(x.sym, x.value)
 der(x::Unknown, val) = DerUnknown(x.sym, val)
 
 show(a::Unknown) = show(a.sym)
@@ -304,6 +310,7 @@ type Sim
     y0::Array{Float64, 1}   # initial values
     yp0::Array{Float64, 1}  # initial values of derivatives
     id::Array{Float64, 1}   # indicates whether a variable is algebraic or differential
+    outputs::Array{ASCIIString, 1} # output labels
 end
 
 # These methods strip the MExpr's from expressions.
@@ -323,12 +330,13 @@ function create_sim(a::Model)
     y0_map = Dict() 
     yp0_map = Dict() 
     id_map = Dict() # indicator for algebraic vs. differential
+    output_map = Dict() # for labeled unknowns
     varnum = 1 # variable indicator position that's incremented
     # add_var add's a variable to the unknown_map if it isn't already
     # there. 
     function add_var(v) 
         if !has(unknown_map, v.sym)
-            len = length(v.placeholder)
+            len = length(v.value)
             idx = len == 1 ? varnum : (varnum:(varnum + len - 1))
             unknown_map[v.sym] = idx
             varnum = varnum + len
@@ -345,13 +353,14 @@ function create_sim(a::Model)
     end
     function replace_unknowns(a::Unknown) 
         add_var(a)
-        y0_map[unknown_map[a.sym]] = a.placeholder
+        y0_map[unknown_map[a.sym]] = a.value
+        output_map[unknown_map[a.sym]] = a.output_label
         :(ref(y, ($(unknown_map[a.sym]))))
     end
     function replace_unknowns(a::DerUnknown) 
         add_var(a)
         id_map[unknown_map[a.sym]] = true
-        yp0_map[unknown_map[a.sym]] = a.placeholder
+        yp0_map[unknown_map[a.sym]] = a.value
         :(ref(yp, ($(unknown_map[a.sym]))))
     end
     # eq_block should be just expressions suitable for eval'ing.
@@ -360,6 +369,7 @@ function create_sim(a::Model)
     y0 = fill(0.0, N_unknowns)
     yp0 = fill(0.0, N_unknowns)
     id = fill(0.0, N_unknowns)
+    outputs = fill("", N_unknowns)
     for (k,v) in y0_map
         y0[k] = v
     end
@@ -369,6 +379,10 @@ function create_sim(a::Model)
     for (k,v) in id_map
         id[k] = v
     end
+    for (k,v) in output_map
+        outputs[k] = v
+    end
+    print(outputs)
     # body is a vector where each element is one of the equation
     # expressions.
     vec = Expr(:vcat, eq_block, Any)
@@ -379,7 +393,7 @@ function create_sim(a::Model)
     # initial values:
     # Sim(F, y0, yp0, id, 1.0, 500)
     # :((t, y, yp, res) -> begin res[:] = $vec; return; end)
-    Sim(F, Fex, y0, yp0, id)
+    Sim(F, Fex, y0, yp0, id, outputs)
 end
 
 
@@ -402,6 +416,11 @@ global __dassl_yp
 global __dassl_res
 ilib = dlopen("dassl_interface.so")  # Something went wrong when these were
 lib = dlopen("dassl.so")             # inside the sim function.
+
+type SimResult
+    y::Array{Float64, 2}
+    colnames::Array{ASCIIString, 1}
+end
 
 function sim(sm::Sim, tstop::Float64, Nsteps::Int)
     # tstop & Nsteps should be in options
@@ -434,10 +453,15 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
     global __dassl_y = y
     global __dassl_yp = yp
     global __dassl_res = copy(y)
-    yout = zeros(Nsteps, N[1] + 1)
+    yidx = sm.outputs != ""
+    yidx = map((s) -> s != "", sm.outputs)
+    Ncol = sum(yidx)
+    println(Ncol)
+    println(yidx)
+    
+    yout = zeros(Nsteps, Ncol + 1)
     tstep = tstop / Nsteps
     tout = [tstep]
-
     for idx in 1:Nsteps
         ccall(dlsym(lib, :ddassl_), Void,
               (Ptr{Void}, Ptr{Int32}, Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, # RES, NEQ, T, Y, YPRIME
@@ -447,7 +471,7 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
               callback, N, t, y, yp, tout, info, rtol, atol,
               idid, rwork, lrw, iwork, liw, rpar, ipar, jac, psol)
         yout[idx, 1] = t[1]
-        yout[idx, 2:end] = y
+        yout[idx, 2:end] = y[yidx]
         tout = t + tstep
         if idid[1] < 0 && idid[1] > -11
             println("RESTARTING")
@@ -458,7 +482,7 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
             break
         end
     end
-    yout
+    SimResult(yout, [sm.outputs[yidx]])
 end
 sim(sm::Sim) = sim(sm, 1.0, 500)
 sim(sm::Sim, tstop::Float64) = sim(sm, tstop, 500)
@@ -466,5 +490,33 @@ sim(m::Model, tstop::Float64, Nsteps::Int)  = sim(create_sim(elaborate(m)), tsto
 sim(m::Model) = sim(m, 1.0, 500)
 sim(m::Model, tstop::Float64) = sim(m, tstop, 500)
 
+function plot(sm::SimResult)
+    N = length(sm.colnames)
+    figure(1)
+    gnuplot_send("set multiplot;")
+    gnuplot_send("set size 1,$(N);")
+    for plotnum = 1:N
+        gnuplot_send("set origin 0.0,$((plotnum - 1) / N);")
+        c = CurveConf()
+        c.legend = sm.colnames[plotnum]
+        addcoords(sm.y[:,1],sm.y[:, plotnum + 1],c)
+        llplot()
+    end
+end
 
 
+function plot(sm::SimResult)
+    N = length(sm.colnames)
+    figure()
+    c = CurveConf()
+    a = AxesConf()
+    a.title = ""
+    a.xlabel = "Time (s)"
+    a.ylabel = ""
+    addconf(a)
+    for plotnum = 1:N
+        c.legend = sm.colnames[plotnum]
+        addcoords(sm.y[:,1],sm.y[:, plotnum + 1],c)
+    end
+    llplot()
+end

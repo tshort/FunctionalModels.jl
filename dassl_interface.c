@@ -39,9 +39,9 @@ void res_callback(double *t, double *y, double *yp, double *res, int *ires, doub
     args[1] = _y;
     args[2] = _yp;
     
-    /* JL_GC_PUSHARGS(args,count);   // I don't know what this does. */
+    JL_GC_PUSHARGS(args,count);   // I don't know what this does.
     jl_array_t *fres = jl_apply((jl_function_t*)f, args, count);
-    /* JL_GC_POP(); */
+    JL_GC_POP();
     for (int i = 0; i < ipar[0]; i++) {
         res[i] = ((double *)(fres->data))[i];
     }
