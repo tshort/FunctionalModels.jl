@@ -139,16 +139,16 @@ abstract ModelType
 type Unknown{T} <: ModelType
     sym::Symbol
     value::T   # holds initial values
-    output_label::String 
+    label::String 
 end
 Unknown() = Unknown{Float64}(gensym(), 0.0, "")
 Unknown(u::Unknown) = Unknown(gensym(), u.value .* 0.0, "")
-Unknown(u::Unknown, output_label::String) = Unknown(gensym(), u.value .* 0.0, output_label)
-Unknown(output_label::String) = Unknown(gensym(), 0.0, output_label)
+Unknown(u::Unknown, label::String) = Unknown(gensym(), u.value .* 0.0, label)
+Unknown(label::String) = Unknown(gensym(), 0.0, label)
 Unknown(x) = Unknown{typeof(x)}(gensym(), x, "")
-Unknown(x, output_label::String) = Unknown{typeof(x)}(gensym(), x, output_label)
+Unknown(x, label::String) = Unknown{typeof(x)}(gensym(), x, label)
 Unknown(s::Symbol, x) = Unknown{typeof(x)}(s, x, "")
-Unknown(s::Symbol, x, output_label::String) = Unknown{typeof(x)}(s, x, output_label)
+Unknown(s::Symbol, x, label::String) = Unknown{typeof(x)}(s, x, label)
 sym = Unknown
 
 is_unknown(x) = isa(x, Unknown)
@@ -156,7 +156,7 @@ is_unknown(x) = isa(x, Unknown)
 type DerUnknown{T} <: ModelType
     sym::Symbol
     value::T   # holds initial values
-    # output_label::String    # Do we want this? 
+    # label::String    # Do we want this? 
 end
 DerUnknown() = DerUnknown{Float64}(gensym(), 0.0)
 DerUnknown(u::DerUnknown) = DerUnknown(gensym())
@@ -354,7 +354,7 @@ function create_sim(a::Model)
     function replace_unknowns(a::Unknown) 
         add_var(a)
         y0_map[unknown_map[a.sym]] = a.value
-        output_map[unknown_map[a.sym]] = a.output_label
+        output_map[unknown_map[a.sym]] = a.label
         :(ref(y, ($(unknown_map[a.sym]))))
     end
     function replace_unknowns(a::DerUnknown) 

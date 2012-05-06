@@ -533,6 +533,62 @@ function FirstMechSys()
      }
 end
 
+#
+# @unknown
+#
+# A macro to ease entry of many unknowns.
+#
+#   @unknowns i("Load resistor current") v x("some val", 3.0)
+#
+# becomes:
+#
+#   i = Unknown("Resistor current")
+#   v = Unknown()
+#   x = Unknown(3.0, "some val")
+#
+
+macro unknown(args...)
+    blk = expr(:block)
+    for arg in args
+        if isa(arg, Symbol)
+            push(blk.args, :($arg = Unknown()))
+        elseif isa(arg, Expr)
+            name = arg.args[1]
+            if length(arg.args) > 1
+                newcall = copy(arg)
+                newcall.args[1] = :Unknown
+                push(blk.args, :($name = $newcall))
+            else
+                push(blk.args, :($name = Unknown()))
+            end
+        end
+    end
+    push(blk.args, :nothing)
+    return blk
+end
+
+#
+# Here's a retry with the unknown nodes defined using
+# @unknown
+#
+
+
+function FirstMechSys()
+    g = 0.0
+    # Could use an array or a macro to generate the following:
+    @unknown r1("Source angle") r2 r3 r4 r5 r6("End angle")
+    {
+     TorqueSrc(r1, g, 10 * sin(2 * pi * 5 * MTime))
+     Inertia(r1, r2, 0.1)
+     IdealGear(r2, r3, 10)
+     Inertia(r3, r4, 2.0)
+     Spring(r4, r5, 1e4)
+     Inertia(r5, r6, 2.0)
+     Damper(r4, g, 10)
+     }
+end
+
+
 m1 = FirstMechSys()
 m1_yout = sim(m1, 1.0)
 
@@ -583,5 +639,5 @@ m = MechSys()
 m_yout = sim(m, 1.0)
 
 
-# stophere()
+stophere()
 
