@@ -485,20 +485,6 @@ sim(m::Model, tstop::Float64, Nsteps::Int)  = sim(create_sim(elaborate(m)), tsto
 sim(m::Model) = sim(m, 1.0, 500)
 sim(m::Model, tstop::Float64) = sim(m, tstop, 500)
 
-function plot(sm::SimResult)
-    N = length(sm.colnames)
-    figure(1)
-    gnuplot_send("set multiplot;")
-    gnuplot_send("set size 1,$(N);")
-    for plotnum = 1:N
-        gnuplot_send("set origin 0.0,$((plotnum - 1) / N);")
-        c = CurveConf()
-        c.legend = sm.colnames[plotnum]
-        addcoords(sm.y[:,1],sm.y[:, plotnum + 1],c)
-        llplot()
-    end
-end
-
 
 function plot(sm::SimResult)
     N = length(sm.colnames)

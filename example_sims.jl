@@ -569,14 +569,12 @@ macro unknown(args...)
 end
 
 #
-# Here's a retry with the unknown nodes defined using
-# @unknown
+# Here's a retry with the unknown nodes defined using @unknown.
 #
 
 
 function FirstMechSys()
     g = 0.0
-    # Could use an array or a macro to generate the following:
     @unknown r1("Source angle") r2 r3 r4 r5 r6("End angle")
     {
      TorqueSrc(r1, g, 10 * sin(2 * pi * 5 * MTime))
