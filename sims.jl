@@ -380,7 +380,6 @@ function create_sim(a::Model)
     for (k,v) in output_map
         outputs[k] = v
     end
-    print(outputs)
     # body is a vector where each element is one of the equation
     # expressions.
     vec = Expr(:vcat, eq_block, Any)
@@ -454,8 +453,6 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
     yidx = sm.outputs != ""
     yidx = map((s) -> s != "", sm.outputs)
     Ncol = sum(yidx)
-    println(Ncol)
-    println(yidx)
     
     yout = zeros(Nsteps, Ncol + 1)
     tstep = tstop / Nsteps
