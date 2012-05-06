@@ -136,33 +136,31 @@
 
 abstract ModelType
 
-type Unknown{T} <: ModelType
+type Unknown <: ModelType
     sym::Symbol
-    value::T   # holds initial values
+    value         # holds initial values (and type info)
     label::String 
 end
-Unknown() = Unknown{Float64}(gensym(), 0.0, "")
+Unknown() = Unknown(gensym(), 0.0, "")
 Unknown(u::Unknown) = Unknown(gensym(), u.value .* 0.0, "")
 Unknown(u::Unknown, label::String) = Unknown(gensym(), u.value .* 0.0, label)
 Unknown(label::String) = Unknown(gensym(), 0.0, label)
-Unknown(x) = Unknown{typeof(x)}(gensym(), x, "")
-Unknown(x, label::String) = Unknown{typeof(x)}(gensym(), x, label)
-Unknown(s::Symbol, x) = Unknown{typeof(x)}(s, x, "")
-Unknown(s::Symbol, x, label::String) = Unknown{typeof(x)}(s, x, label)
+Unknown(x) = Unknown(gensym(), x, "")
+Unknown(x, label::String) = Unknown(gensym(), x, label)
+Unknown(s::Symbol, x) = Unknown(s, x, "")
 sym = Unknown
 
 is_unknown(x) = isa(x, Unknown)
     
-type DerUnknown{T} <: ModelType
+type DerUnknown <: ModelType
     sym::Symbol
-    value::T   # holds initial values
+    value        # holds initial values
     # label::String    # Do we want this? 
 end
-DerUnknown() = DerUnknown{Float64}(gensym(), 0.0)
+DerUnknown() = DerUnknown(gensym(), 0.0)
 DerUnknown(u::DerUnknown) = DerUnknown(gensym())
 DerUnknown(u::Unknown) = DerUnknown(gensym(), u.value)
-DerUnknown(x) = DerUnknown{typeof(x)}(gensym(), x)
-DerUnknown(s::Symbol, x) = DerUnknown{typeof(x)}(s, x)
+DerUnknown(x) = DerUnknown(gensym(), x)
 der(x::Unknown) = DerUnknown(x.sym, x.value)
 der(x::Unknown, val) = DerUnknown(x.sym, val)
 
