@@ -135,20 +135,48 @@
 # 
 
 abstract ModelType
+abstract UnknownCategory
 
-type Unknown <: ModelType
+type DefaultUnknown <: UnknownCategory
+end
+
+type Unknown{T<:UnknownCategory} <: ModelType
     sym::Symbol
     value         # holds initial values (and type info)
     label::String 
+    Unknown() = new(gensym(), 0.0, "")
+    Unknown(sym::Symbol, label::String) = new(sym, 0.0, label)
+    Unknown(sym::Symbol, value) = new(sym, value, "")
+    Unknown(value) = new(gensym(), value, "")
+    Unknown(label::String) = new(gensym(), 0.0, label)
+    Unknown(value, label::String) = new(gensym(), value, label)
+    Unknown(sym::Symbol, value, label::String) = new(sym, value, label)
 end
-Unknown() = Unknown(gensym(), 0.0, "")
-Unknown(u::Unknown) = Unknown(gensym(), u.value .* 0.0, "")
-Unknown(u::Unknown, label::String) = Unknown(gensym(), u.value .* 0.0, label)
-Unknown(label::String) = Unknown(gensym(), 0.0, label)
-Unknown(x) = Unknown(gensym(), x, "")
-Unknown(x, label::String) = Unknown(gensym(), x, label)
-Unknown(s::Symbol, x) = Unknown(s, x, "")
-sym = Unknown
+Unknown() = Unknown{DefaultUnknown}(gensym(), 0.0, "")
+Unknown(x) = Unknown{DefaultUnknown}(gensym(), x, "")
+Unknown(s::Symbol, label::String) = Unknown{DefaultUnknown}(s, 0.0, label)
+Unknown(x, label::String) = Unknown{DefaultUnknown}(gensym(), x, label)
+Unknown(label::String) = Unknown{DefaultUnknown}(gensym(), 0.0, label)
+Unknown(s::Symbol, x) = Unknown{DefaultUnknown}(s, x, "")
+# Unknown{T<:UnknownCategory}() = Unknown(gensym(), 0.0, "")
+# Unknown{T<:UnknownCategory}(x) = Unknown{T}(gensym(), x, "")
+# Unknown{T<:UnknownCategory}(x, label::String) = Unknown{T}(gensym(), x, label)
+# Unknown{T<:UnknownCategory}(label::String) = Unknown{T}(gensym(), 0.0, label)
+# Unknown{T<:UnknownCategory}(s::Symbol, x) = Unknown{T}(s, x, "")
+# Unknown(T::UnknownCategory) = Unknown{T}(gensym(), 0.0, "")
+# Unknown(T::UnknownCategory, x) = Unknown{T}(gensym(), x, "")
+# Unknown(T::UnknownCategory, x, label::String) = Unknown{T}(gensym(), x, label)
+# Unknown(T::UnknownCategory, label::String) = Unknown{T}(gensym(), 0.0, label)
+# Unknown(T::UnknownCategory, s::Symbol, x) = Unknown{T}(s, x, "")
+
+base_value(u::Unknown) = u.value .* 0.0
+# The value from the unknown determines the base value returned:
+base_value(u1::Unknown, u2::Unknown) = length(u1.value) > length(u2.value) ? u1.value .* 0.0 : u2.value .* 0.0  
+base_value(u::Unknown, num::Number) = length(u.value) > length(num) ? u.value .* 0.0 : num .* 0.0 
+base_value(num::Number, u::Unknown) = length(u.value) > length(num) ? u.value .* 0.0 : num .* 0.0 
+# This should work for real and complex valued unknowns, including
+# arrays. For something more complicated, it may not.
+
 
 is_unknown(x) = isa(x, Unknown)
     
@@ -164,7 +192,7 @@ DerUnknown(x) = DerUnknown(gensym(), x)
 der(x::Unknown) = DerUnknown(x.sym, x.value)
 der(x::Unknown, val) = DerUnknown(x.sym, val)
 
-show(a::Unknown) = show(a.sym)
+# show(a::Unknown) = show(a.sym)
   
 type MExpr <: ModelType
     ex::Expr
@@ -202,7 +230,7 @@ for f = (:der,
 end
 
 # Nodes are flows are Unknown's.
-Potential = Flow = Voltage = Current = Node = ElectricalNode = Unknown
+# Potential = Flow = Voltage = Current = Node = ElectricalNode = Unknown
 # MTime = MSymbol(:t)
 MTime = MExpr(:(t[1]))
 

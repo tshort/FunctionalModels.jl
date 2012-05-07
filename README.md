@@ -15,7 +15,7 @@ well suited to modeling and simulations.
 Background
 ----------
 
-This file is an experiment in doing non-causal modeling in Julia.
+This package is an experiment in doing non-causal modeling in Julia.
 The idea behind non-causal modeling is that the user develops models
 based on components which are described by a set of equations. A
 tool can then transform the equations and solve the differential
@@ -25,7 +25,7 @@ counterparts in terms of their specification and implementation.
 Causal modeling is where all signals have an input and an output, and
 the flow of information is clear. Simulink is the highest-profile
 example. The problem with causal modeling is that it is difficult to
-build up models of components.
+build up models from components.
 
 The highest profile noncausal modeling tools are in the
 [Modelica](www.modelica.org) family. The MathWorks company also has
@@ -109,7 +109,7 @@ is again a function that returns a list of equations. Equations are
 expressions (type MExpr) that includes other expressions and unknowns
 (type Unknown).
 
-Arguments to each function are model parameters. These are normally
+Arguments to each function are model parameters. These normally include
 nodes specifying connectivity followed by parameters specifying model
 characteristics.
 
@@ -185,7 +185,9 @@ here:
 
 https://github.com/tshort-/Sims/blob/master/sims.jl
 
+For future development options, see here:
 
+https://github.com/tshort-/Sims/wiki/Possible-future-developments
 
 
     

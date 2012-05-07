@@ -91,9 +91,16 @@ plot(v_yout)
 # unknown voltage.
 # 
 
+type UVoltage <: UnknownCategory
+end
+type UCurrent <: UnknownCategory
+end
+typealias ElectricalNode Unknown{UVoltage}
+typealias Voltage Unknown{UVoltage}
+typealias Current Unknown{UCurrent}
 
 function Resistor(n1, n2, R::Real) 
-    i = Current()   # This is simply an Unknown. It's a direct alias for now.
+    i = Current()
     v = Voltage()
     {
      Branch(n1, n2, v, i)
@@ -113,6 +120,8 @@ function Capacitor(n1, n2, C::Real)
      }
 end
 
+
+
 function Inductor(n1, n2, L::Real) 
     i = Current()
     v = Voltage()
@@ -123,10 +132,22 @@ function Inductor(n1, n2, L::Real)
 end
 
 #
+# Nodes or parameters can be weakly typed or strongly typed. The
+# following is used to more strongly type the input nodes. With this
+# approach, one could define different characteristics for a device
+# with different node inputs. It will also help prevent connection of
+# types that shouldn't be connected.
+#
+typealias NumberOrUnknown{T} Union(AbstractArray, Number, Unknown{T})
+
+
+#
 # MTime in the model below is a special variable indicating simulation
 # time.
 #
-function VSource(n1, n2, V::Real, f::Real)  
+# The node input parameters are more strongly typed, too.
+#
+function VSource(n1::NumberOrUnknown{UVoltage}, n2::NumberOrUnknown{UVoltage}, V::Real, f::Real)  
     i = Current()
     v = Voltage()
     {
@@ -145,8 +166,8 @@ function VConst(n1, n2, V::Real)
 end
 
 function SeriesProbe(n1, n2, name::String) 
-    i = Unknown(name)   
-    Branch(n1, n2, fill(0.0, length(n1.value)), i)
+    i = Unknown(base_value(n1, n2), name)   
+    Branch(n1, n2, base_value(n1, n2), i)
 end
 
 
@@ -187,7 +208,6 @@ ckt_as = create_sim(ckt_af)
 ckt_a_yout = sim(ckt_a, 0.1)  
 
 plot(ckt_a_yout)
-
 
 
 
@@ -250,7 +270,7 @@ function Circuit3Phase()
 end
 
 ckt3 = Circuit3Phase()
-ckt3_yout = sim(ckt3)
+ckt3_yout = sim(ckt3, 0.1)
 
 
 
@@ -264,8 +284,8 @@ ckt3_yout = sim(ckt3)
 
 
 function ResistorN(n1, n2, R::Real) 
-    i = Current(n1)   # the n1 makes the size match with n1
-    v = Voltage(n1)
+    i = Current(base_value(n1, n2))   # The base_value makes the size match with
+    v = Voltage(base_value(n1, n2))   # the larger of n1 and n2.
     {
      Branch(n1, n2, v, i)
      R * i - v   # == 0 is implied
@@ -273,8 +293,8 @@ function ResistorN(n1, n2, R::Real)
 end
 
 function CapacitorN(n1, n2, C::Real) 
-    i = Current(n1)
-    v = Voltage(n1)
+    i = Current(base_value(n1, n2))   # The base_value makes the size match with
+    v = Voltage(base_value(n1, n2))   # the larger of n1 and n2.
     {
      Branch(n1, n2, v, i)
      C * der(v) - i
@@ -283,8 +303,8 @@ end
 
 function VSource3(n1, n2, V::Real, f::Real)  
     ang = [0, -2 / 3 * pi, 2 / 3 * pi]
-    i = Current(n1)
-    v = Voltage(n1)
+    i = Current(base_value(n1, n2))   # The base_value makes the size match with
+    v = Voltage(base_value(n1, n2))   # the larger of n1 and n2.
     {
      Branch(n1, n2, v, i) 
      v - V * sin(2 * pi * f * MTime + ang)
@@ -304,7 +324,7 @@ function CircuitThreePhase()
 end
 
 ckt3p = CircuitThreePhase()
-ckt3p_yout = sim(ckt3p)
+ckt3p_yout = sim(ckt3p, 0.1)
 
 
 
@@ -539,13 +559,14 @@ end
 #
 # A macro to ease entry of many unknowns.
 #
-#   @unknowns i("Load resistor current") v x("some val", 3.0)
+#   @unknowns i("Load resistor current") v x("some val", 3.0) y{UVoltage}("label")
 #
 # becomes:
 #
 #   i = Unknown("Resistor current")
 #   v = Unknown()
 #   x = Unknown(3.0, "some val")
+#   x = Unknown{UVoltage}("label")
 #
 
 macro unknown(args...)
@@ -557,7 +578,12 @@ macro unknown(args...)
             name = arg.args[1]
             if length(arg.args) > 1
                 newcall = copy(arg)
-                newcall.args[1] = :Unknown
+                if isa(arg.args[1], Expr) && arg.args[1].head == :curly    # {}
+                    name = arg.args[1].args[1]
+                    newcall.args[1].args[1] = :Unknown
+                else
+                    newcall.args[1] = :Unknown
+                end
                 push(blk.args, :($name = $newcall))
             else
                 push(blk.args, :($name = Unknown()))
