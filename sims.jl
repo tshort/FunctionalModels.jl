@@ -229,6 +229,10 @@ for f = (:der,
     @eval ($f)(x::MExpr) = mexpr(:call, ($f), x.ex)
 end
 
+# Add array access capability for Unknowns:
+
+ref(x::Unknown, args...) = mexpr(:call, :ref, x, args...)
+
 # Nodes are flows are Unknown's.
 # Potential = Flow = Voltage = Current = Node = ElectricalNode = Unknown
 # MTime = MSymbol(:t)
@@ -349,6 +353,12 @@ function strip_mexpr(a::Expr)
     ret
 end
 
+vcat_real(X::Any...) = [ to_real(X[i]) | i=1:length(X) ]
+function vcat_real(X::Any...)
+    res = map(to_real, X)
+    vcat(res...)
+end
+
 function create_sim(a::Model)
     # unknown_map holds a variable's symbol and an index into the
     # variable array.
@@ -362,7 +372,8 @@ function create_sim(a::Model)
     # there. 
     function add_var(v) 
         if !has(unknown_map, v.sym)
-            len = length(v.value)
+            # Account for the length and fundamental size of the object
+            len = length(v.value) * int(sizeof([v.value][1]) / 8)  
             idx = len == 1 ? varnum : (varnum:(varnum + len - 1))
             unknown_map[v.sym] = idx
             varnum = varnum + len
@@ -377,11 +388,15 @@ function create_sim(a::Model)
         ret.args = map((x) -> replace_unknowns(x), ret.args)
         ret
     end
-    function replace_unknowns(a::Unknown) 
+    function replace_unknowns(a::Unknown)
         add_var(a)
         y0_map[unknown_map[a.sym]] = a.value
         output_map[unknown_map[a.sym]] = a.label
-        :(ref(y, ($(unknown_map[a.sym]))))
+        if isreal(a.value)
+            :(ref(y, ($(unknown_map[a.sym]))))
+        else
+            :(from_real(ref(y, ($(unknown_map[a.sym]))), $(a.value)))
+        end
     end
     function replace_unknowns(a::DerUnknown) 
         add_var(a)
@@ -397,29 +412,30 @@ function create_sim(a::Model)
     id = fill(0.0, N_unknowns)
     outputs = fill("", N_unknowns)
     for (k,v) in y0_map
-        y0[k] = v
+        y0[ [k] ] = to_real(v)
     end
     for (k,v) in yp0_map
-        yp0[k] = v
+        yp0[ [k] ] = to_real(v)
     end
     for (k,v) in id_map
-        id[k] = v
+        id[ [k] ] = v
     end
     for (k,v) in output_map
         outputs[k] = v
     end
     # body is a vector where each element is one of the equation
     # expressions.
-    vec = Expr(:vcat, eq_block, Any)
+    # vec = Expr(:vcat, eq_block, Any)
+    vec = Expr(:call, append({:vcat_real}, eq_block), Any)
     Fex = :((t, y, yp) -> $vec)
     F = eval(Fex)
+
     # Create the residual function
     # Finally, return the Sim with the residual function
     # initial values:
-    # Sim(F, y0, yp0, id, 1.0, 500)
-    # :((t, y, yp, res) -> begin res[:] = $vec; return; end)
     Sim(F, Fex, y0, yp0, id, outputs)
 end
+
 
 
 ########################################
@@ -514,6 +530,15 @@ sim(m::Model) = sim(m, 1.0, 500)
 sim(m::Model, tstop::Float64) = sim(m, tstop, 500)
 
 
+
+
+########################################
+## Basic plotting with Gaston         ##
+########################################
+
+
+
+
 function plot(sm::SimResult)
     N = length(sm.colnames)
     figure()
@@ -529,3 +554,34 @@ function plot(sm::SimResult)
     end
     llplot()
 end
+
+
+
+
+########################################
+## Complex number support             ##
+########################################
+
+#
+# To support objects other than Float64, the methods to_real and
+# from_real need to be defined.
+#
+# When complex qunatities are output, the y array will contain the
+# real and imaginary parts. These will not be labeled as such.
+#
+
+from_real(x::Array{Float64, 1}, ref::Complex) = complex(x[1:2:length(x)], x[2:2:length(x)])
+to_real(x::Float64) = x
+to_real(x::Array{Float64, 1}) = x
+to_real(x::Complex) = Float64[real(x), imag(x)]
+function to_real(x::Array{Complex128, 1}) # I tried reinterpret for this, but it seemed broken.
+    res = fill(0., 2*length(x))
+    for idx = 1:length(x)
+        res[2 * idx - 1] = real(x[idx])
+        res[2 * idx] = imag(x[idx])
+    end
+    res
+end
+
+
+
