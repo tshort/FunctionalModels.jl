@@ -178,7 +178,24 @@ der(x::Unknown) = DerUnknown(x.sym, x.value)
 der(x::Unknown, val) = DerUnknown(x.sym, val)
 
 # show(a::Unknown) = show(a.sym)
-  
+
+#
+# A type for discrete variables. These are only changed during
+# events. They are not used by the integrator.
+#
+type Discrete <: ModelType
+    sym::Symbol
+    value
+    label::String 
+end
+Discrete() = Discrete(gensym(), 0.0, "")
+Discrete(x) = Discrete(gensym(), x, "")
+Discrete(s::Symbol, label::String) = Discrete(s, 0.0, label)
+Discrete(x, label::String) = Discrete(gensym(), x, label)
+Discrete(label::String) = Discrete(gensym(), 0.0, label)
+Discrete(s::Symbol, x) = Discrete(s, x, "")
+
+
 type MExpr <: ModelType
     ex::Expr
 end
