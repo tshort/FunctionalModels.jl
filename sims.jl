@@ -66,16 +66,14 @@
 # What can it do:
 #   - Index-1 DAE's using the DASSL solver
 #   - Arrays of unknown variables
+#   - Complex valued unknowns
 #   
 # What's missing:
-#   - Scopes or variable labeling or other ways to tell what the
-#     output is.
 #   - Hybrid modeling (medium to hard difficulty to add)
 #   - Discrete hard (medium to hard)
 #   - Initial equations (medium difficulty)
 #   - Causal relationships or input/outputs (?)
 #   - Metadata like variable name, units, and annotations (hard?)
-#   - Complex numbers or other complicated data types as unknowns
 #   - Symbolic processing like index reduction
 #   - Error checking
 #   - Tests
@@ -90,7 +88,6 @@
 #   - Ground references are handled differently. By treating them
 #     as knowns instead of unknowns, there are less equations.
 #   - Arrays of unknowns can be used.
-#   - No "scope" capability.
 #
 # For an implementation point of view, Julia works well for this.
 # The biggest headache was coding up the callback to the residual
@@ -101,11 +98,6 @@
 # function doesn't have the right number of arguments, you'll
 # probably get segfaults.
 # 
-# From the user's point of view, the biggest issue is not having a
-# good mapping from unknown variables to columns in the solution
-# array. Better naming of unknowns or some sort of "scope" feature are
-# needed.
-#
 
 ########################################
 ## Type definitions                   ##
@@ -158,17 +150,11 @@ Unknown(s::Symbol, label::String) = Unknown{DefaultUnknown}(s, 0.0, label)
 Unknown(x, label::String) = Unknown{DefaultUnknown}(gensym(), x, label)
 Unknown(label::String) = Unknown{DefaultUnknown}(gensym(), 0.0, label)
 Unknown(s::Symbol, x) = Unknown{DefaultUnknown}(s, x, "")
-# Unknown{T<:UnknownCategory}() = Unknown(gensym(), 0.0, "")
-# Unknown{T<:UnknownCategory}(x) = Unknown{T}(gensym(), x, "")
-# Unknown{T<:UnknownCategory}(x, label::String) = Unknown{T}(gensym(), x, label)
-# Unknown{T<:UnknownCategory}(label::String) = Unknown{T}(gensym(), 0.0, label)
-# Unknown{T<:UnknownCategory}(s::Symbol, x) = Unknown{T}(s, x, "")
-# Unknown(T::UnknownCategory) = Unknown{T}(gensym(), 0.0, "")
-# Unknown(T::UnknownCategory, x) = Unknown{T}(gensym(), x, "")
-# Unknown(T::UnknownCategory, x, label::String) = Unknown{T}(gensym(), x, label)
-# Unknown(T::UnknownCategory, label::String) = Unknown{T}(gensym(), 0.0, label)
-# Unknown(T::UnknownCategory, s::Symbol, x) = Unknown{T}(s, x, "")
 
+# The following helper functions are to return the base value from an unknown to use when creating other unknowns. An example would be:
+#   a = Unknown(45.0 + 10im)
+#   b = Unknown(base_value(a))   # This one gets initialized to 0.0 + 0.0im.
+#
 base_value(u::Unknown) = u.value .* 0.0
 # The value from the unknown determines the base value returned:
 base_value(u1::Unknown, u2::Unknown) = length(u1.value) > length(u2.value) ? u1.value .* 0.0 : u2.value .* 0.0  
@@ -176,7 +162,6 @@ base_value(u::Unknown, num::Number) = length(u.value) > length(num) ? u.value .*
 base_value(num::Number, u::Unknown) = length(u.value) > length(num) ? u.value .* 0.0 : num .* 0.0 
 # This should work for real and complex valued unknowns, including
 # arrays. For something more complicated, it may not.
-
 
 is_unknown(x) = isa(x, Unknown)
     
@@ -533,6 +518,37 @@ sim(m::Model, tstop::Float64) = sim(m, tstop, 500)
 
 
 ########################################
+## Complex number support             ##
+########################################
+
+#
+# To support objects other than Float64, the methods to_real and
+# from_real need to be defined.
+#
+# When complex quantities are output, the y array will contain the
+# real and imaginary parts. These will not be labeled as such.
+#
+
+from_real(x::Array{Float64, 1}, ref::Complex) = complex(x[1:2:length(x)], x[2:2:length(x)])
+to_real(x::Float64) = x
+to_real(x::Array{Float64, 1}) = x
+to_real(x::Complex) = Float64[real(x), imag(x)]
+function to_real(x::Array{Complex128, 1}) # I tried reinterpret for this, but it seemed broken.
+    res = fill(0., 2*length(x))
+    for idx = 1:length(x)
+        res[2 * idx - 1] = real(x[idx])
+        res[2 * idx] = imag(x[idx])
+    end
+    res
+end
+
+
+
+
+
+
+
+########################################
 ## Basic plotting with Gaston         ##
 ########################################
 
@@ -559,29 +575,24 @@ end
 
 
 ########################################
-## Complex number support             ##
+## Basic plotting with Winston        ##
+## PROBABLY BROKEN                    ##
 ########################################
 
-#
-# To support objects other than Float64, the methods to_real and
-# from_real need to be defined.
-#
-# When complex qunatities are output, the y array will contain the
-# real and imaginary parts. These will not be labeled as such.
-#
 
-from_real(x::Array{Float64, 1}, ref::Complex) = complex(x[1:2:length(x)], x[2:2:length(x)])
-to_real(x::Float64) = x
-to_real(x::Array{Float64, 1}) = x
-to_real(x::Complex) = Float64[real(x), imag(x)]
-function to_real(x::Array{Complex128, 1}) # I tried reinterpret for this, but it seemed broken.
-    res = fill(0., 2*length(x))
-    for idx = 1:length(x)
-        res[2 * idx - 1] = real(x[idx])
-        res[2 * idx] = imag(x[idx])
+# the following is needed:
+# load("winston.jl")
+
+function wplot( sm::SimResult, filename::String, args... )
+    N = length( sm.colnames )
+    a = FramedArray( N, 1 )
+    setattr( a, "xlabel", "Time (s)" )
+    setattr( a, "ylabel", "" )
+    setattr( a, "cellspacing", 1. )
+    for plotnum = 1:N
+        add( a[plotnum,1], Curve(sm.y[:,1],sm.y[:, plotnum + 1]) )
+        add( a[plotnum,1], "ylabel", sm.colnames[plotnum] )
+        # setattr( a[plotnum,1], "title", sm.colnames[plotnum] )
     end
-    res
+    file( a, filename, args... )
 end
-
-
-
