@@ -179,22 +179,6 @@ der(x::Unknown, val) = DerUnknown(x.sym, val)
 
 # show(a::Unknown) = show(a.sym)
 
-#
-# A type for discrete variables. These are only changed during
-# events. They are not used by the integrator.
-#
-type Discrete <: ModelType
-    sym::Symbol
-    value
-    label::String 
-end
-Discrete() = Discrete(gensym(), 0.0, "")
-Discrete(x) = Discrete(gensym(), x, "")
-Discrete(s::Symbol, label::String) = Discrete(s, 0.0, label)
-Discrete(x, label::String) = Discrete(gensym(), x, label)
-Discrete(label::String) = Discrete(gensym(), 0.0, label)
-Discrete(s::Symbol, x) = Discrete(s, x, "")
-
 
 type MExpr <: ModelType
     ex::Expr
@@ -586,30 +570,4 @@ function plot(sm::SimResult)
         addcoords(sm.y[:,1],sm.y[:, plotnum + 1],c)
     end
     llplot()
-end
-
-
-
-
-########################################
-## Basic plotting with Winston        ##
-## PROBABLY BROKEN                    ##
-########################################
-
-
-# the following is needed:
-# load("winston.jl")
-
-function wplot( sm::SimResult, filename::String, args... )
-    N = length( sm.colnames )
-    a = FramedArray( N, 1 )
-    setattr( a, "xlabel", "Time (s)" )
-    setattr( a, "ylabel", "" )
-    setattr( a, "cellspacing", 1. )
-    for plotnum = 1:N
-        add( a[plotnum,1], Curve(sm.y[:,1],sm.y[:, plotnum + 1]) )
-        add( a[plotnum,1], "ylabel", sm.colnames[plotnum] )
-        # setattr( a[plotnum,1], "title", sm.colnames[plotnum] )
-    end
-    file( a, filename, args... )
 end
