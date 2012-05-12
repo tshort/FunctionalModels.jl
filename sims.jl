@@ -371,17 +371,31 @@ end
 # y and yp.
 # 
 
+## type Sim
+##     F::Function  # the residual function
+##     Fex::Expr    # the residual function expression
+##     events::Function  # the event detection (root finding) function
+##     event_responses::Vector{Function}  # responses after events detected (same length as above)
+##     y0::Array{Float64, 1}   # initial values
+##     yp0::Array{Float64, 1}  # initial values of derivatives
+##     id::Array{Float64, 1}   # indicates whether a variable is algebraic or differential
+##     outputs::Array{ASCIIString, 1} # output labels
+##     discrete_map::Dict       # output labels for discrete variables
+## end
+type SimFunctions
+    resid::Function
+    event_at::Function
+    event_pos::Vector{Function}
+    event_neg::Vector{Function}
+end
+
 type Sim
-    F::Function  # the residual function
-    Fex::Expr    # the residual function expression
-    events::Function  # the event detection (root finding) function
-    event_responses::Vector{Function}  # responses after events detected (same length as above)
+    F::SimFunctions
     y0::Array{Float64, 1}   # initial values
     yp0::Array{Float64, 1}  # initial values of derivatives
     id::Array{Float64, 1}   # indicates whether a variable is algebraic or differential
-    rpar::Array{Float64, 1}   # discrete variables
     outputs::Array{ASCIIString, 1} # output labels
-    doutputs::Array{ASCIIString, 1} # output labels for discrete variables
+    discrete_map::Dict      # output labels for discrete variables
 end
 
 vcat_real(X::Any...) = [ to_real(X[i]) | i=1:length(X) ]
@@ -402,7 +416,6 @@ function create_sim(eq::EquationSet)
     output_map = Dict() # for labeled unknowns
     doutput_map = Dict() # for labeled discretes
     varnum = 1 # variable indicator position that's incremented
-    dvarnum = 1 # variable indicator position for discrete variables
     
     # add_var add's a variable to the unknown_map if it isn't already
     # there. 
@@ -435,20 +448,8 @@ function create_sim(eq::EquationSet)
         end
     end
     function replace_unknowns(a::Discrete)
-        if !has(discrete_map, a.sym)
-            # Account for the length and fundamental size of the object
-            len = length(a.value) * int(sizeof([a.value][1]) / 8)  
-            idx = len == 1 ? dvarnum : (dvarnum:(dvarnum + len - 1))
-            discrete_map[a.sym] = idx
-            dvarnum = dvarnum + len
-        end
-        discrete0_map[discrete_map[a.sym]] = a.value
-        doutput_map[discrete_map[a.sym]] = a.label
-        if isreal(a.value)
-            :(ref(rpar, ($(discrete_map[a.sym]))))
-        else
-            :(from_real(ref(rpar, ($(discrete_map[a.sym]))), $(a.value)))
-        end
+        doutput_map[a.sym] = a
+        a.sym
     end
     function replace_unknowns(a::DerUnknown) 
         add_var(a)
@@ -468,8 +469,6 @@ function create_sim(eq::EquationSet)
     yp0 = fill(0.0, N_unknowns)
     id = fill(0.0, N_unknowns)
     outputs = fill("", N_unknowns)
-    rpar = fill(0.0, N_discrete)
-    doutputs = fill("", N_discrete)
     for (k,v) in y0_map
         y0[ [k] ] = to_real(v)
     end
@@ -481,12 +480,6 @@ function create_sim(eq::EquationSet)
     end
     for (k,v) in output_map
         outputs[k] = v
-    end
-    for (k,v) in discrete0_map
-        rpar[ [k] ] = to_real(v)
-    end
-    for (k,v) in doutput_map
-        doutputs[k] = v
     end
     
     # body is a vector where each element is one of the equation
@@ -504,10 +497,13 @@ function create_sim(eq::EquationSet)
         push(event_responses, eval(fun_ex))
     end
 
+    # Set up a master function with variable declarations and 
+
+    
     # Create the residual function
     # Finally, return the Sim with the residual function
     # initial values:
-    Sim(F, Fex, events, event_responses, y0, yp0, id, rpar, outputs, doutputs)
+    Sim(F, Fex, events, event_responses, y0, yp0, id, outputs, discrete_map)
 end
 
 
@@ -530,7 +526,6 @@ global __daskr_t
 global __daskr_y 
 global __daskr_yp
 global __daskr_res
-global __daskr_rpar
 ilib = dlopen("daskr_interface.so")  # Something went wrong when these were
 lib = dlopen("daskr.so")             # inside the sim function.
 
@@ -543,14 +538,11 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
     # tstop & Nsteps should be in options
                
     N = [int32(length(sm.y0))]
-    nrt = [int32(length(sm.event_responses))]
     t = [0.0]
     y = copy(sm.y0)
     yp = copy(sm.yp0)
-    rpar = copy(sm.rpar)
-    if length(rpar) == 0
-        rpar = [0.0]
-    end
+    nrt = [int32(length(sm.F.event_at(t, y, yp)))]
+    rpar = [0.0]
     info = fill(int32(0), 20)
     info[18] = 2
     rtol = [0.0]
@@ -560,7 +552,7 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
     rwork = fill(0.0, lrw[1])
     liw = [int32(N[1] + 40)] 
     iwork = fill(int32(0), liw[1])
-    ipar = [int32(length(sm.y0)), int32(length(sm.rpar)), int32(length(sm.event_responses))]
+    ipar = [int32(length(sm.y0)), nrt[1]]
     jac = [int32(0)]
     psol = [int32(0)]
     jroot = fill(int32(0), max(nrt[1], 1))
@@ -568,24 +560,25 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
     # Set up the callback.
     callback = dlsym(ilib, :res_callback)
     rt = dlsym(ilib, :event_callback)
-    global __daskr_res_callback = sm.F
-    global __daskr_event_callback = sm.events
+    global __daskr_res_callback = sm.F.resid
+    global __daskr_event_callback = sm.F.event_at
     global __daskr_t = [0.0] 
     global __daskr_y = y
     global __daskr_yp = yp
     global __daskr_res = copy(y)
-    global __daskr_rpar = rpar
     yidx = sm.outputs != ""
     yidx = map((s) -> s != "", sm.outputs)
-    didx = sm.doutputs != ""
-    didx = map((s) -> s != "", sm.doutputs)
+    ## didx = sm.doutputs != ""
+    ## didx = map((s) -> s != "", sm.doutputs)
     Noutputs = sum(yidx)
-    Ndoutputs = length(didx) > 0 ? sum(didx) : 0
-    Ncol = Noutputs + Ndoutputs
+    ## Ndoutputs = length(didx) > 0 ? sum(didx) : 0
+    ## Ncol = Noutputs + Ndoutputs
+    Ncol = Noutputs
     
     yout = zeros(Nsteps, Ncol + 1)
     tstep = tstop / Nsteps
     tout = [tstep]
+
     for idx in 1:Nsteps
         ccall(dlsym(lib, :ddaskr_), Void,
               (Ptr{Void}, Ptr{Int32}, Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, # RES, NEQ, T, Y, YPRIME
@@ -596,16 +589,26 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
               callback, N, t, y, yp, tout, info, rtol, atol,
               idid, rwork, lrw, iwork, liw, rpar, ipar, jac, psol,
               rt, nrt, jroot)
-        if idid[1] >= 0 && idid[1] < 5
+        if idid[1] >= 0 && idid[1] <= 5
             yout[idx, 1] = t[1]
             yout[idx, 2:(Noutputs + 1)] = y[yidx]
-            if Ndoutputs > 0
-                yout[didx, (Noutputs + 2):end] = rpar[didx]
-            end
+            ## if Ndoutputs > 0
+            ##     yout[didx, (Noutputs + 2):end] = rpar[didx]
+            ## end
             tout = t + tstep
-        elseif idid[1] == 5 # Event found
-            println("event found at t = $(t[1]), restarting")
-            info[1] = 0
+            if idid[1] == 5 # Event found
+                for ridx in 1:length(jroot)
+                    if jroot[ridx] == 1
+                        sm.F.event_pos[ridx](t, y, yp)
+                    elseif jroot[ridx] == -1
+                        sm.F.event_neg[ridx](t, y, yp)
+                    end
+                end
+                if any(jroot != 0)
+                    println("event found at t = $(t[1]), restarting")
+                    info[1] = 0
+                end
+            end
         elseif idid[1] < 0 && idid[1] > -11
             println("RESTARTING")
             info[1] = 0
