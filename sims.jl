@@ -273,6 +273,19 @@ Model = Vector{Any}
 #
 # This converts a hierarchical model into a flat set of equations.
 # 
+# After elaboration, the following structure is returned.
+#
+type Event <: ModelType
+    condition::MExpr
+    pos_response::Function
+    neg_response::Function
+end
+    
+type EquationSet
+    equations::Vector{Expr}
+    events::Vector{Expr}
+    responses::Vector{Expr}
+end
 
 
 # 
@@ -284,8 +297,10 @@ Model = Vector{Any}
 # 
 function elaborate(a::Model)
     nodeMap = Dict()
-
+    eventList = Event[]
+    
     elaborate_unit(a::Any) = [] # The default is to ignore undefined types.
+    elaborate_unit(a::ModelType) = a
     function elaborate_unit(a::Model)
         if (length(a) == 1)
             return(a)
@@ -309,19 +324,39 @@ function elaborate(a::Model)
         {}
     end
     
-    elaborate_unit(a::ModelType) = a
-    
-    function node_sum_zero()
-        res = {}
-        for (key, nodeset) in nodeMap
-            push(res, nodeset)
-        end
-        res
+    function elaborate_unit(b::Event)
+        push(eventList, b)
+        {}
     end
+    
+    
+    equations = elaborate_unit(copy(a))
+    for (key, nodeset) in nodeMap
+        push(equations, nodeset)
+    end
+    equations = convert(Vector{Expr}, map(strip_mexpr, equations))
 
-    append(elaborate_unit(copy(a)), node_sum_zero())
+    events = Expr[]
+    pos_responses = Expr[]
+    neg_responses = Expr[]
+    for e in eventList
+        push(events, strip_mexpr(e.condition))
+        push(pos_responses, map(strip_mexpr, e.pos_response))
+        push(neg_responses, map(strip_mexpr, e.neg_response))
+    end
+    
+    EquationSet(equations, events, pos_responses, neg_responses)
 end
 
+# These methods strip the MExpr's from expressions.
+strip_mexpr(a) = a
+strip_mexpr(a::MExpr) = strip_mexpr(a.ex)
+strip_mexpr(a::MSymbol) = a.sym 
+function strip_mexpr(a::Expr)
+    ret = copy(a)
+    ret.args = map((x) -> strip_mexpr(x), ret.args)
+    ret
+end
 
 ########################################
 ## Residual function and Sim creation ##
@@ -339,20 +374,14 @@ end
 type Sim
     F::Function  # the residual function
     Fex::Expr    # the residual function expression
+    events::Function  # the event detection (root finding) function
+    event_responses::Vector{Function}  # responses after events detected (same length as above)
     y0::Array{Float64, 1}   # initial values
     yp0::Array{Float64, 1}  # initial values of derivatives
     id::Array{Float64, 1}   # indicates whether a variable is algebraic or differential
+    rpar::Array{Float64, 1}   # discrete variables
     outputs::Array{ASCIIString, 1} # output labels
-end
-
-# These methods strip the MExpr's from expressions.
-strip_mexpr(a) = a
-strip_mexpr(a::MExpr) = strip_mexpr(a.ex)
-strip_mexpr(a::MSymbol) = a.sym 
-function strip_mexpr(a::Expr)
-    ret = copy(a)
-    ret.args = map((x) -> strip_mexpr(x), ret.args)
-    ret
+    doutputs::Array{ASCIIString, 1} # output labels for discrete variables
 end
 
 vcat_real(X::Any...) = [ to_real(X[i]) | i=1:length(X) ]
@@ -361,15 +390,20 @@ function vcat_real(X::Any...)
     vcat(res...)
 end
 
-function create_sim(a::Model)
+function create_sim(eq::EquationSet)
     # unknown_map holds a variable's symbol and an index into the
     # variable array.
     unknown_map = Dict() 
+    discrete_map = Dict() 
     y0_map = Dict() 
+    discrete0_map = Dict() 
     yp0_map = Dict() 
     id_map = Dict() # indicator for algebraic vs. differential
     output_map = Dict() # for labeled unknowns
+    doutput_map = Dict() # for labeled discretes
     varnum = 1 # variable indicator position that's incremented
+    dvarnum = 1 # variable indicator position for discrete variables
+    
     # add_var add's a variable to the unknown_map if it isn't already
     # there. 
     function add_var(v) 
@@ -400,19 +434,42 @@ function create_sim(a::Model)
             :(from_real(ref(y, ($(unknown_map[a.sym]))), $(a.value)))
         end
     end
+    function replace_unknowns(a::Discrete)
+        if !has(discrete_map, a.sym)
+            # Account for the length and fundamental size of the object
+            len = length(a.value) * int(sizeof([a.value][1]) / 8)  
+            idx = len == 1 ? dvarnum : (dvarnum:(dvarnum + len - 1))
+            discrete_map[a.sym] = idx
+            dvarnum = dvarnum + len
+        end
+        discrete0_map[discrete_map[a.sym]] = a.value
+        doutput_map[discrete_map[a.sym]] = a.label
+        if isreal(a.value)
+            :(ref(rpar, ($(discrete_map[a.sym]))))
+        else
+            :(from_real(ref(rpar, ($(discrete_map[a.sym]))), $(a.value)))
+        end
+    end
     function replace_unknowns(a::DerUnknown) 
         add_var(a)
         id_map[unknown_map[a.sym]] = true
         yp0_map[unknown_map[a.sym]] = a.value
         :(ref(yp, ($(unknown_map[a.sym]))))
     end
+    
     # eq_block should be just expressions suitable for eval'ing.
-    eq_block = map(replace_unknowns, map(strip_mexpr, copy(a)))
+    eq_block = map(replace_unknowns, eq.equations)
+    ev_block = map(replace_unknowns, eq.events)
+    rsp_block = map(replace_unknowns, eq.responses)
+    
     N_unknowns = varnum - 1
+    N_discrete = dvarnum - 1
     y0 = fill(0.0, N_unknowns)
     yp0 = fill(0.0, N_unknowns)
     id = fill(0.0, N_unknowns)
     outputs = fill("", N_unknowns)
+    rpar = fill(0.0, N_discrete)
+    doutputs = fill("", N_discrete)
     for (k,v) in y0_map
         y0[ [k] ] = to_real(v)
     end
@@ -425,17 +482,32 @@ function create_sim(a::Model)
     for (k,v) in output_map
         outputs[k] = v
     end
+    for (k,v) in discrete0_map
+        rpar[ [k] ] = to_real(v)
+    end
+    for (k,v) in doutput_map
+        doutputs[k] = v
+    end
+    
     # body is a vector where each element is one of the equation
     # expressions.
     # vec = Expr(:vcat, eq_block, Any)
     vec = Expr(:call, append({:vcat_real}, eq_block), Any)
-    Fex = :((t, y, yp) -> $vec)
+    Fex = :((t, y, yp, rpar) -> $vec)
     F = eval(Fex)
+    evec = Expr(:call, append({:vcat_real}, ev_block), Any)
+    event_expr = :((t, y, yp, rpar) -> $evec)
+    events = eval(event_expr)
+    event_responses = Function[]
+    for r in rsp_block
+        fun_ex = :((t, y, yp, rpar) -> $r)
+        push(event_responses, eval(fun_ex))
+    end
 
     # Create the residual function
     # Finally, return the Sim with the residual function
     # initial values:
-    Sim(F, Fex, y0, yp0, id, outputs)
+    Sim(F, Fex, events, event_responses, y0, yp0, id, rpar, outputs, doutputs)
 end
 
 
@@ -452,13 +524,15 @@ end
 # improves. I use global variables for the callback function and for
 # the main variables used in the residual function callback.
 #
-global __dassl_res_callback 
-global __dassl_t  
-global __dassl_y 
-global __dassl_yp
-global __dassl_res
-ilib = dlopen("dassl_interface.so")  # Something went wrong when these were
-lib = dlopen("dassl.so")             # inside the sim function.
+global __daskr_res_callback 
+global __daskr_event_callback 
+global __daskr_t  
+global __daskr_y 
+global __daskr_yp
+global __daskr_res
+global __daskr_rpar
+ilib = dlopen("daskr_interface.so")  # Something went wrong when these were
+lib = dlopen("daskr.so")             # inside the sim function.
 
 type SimResult
     y::Array{Float64, 2}
@@ -469,57 +543,74 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
     # tstop & Nsteps should be in options
                
     N = [int32(length(sm.y0))]
+    nrt = [int32(length(sm.event_responses))]
     t = [0.0]
     y = copy(sm.y0)
     yp = copy(sm.yp0)
+    rpar = copy(sm.rpar)
+    if length(rpar) == 0
+        rpar = [0.0]
+    end
     info = fill(int32(0), 20)
     info[18] = 2
     rtol = [0.0]
     atol = [1e-3]
     idid = [int32(0)]
-    lrw = [N[1]^2 + 9 * N[1] + 40] # from Octave
-    # lrw = [max(N[1]^2 + 10*N[1], 2000)] # crude estimate
+    lrw = [int32(N[1]^2 + 9 * N[1] + 60 + 3 * nrt[1])] 
     rwork = fill(0.0, lrw[1])
-    liw = [N[1] + 21] # from Octave
-    # liw = [max(N[1]^2 + N[1], 2000)]
+    liw = [int32(N[1] + 40)] 
     iwork = fill(int32(0), liw[1])
-    rpar = [0.0]
-    # rpar = sm.F # attempt to pass in the julia residual function
-    ipar = N
+    ipar = [int32(length(sm.y0)), int32(length(sm.rpar)), int32(length(sm.event_responses))]
     jac = [int32(0)]
     psol = [int32(0)]
+    jroot = fill(int32(0), max(nrt[1], 1))
      
     # Set up the callback.
     callback = dlsym(ilib, :res_callback)
-    global __dassl_res_callback = sm.F
-    global __dassl_t = [0.0] 
-    global __dassl_y = y
-    global __dassl_yp = yp
-    global __dassl_res = copy(y)
+    rt = dlsym(ilib, :event_callback)
+    global __daskr_res_callback = sm.F
+    global __daskr_event_callback = sm.events
+    global __daskr_t = [0.0] 
+    global __daskr_y = y
+    global __daskr_yp = yp
+    global __daskr_res = copy(y)
+    global __daskr_rpar = rpar
     yidx = sm.outputs != ""
     yidx = map((s) -> s != "", sm.outputs)
-    Ncol = sum(yidx)
+    didx = sm.doutputs != ""
+    didx = map((s) -> s != "", sm.doutputs)
+    Noutputs = sum(yidx)
+    Ndoutputs = length(didx) > 0 ? sum(didx) : 0
+    Ncol = Noutputs + Ndoutputs
     
     yout = zeros(Nsteps, Ncol + 1)
     tstep = tstop / Nsteps
     tout = [tstep]
     for idx in 1:Nsteps
-        ccall(dlsym(lib, :ddassl_), Void,
+        ccall(dlsym(lib, :ddaskr_), Void,
               (Ptr{Void}, Ptr{Int32}, Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, # RES, NEQ, T, Y, YPRIME
                Ptr{Float64}, Ptr{Int32}, Ptr{Float64}, Ptr{Float64},            # TOUT, INFO, RTOL, ATOL
                Ptr{Int32}, Ptr{Float64}, Ptr{Int32}, Ptr{Int32},                # IDID, RWORK, LRW, IWORK
-               Ptr{Int32}, Ptr{Float64}, Ptr{Int32}, Ptr{Void}, Ptr{Void}),     # LIW, RPAR, IPAR, JAC, PSOL
+               Ptr{Int32}, Ptr{Float64}, Ptr{Int32}, Ptr{Void}, Ptr{Void},      # LIW, RPAR, IPAR, JAC, PSOL
+               Ptr{Void}, Ptr{Int32}, Ptr{Int32}),                              # RT, NRT, JROOT
               callback, N, t, y, yp, tout, info, rtol, atol,
-              idid, rwork, lrw, iwork, liw, rpar, ipar, jac, psol)
-        yout[idx, 1] = t[1]
-        yout[idx, 2:end] = y[yidx]
-        tout = t + tstep
-        if idid[1] < 0 && idid[1] > -11
+              idid, rwork, lrw, iwork, liw, rpar, ipar, jac, psol,
+              rt, nrt, jroot)
+        if idid[1] >= 0 && idid[1] < 5
+            yout[idx, 1] = t[1]
+            yout[idx, 2:(Noutputs + 1)] = y[yidx]
+            if Ndoutputs > 0
+                yout[didx, (Noutputs + 2):end] = rpar[didx]
+            end
+            tout = t + tstep
+        elseif idid[1] == 5 # Event found
+            println("event found at t = $(t[1]), restarting")
+            info[1] = 0
+        elseif idid[1] < 0 && idid[1] > -11
             println("RESTARTING")
             info[1] = 0
-            continue
-        end
-        if idid[1] < 0
+        else
+            println("DASKR failed prematurely")
             break
         end
     end

@@ -354,13 +354,18 @@ isless(x::Any, y::Unknown) = mexpr(:call, isless, x, y)
 ifelse(x, y, z) = x ? y : z
 ifelse(x::MExpr, y, z) = mexpr(:call, ifelse, x.ex, y, z)
 ifelse(x::MExpr, y::MExpr, z::MExpr) = mexpr(:call, ifelse, x.ex, y.ex, z.ex)
-    
+
+
 function VSquare(n1, n2, V::Real, f::Real)  
     i = Current()
     v = Voltage()
+    v_mag = Discrete(V)
     {
-     Branch(n1, n2, v, i) 
-     v - ifelse(sin(2 * pi * f * MTime) > 0, V, -V)
+     Branch(n1, n2, v, i)
+     v - v_mag
+     at_event(sin(2 * pi * f * MTime),
+              dassign(v_mag, V),    # positive crossing
+              dassign(v_mag, -V))   # negative crossing
      }
 end
 
@@ -381,7 +386,7 @@ ckt_b_yout = sim(ckt_b, 0.5)
 
 plot(ckt_b_yout)
 
-
+stophere()
 
 ########################################
 ## Diode                              ##
