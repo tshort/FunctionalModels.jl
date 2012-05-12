@@ -387,6 +387,7 @@ type SimFunctions
     event_at::Function
     event_pos::Vector{Function}
     event_neg::Vector{Function}
+    get_discretes::Function
 end
 
 type Sim
