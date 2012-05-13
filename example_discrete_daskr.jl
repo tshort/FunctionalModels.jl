@@ -2,6 +2,46 @@
 ########################################
 ## Test of the simulator with events  ##
 ## Van Der Pol oscillator             ##
+## Automatic formulation              ##
+########################################
+
+
+function SVanderpol()
+    y = Unknown(1.0, "y")   # The 1.0 is the initial value. "y" is for plotting.
+    x = Unknown("x")        # The initial value is zero if not given.
+    mu = Discrete(1.0, "mu")
+    # The following gives the return value which is a list of equations.
+    # Expressions with Unknowns are kept as expressions. Expressions of
+    # regular variables are evaluated immediately (like normal).
+    {
+     # The -1.0 in der(x, -1.0) is the initial value for the derivative 
+     der(x, -1.0) - (mu * (1 - y^2) * x - y) # == 0 is assumed
+     der(y) - x
+     Event(sin(pi/2 * MTime),     # Initiate an event every 2 sec.
+           {
+            reinit(mu, mu * 0.75)
+            reinit(der(x), (mu * (1 - y^2) * x - y))
+            reinit(der(y), x)
+           },
+           {
+            reinit(mu, mu * 1.8)
+            reinit(der(x), (mu * (1 - y^2) * x - y))
+            reinit(der(y), x)
+           })
+    }
+end
+
+v = SVanderpol()      # returns the hierarchical model
+v_f = elaborate(v)    # returns the flattened model
+v_s = create_sim(v_f) # returns a "Sim" ready for simulation
+v_y = sim(v_s, 10.0)  # run the simulation to 10 seconds and return
+stophere()
+
+
+########################################
+## Test of the simulator with events  ##
+## Van Der Pol oscillator             ##
+## By hand formulation                ##
 ########################################
 
 function vp_fun()
@@ -53,39 +93,3 @@ plot(v_yout.y[:,2], v_yout.y[:,3])
 
 
 
-
-
-
-
-########################################
-## Manual circuit example             ##
-########################################
-
-#
-# This attempts to replicate by hand a circuit done automatically in
-# example_sims.jl. It's a 60-Hz voltage source in series with a
-# resistor and the parallel combination of a resistor and capacitor.
-# 
-
-
-ckt = Sim(
-    (t, y, yp) -> begin
-        [y[1] - y[2],
-        y[2] - 10.0 * sin(377 * t[1]),
-        (y[1] - y[3]) - y[4],
-        10.0 * y[5] - y[4],
-        y[3] - y[6],
-        5.0 * y[7] - y[6],
-        y[3] - y[8],
-        0.005 * yp[8] - y[9],
-        -y[5] + y[7] + y[9],
-        y[10] + y[5]]
-    end,
-    :(1 + jnk),
-    zeros(10),  # y start values
-    zeros(10),  # yp start values
-    zeros(10),  # 0 for algebraic, 1 for differential
-)
-
-ckt_yout = sim(ckt)
-plot(ckt_yout)

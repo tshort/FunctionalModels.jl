@@ -207,7 +207,7 @@ type MSymbol <: ModelType
     sym::Symbol
 end
 
-for f = (:+, :-, :*, :.*, :/, :./, :^)
+for f = (:+, :-, :*, :.*, :/, :./, :^, :reinit)
     @eval ($f)(x::ModelType, y::ModelType) = mexpr(:call, ($f), x, y)
     @eval ($f)(x::ModelType, y::Any) = mexpr(:call, ($f), x, y)
     @eval ($f)(x::Any, y::ModelType) = mexpr(:call, ($f), x, y)
@@ -258,6 +258,9 @@ function Branch(n1, n2, v, i)
      }
 end
 
+function reinit(x, y)
+    x = y
+end
 
 # For now, a model is just a vector that anything, but probably it
 # should include just ModelType's.
@@ -277,14 +280,15 @@ Model = Vector{Any}
 #
 type Event <: ModelType
     condition::MExpr
-    pos_response::Function
-    neg_response::Function
+    pos_response::Model
+    neg_response::Model
 end
-    
+
 type EquationSet
     equations::Vector{Expr}
     events::Vector{Expr}
-    responses::Vector{Expr}
+    pos_response
+    neg_response
 end
 
 
@@ -297,7 +301,9 @@ end
 # 
 function elaborate(a::Model)
     nodeMap = Dict()
-    eventList = Event[]
+    events = Expr[]
+    pos_responses = {}
+    neg_responses = {}
     
     elaborate_unit(a::Any) = [] # The default is to ignore undefined types.
     elaborate_unit(a::ModelType) = a
@@ -324,11 +330,12 @@ function elaborate(a::Model)
         {}
     end
     
-    function elaborate_unit(b::Event)
-        push(eventList, b)
+    function elaborate_unit(ev::Event)
+        push(events, strip_mexpr(elaborate_unit(ev.condition)))
+        push(pos_responses, convert(Vector{Expr}, map((x) -> strip_mexpr(elaborate_unit(x)), ev.pos_response)))
+        push(neg_responses, convert(Vector{Expr}, map((x) -> strip_mexpr(elaborate_unit(x)), ev.neg_response)))
         {}
     end
-    
     
     equations = elaborate_unit(copy(a))
     for (key, nodeset) in nodeMap
@@ -336,15 +343,6 @@ function elaborate(a::Model)
     end
     equations = convert(Vector{Expr}, map(strip_mexpr, equations))
 
-    events = Expr[]
-    pos_responses = Expr[]
-    neg_responses = Expr[]
-    for e in eventList
-        push(events, strip_mexpr(e.condition))
-        push(pos_responses, map(strip_mexpr, e.pos_response))
-        push(neg_responses, map(strip_mexpr, e.neg_response))
-    end
-    
     EquationSet(equations, events, pos_responses, neg_responses)
 end
 
@@ -401,6 +399,7 @@ end
 
 vcat_real(X::Any...) = [ to_real(X[i]) | i=1:length(X) ]
 function vcat_real(X::Any...)
+    ## println(X[1])
     res = map(to_real, X)
     vcat(res...)
 end
@@ -411,11 +410,9 @@ function create_sim(eq::EquationSet)
     unknown_map = Dict() 
     discrete_map = Dict() 
     y0_map = Dict() 
-    discrete0_map = Dict() 
     yp0_map = Dict() 
     id_map = Dict() # indicator for algebraic vs. differential
     output_map = Dict() # for labeled unknowns
-    doutput_map = Dict() # for labeled discretes
     varnum = 1 # variable indicator position that's incremented
     
     # add_var add's a variable to the unknown_map if it isn't already
@@ -449,7 +446,7 @@ function create_sim(eq::EquationSet)
         end
     end
     function replace_unknowns(a::Discrete)
-        doutput_map[a.sym] = a
+        discrete_map[a.sym] = a
         a.sym
     end
     function replace_unknowns(a::DerUnknown) 
@@ -462,49 +459,68 @@ function create_sim(eq::EquationSet)
     # eq_block should be just expressions suitable for eval'ing.
     eq_block = map(replace_unknowns, eq.equations)
     ev_block = map(replace_unknowns, eq.events)
-    rsp_block = map(replace_unknowns, eq.responses)
     
-    N_unknowns = varnum - 1
-    N_discrete = dvarnum - 1
-    y0 = fill(0.0, N_unknowns)
-    yp0 = fill(0.0, N_unknowns)
-    id = fill(0.0, N_unknowns)
-    outputs = fill("", N_unknowns)
-    for (k,v) in y0_map
-        y0[ [k] ] = to_real(v)
-    end
-    for (k,v) in yp0_map
-        yp0[ [k] ] = to_real(v)
-    end
-    for (k,v) in id_map
-        id[ [k] ] = v
-    end
-    for (k,v) in output_map
-        outputs[k] = v
-    end
-    
-    # body is a vector where each element is one of the equation
-    # expressions.
-    # vec = Expr(:vcat, eq_block, Any)
-    vec = Expr(:call, append({:vcat_real}, eq_block), Any)
-    Fex = :((t, y, yp, rpar) -> $vec)
-    F = eval(Fex)
-    evec = Expr(:call, append({:vcat_real}, ev_block), Any)
-    event_expr = :((t, y, yp, rpar) -> $evec)
-    events = eval(event_expr)
-    event_responses = Function[]
-    for r in rsp_block
-        fun_ex = :((t, y, yp, rpar) -> $r)
-        push(event_responses, eval(fun_ex))
-    end
-
     # Set up a master function with variable declarations and 
+    # functions that have access to those variables.
+    discrete_defs = reduce((x,y) -> :($x;$(y[1]) = $(y[2].value)), :(), discrete_map) 
+    resid_thunk = Expr(:call, append({:vcat_real}, eq_block), Any)
+    event_thunk = Expr(:call, append({:vcat_real}, ev_block), Any)
 
+    exp_array_to_thunk(ex::Vector{Expr}) = reduce((x,y) -> :($x;$y), :(), ex)
+
+    ev_pos_array = Expr[]
+    ev_neg_array = Expr[]
+    for idx in 1:length(eq.events)
+        ex = exp_array_to_thunk(map(replace_unknowns, eq.pos_response[idx]))
+        push(ev_pos_array, 
+             quote
+                 (t, y, yp) -> begin $ex; return; end
+             end)
+        ex = exp_array_to_thunk(map(replace_unknowns, eq.neg_response[idx]))
+        push(ev_neg_array, 
+             quote
+                 (t, y, yp) -> begin $ex; return; end
+             end)
+    end
+    ev_pos_thunk = Expr(:call, append({:vcat}, ev_pos_array), Any)
+    ev_neg_thunk = Expr(:call, append({:vcat}, ev_neg_array), Any)
     
-    # Create the residual function
-    # Finally, return the Sim with the residual function
-    # initial values:
-    Sim(F, Fex, events, event_responses, y0, yp0, id, outputs, discrete_map)
+    get_discretes_thunk = :(() -> 1)   # dummy function for now
+    
+    expr = quote
+        function vp_fun()
+            $discrete_defs
+            function resid(t, y, yp)
+                 $resid_thunk
+            end
+            function event_at(t, y, yp)
+                 $event_thunk
+            end
+            event_pos_array = $ev_pos_thunk
+            event_neg_array = $ev_pos_thunk
+            function get_discretes()
+                 $get_discretes_thunk
+            end
+            SimFunctions(resid, event_at, event_pos_array, event_neg_array, get_discretes)
+        end
+    end
+    eval(expr)
+    global _expr = expr
+    
+    function fill_from_map(default_val, N, the_map, f)
+        x = fill(default_val, N)
+        for (k,v) in the_map
+            x[ [k] ] = f(v)
+        end
+        x
+    end
+    N_unknowns = varnum - 1
+    y0 = fill_from_map(0.0, N_unknowns, y0_map, to_real)
+    yp0 = fill_from_map(0.0, N_unknowns, yp0_map, to_real)
+    id = fill_from_map(0.0, N_unknowns, id_map, x -> x)
+    outputs = fill_from_map("", N_unknowns, output_map, x -> x)
+    
+    Sim(vp_fun(), y0, yp0, id, outputs, discrete_map)
 end
 
 
