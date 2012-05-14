@@ -346,14 +346,6 @@ ckt3p_yout = sim(ckt3p, 0.1)
 #
 
 
-isless(x::MExpr, y::MExpr) = mexpr(:call, isless, x.ex, y.ex)
-isless(x::MExpr, y::Any) = mexpr(:call, isless, x.ex, y)
-isless(x::Any, y::MExpr) = mexpr(:call, isless, x, y.ex)
-isless(x::Unknown, y::Any) = mexpr(:call, isless, x, y)
-isless(x::Any, y::Unknown) = mexpr(:call, isless, x, y)
-ifelse(x, y, z) = x ? y : z
-ifelse(x::MExpr, y, z) = mexpr(:call, ifelse, x.ex, y, z)
-ifelse(x::MExpr, y::MExpr, z::MExpr) = mexpr(:call, ifelse, x.ex, y.ex, z.ex)
 
 
 function VSquare(n1, n2, V::Real, f::Real)  

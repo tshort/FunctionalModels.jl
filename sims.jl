@@ -208,7 +208,7 @@ type MSymbol <: ModelType
     sym::Symbol
 end
 
-for f = (:+, :-, :*, :.*, :/, :./, :^)
+for f = (:+, :-, :*, :.*, :/, :./, :^, :isless)
     @eval ($f)(x::ModelType, y::ModelType) = mexpr(:call, ($f), x, y)
     @eval ($f)(x::ModelType, y::Any) = mexpr(:call, ($f), x, y)
     @eval ($f)(x::Any, y::ModelType) = mexpr(:call, ($f), x, y)
@@ -236,9 +236,7 @@ end
 
 ref(x::Unknown, args...) = mexpr(:call, :ref, x, args...)
 
-# Nodes are flows are Unknown's.
-# Potential = Flow = Voltage = Current = Node = ElectricalNode = Unknown
-# MTime = MSymbol(:t)
+# System time
 MTime = MExpr(:(t[1]))
 
 # UnknownOrNumber = Union(Unknown, Number)
@@ -259,6 +257,32 @@ function Branch(n1, n2, v, i)
      }
 end
 
+
+# For now, a model is just a vector that anything, but probably it
+# should include just ModelType's.
+Model = Vector{Any}
+
+
+
+########################################
+## Utilities for Hybrid Modeling      ##
+########################################
+
+#
+# Event is the main type used for hybrid modeling. It contains a
+# condition for root finding and model expressions to process for
+# positive and negative root crossings.
+#
+
+type Event <: ModelType
+    condition::MExpr
+    pos_response::Model
+    neg_response::Model
+end
+
+#
+# reinit and LeftVar are needed to make assignments during events.
+# 
 type LeftVar <: ModelType
     var
 end
@@ -271,9 +295,16 @@ reinit(x::Unknown, y) = reinit(LeftVar(x), y)
 reinit(x::DerUnknown, y) = reinit(LeftVar(x), y)
 reinit(x::Discrete, y) = reinit(LeftVar(x), y)
 
-# For now, a model is just a vector that anything, but probably it
-# should include just ModelType's.
-Model = Vector{Any}
+
+########################################
+## Utilities for Structural Changes   ##
+########################################
+
+type StructuralEvent <: ModelType
+    condition::MExpr
+    new_relation::Model
+    default::Model
+end
 
 
 
@@ -287,11 +318,6 @@ Model = Vector{Any}
 # 
 # After elaboration, the following structure is returned.
 #
-type Event <: ModelType
-    condition::MExpr
-    pos_response::Model
-    neg_response::Model
-end
 
 type EquationSet
     equations::Vector{Expr}
@@ -345,6 +371,23 @@ function elaborate(a::Model)
         push(pos_responses, convert(Vector{Expr}, map((x) -> strip_mexpr(elaborate_unit(x)), ev.pos_response)))
         push(neg_responses, convert(Vector{Expr}, map((x) -> strip_mexpr(elaborate_unit(x)), ev.neg_response)))
         {}
+    end
+    
+    function elaborate_unit(ev::StructuralEvent)
+        # Set up the event:
+        push(events, strip_mexpr(elaborate_unit(ev.condition)))
+        # A positive zero crossing initiates a change:
+        push(pos_responses, :(global __structure_change = true))
+        # Null negative zero crossing
+        push(neg_responses, :())
+        # Evaluate the condition now to determine what equations to return:
+        # This is a bit shakey in that I'm not sure if the initial conditions
+        # will work out with this.
+        if meval(ev.condition)
+            map((x) -> strip_mexpr(elaborate_unit(x)), ev.new_relation)
+        else 
+            map((x) -> strip_mexpr(elaborate_unit(x)), ev.default)
+        end
     end
     
     equations = elaborate_unit(copy(a))
@@ -568,7 +611,8 @@ end
 
 function sim(sm::Sim, tstop::Float64, Nsteps::Int)
     # tstop & Nsteps should be in options
-               
+
+    global __structural_change = false
     N = [int32(length(sm.y0))]
     t = [0.0]
     y = copy(sm.y0)
@@ -638,7 +682,20 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
                         sm.F.event_neg[ridx](t, y, yp)
                     end
                 end
-                if any(jroot != 0)
+                if __structural_change
+                    println("structural change event found at t = $(t[1]), restarting")
+                    # Put y and yp values back into original equations:
+                    for (k,v) in sm.y_map
+                        v.value = y[k]
+                    end
+                    for (k,v) in sm.yp_map
+                        v.value = yp[k]
+                    end
+                    # Reflatten equations
+                    sm = create_sim(elaborate(sm.eq.original))
+                    # Restart the simulation:
+                    set_sim()
+                elseif any(jroot != 0)
                     println("event found at t = $(t[1]), restarting")
                     info[1] = 0
                 end
