@@ -275,7 +275,7 @@ Model = Vector{Any}
 #
 
 type Event <: ModelType
-    condition::MExpr
+    condition::ModelType
     pos_response::Model
     neg_response::Model
 end
@@ -610,54 +610,6 @@ type SimResult
 end
 
 
-function setup_sim(sm::Sim, tstart::Float64, tstop::Float64, Nsteps::Int)
-    global __structural_change = false
-    N = [int32(length(sm.y0))]
-    t = [tstart]
-    y = copy(sm.y0)
-    yp = copy(sm.yp0)
-    nrt = [int32(length(sm.F.event_at(t, y, yp)))]
-    rpar = [0.0]
-    info = fill(int32(0), 20)
-    info[11] = 1    # calc initial conditions
-    ## info[18] = 2    # more initialization info
-    idid = [int32(0)]
-    rtol = [0.0]
-    atol = [1e-3]
-    lrw = [int32(N[1]^2 + 9 * N[1] + 60 + 3 * nrt[1])] 
-    rwork = fill(0.0, lrw[1])
-    liw = [int32(2*N[1] + 40)] 
-    iwork = fill(int32(0), liw[1])
-    iwork[40 + (1:N[1])] = sm.id
-    ipar = [int32(length(sm.y0)), nrt[1]]
-    jac = [int32(0)]
-    psol = [int32(0)]
-    jroot = fill(int32(0), max(nrt[1], 1))
-     
-    # Set up the callback.
-    callback = dlsym(ilib, :res_callback)
-    rt = dlsym(ilib, :event_callback)
-    global __daskr_res_callback = sm.F.resid
-    global __daskr_event_callback = sm.F.event_at
-    global __daskr_t = [0.0] 
-    global __daskr_y = y
-    global __daskr_yp = yp
-    global __daskr_res = copy(y)
-    tstep = tstop / Nsteps
-    
-    (tout) -> begin
-        ccall(dlsym(lib, :ddaskr_), Void,
-              (Ptr{Void}, Ptr{Int32}, Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, # RES, NEQ, T, Y, YPRIME
-               Ptr{Float64}, Ptr{Int32}, Ptr{Float64}, Ptr{Float64},            # TOUT, INFO, RTOL, ATOL
-               Ptr{Int32}, Ptr{Float64}, Ptr{Int32}, Ptr{Int32},                # IDID, RWORK, LRW, IWORK
-               Ptr{Int32}, Ptr{Float64}, Ptr{Int32}, Ptr{Void}, Ptr{Void},      # LIW, RPAR, IPAR, JAC, PSOL
-               Ptr{Void}, Ptr{Int32}, Ptr{Int32}),                              # RT, NRT, JROOT
-              callback, N, t, y, yp, tout, info, rtol, atol,
-              idid, rwork, lrw, iwork, liw, rpar, ipar, jac, psol,
-              rt, nrt, jroot)
-         (t,y,yp,idid,jroot)
-     end
-end
 
 function sim(sm::Sim, tstop::Float64, Nsteps::Int)
     # tstop & Nsteps should be in options
@@ -668,12 +620,61 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
     Ncol = Noutputs
     tstep = tstop / Nsteps
     tout = [tstep]
+    idid = [int32(0)]
+    info = fill(int32(0), 20)
+    info[11] = 1    # calc initial conditions
+    ## info[18] = 2    # more initialization info
+    
+    function setup_sim(sm::Sim, tstart::Float64, tstop::Float64, Nsteps::Int)
+        global __structural_change = false
+        N = [int32(length(sm.y0))]
+        t = [tstart]
+        y = copy(sm.y0)
+        yp = copy(sm.yp0)
+        nrt = [int32(length(sm.F.event_at(t, y, yp)))]
+        rpar = [0.0]
+        rtol = [0.0]
+        atol = [1e-3]
+        lrw = [int32(N[1]^2 + 9 * N[1] + 60 + 3 * nrt[1])] 
+        rwork = fill(0.0, lrw[1])
+        liw = [int32(2*N[1] + 40)] 
+        iwork = fill(int32(0), liw[1])
+        iwork[40 + (1:N[1])] = sm.id
+        ipar = [int32(length(sm.y0)), nrt[1]]
+        jac = [int32(0)]
+        psol = [int32(0)]
+        jroot = fill(int32(0), max(nrt[1], 1))
+         
+        # Set up the callback.
+        callback = dlsym(ilib, :res_callback)
+        rt = dlsym(ilib, :event_callback)
+        global __daskr_res_callback = sm.F.resid
+        global __daskr_event_callback = sm.F.event_at
+        global __daskr_t = [0.0] 
+        global __daskr_y = y
+        global __daskr_yp = yp
+        global __daskr_res = copy(y)
+        tstep = tstop / Nsteps
+        
+        (tout) -> begin
+            ccall(dlsym(lib, :ddaskr_), Void,
+                  (Ptr{Void}, Ptr{Int32}, Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, # RES, NEQ, T, Y, YPRIME
+                   Ptr{Float64}, Ptr{Int32}, Ptr{Float64}, Ptr{Float64},            # TOUT, INFO, RTOL, ATOL
+                   Ptr{Int32}, Ptr{Float64}, Ptr{Int32}, Ptr{Int32},                # IDID, RWORK, LRW, IWORK
+                   Ptr{Int32}, Ptr{Float64}, Ptr{Int32}, Ptr{Void}, Ptr{Void},      # LIW, RPAR, IPAR, JAC, PSOL
+                   Ptr{Void}, Ptr{Int32}, Ptr{Int32}),                              # RT, NRT, JROOT
+                  callback, N, t, y, yp, tout, info, rtol, atol,
+                  idid, rwork, lrw, iwork, liw, rpar, ipar, jac, psol,
+                  rt, nrt, jroot)
+             (t,y,yp,jroot)
+         end
+    end
 
     simulate = setup_sim(sm, 0.0, tstop, Nsteps)
     yout = zeros(Nsteps, Ncol + 1)
 
     for idx in 1:Nsteps
-        (t,y,yp,idid,jroot) = simulate(tout)
+        (t,y,yp,jroot) = simulate(tout)
         if idid[1] >= 0 && idid[1] <= 5
             yout[idx, 1] = t[1]
             yout[idx, 2:(Noutputs + 1)] = y[yidx]
