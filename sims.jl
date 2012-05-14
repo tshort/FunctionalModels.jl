@@ -609,12 +609,11 @@ type SimResult
     colnames::Array{ASCIIString, 1}
 end
 
-function sim(sm::Sim, tstop::Float64, Nsteps::Int)
-    # tstop & Nsteps should be in options
 
+function setup_sim(sm::Sim, tstart::Float64, tstop::Float64, Nsteps::Int)
     global __structural_change = false
     N = [int32(length(sm.y0))]
-    t = [0.0]
+    t = [tstart]
     y = copy(sm.y0)
     yp = copy(sm.yp0)
     nrt = [int32(length(sm.F.event_at(t, y, yp)))]
@@ -622,9 +621,9 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
     info = fill(int32(0), 20)
     info[11] = 1    # calc initial conditions
     ## info[18] = 2    # more initialization info
+    idid = [int32(0)]
     rtol = [0.0]
     atol = [1e-3]
-    idid = [int32(0)]
     lrw = [int32(N[1]^2 + 9 * N[1] + 60 + 3 * nrt[1])] 
     rwork = fill(0.0, lrw[1])
     liw = [int32(2*N[1] + 40)] 
@@ -644,20 +643,9 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
     global __daskr_y = y
     global __daskr_yp = yp
     global __daskr_res = copy(y)
-    yidx = sm.outputs != ""
-    yidx = map((s) -> s != "", sm.outputs)
-    ## didx = sm.doutputs != ""
-    ## didx = map((s) -> s != "", sm.doutputs)
-    Noutputs = sum(yidx)
-    ## Ndoutputs = length(didx) > 0 ? sum(didx) : 0
-    ## Ncol = Noutputs + Ndoutputs
-    Ncol = Noutputs
-    
-    yout = zeros(Nsteps, Ncol + 1)
     tstep = tstop / Nsteps
-    tout = [tstep]
-
-    for idx in 1:Nsteps
+    
+    (tout) -> begin
         ccall(dlsym(lib, :ddaskr_), Void,
               (Ptr{Void}, Ptr{Int32}, Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, # RES, NEQ, T, Y, YPRIME
                Ptr{Float64}, Ptr{Int32}, Ptr{Float64}, Ptr{Float64},            # TOUT, INFO, RTOL, ATOL
@@ -667,12 +655,28 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
               callback, N, t, y, yp, tout, info, rtol, atol,
               idid, rwork, lrw, iwork, liw, rpar, ipar, jac, psol,
               rt, nrt, jroot)
+         (t,y,yp,idid,jroot)
+     end
+end
+
+function sim(sm::Sim, tstop::Float64, Nsteps::Int)
+    # tstop & Nsteps should be in options
+
+    yidx = sm.outputs != ""
+    yidx = map((s) -> s != "", sm.outputs)
+    Noutputs = sum(yidx)
+    Ncol = Noutputs
+    tstep = tstop / Nsteps
+    tout = [tstep]
+
+    simulate = setup_sim(sm, 0.0, tstop, Nsteps)
+    yout = zeros(Nsteps, Ncol + 1)
+
+    for idx in 1:Nsteps
+        (t,y,yp,idid,jroot) = simulate(tout)
         if idid[1] >= 0 && idid[1] <= 5
             yout[idx, 1] = t[1]
             yout[idx, 2:(Noutputs + 1)] = y[yidx]
-            ## if Ndoutputs > 0
-            ##     yout[didx, (Noutputs + 2):end] = rpar[didx]
-            ## end
             tout = t + tstep
             if idid[1] == 5 # Event found
                 for ridx in 1:length(jroot)
@@ -694,7 +698,7 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
                     # Reflatten equations
                     sm = create_sim(elaborate(sm.eq.original))
                     # Restart the simulation:
-                    set_sim()
+                    simulate = setup_sim(sm, t[1], tstop, int(Nsteps * (tstop - t[1]) / tstop))
                 elseif any(jroot != 0)
                     println("event found at t = $(t[1]), restarting")
                     info[1] = 0
