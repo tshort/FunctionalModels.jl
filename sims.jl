@@ -395,6 +395,8 @@ type SimFunctions
     event_neg::Vector{Function}
     get_discretes::Function
 end
+SimFunctions(resid::Function, event_at::Function, event_pos::Vector{None}, event_neg::Vector{None}, get_discretes::Function) = 
+    SimFunctions(resid, event_at, Function[], Function[], get_discretes)
 
 type Sim
     F::SimFunctions

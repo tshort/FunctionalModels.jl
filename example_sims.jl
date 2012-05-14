@@ -51,7 +51,7 @@ v_yout = sim(v_s, 10.0) # run the simulation to 10 seconds and return
 # Plotting requires the Gaston library, and I need to load it:
 #   push(LOAD_PATH, "/home/tshort/julia/julia/extras/gaston-0.4")
 #   load("gaston.jl")
-plot(v_yout)
+## plot(v_yout)
 
 # # plot the signals against each other:
 # plot(v_yout.y[:,2], v_yout.y[:,3])
@@ -363,9 +363,9 @@ function VSquare(n1, n2, V::Real, f::Real)
     {
      Branch(n1, n2, v, i)
      v - v_mag
-     at_event(sin(2 * pi * f * MTime),
-              dassign(v_mag, V),    # positive crossing
-              dassign(v_mag, -V))   # negative crossing
+     Event(sin(2 * pi * f * MTime),
+           {reinit(v_mag, V)},    # positive crossing
+           {reinit(v_mag, -V)})   # negative crossing
      }
 end
 
@@ -374,7 +374,7 @@ function CircuitSq()
     n2 = ElectricalNode("Output voltage")
     g = 0.0  # a ground has zero volts; it's not an unknown.
     {
-     VSquare(n1, g, 10.0, 6.0)
+     VSquare(n1, g, 11.0, 6.0)
      Resistor(n1, n2, 10.0)
      Resistor(n2, g, 5.0)
      Capacitor(n2, g, 5.0e-3)
@@ -386,7 +386,6 @@ ckt_b_yout = sim(ckt_b, 0.5)
 
 plot(ckt_b_yout)
 
-stophere()
 
 ########################################
 ## Diode                              ##
@@ -429,6 +428,7 @@ rct_yout = sim(rct, 10.0)
 
 
 
+stophere()
 
 
 
