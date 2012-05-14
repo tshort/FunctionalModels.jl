@@ -47,7 +47,7 @@ v_s = create_sim(v_f) # returns a "Sim" ready for simulation
 
 v_yout = sim(v_s, 10.0) # run the simulation to 10 seconds and return
                         # the result as an array
-
+stophere()
 # Plotting requires the Gaston library, and I need to load it:
 #   push(LOAD_PATH, "/home/tshort/julia/julia/extras/gaston-0.4")
 #   load("gaston.jl")

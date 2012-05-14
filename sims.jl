@@ -67,10 +67,11 @@
 #   - Index-1 DAE's using the DASSL solver
 #   - Arrays of unknown variables
 #   - Complex valued unknowns
+#   - Hybrid modeling (basics)
+#   - Discrete hard
 #   
 # What's missing:
-#   - Hybrid modeling (medium to hard difficulty to add)
-#   - Discrete hard (medium to hard)
+#   - Structurally dynamic systems
 #   - Initial equations (medium difficulty)
 #   - Causal relationships or input/outputs (?)
 #   - Metadata like variable name, units, and annotations (hard?)
@@ -377,17 +378,6 @@ end
 # y and yp.
 # 
 
-## type Sim
-##     F::Function  # the residual function
-##     Fex::Expr    # the residual function expression
-##     events::Function  # the event detection (root finding) function
-##     event_responses::Vector{Function}  # responses after events detected (same length as above)
-##     y0::Array{Float64, 1}   # initial values
-##     yp0::Array{Float64, 1}  # initial values of derivatives
-##     id::Array{Float64, 1}   # indicates whether a variable is algebraic or differential
-##     outputs::Array{ASCIIString, 1} # output labels
-##     discrete_map::Dict       # output labels for discrete variables
-## end
 type SimFunctions
     resid::Function
     event_at::Function
@@ -404,7 +394,9 @@ type Sim
     yp0::Array{Float64, 1}  # initial values of derivatives
     id::Array{Int, 1}       # indicates whether a variable is algebraic or differential
     outputs::Array{ASCIIString, 1} # output labels
-    discrete_map::Dict      # output labels for discrete variables
+    discrete_map::Dict      # sym => Discrete variable 
+    unknown_map::Dict       # sym => Unknown variable 
+    derunknown_map::Dict    # sym => DerUnknown variable 
 end
 
 vcat_real(X::Any...) = [ to_real(X[i]) | i=1:length(X) ]
@@ -417,8 +409,10 @@ end
 function create_sim(eq::EquationSet)
     # unknown_map holds a variable's symbol and an index into the
     # variable array.
-    unknown_map = Dict() 
-    discrete_map = Dict() 
+    unknown_idx_map = Dict()  # symbol => index into y (or yp)
+    unknown_map = Dict()      # symbol => the Unknown object
+    derunknown_map = Dict()   # symbol => the DerUnknown object
+    discrete_map = Dict()     # symbol => the Discrete variable
     y0_map = Dict() 
     yp0_map = Dict() 
     id_map = Dict() # indicator for algebraic vs. differential
@@ -428,11 +422,11 @@ function create_sim(eq::EquationSet)
     # add_var add's a variable to the unknown_map if it isn't already
     # there. 
     function add_var(v) 
-        if !has(unknown_map, v.sym)
+        if !has(unknown_idx_map, v.sym)
             # Account for the length and fundamental size of the object
             len = length(v.value) * int(sizeof([v.value][1]) / 8)  
             idx = len == 1 ? varnum : (varnum:(varnum + len - 1))
-            unknown_map[v.sym] = idx
+            unknown_idx_map[v.sym] = idx
             varnum = varnum + len
         end
     end
@@ -447,12 +441,13 @@ function create_sim(eq::EquationSet)
     end
     function replace_unknowns(a::Unknown)
         add_var(a)
-        y0_map[unknown_map[a.sym]] = a.value
-        output_map[unknown_map[a.sym]] = a.label
+        unknown_map[a.sym] = a
+        y0_map[unknown_idx_map[a.sym]] = a.value
+        output_map[unknown_idx_map[a.sym]] = a.label
         if isreal(a.value)
-            :(ref(y, ($(unknown_map[a.sym]))))
+            :(ref(y, ($(unknown_idx_map[a.sym]))))
         else
-            :(from_real(ref(y, ($(unknown_map[a.sym]))), $(a.value)))
+            :(from_real(ref(y, ($(unknown_idx_map[a.sym]))), $(a.value)))
         end
     end
     function replace_unknowns(a::Discrete)
@@ -461,9 +456,10 @@ function create_sim(eq::EquationSet)
     end
     function replace_unknowns(a::DerUnknown) 
         add_var(a)
-        id_map[unknown_map[a.sym]] = 1
-        yp0_map[unknown_map[a.sym]] = a.value
-        :(ref(yp, ($(unknown_map[a.sym]))))
+        id_map[unknown_idx_map[a.sym]] = 1
+        yp0_map[unknown_idx_map[a.sym]] = a.value
+        derunknown_map[a.sym] = a
+        :(ref(yp, ($(unknown_idx_map[a.sym]))))
     end
     # In assigned variables (LeftVar), use SubArrays (sub), instead of ref.
     function replace_unknowns(a::LeftVar)
@@ -542,7 +538,7 @@ function create_sim(eq::EquationSet)
     id = fill_from_map(-1, N_unknowns, id_map, x -> x)
     outputs = fill_from_map("", N_unknowns, output_map, x -> x)
     
-    Sim(vp_fun(), y0, yp0, id, outputs, discrete_map)
+    Sim(vp_fun(), y0, yp0, id, outputs, discrete_map, unknown_map, derunknown_map)
 end
 
 
@@ -748,3 +744,13 @@ function wplot( sm::SimResult, filename::String, args... )
     end
     file( a, filename, args... )
 end
+
+
+
+########################################
+## Utilities                          ##
+########################################
+
+keys(d::Dict) = [k for (k, v) in d]
+vals(d::Dict) = [v for (k, v) in d]
+        
