@@ -497,7 +497,7 @@ function create_sim(eq::EquationSet)
                  $event_thunk
             end
             event_pos_array = $ev_pos_thunk
-            event_neg_array = $ev_pos_thunk
+            event_neg_array = $ev_neg_thunk
             function get_discretes()
                  $get_discretes_thunk
             end

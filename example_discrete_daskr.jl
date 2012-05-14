@@ -9,6 +9,7 @@
 function SVanderpol()
     y = Unknown(1.0, "y")   # The 1.0 is the initial value. "y" is for plotting.
     x = Unknown("x")        # The initial value is zero if not given.
+    mu_unk = Unknown("mu_unk")        # The initial value is zero if not given.
     mu = Discrete(1.0, "mu")
     # The following gives the return value which is a list of equations.
     # Expressions with Unknowns are kept as expressions. Expressions of
@@ -17,6 +18,7 @@ function SVanderpol()
      # The -1.0 in der(x, -1.0) is the initial value for the derivative 
      der(x, -1.0) - (mu * (1 - y^2) * x - y) # == 0 is assumed
      der(y) - x
+     mu_unk - mu
      Event(sin(pi/2 * MTime),     # Initiate an event every 2 sec.
            {
             reinit(mu, mu * 0.75)
