@@ -207,7 +207,7 @@ type MSymbol <: ModelType
     sym::Symbol
 end
 
-for f = (:+, :-, :*, :.*, :/, :./, :^, :reinit)
+for f = (:+, :-, :*, :.*, :/, :./, :^)
     @eval ($f)(x::ModelType, y::ModelType) = mexpr(:call, ($f), x, y)
     @eval ($f)(x::ModelType, y::Any) = mexpr(:call, ($f), x, y)
     @eval ($f)(x::Any, y::ModelType) = mexpr(:call, ($f), x, y)
@@ -258,9 +258,17 @@ function Branch(n1, n2, v, i)
      }
 end
 
-function reinit(x, y)
-    x = y
+type LeftVar <: ModelType
+    var
 end
+function reinit(x, y)
+    x[:] = y
+end
+reinit(x::LeftVar, y) = mexpr(:call, :reinit, x, y)
+reinit(x::LeftVar, y::MExpr) = mexpr(:call, :reinit, x, y.ex)
+reinit(x::Unknown, y) = reinit(LeftVar(x), y)
+reinit(x::DerUnknown, y) = reinit(LeftVar(x), y)
+reinit(x::Discrete, y) = reinit(LeftVar(x), y)
 
 # For now, a model is just a vector that anything, but probably it
 # should include just ModelType's.
@@ -392,7 +400,7 @@ type Sim
     F::SimFunctions
     y0::Array{Float64, 1}   # initial values
     yp0::Array{Float64, 1}  # initial values of derivatives
-    id::Array{Float64, 1}   # indicates whether a variable is algebraic or differential
+    id::Array{Int, 1}       # indicates whether a variable is algebraic or differential
     outputs::Array{ASCIIString, 1} # output labels
     discrete_map::Dict      # output labels for discrete variables
 end
@@ -447,13 +455,18 @@ function create_sim(eq::EquationSet)
     end
     function replace_unknowns(a::Discrete)
         discrete_map[a.sym] = a
-        a.sym
+        :(ref($(a.sym), 1))
     end
     function replace_unknowns(a::DerUnknown) 
         add_var(a)
-        id_map[unknown_map[a.sym]] = true
+        id_map[unknown_map[a.sym]] = 1
         yp0_map[unknown_map[a.sym]] = a.value
         :(ref(yp, ($(unknown_map[a.sym]))))
+    end
+    # In assigned variables (LeftVar), use SubArrays (sub), instead of ref.
+    function replace_unknowns(a::LeftVar)
+        var = replace_unknowns(a.var)
+        :(sub($(var.args[2]), $(var.args[3])))
     end
     
     # eq_block should be just expressions suitable for eval'ing.
@@ -462,8 +475,15 @@ function create_sim(eq::EquationSet)
     
     # Set up a master function with variable declarations and 
     # functions that have access to those variables.
-    discrete_defs = reduce((x,y) -> :($x;$(y[1]) = $(y[2].value)), :(), discrete_map) 
+    #
+    # Variable declarations are for Discrete variables. Each
+    # is stored in an array, so it can be overwritten by
+    # reinit.
+    discrete_defs = reduce((x,y) -> :($x;$(y[1]) = [$(y[2].value)]), :(), discrete_map)
+    # The following is a code block (thunk) for insertion into
+    # the residual calculation function.
     resid_thunk = Expr(:call, append({:vcat_real}, eq_block), Any)
+    # Same but for the root crossing function:
     event_thunk = Expr(:call, append({:vcat_real}, ev_block), Any)
 
     exp_array_to_thunk(ex::Vector{Expr}) = reduce((x,y) -> :($x;$y), :(), ex)
@@ -517,7 +537,7 @@ function create_sim(eq::EquationSet)
     N_unknowns = varnum - 1
     y0 = fill_from_map(0.0, N_unknowns, y0_map, to_real)
     yp0 = fill_from_map(0.0, N_unknowns, yp0_map, to_real)
-    id = fill_from_map(0.0, N_unknowns, id_map, x -> x)
+    id = fill_from_map(-1, N_unknowns, id_map, x -> x)
     outputs = fill_from_map("", N_unknowns, output_map, x -> x)
     
     Sim(vp_fun(), y0, yp0, id, outputs, discrete_map)
@@ -561,14 +581,16 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
     nrt = [int32(length(sm.F.event_at(t, y, yp)))]
     rpar = [0.0]
     info = fill(int32(0), 20)
-    info[18] = 2
+    info[11] = 1    # calc initial conditions
+    ## info[18] = 2    # more initialization info
     rtol = [0.0]
     atol = [1e-3]
     idid = [int32(0)]
     lrw = [int32(N[1]^2 + 9 * N[1] + 60 + 3 * nrt[1])] 
     rwork = fill(0.0, lrw[1])
-    liw = [int32(N[1] + 40)] 
+    liw = [int32(2*N[1] + 40)] 
     iwork = fill(int32(0), liw[1])
+    iwork[40 + (1:N[1])] = sm.id
     ipar = [int32(length(sm.y0)), nrt[1]]
     jac = [int32(0)]
     psol = [int32(0)]
