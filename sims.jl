@@ -298,6 +298,7 @@ type EquationSet
     events::Vector{Expr}
     pos_response
     neg_response
+    original        # unflattened, original model
 end
 
 
@@ -352,7 +353,7 @@ function elaborate(a::Model)
     end
     equations = convert(Vector{Expr}, map(strip_mexpr, equations))
 
-    EquationSet(equations, events, pos_responses, neg_responses)
+    EquationSet(equations, events, pos_responses, neg_responses, a)
 end
 
 # These methods strip the MExpr's from expressions.
@@ -390,13 +391,14 @@ SimFunctions(resid::Function, event_at::Function, event_pos::Vector{None}, event
 
 type Sim
     F::SimFunctions
-    y0::Array{Float64, 1}   # initial values
-    yp0::Array{Float64, 1}  # initial values of derivatives
-    id::Array{Int, 1}       # indicates whether a variable is algebraic or differential
+    y0::Array{Float64, 1}     # initial values
+    yp0::Array{Float64, 1}    # initial values of derivatives
+    id::Array{Int, 1}         # indicates whether a variable is algebraic or differential
     outputs::Array{ASCIIString, 1} # output labels
-    discrete_map::Dict      # sym => Discrete variable 
-    unknown_map::Dict       # sym => Unknown variable 
-    derunknown_map::Dict    # sym => DerUnknown variable 
+    discrete_map::Dict        # sym => Discrete variable 
+    y_map::Dict               # sym => Unknown variable 
+    yp_map::Dict              # sym => DerUnknown variable 
+    eq::EquationSet           # the input
 end
 
 vcat_real(X::Any...) = [ to_real(X[i]) | i=1:length(X) ]
@@ -411,12 +413,9 @@ function create_sim(eq::EquationSet)
     # variable array.
     unknown_idx_map = Dict()  # symbol => index into y (or yp)
     unknown_map = Dict()      # symbol => the Unknown object
-    derunknown_map = Dict()   # symbol => the DerUnknown object
-    discrete_map = Dict()     # symbol => the Discrete variable
-    y0_map = Dict() 
-    yp0_map = Dict() 
-    id_map = Dict() # indicator for algebraic vs. differential
-    output_map = Dict() # for labeled unknowns
+    discrete_map = Dict()     # symbol => the Discrete object
+    y_map = Dict()           # index => the Unknown object
+    yp_map = Dict()          # index => the DerUnknown object
     varnum = 1 # variable indicator position that's incremented
     
     # add_var add's a variable to the unknown_map if it isn't already
@@ -442,8 +441,7 @@ function create_sim(eq::EquationSet)
     function replace_unknowns(a::Unknown)
         add_var(a)
         unknown_map[a.sym] = a
-        y0_map[unknown_idx_map[a.sym]] = a.value
-        output_map[unknown_idx_map[a.sym]] = a.label
+        y_map[unknown_idx_map[a.sym]] = a
         if isreal(a.value)
             :(ref(y, ($(unknown_idx_map[a.sym]))))
         else
@@ -456,9 +454,7 @@ function create_sim(eq::EquationSet)
     end
     function replace_unknowns(a::DerUnknown) 
         add_var(a)
-        id_map[unknown_idx_map[a.sym]] = 1
-        yp0_map[unknown_idx_map[a.sym]] = a.value
-        derunknown_map[a.sym] = a
+        yp_map[unknown_idx_map[a.sym]] = a
         :(ref(yp, ($(unknown_idx_map[a.sym]))))
     end
     # In assigned variables (LeftVar), use SubArrays (sub), instead of ref.
@@ -475,7 +471,7 @@ function create_sim(eq::EquationSet)
     # functions that have access to those variables.
     #
     # Variable declarations are for Discrete variables. Each
-    # is stored in an array, so it can be overwritten by
+    # is stored in its own array, so it can be overwritten by
     # reinit.
     discrete_defs = reduce((x,y) -> :($x;$(y[1]) = [$(y[2].value)]), :(), discrete_map)
     # The following is a code block (thunk) for insertion into
@@ -504,7 +500,8 @@ function create_sim(eq::EquationSet)
     ev_neg_thunk = Expr(:call, append({:vcat}, ev_neg_array), Any)
     
     get_discretes_thunk = :(() -> 1)   # dummy function for now
-    
+
+    # The framework for the master function defined
     expr = quote
         function vp_fun()
             $discrete_defs
@@ -533,12 +530,12 @@ function create_sim(eq::EquationSet)
         x
     end
     N_unknowns = varnum - 1
-    y0 = fill_from_map(0.0, N_unknowns, y0_map, to_real)
-    yp0 = fill_from_map(0.0, N_unknowns, yp0_map, to_real)
-    id = fill_from_map(-1, N_unknowns, id_map, x -> x)
-    outputs = fill_from_map("", N_unknowns, output_map, x -> x)
+    y0 = fill_from_map(0.0, N_unknowns, y_map, x -> to_real(x.value))
+    yp0 = fill_from_map(0.0, N_unknowns, yp_map, x -> to_real(x.value))
+    id = fill_from_map(-1, N_unknowns, yp_map, x -> 1)
+    outputs = fill_from_map("", N_unknowns, y_map, x -> x.label)
     
-    Sim(vp_fun(), y0, yp0, id, outputs, discrete_map, unknown_map, derunknown_map)
+    Sim(vp_fun(), y0, yp0, id, outputs, discrete_map, y_map, yp_map, eq)
 end
 
 
