@@ -367,6 +367,7 @@ function elaborate(a::Model)
     end
     
     function elaborate_unit(ev::Event)
+        println("Event found")
         push(events, strip_mexpr(elaborate_unit(ev.condition)))
         push(pos_responses, convert(Vector{Expr}, map((x) -> strip_mexpr(elaborate_unit(x)), ev.pos_response)))
         push(neg_responses, convert(Vector{Expr}, map((x) -> strip_mexpr(elaborate_unit(x)), ev.neg_response)))
@@ -563,6 +564,7 @@ function create_sim(eq::EquationSet)
         end
     end
     eval(expr)
+    global _resid_thunk = resid_thunk  # debugging
     global _expr = expr
     
     function fill_from_map(default_val, N, the_map, f)

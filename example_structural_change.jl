@@ -84,11 +84,10 @@ end
 
 
 
-function ifelse(cond, a, b)
-    df = Discrete(() -> a)
+function ifelse(cond::ModelType, a, b)
     {
-     Event(cond, {reinit(df, () -> a)}, {reinit(df, () -> b)})
-     mexpr(:call, df.sym)
+     Event(cond, {}, {})
+     cond > 0.0 ? a : b
      } 
 end
 
@@ -98,8 +97,8 @@ function IdealDiode(n1, n2)
     s = Unknown()  # dummy variable
     {
      Branch(n1, n2, i, v)
-     v - ifelse(s, s, 0.0) 
-     i - ifelse(s, 0.0, s) 
+     ifelse(s + 0, v - s, v) 
+     ifelse(s + 0, i, i - s) 
      }
 end
 
