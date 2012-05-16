@@ -63,7 +63,7 @@ function VSource(n1::NumberOrUnknown{UVoltage}, n2::NumberOrUnknown{UVoltage}, V
     v = Voltage()
     {
      Branch(n1, n2, v, i) 
-     v - V * sin(2 * pi * f * MTime)
+     v - V * cos(2 * pi * f * MTime)
      }
 end
 
@@ -104,7 +104,7 @@ function IdealDiode(n1, n2)
 end
 
 function OpenDiode(n1, n2)
-    v = Voltage()
+    v = Voltage(-1.0)
     TestStructuralEvent(v,     # when V goes positive, this changes to a ClosedDiode
         ## ClosedDiode(n1, n2),
         [MExpr(:(ClosedDiode($n1, $n2)))],
@@ -112,7 +112,7 @@ function OpenDiode(n1, n2)
 end
 
 function ClosedDiode(n1, n2)
-    i = Current()
+    i = Current(1.0)
     TestStructuralEvent(-i,     # when I goes negative, this changes to an OpenDiode
         ## OpenDiode(n1, n2),
         [MExpr(:(OpenDiode($n1, $n2)))],
@@ -138,11 +138,11 @@ end
 rct = HalfWaveRectifier()
 rct_f = elaborate(rct)
 rct_s = create_sim(rct_f) 
-## rct_yout = sim(rct, 0.1)  
+rct_yout = sim(rct, 0.1)  
 
 # The same circuit, this time with a structurally variable diode.
 function StructuralHalfWaveRectifier()
-    nsrc = ElectricalNode("Source voltage")
+    nsrc = ElectricalNode(1.0, "Source voltage")
     n2 = ElectricalNode()
     nout = ElectricalNode("Output voltage")
     g = 0.0 

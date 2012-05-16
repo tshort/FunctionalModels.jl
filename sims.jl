@@ -342,13 +342,6 @@ function TestStructuralEvent(cond::ModelType, new_relation, default)
 end
 
 
-## type StructuralEvent <: ModelType
-##     condition::MExpr
-##     new_relation::Model
-##     default::Model
-## end
-
-
 
 
 ########################################
@@ -421,31 +414,6 @@ function elaborate(a::Model)
         ## push(pos_responses, convert(Vector{Expr}, elaborate_unit(ev.pos_response)))
         {}
     end
-    
-    ## function elaborate_unit(ev::StructuralEvent)
-    ##     println("SEvent found")
-    ##     println(ev)
-    ##     # Set up the event:
-    ##     push(events, strip_mexpr(elaborate_unit(ev.condition)))
-    ##     # A positive zero crossing initiates a change:
-    ##     push(pos_responses, :(global __structure_change = true))
-    ##     # Null negative zero crossing
-    ##     push(neg_responses, :())
-    ##     # Evaluate the condition now to determine what equations to return:
-    ##     # This is a bit shakey in that I'm not sure if the initial conditions
-    ##     # will work out with this.
-    ##     if meval(ev.condition) > 0.0
-    ##         println("a")
-    ##         println(ev.new_relation)
-    ##         map((x) -> elaborate_unit(x), ev.new_relation)
-    ##     else 
-    ##         println("b")
-    ##         println(ev.default)
-    ##         res = map((x) -> elaborate_unit(x), ev.default)
-    ##         println(res)
-    ##         res
-    ##     end
-    ## end
     
     equations = elaborate_unit(copy(a))
     for (key, nodeset) in nodeMap
