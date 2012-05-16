@@ -295,6 +295,19 @@ reinit(x::Unknown, y) = reinit(LeftVar(x), y)
 reinit(x::DerUnknown, y) = reinit(LeftVar(x), y)
 reinit(x::Discrete, y) = reinit(LeftVar(x), y)
 
+function BoolEvent(d::Discrete, cond::ModelType)
+    Event(cond,
+          {reinit(d, true)},
+          {reinit(d, false)})
+end
+
+ifelse(x::Bool, y, z) = x ? y : z
+ifelse(x::ModelType, y, z) = mexpr(:call, :ifelse, x, y, z)
+ifelse(x::MExpr, y, z) = mexpr(:call, :ifelse, x.ex, y, z)
+ifelse(x::MExpr, y::MExpr, z::MExpr) = mexpr(:call, :ifelse, x.ex, y.ex, z.ex)
+
+
+
 
 ########################################
 ## Utilities for Structural Changes   ##
@@ -368,6 +381,7 @@ function elaborate(a::Model)
     
     function elaborate_unit(ev::Event)
         println("Event found")
+        println(ev)
         push(events, strip_mexpr(elaborate_unit(ev.condition)))
         push(pos_responses, convert(Vector{Expr}, map((x) -> strip_mexpr(elaborate_unit(x)), ev.pos_response)))
         push(neg_responses, convert(Vector{Expr}, map((x) -> strip_mexpr(elaborate_unit(x)), ev.neg_response)))
@@ -395,6 +409,7 @@ function elaborate(a::Model)
     for (key, nodeset) in nodeMap
         push(equations, nodeset)
     end
+    global _eq = equations
     equations = convert(Vector{Expr}, map(strip_mexpr, equations))
 
     EquationSet(equations, events, pos_responses, neg_responses, a)
@@ -445,7 +460,7 @@ type Sim
     eq::EquationSet           # the input
 end
 
-vcat_real(X::Any...) = [ to_real(X[i]) | i=1:length(X) ]
+vcat_real(X::Any...) = [ to_real(X[i]) for i=1:length(X) ]
 function vcat_real(X::Any...)
     ## println(X[1])
     res = map(to_real, X)

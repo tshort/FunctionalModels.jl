@@ -47,7 +47,7 @@ v_s = create_sim(v_f) # returns a "Sim" ready for simulation
 
 v_yout = sim(v_s, 10.0) # run the simulation to 10 seconds and return
                         # the result as an array
-stophere()
+
 # Plotting requires the Gaston library, and I need to load it:
 #   push(LOAD_PATH, "/home/tshort/julia/julia/extras/gaston-0.4")
 #   load("gaston.jl")
@@ -208,7 +208,7 @@ ckt_as = create_sim(ckt_af)
 # Here we do the elaboration, sim creating, and simulation in one step: 
 ckt_a_yout = sim(ckt_a, 0.1)  
 
-plot(ckt_a_yout)
+## plot(ckt_a_yout)
 
 
 
@@ -376,7 +376,7 @@ end
 ckt_b = CircuitSq()
 ckt_b_yout = sim(ckt_b, 0.5)  
 
-plot(ckt_b_yout)
+## plot(ckt_b_yout)
 
 
 ########################################

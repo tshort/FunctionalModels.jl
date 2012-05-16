@@ -81,24 +81,25 @@ function SeriesProbe(n1, n2, name::String)
     Branch(n1, n2, base_value(n1, n2), i)
 end
 
-
-
-
-function ifelse(cond::ModelType, a, b)
-    {
-     Event(cond, {}, {})
-     cond > 0.0 ? a : b
-     } 
-end
+## function if_event(cond::ModelType, a, b)
+##     {
+##      Event(cond, {}, {})
+##      ifelse(cond > 0.0, a, b)
+##      } 
+## end
 
 function IdealDiode(n1, n2)
     i = Current()
     v = Voltage()
-    s = Unknown()  # dummy variable
+    s = Unknown(1.0)  # dummy variable - needs a nonzero initial value for some reason
+    openswitch = Discrete(false)  # on/off state of diode
     {
      Branch(n1, n2, i, v)
-     ifelse(s + 0, v - s, v) 
-     ifelse(s + 0, i, i - s) 
+     BoolEvent(openswitch, -s)  # openswitch becomes true when s goes negative
+     v - ifelse(openswitch, s, 0.0) 
+     i - ifelse(openswitch, 0.0, s) 
+     ## v - s * ifelse(openswitch, 1.0, 1e-5) 
+     ## i - s * ifelse(openswitch, 1e-5, 1.0) 
      }
 end
 
@@ -120,24 +121,26 @@ function ClosedDiode(n1, n2)
      }
 end
 
+# Cellier, fig 9.27
 function HalfWaveRectifier()
     nsrc = ElectricalNode("Source voltage")
     n2 = ElectricalNode()
     nout = ElectricalNode("Output voltage")
     g = 0.0 
     {
-     VSource(nsrc, g, 1.0, 1.0)
-     Resistor(nsrc, n2, 1.0)
+     VSource(nsrc, g, 1.0, 60.0)
+     Resistor(nsrc, n2, 10.0)
      IdealDiode(n2, nout)
-     Capacitor(nout, g, 1.0)
-     Resistor(nout, g, 1.0)
+     Capacitor(nout, g, 0.001)
+     Resistor(nout, g, 50.0)
      }
 end
 
 
 rct = HalfWaveRectifier()
 rct_f = elaborate(rct)
-rct_yout = sim(rct, 10.0)  
+rct_s = create_sim(rct_f) 
+rct_yout = sim(rct, 0.1)  
 
 
 stophere()
