@@ -105,20 +105,18 @@ end
 
 function OpenDiode(n1, n2)
     v = Voltage()
-    {
-     StructuralEvent(v,     # when V goes positive, this changes to a ClosedDiode
-         ClosedDiode(n1, n2),
-         Branch(n1, n2, 0.0, v))
-     }
+    TestStructuralEvent(v,     # when V goes positive, this changes to a ClosedDiode
+        ## ClosedDiode(n1, n2),
+        [MExpr(:(ClosedDiode($n1, $n2)))],
+        Branch(n1, n2, v, 0.0))
 end
 
 function ClosedDiode(n1, n2)
     i = Current()
-    {
-     StructuralEvent(-i,     # when I goes negative, this changes to an OpenDiode
-         OpenDiode(n1, n2),
-         Branch(n1, n2, i, 0.0))
-     }
+    TestStructuralEvent(-i,     # when I goes negative, this changes to an OpenDiode
+        ## OpenDiode(n1, n2),
+        [MExpr(:(OpenDiode($n1, $n2)))],
+        Branch(n1, n2, 0.0, i))
 end
 
 # Cellier, fig 9.27
@@ -140,7 +138,31 @@ end
 rct = HalfWaveRectifier()
 rct_f = elaborate(rct)
 rct_s = create_sim(rct_f) 
-rct_yout = sim(rct, 0.1)  
+## rct_yout = sim(rct, 0.1)  
+
+# The same circuit, this time with a structurally variable diode.
+function StructuralHalfWaveRectifier()
+    nsrc = ElectricalNode("Source voltage")
+    n2 = ElectricalNode()
+    nout = ElectricalNode("Output voltage")
+    g = 0.0 
+    {
+     VSource(nsrc, g, 1.0, 60.0)
+     Resistor(nsrc, n2, 10.0)
+     ClosedDiode(n2, nout)
+     Capacitor(nout, g, 0.001)
+     Resistor(nout, g, 50.0)
+     }
+end
+
+
+sct = StructuralHalfWaveRectifier()
+sct_f = elaborate(sct)
+println("flattened")
+sct_s = create_sim(sct_f) 
+println("sim made")
+sct_yout = sim(sct, 0.1)  
+
 
 
 stophere()

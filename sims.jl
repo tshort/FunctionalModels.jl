@@ -313,11 +313,40 @@ ifelse(x::MExpr, y::MExpr, z::MExpr) = mexpr(:call, :ifelse, x.ex, y.ex, z.ex)
 ## Utilities for Structural Changes   ##
 ########################################
 
-type StructuralEvent <: ModelType
-    condition::MExpr
-    new_relation::Model
-    default::Model
+insert_val(a) = a
+insert_val(a::MExpr) = insert_val(a.ex)
+insert_val(a::Unknown) = a.value 
+insert_val(a::DerUnknown) = a.value 
+insert_val(a::Discrete) = a.value 
+function insert_val(a::Expr)
+    ret = copy(a)
+    ret.args = map((x) -> insert_val(x), ret.args)
+    ret
 end
+function meval(x::Expr)   # Evaluate an MExpr with current values for all variables.
+    eval(insert_val(x)) 
+end
+meval(x::MExpr) = meval(x.ex)
+
+function TestStructuralEvent(cond::ModelType, new_relation, default)
+    if meval(cond) > 0
+        new_relation
+    else
+        {
+         Event(cond,
+               {:(global __structure_change = true)},
+               {:(pi + 0)}) # kludge: use a dummy expression that evaluates positively
+         default
+        }
+     end
+end
+
+
+## type StructuralEvent <: ModelType
+##     condition::MExpr
+##     new_relation::Model
+##     default::Model
+## end
 
 
 
@@ -354,7 +383,7 @@ function elaborate(a::Model)
     pos_responses = {}
     neg_responses = {}
     
-    elaborate_unit(a::Any) = [] # The default is to ignore undefined types.
+    elaborate_unit(a::Any) = Expr[] # The default is to ignore undefined types.
     elaborate_unit(a::ModelType) = a
     function elaborate_unit(a::Model)
         if (length(a) == 1)
@@ -383,33 +412,47 @@ function elaborate(a::Model)
         println("Event found")
         println(ev)
         push(events, strip_mexpr(elaborate_unit(ev.condition)))
-        push(pos_responses, convert(Vector{Expr}, map((x) -> strip_mexpr(elaborate_unit(x)), ev.pos_response)))
-        push(neg_responses, convert(Vector{Expr}, map((x) -> strip_mexpr(elaborate_unit(x)), ev.neg_response)))
+        println(map(strip_mexpr, elaborate_unit(ev.neg_response)))
+        ## push(neg_responses, convert(Vector{Expr}, map((x) -> strip_mexpr(elaborate_unit(x)), ev.neg_response)))
+        ## push(pos_responses, convert(Vector{Expr}, map((x) -> strip_mexpr(elaborate_unit(x)), ev.pos_response)))
+        push(pos_responses, convert(Vector{Expr}, map(strip_mexpr, elaborate_unit(ev.pos_response))))
+        push(neg_responses, convert(Vector{Expr}, map(strip_mexpr, elaborate_unit(ev.neg_response))))
+        ## push(neg_responses, convert(Vector{Expr}, elaborate_unit(ev.neg_response)))
+        ## push(pos_responses, convert(Vector{Expr}, elaborate_unit(ev.pos_response)))
         {}
     end
     
-    function elaborate_unit(ev::StructuralEvent)
-        # Set up the event:
-        push(events, strip_mexpr(elaborate_unit(ev.condition)))
-        # A positive zero crossing initiates a change:
-        push(pos_responses, :(global __structure_change = true))
-        # Null negative zero crossing
-        push(neg_responses, :())
-        # Evaluate the condition now to determine what equations to return:
-        # This is a bit shakey in that I'm not sure if the initial conditions
-        # will work out with this.
-        if meval(ev.condition)
-            map((x) -> strip_mexpr(elaborate_unit(x)), ev.new_relation)
-        else 
-            map((x) -> strip_mexpr(elaborate_unit(x)), ev.default)
-        end
-    end
+    ## function elaborate_unit(ev::StructuralEvent)
+    ##     println("SEvent found")
+    ##     println(ev)
+    ##     # Set up the event:
+    ##     push(events, strip_mexpr(elaborate_unit(ev.condition)))
+    ##     # A positive zero crossing initiates a change:
+    ##     push(pos_responses, :(global __structure_change = true))
+    ##     # Null negative zero crossing
+    ##     push(neg_responses, :())
+    ##     # Evaluate the condition now to determine what equations to return:
+    ##     # This is a bit shakey in that I'm not sure if the initial conditions
+    ##     # will work out with this.
+    ##     if meval(ev.condition) > 0.0
+    ##         println("a")
+    ##         println(ev.new_relation)
+    ##         map((x) -> elaborate_unit(x), ev.new_relation)
+    ##     else 
+    ##         println("b")
+    ##         println(ev.default)
+    ##         res = map((x) -> elaborate_unit(x), ev.default)
+    ##         println(res)
+    ##         res
+    ##     end
+    ## end
     
     equations = elaborate_unit(copy(a))
     for (key, nodeset) in nodeMap
         push(equations, nodeset)
     end
     global _eq = equations
+    global _eq1 = map(strip_mexpr, equations)
     equations = convert(Vector{Expr}, map(strip_mexpr, equations))
 
     EquationSet(equations, events, pos_responses, neg_responses, a)
@@ -424,6 +467,7 @@ function strip_mexpr(a::Expr)
     ret.args = map((x) -> strip_mexpr(x), ret.args)
     ret
 end
+
 
 ########################################
 ## Residual function and Sim creation ##
