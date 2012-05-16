@@ -104,7 +104,7 @@ function IdealDiode(n1, n2)
 end
 
 function OpenDiode(n1, n2)
-    v = Voltage(-1.0)
+    v = Voltage(-1.0, "diode")
     TestStructuralEvent(v,     # when V goes positive, this changes to a ClosedDiode
         ## ClosedDiode(n1, n2),
         [MExpr(:(ClosedDiode($n1, $n2)))],
@@ -112,7 +112,7 @@ function OpenDiode(n1, n2)
 end
 
 function ClosedDiode(n1, n2)
-    i = Current(1.0)
+    i = Current(1.0, "diode")
     TestStructuralEvent(-i,     # when I goes negative, this changes to an OpenDiode
         ## OpenDiode(n1, n2),
         [MExpr(:(OpenDiode($n1, $n2)))],
@@ -135,10 +135,10 @@ function HalfWaveRectifier()
 end
 
 
-rct = HalfWaveRectifier()
-rct_f = elaborate(rct)
-rct_s = create_sim(rct_f) 
-rct_yout = sim(rct, 0.1)  
+## rct = HalfWaveRectifier()
+## rct_f = elaborate(rct)
+## rct_s = create_sim(rct_f) 
+## rct_yout = sim(rct, 0.1)  
 
 # The same circuit, this time with a structurally variable diode.
 function StructuralHalfWaveRectifier()

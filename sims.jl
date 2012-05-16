@@ -71,7 +71,7 @@
 #   - Discrete hard
 #   
 # What's missing:
-#   - Structurally dynamic systems
+#   - Structurally variable systems
 #   - Initial equations (medium difficulty)
 #   - Causal relationships or input/outputs (?)
 #   - Metadata like variable name, units, and annotations (hard?)
@@ -324,6 +324,8 @@ function insert_val(a::Expr)
     ret
 end
 function meval(x::Expr)   # Evaluate an MExpr with current values for all variables.
+    println(x)
+    println(eval(insert_val(x)))
     eval(insert_val(x)) 
 end
 meval(x::MExpr) = meval(x.ex)
@@ -334,7 +336,7 @@ function TestStructuralEvent(cond::ModelType, new_relation, default)
     else
         {
          Event(cond,
-               {:(global __structure_change = true)},
+               {:(global __sim_structural_change = true)},
                {:(pi + 0)}) # kludge: use a dummy expression that evaluates positively
          default
         }
@@ -405,7 +407,6 @@ function elaborate(a::Model)
         println("Event found")
         println(ev)
         push(events, strip_mexpr(elaborate_unit(ev.condition)))
-        println(map(strip_mexpr, elaborate_unit(ev.neg_response)))
         ## push(neg_responses, convert(Vector{Expr}, map((x) -> strip_mexpr(elaborate_unit(x)), ev.neg_response)))
         ## push(pos_responses, convert(Vector{Expr}, map((x) -> strip_mexpr(elaborate_unit(x)), ev.pos_response)))
         push(pos_responses, convert(Vector{Expr}, map(strip_mexpr, elaborate_unit(ev.pos_response))))
@@ -419,8 +420,8 @@ function elaborate(a::Model)
     for (key, nodeset) in nodeMap
         push(equations, nodeset)
     end
-    global _eq = equations
-    global _eq1 = map(strip_mexpr, equations)
+    ## global _eq = equations
+    ## global _eq1 = map(strip_mexpr, equations)
     equations = convert(Vector{Expr}, map(strip_mexpr, equations))
 
     EquationSet(equations, events, pos_responses, neg_responses, a)
@@ -591,8 +592,8 @@ function create_sim(eq::EquationSet)
         end
     end
     eval(expr)
-    global _resid_thunk = resid_thunk  # debugging
-    global _expr = expr
+    ## global _resid_thunk = resid_thunk  # debugging
+    ## global _expr = expr
     
     function fill_from_map(default_val, N, the_map, f)
         x = fill(default_val, N)
@@ -655,7 +656,7 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
     ## info[18] = 2    # more initialization info
     
     function setup_sim(sm::Sim, tstart::Float64, tstop::Float64, Nsteps::Int)
-        global __structural_change = false
+        global __sim_structural_change = false
         N = [int32(length(sm.y0))]
         t = [tstart]
         y = copy(sm.y0)
@@ -716,7 +717,7 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
                         sm.F.event_neg[ridx](t, y, yp)
                     end
                 end
-                if __structural_change
+                if __sim_structural_change
                     println("structural change event found at t = $(t[1]), restarting")
                     # Put y and yp values back into original equations:
                     for (k,v) in sm.y_map
@@ -728,7 +729,10 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
                     # Reflatten equations
                     sm = create_sim(elaborate(sm.eq.original))
                     # Restart the simulation:
+                    ## simulate = setup_sim(sm, t[1], tstop, int(Nsteps * (tstop - t[1]) / tstop))
                     simulate = setup_sim(sm, t[1], tstop, int(Nsteps * (tstop - t[1]) / tstop))
+                    info[1] = 0
+                    println("sim setup done")
                 elseif any(jroot != 0)
                     println("event found at t = $(t[1]), restarting")
                     info[1] = 0
