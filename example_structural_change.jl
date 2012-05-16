@@ -105,7 +105,7 @@ end
 
 function OpenDiode(n1, n2)
     v = Voltage(-1.0, "diode")
-    TestStructuralEvent(v,     # when V goes positive, this changes to a ClosedDiode
+    StructuralEvent(v,     # when V goes positive, this changes to a ClosedDiode
         ## ClosedDiode(n1, n2),
         [MExpr(:(ClosedDiode($n1, $n2)))],
         Branch(n1, n2, v, 0.0))
@@ -113,7 +113,7 @@ end
 
 function ClosedDiode(n1, n2)
     i = Current(1.0, "diode")
-    TestStructuralEvent(-i,     # when I goes negative, this changes to an OpenDiode
+    StructuralEvent(-i,     # when I goes negative, this changes to an OpenDiode
         ## OpenDiode(n1, n2),
         [MExpr(:(OpenDiode($n1, $n2)))],
         Branch(n1, n2, 0.0, i))

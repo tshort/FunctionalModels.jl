@@ -330,17 +330,10 @@ function meval(x::Expr)   # Evaluate an MExpr with current values for all variab
 end
 meval(x::MExpr) = meval(x.ex)
 
-function TestStructuralEvent(cond::ModelType, new_relation, default)
-    if meval(cond) > 0
-        new_relation
-    else
-        {
-         Event(cond,
-               {:(global __sim_structural_change = true)},
-               {:(pi + 0)}) # kludge: use a dummy expression that evaluates positively
-         default
-        }
-     end
+type StructuralEvent <: ModelType
+    condition::MExpr
+    new_relation
+    default
 end
 
 
@@ -407,13 +400,26 @@ function elaborate(a::Model)
         println("Event found")
         println(ev)
         push(events, strip_mexpr(elaborate_unit(ev.condition)))
-        ## push(neg_responses, convert(Vector{Expr}, map((x) -> strip_mexpr(elaborate_unit(x)), ev.neg_response)))
-        ## push(pos_responses, convert(Vector{Expr}, map((x) -> strip_mexpr(elaborate_unit(x)), ev.pos_response)))
         push(pos_responses, convert(Vector{Expr}, map(strip_mexpr, elaborate_unit(ev.pos_response))))
         push(neg_responses, convert(Vector{Expr}, map(strip_mexpr, elaborate_unit(ev.neg_response))))
-        ## push(neg_responses, convert(Vector{Expr}, elaborate_unit(ev.neg_response)))
-        ## push(pos_responses, convert(Vector{Expr}, elaborate_unit(ev.pos_response)))
         {}
+    end
+    
+    function elaborate_unit(ev::StructuralEvent)
+        # Evaluate the condition now to determine what equations to return:
+        # This is a bit shakey in that I'm not sure if the initial conditions
+        # will work out with this.
+        if meval(ev.condition) > 0.0
+            map((x) -> strip_mexpr(elaborate_unit(x)), ev.new_relation)
+        else 
+            # Set up the event:
+            push(events, strip_mexpr(elaborate_unit(ev.condition)))
+            # A positive zero crossing initiates a change:
+            push(pos_responses, :(global __sim_structural_change = true))
+            # Dummy negative zero crossing
+            push(neg_responses, :(pi + 0.0))
+            map((x) -> strip_mexpr(elaborate_unit(x)), ev.default)
+        end
     end
     
     equations = elaborate_unit(copy(a))
