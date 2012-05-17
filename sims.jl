@@ -1,4 +1,5 @@
 
+
 ##############################################
 ## Non-causal time-domain modeling in Julia ##
 ##############################################
@@ -129,11 +130,12 @@
 
 abstract ModelType
 abstract UnknownCategory
+abstract UnknownVariable <: ModelType
 
 type DefaultUnknown <: UnknownCategory
 end
 
-type Unknown{T<:UnknownCategory} <: ModelType
+type Unknown{T<:UnknownCategory} <: UnknownVariable
     sym::Symbol
     value         # holds initial values (and type info)
     label::String 
@@ -166,17 +168,15 @@ base_value(num::Number, u::Unknown) = length(u.value) > length(num) ? u.value .*
 
 is_unknown(x) = isa(x, Unknown)
     
-type DerUnknown <: ModelType
+type DerUnknown <: UnknownVariable
     sym::Symbol
     value        # holds initial values
+    parent::Unknown
     # label::String    # Do we want this? 
 end
-DerUnknown() = DerUnknown(gensym(), 0.0)
-DerUnknown(u::DerUnknown) = DerUnknown(gensym())
-DerUnknown(u::Unknown) = DerUnknown(gensym(), u.value)
-DerUnknown(x) = DerUnknown(gensym(), x)
-der(x::Unknown) = DerUnknown(x.sym, x.value)
-der(x::Unknown, val) = DerUnknown(x.sym, val)
+DerUnknown(u::Unknown) = DerUnknown(u.sym, 0.0, u)
+der(x::Unknown) = DerUnknown(x.sym, 0.0, x)
+der(x::Unknown, val) = DerUnknown(x.sym, val, x)
 
 # show(a::Unknown) = show(a.sym)
 
@@ -184,7 +184,7 @@ der(x::Unknown, val) = DerUnknown(x.sym, val)
 # A type for discrete variables. These are only changed during
 # events. They are not used by the integrator.
 #
-type Discrete <: ModelType
+type Discrete <: UnknownVariable
     sym::Symbol
     value
     label::String 
@@ -204,9 +204,9 @@ mexpr(hd::Symbol, args::ANY...) = MExpr(expr(hd, args...))
 
 # show(m::MExpr) = show(m.ex)
 
-type MSymbol <: ModelType
-    sym::Symbol
-end
+## type MSymbol <: ModelType
+##     sym::Symbol
+## end
 
 for f = (:+, :-, :*, :.*, :/, :./, :^, :isless)
     @eval ($f)(x::ModelType, y::ModelType) = mexpr(:call, ($f), x, y)
@@ -237,7 +237,8 @@ end
 ref(x::Unknown, args...) = mexpr(:call, :ref, x, args...)
 
 # System time
-MTime = MExpr(:(t[1]))
+## MTime = MExpr(:(t[1]))
+MTime = Unknown(:time, 0.0)
 
 # UnknownOrNumber = Union(Unknown, Number)
 
@@ -324,8 +325,6 @@ function insert_val(a::Expr)
     ret
 end
 function meval(x::Expr)   # Evaluate an MExpr with current values for all variables.
-    println(x)
-    println(eval(insert_val(x)))
     eval(insert_val(x)) 
 end
 meval(x::MExpr) = meval(x.ex)
@@ -349,9 +348,13 @@ end
 # After elaboration, the following structure is returned.
 #
 
+EquationComponent = Union(Expr, UnknownVariable)
+
 type EquationSet
-    equations::Vector{Expr}
-    events::Vector{Expr}
+    equations
+    events
+    ## equations::Vector{EquationComponent}
+    ## events::Vector{EquationComponent}
     pos_response
     neg_response
     original        # unflattened, original model
@@ -374,9 +377,9 @@ function elaborate(a::Model)
     elaborate_unit(a::Any) = Expr[] # The default is to ignore undefined types.
     elaborate_unit(a::ModelType) = a
     function elaborate_unit(a::Model)
-        if (length(a) == 1)
-            return(a)
-        end
+        ## if (length(a) == 1)
+        ##     return(a)
+        ## end
         emodel = {}
         for el in a
             el1 = elaborate_unit(el)
@@ -397,11 +400,11 @@ function elaborate(a::Model)
     end
     
     function elaborate_unit(ev::Event)
-        println("Event found")
-        println(ev)
+        ## println("Event found")
+        ## println(ev)
         push(events, strip_mexpr(elaborate_unit(ev.condition)))
-        push(pos_responses, convert(Vector{Expr}, map(strip_mexpr, elaborate_unit(ev.pos_response))))
-        push(neg_responses, convert(Vector{Expr}, map(strip_mexpr, elaborate_unit(ev.neg_response))))
+        push(pos_responses, convert(Vector{EquationComponent}, strip_mexpr(elaborate_unit(ev.pos_response))))
+        push(neg_responses, convert(Vector{EquationComponent}, strip_mexpr(elaborate_unit(ev.neg_response))))
         {}
     end
     
@@ -409,16 +412,27 @@ function elaborate(a::Model)
         # Evaluate the condition now to determine what equations to return:
         # This is a bit shakey in that I'm not sure if the initial conditions
         # will work out with this.
-        if meval(ev.condition) > 0.0
-            map((x) -> strip_mexpr(elaborate_unit(x)), ev.new_relation)
-        else 
+        println("here")
+        if meval(ev.condition) >= 0.0
+            println("part a")
+            show(ev.new_relation)
+            tmp = strip_mexpr(elaborate_unit(eval_all(strip_mexpr(ev.new_relation))))
+            println(tmp[1])
+            println(eval(ev.new_relation[1]))
+            ## global _tmp = copy(tmp)
+            println("end part a")
+            tmp
+        else
+            println("part b")
             # Set up the event:
             push(events, strip_mexpr(elaborate_unit(ev.condition)))
             # A positive zero crossing initiates a change:
-            push(pos_responses, :(global __sim_structural_change = true))
+            push(pos_responses, :({global __sim_structural_change = true}))
             # Dummy negative zero crossing
-            push(neg_responses, :(pi + 0.0))
-            map((x) -> strip_mexpr(elaborate_unit(x)), ev.default)
+            push(neg_responses, :({pi + 0.0}))
+            tmp = strip_mexpr(elaborate_unit(ev.default))
+            println("end part b")
+            tmp
         end
     end
     
@@ -426,23 +440,26 @@ function elaborate(a::Model)
     for (key, nodeset) in nodeMap
         push(equations, nodeset)
     end
-    ## global _eq = equations
-    ## global _eq1 = map(strip_mexpr, equations)
-    equations = convert(Vector{Expr}, map(strip_mexpr, equations))
+    global _eq = copy(equations)
+    ## global _eq1 = remove_empties(strip_mexpr(_eq))
+    equations = convert(Vector{EquationComponent}, remove_empties(strip_mexpr(equations)))
 
     EquationSet(equations, events, pos_responses, neg_responses, a)
 end
 
 # These methods strip the MExpr's from expressions.
 strip_mexpr(a) = a
+strip_mexpr{T}(a::Vector{T}) = map(strip_mexpr, a)
 strip_mexpr(a::MExpr) = strip_mexpr(a.ex)
-strip_mexpr(a::MSymbol) = a.sym 
+## strip_mexpr(a::MSymbol) = a.sym 
 function strip_mexpr(a::Expr)
     ret = copy(a)
-    ret.args = map((x) -> strip_mexpr(x), ret.args)
+    ret.args = strip_mexpr(ret.args)
     ret
 end
-
+remove_empties(l::Vector{Any}) = filter(x -> !isequal(x, {}), l)
+eval_all(x) = eval(x)
+eval_all{T}(x::Array{T,1}) = map(eval, x)
 
 ########################################
 ## Residual function and Sim creation ##
@@ -511,12 +528,16 @@ function create_sim(eq::EquationSet)
     # The replace_unknowns method replaces Unknown types with
     # references to the positions in the y or yp vectors.
     replace_unknowns(a) = a
+    replace_unknowns{T}(a::Array{T,1}) = map(replace_unknowns, a)
     function replace_unknowns(a::Expr)
         ret = copy(a)
-        ret.args = map((x) -> replace_unknowns(x), ret.args)
+        ret.args = replace_unknowns(ret.args)
         ret
     end
     function replace_unknowns(a::Unknown)
+        if isequal(a.sym, :time)
+            return :(t[1])
+        end
         add_var(a)
         unknown_map[a.sym] = a
         y_map[unknown_idx_map[a.sym]] = a
@@ -526,14 +547,16 @@ function create_sim(eq::EquationSet)
             :(from_real(ref(y, ($(unknown_idx_map[a.sym]))), $(a.value)))
         end
     end
+    function replace_unknowns(a::DerUnknown) 
+        add_var(a)
+        unknown_map[a.parent.sym] = a.parent
+        y_map[unknown_idx_map[a.parent.sym]] = a.parent
+        yp_map[unknown_idx_map[a.sym]] = a
+        :(ref(yp, ($(unknown_idx_map[a.sym]))))
+    end
     function replace_unknowns(a::Discrete)
         discrete_map[a.sym] = a
         :(ref($(a.sym), 1))
-    end
-    function replace_unknowns(a::DerUnknown) 
-        add_var(a)
-        yp_map[unknown_idx_map[a.sym]] = a
-        :(ref(yp, ($(unknown_idx_map[a.sym]))))
     end
     # In assigned variables (LeftVar), use SubArrays (sub), instead of ref.
     function replace_unknowns(a::LeftVar)
@@ -542,8 +565,8 @@ function create_sim(eq::EquationSet)
     end
     
     # eq_block should be just expressions suitable for eval'ing.
-    eq_block = map(replace_unknowns, eq.equations)
-    ev_block = map(replace_unknowns, eq.events)
+    eq_block = replace_unknowns(eq.equations)
+    ev_block = replace_unknowns(eq.events)
     
     # Set up a master function with variable declarations and 
     # functions that have access to those variables.
@@ -558,24 +581,25 @@ function create_sim(eq::EquationSet)
     # Same but for the root crossing function:
     event_thunk = Expr(:call, append({:vcat_real}, ev_block), Any)
 
-    exp_array_to_thunk(ex::Vector{Expr}) = reduce((x,y) -> :($x;$y), :(), ex)
+    to_thunk(ex::Vector{Expr}) = reduce((x,y) -> :($x;$y), :(), ex)
+    to_thunk(ex::Expr) = ex
 
     ev_pos_array = Expr[]
     ev_neg_array = Expr[]
     for idx in 1:length(eq.events)
-        ex = exp_array_to_thunk(map(replace_unknowns, eq.pos_response[idx]))
+        ex = to_thunk(replace_unknowns(eq.pos_response[idx]))
         push(ev_pos_array, 
              quote
                  (t, y, yp) -> begin $ex; return; end
              end)
-        ex = exp_array_to_thunk(map(replace_unknowns, eq.neg_response[idx]))
+        ex = to_thunk(replace_unknowns(eq.neg_response[idx]))
         push(ev_neg_array, 
              quote
                  (t, y, yp) -> begin $ex; return; end
              end)
     end
-    ev_pos_thunk = Expr(:call, append({:vcat}, ev_pos_array), Any)
-    ev_neg_thunk = Expr(:call, append({:vcat}, ev_neg_array), Any)
+    ev_pos_thunk = length(ev_pos_array) > 0 ? Expr(:call, append({:vcat}, ev_pos_array), Any) : Function[]
+    ev_neg_thunk = length(ev_neg_array) > 0 ? Expr(:call, append({:vcat}, ev_neg_array), Any) : Function[]
     
     get_discretes_thunk = :(() -> 1)   # dummy function for now
 
@@ -598,8 +622,10 @@ function create_sim(eq::EquationSet)
         end
     end
     eval(expr)
-    ## global _resid_thunk = resid_thunk  # debugging
-    ## global _expr = expr
+    global _resid_thunk = copy(resid_thunk)  # debugging
+    global _expr = copy(expr)
+    global _ev_pos = copy(ev_pos_thunk)
+    global _ev_neg = copy(ev_neg_thunk)
     
     function fill_from_map(default_val, N, the_map, f)
         x = fill(default_val, N)
@@ -667,7 +693,7 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
         t = [tstart]
         y = copy(sm.y0)
         yp = copy(sm.yp0)
-        nrt = [int32(length(sm.F.event_at(t, y, yp)))]
+        nrt = [int32(length(sm.F.event_pos))]
         rpar = [0.0]
         rtol = [0.0]
         atol = [1e-3]
@@ -690,7 +716,6 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
         global __daskr_y = y
         global __daskr_yp = yp
         global __daskr_res = copy(y)
-        tstep = tstop / Nsteps
         
         (tout) -> begin
             ccall(dlsym(lib, :ddaskr_), Void,
@@ -707,11 +732,17 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
     end
 
     simulate = setup_sim(sm, 0.0, tstop, Nsteps)
-    yout = zeros(Nsteps, Ncol + 1)
+    global yout = zeros(Nsteps, Ncol + 1)
 
     for idx in 1:Nsteps
         (t,y,yp,jroot) = simulate(tout)
-        if idid[1] >= 0 && idid[1] <= 5
+        if t[1] > tstop
+            break
+        end
+        ## if t[1] > 0.018     #### DEBUG
+        ##     break
+        ## end
+        if idid[1] >= 0 && idid[1] <= 5 
             yout[idx, 1] = t[1]
             yout[idx, 2:(Noutputs + 1)] = y[yidx]
             tout = t + tstep
@@ -725,20 +756,22 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
                 end
                 if __sim_structural_change
                     println("structural change event found at t = $(t[1]), restarting")
-                    # Put y and yp values back into original equations:
+                    # Put t, y, and yp values back into original equations:
                     for (k,v) in sm.y_map
                         v.value = y[k]
                     end
                     for (k,v) in sm.yp_map
                         v.value = yp[k]
                     end
+                    MTime.value = t[1]
                     # Reflatten equations
                     sm = create_sim(elaborate(sm.eq.original))
+                    ## global _sm = copy(sm)
                     # Restart the simulation:
-                    ## simulate = setup_sim(sm, t[1], tstop, int(Nsteps * (tstop - t[1]) / tstop))
+                    println(int(Nsteps * (tstop - t[1]) / tstop))
                     simulate = setup_sim(sm, t[1], tstop, int(Nsteps * (tstop - t[1]) / tstop))
+                    yidx = map((s) -> s != "", sm.outputs)
                     info[1] = 0
-                    println("sim setup done")
                 elseif any(jroot != 0)
                     println("event found at t = $(t[1]), restarting")
                     info[1] = 0

@@ -1,4 +1,56 @@
 
+load("sims.jl")
+
+########################################
+## Breaking pendulum                  ##
+########################################
+
+function FreeFall(x,y,vx,vy)
+    {
+     vx - der(x)
+     vy - der(y)
+     der(vx)
+     der(vy) + 9.81
+    }
+end
+
+function Pendulum(x,y,vx,vy)
+    len = sqrt(x.value^2 + y.value^2)
+    phi0 = atan2(x.value, -y.value) 
+    phi = Unknown(phi0)
+    phid = Unknown()
+    {
+     phid - der(phi)
+     vx - der(x)
+     vy - der(y)
+     x - len * sin(phi)
+     y + len * cos(phi)
+     der(phid) + 9.81 / len * sin(phi)
+    }
+end
+
+function BreakingPendulum()
+    x = Unknown(cos(pi/4), "x")
+    y = Unknown(-cos(pi/4), "y")
+    vx = Unknown()
+    vy = Unknown()
+    {
+     StructuralEvent(MTime - 5.0,     # when time hits 5 sec, switch to FreeFall
+         {MExpr(:(FreeFall($x,$y,$vx,$vy)))},
+         Pendulum(x,y,vx,vy))
+    }
+end
+
+p = BreakingPendulum()
+p_f = elaborate(p)
+p_s = create_sim(p_f) 
+p_y = sim(p_s, 6.0)  
+
+
+
+
+
+stophere()
 
 ########################################
 ## Diode                              ##
@@ -81,13 +133,6 @@ function SeriesProbe(n1, n2, name::String)
     Branch(n1, n2, base_value(n1, n2), i)
 end
 
-## function if_event(cond::ModelType, a, b)
-##     {
-##      Event(cond, {}, {})
-##      ifelse(cond > 0.0, a, b)
-##      } 
-## end
-
 function IdealDiode(n1, n2)
     i = Current()
     v = Voltage()
@@ -104,18 +149,16 @@ function IdealDiode(n1, n2)
 end
 
 function OpenDiode(n1, n2)
-    v = Voltage(-1.0, "diode")
-    StructuralEvent(v,     # when V goes positive, this changes to a ClosedDiode
-        ## ClosedDiode(n1, n2),
-        [MExpr(:(ClosedDiode($n1, $n2)))],
+    v = Voltage(-0.01, "diode")
+    StructuralEvent(v+0.0,     # when V goes positive, this changes to a ClosedDiode
+        {MExpr(:(ClosedDiode($n1, $n2)))},
         Branch(n1, n2, v, 0.0))
 end
 
 function ClosedDiode(n1, n2)
-    i = Current(1.0, "diode")
+    i = Current(0.01, "diode")
     StructuralEvent(-i,     # when I goes negative, this changes to an OpenDiode
-        ## OpenDiode(n1, n2),
-        [MExpr(:(OpenDiode($n1, $n2)))],
+        {MExpr(:(OpenDiode($n1, $n2)))},
         Branch(n1, n2, 0.0, i))
 end
 
@@ -135,10 +178,10 @@ function HalfWaveRectifier()
 end
 
 
-## rct = HalfWaveRectifier()
-## rct_f = elaborate(rct)
-## rct_s = create_sim(rct_f) 
-## rct_yout = sim(rct, 0.1)  
+rct = HalfWaveRectifier()
+rct_f = elaborate(rct)
+rct_s = create_sim(rct_f) 
+rct_y = sim(rct_s, 0.1)  
 
 # The same circuit, this time with a structurally variable diode.
 function StructuralHalfWaveRectifier()
@@ -161,7 +204,7 @@ sct_f = elaborate(sct)
 println("flattened")
 sct_s = create_sim(sct_f) 
 println("sim made")
-sct_yout = sim(sct, 0.1)  
+sct_y = sim(sct_s, 0.1)  
 
 
 
