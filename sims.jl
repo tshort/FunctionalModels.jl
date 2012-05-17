@@ -412,7 +412,7 @@ function elaborate(a::Model)
         # Evaluate the condition now to determine what equations to return:
         # This is a bit shakey in that I'm not sure if the initial conditions
         # will work out with this.
-        println("here")
+        ## println("here")
         if meval(ev.condition) >= 0.0
             println("part a")
             show(ev.new_relation)
@@ -420,10 +420,10 @@ function elaborate(a::Model)
             println(tmp[1])
             println(eval(ev.new_relation[1]))
             ## global _tmp = copy(tmp)
-            println("end part a")
+            ## println("end part a")
             tmp
         else
-            println("part b")
+            ## println("part b")
             # Set up the event:
             push(events, strip_mexpr(elaborate_unit(ev.condition)))
             # A positive zero crossing initiates a change:
@@ -440,7 +440,7 @@ function elaborate(a::Model)
     for (key, nodeset) in nodeMap
         push(equations, nodeset)
     end
-    global _eq = copy(equations)
+    ## global _eq = copy(equations)
     ## global _eq1 = remove_empties(strip_mexpr(_eq))
     equations = convert(Vector{EquationComponent}, remove_empties(strip_mexpr(equations)))
 
@@ -605,7 +605,7 @@ function create_sim(eq::EquationSet)
 
     # The framework for the master function defined
     expr = quote
-        function vp_fun()
+        () -> begin
             $discrete_defs
             function resid(t, y, yp)
                  $resid_thunk
@@ -621,11 +621,11 @@ function create_sim(eq::EquationSet)
             SimFunctions(resid, event_at, event_pos_array, event_neg_array, get_discretes)
         end
     end
-    eval(expr)
-    global _resid_thunk = copy(resid_thunk)  # debugging
-    global _expr = copy(expr)
-    global _ev_pos = copy(ev_pos_thunk)
-    global _ev_neg = copy(ev_neg_thunk)
+    vp_fun = eval(expr)
+    ## global _resid_thunk = copy(resid_thunk)  # debugging
+    ## global _expr = copy(expr)
+    ## global _ev_pos = copy(ev_pos_thunk)
+    ## global _ev_neg = copy(ev_neg_thunk)
     
     function fill_from_map(default_val, N, the_map, f)
         x = fill(default_val, N)
@@ -732,7 +732,7 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
     end
 
     simulate = setup_sim(sm, 0.0, tstop, Nsteps)
-    global yout = zeros(Nsteps, Ncol + 1)
+    yout = zeros(Nsteps, Ncol + 1)
 
     for idx in 1:Nsteps
         (t,y,yp,jroot) = simulate(tout)
