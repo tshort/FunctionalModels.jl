@@ -115,7 +115,7 @@ function VSource(n1::NumberOrUnknown{UVoltage}, n2::NumberOrUnknown{UVoltage}, V
     v = Voltage()
     {
      Branch(n1, n2, v, i) 
-     v - V * cos(2 * pi * f * MTime)
+     v - V * sin(2 * pi * f * MTime)
      }
 end
 
@@ -170,7 +170,7 @@ function HalfWaveRectifier()
     g = 0.0 
     {
      VSource(nsrc, g, 1.0, 60.0)
-     Resistor(nsrc, n2, .01)
+     Resistor(nsrc, n2, 1.0)
      IdealDiode(n2, nout)
      Capacitor(nout, g, 0.001)
      Resistor(nout, g, 50.0)
@@ -186,13 +186,15 @@ rct_y = sim(rct_s, 0.1)
 
 # The same circuit with a structurally variable diode.
 function StructuralHalfWaveRectifier()
-    nsrc = ElectricalNode(1.0, "Source voltage")
+    nsrc = ElectricalNode("Source voltage")
     n2 = ElectricalNode()
     nout = ElectricalNode("Output voltage")
+    Vdiode = Unknown("Vdiode")
     g = 0.0 
     {
+     Vdiode - (n2 - nout)
      VSource(nsrc, g, 1.0, 60.0)
-     Resistor(nsrc, n2, 10.0)
+     Resistor(nsrc, n2, 1.0)
      ClosedDiode(n2, nout)
      Capacitor(nout, g, 0.001)
      Resistor(nout, g, 50.0)
