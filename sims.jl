@@ -414,16 +414,11 @@ function elaborate(a::Model)
         # will work out with this.
         ## println("here")
         if meval(ev.condition) >= 0.0
-            println("part a")
-            show(ev.new_relation)
+            println("New relation: ", ev.new_relation)
             tmp = strip_mexpr(elaborate_unit(eval_all(strip_mexpr(ev.new_relation))))
-            println(tmp[1])
-            println(eval(ev.new_relation[1]))
             ## global _tmp = copy(tmp)
-            ## println("end part a")
             tmp
         else
-            ## println("part b")
             # Set up the event:
             push(events, strip_mexpr(elaborate_unit(ev.condition)))
             # A positive zero crossing initiates a change:
@@ -431,7 +426,6 @@ function elaborate(a::Model)
             # Dummy negative zero crossing
             push(neg_responses, :({pi + 0.0}))
             tmp = strip_mexpr(elaborate_unit(ev.default))
-            println("end part b")
             tmp
         end
     end
@@ -768,7 +762,6 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
                     sm = create_sim(elaborate(sm.eq.original))
                     ## global _sm = copy(sm)
                     # Restart the simulation:
-                    println(int(Nsteps * (tstop - t[1]) / tstop))
                     simulate = setup_sim(sm, t[1], tstop, int(Nsteps * (tstop - t[1]) / tstop))
                     yidx = map((s) -> s != "", sm.outputs)
                     info[1] = 0

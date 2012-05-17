@@ -41,6 +41,7 @@ function BreakingPendulum()
     }
 end
 
+println("**** Breaking Pendulum ****")
 p = BreakingPendulum()
 p_f = elaborate(p)
 p_s = create_sim(p_f) 
@@ -50,7 +51,6 @@ p_y = sim(p_s, 6.0)
 
 
 
-stophere()
 
 ########################################
 ## Diode                              ##
@@ -149,14 +149,14 @@ function IdealDiode(n1, n2)
 end
 
 function OpenDiode(n1, n2)
-    v = Voltage(-0.01, "diode")
+    v = Voltage(n1.value - n2.value - 1e-5, "diode")
     StructuralEvent(v+0.0,     # when V goes positive, this changes to a ClosedDiode
         {MExpr(:(ClosedDiode($n1, $n2)))},
         Branch(n1, n2, v, 0.0))
 end
 
 function ClosedDiode(n1, n2)
-    i = Current(0.01, "diode")
+    i = Current(1e-5, "diode")
     StructuralEvent(-i,     # when I goes negative, this changes to an OpenDiode
         {MExpr(:(OpenDiode($n1, $n2)))},
         Branch(n1, n2, 0.0, i))
@@ -170,7 +170,7 @@ function HalfWaveRectifier()
     g = 0.0 
     {
      VSource(nsrc, g, 1.0, 60.0)
-     Resistor(nsrc, n2, 10.0)
+     Resistor(nsrc, n2, .01)
      IdealDiode(n2, nout)
      Capacitor(nout, g, 0.001)
      Resistor(nout, g, 50.0)
@@ -178,12 +178,13 @@ function HalfWaveRectifier()
 end
 
 
+println("**** Non-structural Half Wave Rectifier ****")
 rct = HalfWaveRectifier()
 rct_f = elaborate(rct)
 rct_s = create_sim(rct_f) 
 rct_y = sim(rct_s, 0.1)  
 
-# The same circuit, this time with a structurally variable diode.
+# The same circuit with a structurally variable diode.
 function StructuralHalfWaveRectifier()
     nsrc = ElectricalNode(1.0, "Source voltage")
     n2 = ElectricalNode()
@@ -198,12 +199,10 @@ function StructuralHalfWaveRectifier()
      }
 end
 
-
+println("**** Structural Half Wave Rectifier ****")
 sct = StructuralHalfWaveRectifier()
 sct_f = elaborate(sct)
-println("flattened")
 sct_s = create_sim(sct_f) 
-println("sim made")
 sct_y = sim(sct_s, 0.1)  
 
 
