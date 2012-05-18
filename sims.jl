@@ -1,5 +1,4 @@
 
-
 ##############################################
 ## Non-causal time-domain modeling in Julia ##
 ##############################################
@@ -28,7 +27,11 @@
 # multiple implementations. It is a large, complex, powerful language
 # with an extensive standard library of components.
 #
-# This implementation follows the work of David Broman. His thesis
+# This implementation follows the work of David Broman and his MKL
+# simulator and the work of George Giorgidze and Henrik Nilsson and
+# their functional hybrid modeling.
+#
+# A nodal formulation is used based on David's work. His thesis
 # documents this nicely:
 # 
 #   David Broman. Meta-Languages and Semantics for Equation-Based
@@ -42,20 +45,18 @@
 #   http://www.bromans.com/software/mkl/mkl-source-1.0.0.zip
 #   http://www.ida.liu.se/~davbr/
 #   
-# Functional hybrid modelling (FHM) is another interesting approach
-# developed by George Giorgidze and Henrik Nilsson. See here:
+# Modeling of dynamically varying systems is handled similarly to
+# functional hybrid modelling (FHM), specifically the Hydra
+# implementation by George. See here for links:
 # 
 #   https://github.com/giorgidze/Hydra
 #   http://db.inf.uni-tuebingen.de/team/giorgidze
 #   http://www.cs.nott.ac.uk/~nhn/
 # 
-# FHM is also a functional approach. Their implementation handles
+# FHM is also a functional approach. Hydra is implemented as a domain
+# specific language embedded in Haskell. Their implementation handles
 # dynamically changing systems with JIT-compiled code from an
-# amazingly small amount of code. Their implementation (Hydra) is
-# implemented as a domain specific language embedded in Haskell. I
-# can't read Haskell very well, so I haven't figured out how it works.
-# I should try harder to figure it out, because the ability to handle
-# structural changes is pretty cool. 
+# amazingly small amount of code.
 # 
 # As stated, this file implements something like David's approach. A
 # model constructor returns a list of equations. Models are made of
@@ -68,12 +69,12 @@
 #   - Index-1 DAE's using the DASSL solver
 #   - Arrays of unknown variables
 #   - Complex valued unknowns
-#   - Hybrid modeling (basics)
-#   - Discrete hard
+#   - Hybrid modeling
+#   - Discrete systems
+#   - Structurally variable systems
 #   
 # What's missing:
-#   - Structurally variable systems
-#   - Initial equations (medium difficulty)
+#   - Initial equations
 #   - Causal relationships or input/outputs (?)
 #   - Metadata like variable name, units, and annotations (hard?)
 #   - Symbolic processing like index reduction
@@ -86,19 +87,12 @@
 #   - Tough to map to a GUI. This is probably true with most
 #     functional approaches. Tough to add annotations.
 #
-# Differences with David's approach:
-#   - Ground references are handled differently. By treating them
-#     as knowns instead of unknowns, there are less equations.
-#   - Arrays of unknowns can be used.
-#
-# For an implementation point of view, Julia works well for this.
-# The biggest headache was coding up the callback to the residual
+# For an implementation point of view, Julia works well for this. The
+# biggest headache was coding up the callback to the residual
 # function. For this, I used a kludgy approach with several global
-# variables. This should improve in the future with a better C api.
-# I also tried interfacing with the Sundials IDA solver, but that
-# was even more difficult to interface. Also, if the residual
-# function doesn't have the right number of arguments, you'll
-# probably get segfaults.
+# variables. This should improve in the future with a better C api. I
+# also tried interfacing with the Sundials IDA solver, but that was
+# even more difficult to interface. 
 # 
 
 ########################################
@@ -154,7 +148,8 @@ Unknown(x, label::String) = Unknown{DefaultUnknown}(gensym(), x, label)
 Unknown(label::String) = Unknown{DefaultUnknown}(gensym(), 0.0, label)
 Unknown(s::Symbol, x) = Unknown{DefaultUnknown}(s, x, "")
 
-# The following helper functions are to return the base value from an unknown to use when creating other unknowns. An example would be:
+# The following helper functions are to return the base value from an
+# unknown to use when creating other unknowns. An example would be:
 #   a = Unknown(45.0 + 10im)
 #   b = Unknown(base_value(a))   # This one gets initialized to 0.0 + 0.0im.
 #
@@ -181,8 +176,8 @@ der(x::Unknown, val) = DerUnknown(x.sym, val, x)
 # show(a::Unknown) = show(a.sym)
 
 #
-# A type for discrete variables. These are only changed during
-# events. They are not used by the integrator.
+# Discrete is a type for discrete variables. These are only changed
+# during events. They are not used by the integrator.
 #
 type Discrete <: UnknownVariable
     sym::Symbol
@@ -202,11 +197,8 @@ type MExpr <: ModelType
 end
 mexpr(hd::Symbol, args::ANY...) = MExpr(expr(hd, args...))
 
-# show(m::MExpr) = show(m.ex)
-
-## type MSymbol <: ModelType
-##     sym::Symbol
-## end
+# Set up defaults for operations on ModelType's for many common
+# methods.
 
 for f = (:+, :-, :*, :.*, :/, :./, :^, :isless)
     @eval ($f)(x::ModelType, y::ModelType) = mexpr(:call, ($f), x, y)
@@ -236,18 +228,16 @@ end
 
 ref(x::Unknown, args...) = mexpr(:call, :ref, x, args...)
 
-# System time
-## MTime = MExpr(:(t[1]))
+# System time - a special unknown variable
 MTime = Unknown(:time, 0.0)
 
-# UnknownOrNumber = Union(Unknown, Number)
 
 #  The type RefBranch and the helper Branch are used to indicate the
 #  potential between nodes and the flow between nodes.
 
 type RefBranch <: ModelType
-    n     # this is the reference node
-    i     # this is the flow variable that goes with this reference
+    n     # This is the reference node.
+    i     # This is the flow variable that goes with this reference.
 end
 
 function Branch(n1, n2, v, i)
@@ -265,24 +255,32 @@ Model = Vector{Any}
 
 
 
+
+
 ########################################
 ## Utilities for Hybrid Modeling      ##
 ########################################
 
+
 #
 # Event is the main type used for hybrid modeling. It contains a
-# condition for root finding and model expressions to process for
-# positive and negative root crossings.
+# condition for root finding and model expressions to process after
+# positive and negative root crossings are detected.
 #
 
 type Event <: ModelType
-    condition::ModelType
-    pos_response::Model
-    neg_response::Model
+    condition::ModelType   # An expression used for the event detection. 
+    pos_response::Model    # An expression indicating what to do when
+                           # the condition crosses zero positively.
+    neg_response::Model    # An expression indicating what to do when
+                           # the condition crosses zero in the
+                           # negative direction.
 end
 
 #
-# reinit and LeftVar are needed to make assignments during events.
+# reinit is used in Event responses to redefine variables. LeftVar is
+# needed to mark unknowns as left-side variables in assignments during
+# event responses.
 # 
 type LeftVar <: ModelType
     var
@@ -296,12 +294,20 @@ reinit(x::Unknown, y) = reinit(LeftVar(x), y)
 reinit(x::DerUnknown, y) = reinit(LeftVar(x), y)
 reinit(x::Discrete, y) = reinit(LeftVar(x), y)
 
+#
+# BoolEvent is a helper for attaching an event to a boolean variable.
+# In conjunction with ifelse, this allows constructs like Modelica's
+# if blocks.
+#
 function BoolEvent(d::Discrete, cond::ModelType)
-    Event(cond,
+    Event(cond,       
           {reinit(d, true)},
           {reinit(d, false)})
 end
 
+#
+# ifelse is like an if-then-else block, but for ModelTypes.
+#
 ifelse(x::Bool, y, z) = x ? y : z
 ifelse(x::ModelType, y, z) = mexpr(:call, :ifelse, x, y, z)
 ifelse(x::MExpr, y, z) = mexpr(:call, :ifelse, x.ex, y, z)
@@ -311,29 +317,19 @@ ifelse(x::MExpr, y::MExpr, z::MExpr) = mexpr(:call, :ifelse, x.ex, y.ex, z.ex)
 
 
 ########################################
-## Utilities for Structural Changes   ##
+## Types for Structural Dynamics      ##
 ########################################
 
-insert_val(a) = a
-insert_val(a::MExpr) = insert_val(a.ex)
-insert_val(a::Unknown) = a.value 
-insert_val(a::DerUnknown) = a.value 
-insert_val(a::Discrete) = a.value 
-function insert_val(a::Expr)
-    ret = copy(a)
-    ret.args = map((x) -> insert_val(x), ret.args)
-    ret
-end
-function meval(x::Expr)   # Evaluate an MExpr with current values for all variables.
-    eval(insert_val(x)) 
-end
-meval(x::MExpr) = meval(x.ex)
-
+#
+# StructuralEvent defines a type for elements that change the
+# structure of the model. An event is created (condition is the zero
+# crossing). When the event is triggered, the model is re-flattened
+# after replacing default with new_relation in the model. 
 type StructuralEvent <: ModelType
-    condition::MExpr
+    condition::ModelType  # Expression indicating a zero crossing for event detection.
     new_relation
     default
-    activated::Bool     # whether the event condition has fired
+    activated::Bool       # Indicates whether the event condition has fired
 end
 StructuralEvent(condition::MExpr, new_relation, default) = StructuralEvent(condition, new_relation, default, false)
 
@@ -346,22 +342,28 @@ StructuralEvent(condition::MExpr, new_relation, default) = StructuralEvent(condi
 #
 # This converts a hierarchical model into a flat set of equations.
 # 
-# After elaboration, the following structure is returned.
+# After elaboration, the following structure is returned. This sort-of
+# follows Hydra's SymTab structure.
 #
 
-EquationComponent = Union(Expr, UnknownVariable)
-
+#
 type EquationSet
-    model
-    equations
+    model           # The active model, a hierachichal set of equations.
+    equations       # A flat list of equations.
     events
     pos_responses
     neg_responses
     nodeMap::Dict
 end
+# In EquationSet, model contains equations and StructuralEvents. When
+# a StructuralEvent triggers, the entire model is elaborated again.
+# The first step is to replace StructuralEvents that have activated
+# with their new_relation in model. Then, the rest of the EquationSet
+# is reflattened using model as the starting point.
+
 
 # 
-# This is the main elaboration function. There is no real symbolic
+# elaborate is the main elaboration function. There is no real symbolic
 # processing (sorting, index reduction, or any of the other stuff a
 # fancy modeling tool would do).
 # 
@@ -396,11 +398,18 @@ function traverse_mod(f::Function, a::Model)
     emodel
 end
 
+#
+# handle_events traverses the model tree and replaces
+# StructuralEvent's that have activated.
+#
 handle_events(a::Model) = traverse_mod(handle_events, a)
 handle_events(x) = x
 handle_events(ev::StructuralEvent) = ev.activated ? eval_all(ev.new_relation) : ev
 
-
+#
+# elaborate_unit flattens the set of equations while building up
+# events, event responses, and a Dict of nodes.
+#
 elaborate_unit(a::Any, eq::EquationSet) = Expr[] # The default is to ignore undefined types.
 elaborate_unit(a::ModelType, eq::EquationSet) = a
 elaborate_unit(a::Model, eq::EquationSet) = traverse_mod((x) -> elaborate_unit(x, eq), a)
@@ -440,6 +449,8 @@ function strip_mexpr(a::Expr)
     ret.args = strip_mexpr(ret.args)
     ret
 end
+
+# Other utilities:
 remove_empties(l::Vector{Any}) = filter(x -> !isequal(x, {}), l)
 eval_all(x) = eval(x)
 eval_all{T}(x::Array{T,1}) = map(eval_all, x)
@@ -453,20 +464,25 @@ eval_all{T}(x::Array{T,1}) = map(eval_all, x)
 ########################################
 
 #
-# From the flattened equations, generate a residual function with
-# arguments (t,y,yp) that returns the residual of type Float64 of
-# length N, the number of equations in the system. The vectors y and
-# yp are also of length N and type Float64. As part of finding the
-# residual function, we need to map unknown variables to indexes into
-# y and yp.
+# From the flattened equations, generate a set of functions for use by
+# the simulation. The residual function has arguments (t,y,yp) that
+# returns the residual of type Float64 of length N, the number of
+# equations in the system. The vectors y and yp are also of length N
+# and type Float64. As part of finding the residual function, we use
+# several Dicts to map unknown variables to indexes into y and yp.
 # 
-
+# SimFunctions is the set of functions used during simulation. All
+# functions take (t,y,yp) as arguments.
+#
 type SimFunctions
-    resid::Function
-    event_at::Function
-    event_pos::Vector{Function}
-    event_neg::Vector{Function}
-    get_discretes::Function
+    resid::Function           
+    event_at::Function          # Returns a Vector of root-crossing values. 
+    event_pos::Vector{Function} # Each function is to be run when a
+                                #   positive root crossing is detected.
+    event_neg::Vector{Function} # Each function is to be run when a
+                                #   negative root crossing is detected.
+    get_discretes::Function     # Placeholder for a function to return
+                                #   discrete values.
 end
 SimFunctions(resid::Function, event_at::Function, event_pos::Vector{None}, event_neg::Vector{None}, get_discretes::Function) = 
     SimFunctions(resid, event_at, Function[], Function[], get_discretes)
@@ -508,7 +524,12 @@ function create_sim(eq::EquationSet)
     sm
 end
 
-function fill_from_map(default_val, N, the_map, f)
+# Utility to vectors based on values in Dict's. The key in the Dict
+# gives the indexes in the vector.
+function fill_from_map(default_val,# Default value for the vector.
+                       N,          # Length of the resulting vector.
+                       the_map,    # The Dict.
+                       f)          # A function applied to each value.
     x = fill(default_val, N)
     for (k,v) in the_map
         x[ [k] ] = f(v)
@@ -516,6 +537,15 @@ function fill_from_map(default_val, N, the_map, f)
     x
 end
 
+#
+# setup_functions sets up several functions in a closure setup to
+# share common variables. This allows model components to access
+# Discrete variables during integration steps and during event
+# responses.
+#
+# Unknowns are also replaced by references to y and yp. As part of
+# replacing unknowns, several of the Dicts in sm are populated.
+#
 function setup_functions(sm::Sim)
     # eq_block should be just expressions suitable for eval'ing.
     eq_block = replace_unknowns(sm.eq.equations, sm)
@@ -534,10 +564,16 @@ function setup_functions(sm::Sim)
     # Same but for the root crossing function:
     event_thunk = Expr(:call, append({:vcat_real}, ev_block), Any)
 
+    # Helpers to convert an array of expressions into a single expression.
     to_thunk{T}(ex::Vector{T}) = reduce((x,y) -> :($x;$y), :(), ex)
     to_thunk(ex::Expr) = ex
     to_thunk(ex::Function) = ex
 
+    #
+    # The event responses are more work. We need one "thunk" for each
+    # event, and one set for positive and one set for negative
+    # crossings.
+    #
     ev_pos_array = Expr[]
     ev_neg_array = Expr[]
     for idx in 1:length(sm.eq.events)
@@ -557,7 +593,10 @@ function setup_functions(sm::Sim)
     
     get_discretes_thunk = :(() -> 1)   # dummy function for now
 
-    # The framework for the master function defined
+    #
+    # The framework for the master function defined. Each "thunk" gets
+    # plugged into a function which is evaluated.
+    #
     expr = quote
         () -> begin
             $discrete_defs
@@ -578,7 +617,7 @@ function setup_functions(sm::Sim)
     F = eval(expr)()
 
     # For event responses that were actual functions, insert those into
-    # the vp structure.
+    # the F structure.
     for idx in 1:length(sm.eq.events)
         if isa(sm.eq.pos_responses[idx], Function)
             F.event_pos[idx] = sm.eq.pos_responses[idx]
@@ -642,6 +681,10 @@ function replace_unknowns(a::LeftVar, sm::Sim)
     :(sub($(var.args[2]), $(var.args[3])))
 end
 
+#
+# vcat_real is like vcat, but each element is converted to real with
+# to_real.
+#
 vcat_real(X::Any...) = [ to_real(X[i]) for i=1:length(X) ]
 function vcat_real(X::Any...)
     ## println(X[1])
