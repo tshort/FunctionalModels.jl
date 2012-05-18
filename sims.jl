@@ -333,8 +333,9 @@ type StructuralEvent <: ModelType
     condition::MExpr
     new_relation
     default
+    activated::Bool     # whether the event condition has fired
 end
-
+StructuralEvent(condition::MExpr, new_relation, default) = StructuralEvent(condition, new_relation, default, false)
 
 
 
@@ -351,98 +352,83 @@ end
 EquationComponent = Union(Expr, UnknownVariable)
 
 type EquationSet
+    model
     equations
     events
-    ## equations::Vector{EquationComponent}
-    ## events::Vector{EquationComponent}
-    pos_response
-    neg_response
-    original        # unflattened, original model
+    pos_responses
+    neg_responses
+    nodeMap::Dict
 end
 
+# 
+# This is the main elaboration function. There is no real symbolic
+# processing (sorting, index reduction, or any of the other stuff a
+# fancy modeling tool would do).
+# 
+elaborate(a::Model) = elaborate(EquationSet(a, {}, {}, {}, {}, Dict()))
 
-# 
-# This needs something to better separate special constructs (like
-# RefBranch). The accumulating and finalizing is tricky to separate.
-# 
-# There is no real symbolic processing (sorting, index reduction, or
-# any of the other stuff a fancy modeling tool would do).
-# 
-function elaborate(a::Model)
-    nodeMap = Dict()
-    events = Expr[]
-    pos_responses = {}
-    neg_responses = {}
-    
-    elaborate_unit(a::Any) = Expr[] # The default is to ignore undefined types.
-    elaborate_unit(a::ModelType) = a
-    function elaborate_unit(a::Model)
-        ## if (length(a) == 1)
-        ##     return(a)
-        ## end
-        emodel = {}
-        for el in a
-            el1 = elaborate_unit(el)
-            if applicable(length, el1)
-                append!(emodel, el1)
-            else  # this handles symbols
-                push(emodel, el1)
-            end
-        end
-        emodel
-    end
-    
-    function elaborate_unit(b::RefBranch)
-        if (is_unknown(b.n))
-            nodeMap[b.n] = get(nodeMap, b.n, 0.0) + b.i
-        end
-        {}
-    end
-    
-    function elaborate_unit(ev::Event)
-        ## println("Event found")
-        ## println(ev)
-        push(events, strip_mexpr(elaborate_unit(ev.condition)))
-        push(pos_responses, convert(Vector{EquationComponent}, strip_mexpr(elaborate_unit(ev.pos_response))))
-        push(neg_responses, convert(Vector{EquationComponent}, strip_mexpr(elaborate_unit(ev.neg_response))))
-        {}
-    end
-    
-    function elaborate_unit(ev::StructuralEvent)
-        # Evaluate the condition now to determine what equations to return:
-        # This is a bit shakey in that I'm not sure if the initial conditions
-        # will work out with this.
-        ## println("here")
-        println("Event condition:", ev.condition)
-        println("Value of event condition:", meval(ev.condition))
-        if meval(ev.condition) >= 0.0
-            println("New relation: ", ev.new_relation)
-            tmp = strip_mexpr(elaborate_unit(eval_all(strip_mexpr(ev.new_relation))))
-            ## global _tmp = copy(tmp)
-            tmp
-        else
-            println("Default relation: ", ev.default)
-            # Set up the event:
-            push(events, strip_mexpr(elaborate_unit(ev.condition)))
-            # A positive zero crossing initiates a change:
-            push(pos_responses, :({global __sim_structural_change = true}))
-            # Dummy negative zero crossing
-            push(neg_responses, :({pi + 0.0}))
-            tmp = strip_mexpr(elaborate_unit(ev.default))
-            tmp
-        end
-    end
-    
-    equations = elaborate_unit(copy(a))
-    for (key, nodeset) in nodeMap
-        push(equations, nodeset)
-    end
-    global _eq = copy(equations)
-    global _eq1 = remove_empties(strip_mexpr(_eq))
-    equations = convert(Vector{EquationComponent}, remove_empties(strip_mexpr(equations)))
+function elaborate(x::EquationSet)
+    eq = EquationSet({}, {}, {}, {}, {}, Dict())
+    eq.model = handle_events(x.model)
+    eq.equations = elaborate_unit(eq.model, eq) # This will also modify eq.
 
-    EquationSet(equations, events, pos_responses, neg_responses, a)
+    # Add in equations for each node to sum flows to zero:
+    for (key, nodeset) in eq.nodeMap
+        push(eq.equations, nodeset)
+    end
+    # last fixups: 
+    eq.equations = remove_empties(strip_mexpr(eq.equations))
+    eq
 end
+
+# Generic model traversing helper.
+# Applies a function to each element of the model tree.
+function traverse_mod(f::Function, a::Model)
+    emodel = {}
+    for el in a
+        el1 = f(el)
+        if applicable(length, el1)
+            append!(emodel, el1)
+        else  # this handles symbols
+            push(emodel, el1)
+        end
+    end
+    emodel
+end
+
+handle_events(a::Model) = traverse_mod(handle_events, a)
+handle_events(x) = x
+handle_events(ev::StructuralEvent) = ev.activated ? eval_all(ev.new_relation) : ev
+
+
+elaborate_unit(a::Any, eq::EquationSet) = Expr[] # The default is to ignore undefined types.
+elaborate_unit(a::ModelType, eq::EquationSet) = a
+elaborate_unit(a::Model, eq::EquationSet) = traverse_mod((x) -> elaborate_unit(x, eq), a)
+
+function elaborate_unit(b::RefBranch, eq::EquationSet)
+    if (is_unknown(b.n))
+        eq.nodeMap[b.n] = get(eq.nodeMap, b.n, 0.0) + b.i
+    end
+    {}
+end
+
+function elaborate_unit(ev::Event, eq::EquationSet)
+    push(eq.events, strip_mexpr(elaborate_unit(ev.condition, eq)))
+    push(eq.pos_responses, strip_mexpr(elaborate_unit(ev.pos_response, eq)))
+    push(eq.neg_responses, strip_mexpr(elaborate_unit(ev.neg_response, eq)))
+    {}
+end
+
+function elaborate_unit(ev::StructuralEvent, eq::EquationSet)
+    # Set up the event:
+    push(eq.events, strip_mexpr(elaborate_unit(ev.condition, eq)))
+    # A positive zero crossing initiates a change:
+    push(eq.pos_responses, (t,y,yp) -> begin global __sim_structural_change = true; ev.activated = true; end)
+    # Dummy negative zero crossing
+    push(eq.neg_responses, (t,y,yp) -> return)
+    strip_mexpr(elaborate_unit(ev.default, eq))
+end
+
 
 # These methods strip the MExpr's from expressions.
 strip_mexpr(a) = a
@@ -456,7 +442,11 @@ function strip_mexpr(a::Expr)
 end
 remove_empties(l::Vector{Any}) = filter(x -> !isequal(x, {}), l)
 eval_all(x) = eval(x)
-eval_all{T}(x::Array{T,1}) = map(eval, x)
+eval_all{T}(x::Array{T,1}) = map(eval_all, x)
+
+
+
+
 
 ########################################
 ## Residual function and Sim creation ##
@@ -578,18 +568,19 @@ function create_sim(eq::EquationSet)
     # Same but for the root crossing function:
     event_thunk = Expr(:call, append({:vcat_real}, ev_block), Any)
 
-    to_thunk(ex::Vector{Expr}) = reduce((x,y) -> :($x;$y), :(), ex)
+    to_thunk{T}(ex::Vector{T}) = reduce((x,y) -> :($x;$y), :(), ex)
     to_thunk(ex::Expr) = ex
+    to_thunk(ex::Function) = ex
 
     ev_pos_array = Expr[]
     ev_neg_array = Expr[]
     for idx in 1:length(eq.events)
-        ex = to_thunk(replace_unknowns(eq.pos_response[idx]))
+        ex = to_thunk(replace_unknowns(eq.pos_responses[idx]))
         push(ev_pos_array, 
              quote
                  (t, y, yp) -> begin $ex; return; end
              end)
-        ex = to_thunk(replace_unknowns(eq.neg_response[idx]))
+        ex = to_thunk(replace_unknowns(eq.neg_responses[idx]))
         push(ev_neg_array, 
              quote
                  (t, y, yp) -> begin $ex; return; end
@@ -618,7 +609,20 @@ function create_sim(eq::EquationSet)
             SimFunctions(resid, event_at, event_pos_array, event_neg_array, get_discretes)
         end
     end
-    vp_fun = eval(expr)
+    F = eval(expr)()
+
+    # For event responses that were actual functions, insert those into
+    # the vp structure.
+    for idx in 1:length(eq.events)
+        if isa(eq.pos_responses[idx], Function)
+            F.event_pos[idx] = eq.pos_responses[idx]
+        end
+        if isa(eq.neg_responses[idx], Function)
+            F.event_neg[idx] = eq.neg_responses[idx]
+        end
+    end
+    
+    
     global _resid_thunk = copy(resid_thunk)  # debugging
     global _expr = copy(expr)
     global _ev_pos = copy(ev_pos_thunk)
@@ -637,7 +641,7 @@ function create_sim(eq::EquationSet)
     id = fill_from_map(-1, N_unknowns, yp_map, x -> 1)
     outputs = fill_from_map("", N_unknowns, y_map, x -> x.label)
     
-    Sim(vp_fun(), y0, yp0, id, outputs, discrete_map, y_map, yp_map, eq)
+    Sim(F, y0, yp0, id, outputs, discrete_map, y_map, yp_map, eq)
 end
 
 
@@ -736,9 +740,9 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
         if t[1] > tstop
             break
         end
-        if t[1] > 0.005     #### DEBUG
-            break
-        end
+        ## if t[1] > 0.005     #### DEBUG
+        ##     break
+        ## end
         if idid[1] >= 0 && idid[1] <= 5 
             yout[idx, 1] = t[1]
             yout[idx, 2:(Noutputs + 1)] = y[yidx]
@@ -763,7 +767,7 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
                     end
                     MTime.value = t[1]
                     # Reflatten equations
-                    sm = create_sim(elaborate(sm.eq.original))
+                    sm = create_sim(elaborate(sm.eq))
                     global _sm = copy(sm)
                     # Restart the simulation:
                     info[1] = 0

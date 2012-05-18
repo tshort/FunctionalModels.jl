@@ -36,7 +36,7 @@ function BreakingPendulum()
     vy = Unknown()
     {
      StructuralEvent(MTime - 5.0,     # when time hits 5 sec, switch to FreeFall
-         {MExpr(:(FreeFall($x,$y,$vx,$vy)))},
+         {:(FreeFall($x,$y,$vx,$vy))},
          Pendulum(x,y,vx,vy))
     }
 end
@@ -136,7 +136,7 @@ end
 function IdealDiode(n1, n2)
     i = Current()
     v = Voltage()
-    s = Unknown(1.0)  # dummy variable - needs a nonzero initial value for some reason
+    s = Unknown()  # dummy variable
     openswitch = Discrete(false)  # on/off state of diode
     {
      Branch(n1, n2, i, v)
@@ -149,23 +149,23 @@ function IdealDiode(n1, n2)
 end
 
 function OpenDiode(n1, n2)
-    v = Voltage(-1e-6)
+    v = Voltage()
     StructuralEvent(v+0.0,     # when V goes positive, this changes to a ClosedDiode
-        {MExpr(:(ClosedDiode($n1, $n2)))},
+        :(ClosedDiode($n1, $n2)),
         Branch(n1, n2, v, 0.0))
 end
 
 function ClosedDiode(n1, n2)
-    i = Current(1e-5)
+    i = Current()
     StructuralEvent(-i,     # when I goes negative, this changes to an OpenDiode
-        {MExpr(:(OpenDiode($n1, $n2)))},
+        :(OpenDiode($n1, $n2)),
         Branch(n1, n2, 0.0, i))
 end
 
 # Cellier, fig 9.27
 function HalfWaveRectifier()
     nsrc = ElectricalNode("Source voltage")
-    n2 = ElectricalNode("Mid voltage")
+    n2 = ElectricalNode("")
     nout = ElectricalNode("Output voltage")
     g = 0.0 
     {
@@ -187,9 +187,9 @@ rct_y = sim(rct_s, 0.1)
 # The same circuit with a structurally variable diode.
 function StructuralHalfWaveRectifier()
     nsrc = ElectricalNode("Source voltage")
-    n2 = ElectricalNode("Mid voltage")
+    n2 = ElectricalNode("")
     nout = ElectricalNode("Output voltage")
-    Vdiode = Unknown("Vdiode")
+    Vdiode = Unknown("Vdiode")    # probe variable
     g = 0.0 
     {
      Vdiode - (n2 - nout)
