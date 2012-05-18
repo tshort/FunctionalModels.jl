@@ -413,12 +413,15 @@ function elaborate(a::Model)
         # This is a bit shakey in that I'm not sure if the initial conditions
         # will work out with this.
         ## println("here")
+        println("Event condition:", ev.condition)
+        println("Value of event condition:", meval(ev.condition))
         if meval(ev.condition) >= 0.0
             println("New relation: ", ev.new_relation)
             tmp = strip_mexpr(elaborate_unit(eval_all(strip_mexpr(ev.new_relation))))
             ## global _tmp = copy(tmp)
             tmp
         else
+            println("Default relation: ", ev.default)
             # Set up the event:
             push(events, strip_mexpr(elaborate_unit(ev.condition)))
             # A positive zero crossing initiates a change:
@@ -434,8 +437,8 @@ function elaborate(a::Model)
     for (key, nodeset) in nodeMap
         push(equations, nodeset)
     end
-    ## global _eq = copy(equations)
-    ## global _eq1 = remove_empties(strip_mexpr(_eq))
+    global _eq = copy(equations)
+    global _eq1 = remove_empties(strip_mexpr(_eq))
     equations = convert(Vector{EquationComponent}, remove_empties(strip_mexpr(equations)))
 
     EquationSet(equations, events, pos_responses, neg_responses, a)
@@ -616,10 +619,10 @@ function create_sim(eq::EquationSet)
         end
     end
     vp_fun = eval(expr)
-    ## global _resid_thunk = copy(resid_thunk)  # debugging
-    ## global _expr = copy(expr)
-    ## global _ev_pos = copy(ev_pos_thunk)
-    ## global _ev_neg = copy(ev_neg_thunk)
+    global _resid_thunk = copy(resid_thunk)  # debugging
+    global _expr = copy(expr)
+    global _ev_pos = copy(ev_pos_thunk)
+    global _ev_neg = copy(ev_neg_thunk)
     
     function fill_from_map(default_val, N, the_map, f)
         x = fill(default_val, N)
@@ -678,7 +681,7 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
     tout = [tstep]
     idid = [int32(0)]
     info = fill(int32(0), 20)
-    info[11] = 1    # calc initial conditions
+    info[11] = 1    # calc initial conditions (1 or 2) / don't calc (0)
     ## info[18] = 2    # more initialization info
     
     function setup_sim(sm::Sim, tstart::Float64, tstop::Float64, Nsteps::Int)
@@ -733,9 +736,9 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
         if t[1] > tstop
             break
         end
-        ## if t[1] > 0.018     #### DEBUG
-        ##     break
-        ## end
+        if t[1] > 0.005     #### DEBUG
+            break
+        end
         if idid[1] >= 0 && idid[1] <= 5 
             yout[idx, 1] = t[1]
             yout[idx, 2:(Noutputs + 1)] = y[yidx]
@@ -749,7 +752,8 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
                     end
                 end
                 if __sim_structural_change
-                    println("structural change event found at t = $(t[1]), restarting")
+                    println("")
+                    println("Structural change event found at t = $(t[1]), restarting")
                     # Put t, y, and yp values back into original equations:
                     for (k,v) in sm.y_map
                         v.value = y[k]
@@ -760,11 +764,12 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
                     MTime.value = t[1]
                     # Reflatten equations
                     sm = create_sim(elaborate(sm.eq.original))
-                    ## global _sm = copy(sm)
+                    global _sm = copy(sm)
                     # Restart the simulation:
+                    info[1] = 0
+                    info[11] = 1    # do/don't calc initial conditions
                     simulate = setup_sim(sm, t[1], tstop, int(Nsteps * (tstop - t[1]) / tstop))
                     yidx = map((s) -> s != "", sm.outputs)
-                    info[1] = 0
                 elseif any(jroot != 0)
                     println("event found at t = $(t[1]), restarting")
                     info[1] = 0
