@@ -139,7 +139,7 @@ function IdealDiode(n1, n2)
     s = Unknown()  # dummy variable
     openswitch = Discrete(false)  # on/off state of diode
     {
-     Branch(n1, n2, i, v)
+     Branch(n1, n2, v, i)
      BoolEvent(openswitch, -s)  # openswitch becomes true when s goes negative
      v - ifelse(openswitch, s, 0.0) 
      i - ifelse(openswitch, 0.0, s) 
