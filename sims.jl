@@ -472,88 +472,54 @@ SimFunctions(resid::Function, event_at::Function, event_pos::Vector{None}, event
     SimFunctions(resid, event_at, Function[], Function[], get_discretes)
 
 type Sim
+    eq::EquationSet           # the input
     F::SimFunctions
     y0::Array{Float64, 1}     # initial values
     yp0::Array{Float64, 1}    # initial values of derivatives
     id::Array{Int, 1}         # indicates whether a variable is algebraic or differential
     outputs::Array{ASCIIString, 1} # output labels
+    unknown_idx_map::Dict     # symbol => index into y (or yp)
+    unknown_map::Dict         # symbol => the Unknown object
     discrete_map::Dict        # sym => Discrete variable 
     y_map::Dict               # sym => Unknown variable 
     yp_map::Dict              # sym => DerUnknown variable 
-    eq::EquationSet           # the input
+    varnum::Int               # variable indicator position that's incremented
+    
+    Sim(eq::EquationSet) = new(eq)
 end
 
-vcat_real(X::Any...) = [ to_real(X[i]) for i=1:length(X) ]
-function vcat_real(X::Any...)
-    ## println(X[1])
-    res = map(to_real, X)
-    vcat(res...)
-end
-
+#
+# This is the main function for creating Sim's.
+#
 function create_sim(eq::EquationSet)
-    # unknown_map holds a variable's symbol and an index into the
-    # variable array.
-    unknown_idx_map = Dict()  # symbol => index into y (or yp)
-    unknown_map = Dict()      # symbol => the Unknown object
-    discrete_map = Dict()     # symbol => the Discrete object
-    y_map = Dict()           # index => the Unknown object
-    yp_map = Dict()          # index => the DerUnknown object
-    varnum = 1 # variable indicator position that's incremented
-    
-    # add_var add's a variable to the unknown_map if it isn't already
-    # there. 
-    function add_var(v) 
-        if !has(unknown_idx_map, v.sym)
-            # Account for the length and fundamental size of the object
-            len = length(v.value) * int(sizeof([v.value][1]) / 8)  
-            idx = len == 1 ? varnum : (varnum:(varnum + len - 1))
-            unknown_idx_map[v.sym] = idx
-            varnum = varnum + len
-        end
+    sm = Sim(eq)
+    sm.varnum = 1
+    sm.unknown_idx_map = Dict()
+    sm.unknown_map = Dict()
+    sm.discrete_map = Dict()
+    sm.y_map = Dict()
+    sm.yp_map = Dict()
+    sm.F = setup_functions(sm)  # Most of the work's done here.
+    N_unknowns = sm.varnum - 1
+    sm.y0 = fill_from_map(0.0, N_unknowns, sm.y_map, x -> to_real(x.value))
+    sm.yp0 = fill_from_map(0.0, N_unknowns, sm.yp_map, x -> to_real(x.value))
+    sm.id = fill_from_map(-1, N_unknowns, sm.yp_map, x -> 1)
+    sm.outputs = fill_from_map("", N_unknowns, sm.y_map, x -> x.label)
+    sm
+end
+
+function fill_from_map(default_val, N, the_map, f)
+    x = fill(default_val, N)
+    for (k,v) in the_map
+        x[ [k] ] = f(v)
     end
-    
-    # The replace_unknowns method replaces Unknown types with
-    # references to the positions in the y or yp vectors.
-    replace_unknowns(a) = a
-    replace_unknowns{T}(a::Array{T,1}) = map(replace_unknowns, a)
-    function replace_unknowns(a::Expr)
-        ret = copy(a)
-        ret.args = replace_unknowns(ret.args)
-        ret
-    end
-    function replace_unknowns(a::Unknown)
-        if isequal(a.sym, :time)
-            return :(t[1])
-        end
-        add_var(a)
-        unknown_map[a.sym] = a
-        y_map[unknown_idx_map[a.sym]] = a
-        if isreal(a.value)
-            :(ref(y, ($(unknown_idx_map[a.sym]))))
-        else
-            :(from_real(ref(y, ($(unknown_idx_map[a.sym]))), $(a.value)))
-        end
-    end
-    function replace_unknowns(a::DerUnknown) 
-        add_var(a)
-        unknown_map[a.parent.sym] = a.parent
-        y_map[unknown_idx_map[a.parent.sym]] = a.parent
-        yp_map[unknown_idx_map[a.sym]] = a
-        :(ref(yp, ($(unknown_idx_map[a.sym]))))
-    end
-    function replace_unknowns(a::Discrete)
-        discrete_map[a.sym] = a
-        :(ref($(a.sym), 1))
-    end
-    # In assigned variables (LeftVar), use SubArrays (sub), instead of ref.
-    function replace_unknowns(a::LeftVar)
-        var = replace_unknowns(a.var)
-        :(sub($(var.args[2]), $(var.args[3])))
-    end
-    
+    x
+end
+
+function setup_functions(sm::Sim)
     # eq_block should be just expressions suitable for eval'ing.
-    eq_block = replace_unknowns(eq.equations)
-    ev_block = replace_unknowns(eq.events)
+    eq_block = replace_unknowns(sm.eq.equations, sm)
+    ev_block = replace_unknowns(sm.eq.events, sm)
     
     # Set up a master function with variable declarations and 
     # functions that have access to those variables.
@@ -561,7 +527,7 @@ function create_sim(eq::EquationSet)
     # Variable declarations are for Discrete variables. Each
     # is stored in its own array, so it can be overwritten by
     # reinit.
-    discrete_defs = reduce((x,y) -> :($x;$(y[1]) = [$(y[2].value)]), :(), discrete_map)
+    discrete_defs = reduce((x,y) -> :($x;$(y[1]) = [$(y[2].value)]), :(), sm.discrete_map)
     # The following is a code block (thunk) for insertion into
     # the residual calculation function.
     resid_thunk = Expr(:call, append({:vcat_real}, eq_block), Any)
@@ -574,13 +540,13 @@ function create_sim(eq::EquationSet)
 
     ev_pos_array = Expr[]
     ev_neg_array = Expr[]
-    for idx in 1:length(eq.events)
-        ex = to_thunk(replace_unknowns(eq.pos_responses[idx]))
+    for idx in 1:length(sm.eq.events)
+        ex = to_thunk(replace_unknowns(sm.eq.pos_responses[idx], sm))
         push(ev_pos_array, 
              quote
                  (t, y, yp) -> begin $ex; return; end
              end)
-        ex = to_thunk(replace_unknowns(eq.neg_responses[idx]))
+        ex = to_thunk(replace_unknowns(sm.eq.neg_responses[idx], sm))
         push(ev_neg_array, 
              quote
                  (t, y, yp) -> begin $ex; return; end
@@ -613,35 +579,74 @@ function create_sim(eq::EquationSet)
 
     # For event responses that were actual functions, insert those into
     # the vp structure.
-    for idx in 1:length(eq.events)
-        if isa(eq.pos_responses[idx], Function)
-            F.event_pos[idx] = eq.pos_responses[idx]
+    for idx in 1:length(sm.eq.events)
+        if isa(sm.eq.pos_responses[idx], Function)
+            F.event_pos[idx] = sm.eq.pos_responses[idx]
         end
-        if isa(eq.neg_responses[idx], Function)
-            F.event_neg[idx] = eq.neg_responses[idx]
+        if isa(sm.eq.neg_responses[idx], Function)
+            F.event_neg[idx] = sm.eq.neg_responses[idx]
         end
     end
-    
-    
-    global _resid_thunk = copy(resid_thunk)  # debugging
-    global _expr = copy(expr)
-    global _ev_pos = copy(ev_pos_thunk)
-    global _ev_neg = copy(ev_neg_thunk)
-    
-    function fill_from_map(default_val, N, the_map, f)
-        x = fill(default_val, N)
-        for (k,v) in the_map
-            x[ [k] ] = f(v)
-        end
-        x
+    F
+end
+
+# add_var add's a variable to the unknown_map if it isn't already
+# there. 
+function add_var(v, sm) 
+    if !has(sm.unknown_idx_map, v.sym)
+        # Account for the length and fundamental size of the object
+        len = length(v.value) * int(sizeof([v.value][1]) / 8)  
+        idx = len == 1 ? sm.varnum : (sm.varnum:(sm.varnum + len - 1))
+        sm.unknown_idx_map[v.sym] = idx
+        sm.varnum = sm.varnum + len
     end
-    N_unknowns = varnum - 1
-    y0 = fill_from_map(0.0, N_unknowns, y_map, x -> to_real(x.value))
-    yp0 = fill_from_map(0.0, N_unknowns, yp_map, x -> to_real(x.value))
-    id = fill_from_map(-1, N_unknowns, yp_map, x -> 1)
-    outputs = fill_from_map("", N_unknowns, y_map, x -> x.label)
-    
-    Sim(F, y0, yp0, id, outputs, discrete_map, y_map, yp_map, eq)
+end
+
+# The replace_unknowns method replaces Unknown types with
+# references to the positions in the y or yp vectors.
+replace_unknowns(a, sm::Sim) = a
+replace_unknowns{T}(a::Array{T,1}, sm::Sim) = map(x -> replace_unknowns(x, sm), a)
+function replace_unknowns(a::Expr, sm::Sim)
+    ret = copy(a)
+    ret.args = replace_unknowns(ret.args, sm)
+    ret
+end
+function replace_unknowns(a::Unknown, sm::Sim)
+    if isequal(a.sym, :time)
+        return :(t[1])
+    end
+    add_var(a, sm)
+    sm.unknown_map[a.sym] = a
+    sm.y_map[sm.unknown_idx_map[a.sym]] = a
+    if isreal(a.value)
+        :(ref(y, ($(sm.unknown_idx_map[a.sym]))))
+    else
+        :(from_real(ref(y, ($(sm.unknown_idx_map[a.sym]))), $(a.value)))
+    end
+end
+function replace_unknowns(a::DerUnknown, sm::Sim) 
+    add_var(a, sm)
+    sm.unknown_map[a.parent.sym] = a.parent
+    sm.y_map[sm.unknown_idx_map[a.parent.sym]] = a.parent
+    sm.yp_map[sm.unknown_idx_map[a.sym]] = a
+    :(ref(yp, ($(sm.unknown_idx_map[a.sym]))))
+end
+function replace_unknowns(a::Discrete, sm::Sim)
+    sm.discrete_map[a.sym] = a
+    :(ref($(a.sym), 1))
+end
+# In assigned variables (LeftVar), use SubArrays (sub), instead of ref.
+# This allows assignment.
+function replace_unknowns(a::LeftVar, sm::Sim)
+    var = replace_unknowns(a.var, sm)
+    :(sub($(var.args[2]), $(var.args[3])))
+end
+
+vcat_real(X::Any...) = [ to_real(X[i]) for i=1:length(X) ]
+function vcat_real(X::Any...)
+    ## println(X[1])
+    res = map(to_real, X)
+    vcat(res...)
 end
 
 
