@@ -33,11 +33,17 @@ Simscape that uses Matlab notation. Modelica is an object-oriented,
 open language with multiple implementations. It is a large, complex,
 powerful language with an extensive standard library of components.
 
-This implementation follows the work of David Broman
-([thesis](http://www.bromans.com/david/publ/thesis-2010-david-broman.pdf),
-[code](http://www.bromans.com/software/mkl/mkl-source-1.0.0.zip), and
-[home page](http://www.ida.liu.se/~davbr/)). The DASSL solver is used
-to solve the implicit DAE's generated.
+This implementation follows the work of
+[David Broman](http://www.ida.liu.se/~davbr/)
+([thesis](http://www.bromans.com/david/publ/thesis-2010-david-broman.pdf)
+and [code](http://www.bromans.com/software/mkl/mkl-source-1.0.0.zip)
+and [George Giorgidze](http://db.inf.uni-tuebingen.de/team/giorgidze)
+([Hydra code](https://github.com/giorgidze/Hydra) and
+[thesis](http://db.inf.uni-tuebingen.de/files/giorgidze/phd_thesis.pdf))
+and [Henrik Nilsson](http://www.cs.nott.ac.uk/~nhn/) and their
+functional hybrid modeling . The DASKR solver is used to solve the
+implicit DAE's generated. DASKR is a derivative of DASSL with root
+finding.
     
 Basic example
 -------------
@@ -178,12 +184,12 @@ Here are the results:
 
 For further examples, see here:
     
-https://github.com/tshort-/Sims/blob/master/example_sims.jl
+https://github.com/tshort-/Sims/blob/examples
 
 The main code that defines functions and types for simulations is
 here:
 
-https://github.com/tshort-/Sims/blob/master/sims.jl
+https://github.com/tshort-/Sims/blob/master/src/sims.jl
 
 For future development options, see here:
 
