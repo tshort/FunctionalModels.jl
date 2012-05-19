@@ -1,12 +1,12 @@
 
-
 Julia Sims
 ==========
+
 Introduction
 ------------
 
-Sims is the beginnings of a Julia package to support equation-based
-modeling for simulations. Sims is like a lite version of Modelica.
+Sims is a Julia package to support equation-based modeling for
+simulations. Sims is like a lite version of Modelica.
 
 [Julia](http://julialang.org) is a fast, Matlab-like language that is
 well suited to modeling and simulations.
@@ -181,6 +181,10 @@ plot(ckt_y)
 Here are the results:
 
 ![plot results](https://github.com/tshort-/Sims/raw/master/circuit.png "Circuit results")
+
+
+To Look Deeper
+--------------
 
 For further examples, see here:
     
