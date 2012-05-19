@@ -15,12 +15,12 @@ well suited to modeling and simulations.
 Background
 ----------
 
-This package is an experiment in doing non-causal modeling in Julia.
-The idea behind non-causal modeling is that the user develops models
-based on components which are described by a set of equations. A
-tool can then transform the equations and solve the differential
-algebraic equations. Non-causal models tend to match their physical
-counterparts in terms of their specification and implementation.
+This package is for non-causal modeling in Julia. The idea behind
+non-causal modeling is that the user develops models based on
+components which are described by a set of equations. A tool can then
+transform the equations and solve the differential algebraic
+equations. Non-causal models tend to match their physical counterparts
+in terms of their specification and implementation.
 
 Causal modeling is where all signals have an input and an output, and
 the flow of information is clear. Simulink is the highest-profile
@@ -190,12 +190,16 @@ For further examples, see here:
     
 https://github.com/tshort-/Sims/blob/examples
 
+Minimal documentation is here:
+
+https://github.com/tshort-/Sims/blob/doc/README.md
+
 The main code that defines functions and types for simulations is
 here:
 
 https://github.com/tshort-/Sims/blob/master/src/sims.jl
 
-For future development options, see here:
+For future development options, see here (somewhat outdated):
 
 https://github.com/tshort-/Sims/wiki/Possible-future-developments
 
