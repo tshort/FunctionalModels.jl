@@ -1,7 +1,6 @@
 
 load("../src/sims.jl")
-load("../library/electrical.jl")
-load("../library/mechanical.jl")
+load("../library/electromechanical.jl")
 
 
 

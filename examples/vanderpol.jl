@@ -51,10 +51,3 @@ v_yout = sim(v_s, 10.0) # run the simulation to 10 seconds and return
 
 # # plot the signals against each other:
 # plot(v_yout.y[:,2], v_yout.y[:,3])
-
-# The result of a "sim" run is an object with components "y" and
-# "colnames". "y" is a two-dimensional array with time slices along
-# rows and variables along columns. The first column is simulation
-# time. The remaining columns are for each unknown in the model
-# including derivatives. "colnames" contains the names of each of
-# the columns in "y" after the time column.

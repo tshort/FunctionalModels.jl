@@ -1,12 +1,9 @@
 
 
 ########################################
-## Mock electrical library            ##
+## Simple electrical library          ##
 ########################################
 
-#
-# "Mock" because it's really a placeholder for playing.
-# 
 
 
 type UVoltage <: UnknownCategory
