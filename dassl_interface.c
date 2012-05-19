@@ -13,7 +13,7 @@
 // This attempts to define a callback function for the residual function for the DAE
 // solver. The Julia function is a global function as are some of the arguments.
 //
-void res_callback(double *t, double *y, double *yp, double *res, int *ires, double *rpar, int *ipar) {
+void res_callback(double *t, double *y, double *yp, double *res, int32_t *ires, double *rpar, int32_t *ipar) {
 
     // Now, call the Julia function that does the work
     jl_value_t *f = jl_get_global(jl_base_module,jl_symbol("__dassl_res_callback"));
