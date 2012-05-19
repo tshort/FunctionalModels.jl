@@ -25,18 +25,22 @@ end
 Unknowns can be grouped into categories. That's what the T is for in
 the definition above. One can define different types of Unknowns
 (electrical vs. mechanical for example). The default is
-DefaultUnknown. Unknowns also contain a value. This is used for
-setting initial values, and these values are updated if there is a
-structural change in the model. Unknowns can be different types.
-Eventually, all Unknowns are converted to Float64s in an array for
-simulation. Currently, Sim supports Unknowns of type Float64,
-Complex128, and arrays of either of these. Adding support for other
-structures is not hard as long as they can be converted to Float64's.
+DefaultUnknown. Unknowns of different types can also be used to define
+models of the same name that act differently depending on what type of
+node they are connected to.
+
+Unknowns also contain a value. This is used for setting initial
+values, and these values are updated if there is a structural change
+in the model. Unknowns can be different types. Eventually, all
+Unknowns are converted to Float64s in an array for simulation.
+Currently, Sim supports Unknowns of type Float64, Complex128, and
+arrays of either of these. Adding support for other structures is not
+hard as long as they can be converted to Float64's.
 
 The label string is used for labeling simulation outputs. Unlabeled
 Unknowns are not included in results.
 
-Here are several ways to define Unknowns
+Here are several ways to define Unknowns:
 
 ```jl
 x = Unknown()          # An initial value of 0.0 with no labeling.
@@ -116,7 +120,6 @@ end
 In the model above, the nodes n1 and n2 are also Unknowns, but they
 are defined outside of this model.
 
-
 Here is the top-level circuit definition. In this case, there are no
 input parameters. The ground reference "g" is assigned zero volts.
 
@@ -179,9 +182,111 @@ time. The remaining columns are for each unknown in the model
 including derivatives. "colnames" contains the names of each of
 the columns in "y" after the time column.
 
-## Discrete Modeling
+## Hybrid Modeling
 
-Sims provides basic support for hybrid modeling.
+Sims provides basic support for hybrid modeling. Discrete variables
+are variables that are not involved in integration but apply when
+"events" occur. Models can define events denoting changes in behavior.
 
+Event is the main type used for hybrid modeling. It contains a
+condition for root finding and model expressions to process after
+positive and negative root crossings are detected.
+
+```jl
+type Event <: ModelType
+    condition::ModelType   # An expression used for the event detection. 
+    pos_response::Model    # An expression indicating what to do when
+                           # the condition crosses zero positively.
+    neg_response::Model    # An expression indicating what to do when
+                           # the condition crosses zero in the
+                           # negative direction.
+end
+```
+
+The function reinit is used in Event responses to redefine variables.
+Here is an example of a voltage source defined with a square wave:
+
+```jl
+function VSquare(n1, n2, V::Real, f::Real)  
+    i = Current()
+    v = Voltage()
+    v_mag = Discrete(V)
+    {
+     Branch(n1, n2, v, i)
+     v - v_mag
+     Event(sin(2 * pi * f * MTime),
+           {reinit(v_mag, V)},    # positive crossing
+           {reinit(v_mag, -V)})   # negative crossing
+     }
+end
+```
+
+The variable v_mag is the Discrete variable that is changed using
+reinit whenever the sin(2 * pi * f * MTime) crosses zero. A response
+is provided for both positive and negative zero crossings.
+
+Two other constructs that are useful are BoolEvent and ifelse. 
+ifelse is like an if-then-else block, but for ModelTypes (you can't
+use a regular if-then-else block, at least not without macros).  
+BoolEvent is a helper for attaching an event to a boolean variable.
+Here is an example for an ideal diode:
+
+```jl
+function IdealDiode(n1, n2)
+    i = Current()
+    v = Voltage()
+    s = Unknown()  # dummy variable
+    openswitch = Discrete(false)  # on/off state of diode
+    {
+     Branch(n1, n2, v, i)
+     BoolEvent(openswitch, -s)  # openswitch becomes true when s goes negative
+     v - ifelse(openswitch, s, 0.0) 
+     i - ifelse(openswitch, 0.0, s) 
+     }
+end
+```
+
+## Structurally Varying Systems
+
+StructuralEvent defines a type for elements that change the structure
+of the model. An event is created, and when the event is triggered,
+the model is re-flattened after replacing default with new_relation in
+the model.
+
+```jl
+type StructuralEvent <: ModelType
+    condition::ModelType  # Expression indicating a zero crossing for event detection.
+    new_relation
+    default
+    activated::Bool       # Used internally to indicate whether the event fired.
+end
+```
+
+Here is an example for a breaking pendulum. The model starts with the
+Pendulum construct. Then, when fixe seconds is reached, the
+StructuralEvent triggers, and the model is recompiled with the
+FreeFall construct.
+
+```jl
+function BreakingPendulum()
+    x = Unknown(cos(pi/4), "x")
+    y = Unknown(-cos(pi/4), "y")
+    vx = Unknown()
+    vy = Unknown()
+    {
+     StructuralEvent(MTime - 5.0,     # when time hits 5 sec, switch to FreeFall
+         {:(FreeFall($x,$y,$vx,$vy))},
+         Pendulum(x,y,vx,vy))
+    }
+end
+```
+
+One special thing to note is that new_relation, the second argument to
+StructuralEvent, must be an expression. If it is not, it will evaluate
+right away. We want to delay evaluation until the model is recompiled.
+Related to that, each variable must be "escaped" with the dollar sign,
+meaning it's value will be plugged into the expression. Normally, we
+can avoid this sort of thing because expressions are built up
+automatically, but here is one case where we cannot.
 
 
