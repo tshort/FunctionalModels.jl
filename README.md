@@ -203,5 +203,9 @@ For future development options, see here (somewhat outdated):
 
 https://github.com/tshort-/Sims/wiki/Possible-future-developments
 
+To Look Deeper
+--------------
 
+Please note that this is a developer preview. There could be bugs, and
+everything is subject to change.  
     
