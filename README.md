@@ -180,7 +180,7 @@ plot(ckt_y)
 ```
 Here are the results:
 
-![plot results](https://github.com/tshort-/Sims/raw/master/circuit.png "Circuit results")
+![plot results](https://github.com/tshort-/Sims/blob/master/examples/circuit.png?raw=true "Circuit results")
 
 
 To Look Deeper
