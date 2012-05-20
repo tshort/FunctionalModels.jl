@@ -905,7 +905,7 @@ end
 
 ########################################
 ## Basic plotting with Winston        ##
-## PROBABLY BROKEN                    ##
+## MAYBE BROKEN                       ##
 ########################################
 
 
@@ -914,16 +914,17 @@ end
 
 function wplot( sm::SimResult, filename::String, args... )
     N = length( sm.colnames )
-    a = FramedArray( N, 1 )
+    a = FramedArray( N, 1, "", "" )
     setattr( a, "xlabel", "Time (s)" )
-    setattr( a, "ylabel", "" )
-    setattr( a, "cellspacing", 1. )
+    setattr( a, "ylabel", " Y " )
+    ## setattr(a, "tickdir", +1)
+    ## setattr(a, "draw_spine", false)
     for plotnum = 1:N
         add( a[plotnum,1], Curve(sm.y[:,1],sm.y[:, plotnum + 1]) )
-        add( a[plotnum,1], "ylabel", sm.colnames[plotnum] )
-        # setattr( a[plotnum,1], "title", sm.colnames[plotnum] )
+        setattr( a[plotnum,1], "ylabel", sm.colnames[plotnum] )
     end
     file( a, filename, args... )
+    a
 end
 
 
