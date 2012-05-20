@@ -1,3 +1,4 @@
+load("../src/sims.jl")
 
 ########################################
 ## Test of the simulator with events  ##

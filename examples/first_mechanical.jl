@@ -30,3 +30,5 @@ function FirstMechSys()
      Damper(r4, g, 10)
      }
 end
+
+fm_y = sim(FirstMechSys())

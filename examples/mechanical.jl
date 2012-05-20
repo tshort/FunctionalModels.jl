@@ -1,32 +1,73 @@
 
 
-load("../src/sims.jl")
-load("../library/mechanical.jl")
+
+
+########################################
+## Simple Mechanical Models           ##
+########################################
+
 
 
 #
-# I'm not sure this mechanical example is right.
-# There may be sign errors in the mechanical library.
+# I'm not sure the mechanical models are right.
+# There may be sign errors.
 # 
 
 
-# Modelica.Mechanics.Examples.First
-function FirstMechSys()
-    g = 0.0
-    # Could use an array or a macro to generate the following:
-    r1 = RotationalNode("Source angle") 
-    r2 = RotationalNode() 
-    r3 = RotationalNode()
-    r4 = RotationalNode()
-    r5 = RotationalNode()
-    r6 = RotationalNode("End angle")
+
+Angle = AngularVelocity = AngularAcceleration = Torque = RotationalNode = Unknown
+
+function Inertia(flangeA, flangeB, J::Real)
+    tauA = Torque()
+    tauB = Torque()
+    w = AngularVelocity()
+    a = AngularAcceleration()
     {
-     TorqueSrc(r1, g, 10 * sin(2 * pi * 5 * MTime))
-     Inertia(r1, r2, 0.1)
-     IdealGear(r2, r3, 10)
-     Inertia(r3, r4, 2.0)
-     Spring(r4, r5, 1e4)
-     Inertia(r5, r6, 2.0)
-     Damper(r4, g, 10)
+     RefBranch(flangeA, tauA)
+     RefBranch(flangeB, tauB)
+     flangeA - flangeB    # the angles are both equal
+     w - der(flangeA)
+     a - der(w)
+     tauA + tauB - J * a
      }
 end
+
+
+function Spring(flangeA, flangeB, c::Real)
+    relphi = Angle()
+    tau = Torque()
+    {
+     Branch(flangeB, flangeA, relphi, tau)
+     tau - c * relphi
+     }
+end
+
+
+function Damper(flangeA, flangeB, d::Real)
+    relphi = Angle()
+    tau = Torque()
+    {
+     Branch(flangeB, flangeA, relphi, tau)
+     tau - d * der(relphi)
+     }
+end
+
+function IdealGear(flangeA, flangeB, ratio)
+    tauA = Torque()
+    tauB = Torque()
+    {
+     RefBranch(flangeA, tauA)
+     RefBranch(flangeB, tauB)
+     flangeA - ratio * flangeB
+     ratio * tauA + tauB
+     }
+end
+
+
+function TorqueSrc(flangeA, flangeB, tau)
+    {
+     RefBranch(flangeA, tau)
+     RefBranch(flangeB, tau)
+     }
+end
+

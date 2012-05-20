@@ -1,7 +1,7 @@
 
 
 load("../src/sims.jl")
-load("../library/electrical.jl")
+load("electrical.jl")
 
 
 

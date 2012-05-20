@@ -1,5 +1,5 @@
 
-load("sims.jl")
+load("../src/sims.jl")
 
 ########################################
 ## Breaking pendulum                  ##

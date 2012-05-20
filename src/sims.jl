@@ -785,9 +785,9 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
 
     for idx in 1:Nsteps
         (t,y,yp,jroot) = simulate(tout)
-        if t[1] > tstop
-            break
-        end
+        ## if t[1] * 1.01 > tstop
+        ##     break
+        ## end
         ## if t[1] > 0.005     #### DEBUG
         ##     break
         ## end

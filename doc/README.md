@@ -289,4 +289,27 @@ meaning it's value will be plugged into the expression. Normally, we
 can avoid this sort of thing because expressions are built up
 automatically, but here is one case where we cannot.
 
+## Installation 
+
+Since Julia doesn't have a package system, yet, you have to download
+and compile the code manually. The C and Fortran code is under the
+Sims/lib directory. There is a shell script there that will compile
+two shared libraries. You also need to add that directory path to your
+shared library path (or copy the files somewhere where they can be
+found). This is LD_LIBRARY_PATH on linux.
+
+The main code for types and models is in Sims/src/sims.jl directory.
+Just use load to pull that code in. All of the examples also load this
+file, so it may get loaded multiple times. That shouldn't hurt
+anything, but you will see warning messages that types can't be
+redefined.
+
+## Known Issues
+
+- I regularly get segfaults. I probably have an error in the C
+  interface, so the stack is getting corrupted.
+
+- Things are not tested much.
+
+
 

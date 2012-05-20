@@ -1,3 +1,5 @@
+load("../src/sims.jl")
+
 
 ########################################
 ## Van Der Pol oscillator             ##

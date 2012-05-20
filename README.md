@@ -188,11 +188,11 @@ To Look Deeper
 
 For further examples, see here:
     
-https://github.com/tshort-/Sims/blob/examples
+https://github.com/tshort-/Sims/tree/master/examples
 
 Minimal documentation is here:
 
-https://github.com/tshort-/Sims/blob/doc/README.md
+https://github.com/tshort-/Sims/blob/master/doc/README.md
 
 The main code that defines functions and types for simulations is
 here:

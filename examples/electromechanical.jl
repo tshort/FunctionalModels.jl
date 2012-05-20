@@ -1,4 +1,5 @@
-load("electromechanical.jl")
+load("electrical.jl")
+load("mechanical.jl")
 
 
 
