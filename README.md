@@ -182,6 +182,25 @@ Here are the results:
 
 ![plot results](https://github.com/tshort-/Sims/blob/master/examples/circuit.png?raw=true "Circuit results")
 
+Hybrid Modeling and Modeling Structural Variability
+---------------------------------------------------
+
+Sims supports basic hybrid modeling, including the ability to handle
+structural model changes. Consider the following example:
+
+[Breaking pendulum](https://github.com/tshort-/Sims/blob/master/examples/breaking_pendulum_in_box.jl)
+
+This model starts as a pendulum, then the wire breaks, and the ball
+goes into free fall. Sims handles this much like
+[Hydra](https://github.com/giorgidze/Hydra); the model is recompiled.
+Because Julia can quickly JIT code, this happens relatively quickly.
+After the pendulum breaks, the ball bounces around in a box. This
+shows off another feature of Sims: handling nonstructural events.
+
+Here is an animation of the results. Note that the actual animation
+was done in R, not Julia.
+
+![plot results](https://github.com/tshort-/Sims/blob/master/examples/pendulum.gif?raw=true "Pendulum")
 
 To Look Deeper
 --------------
