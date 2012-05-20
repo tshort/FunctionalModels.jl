@@ -104,7 +104,7 @@ plot(y)
 
 Here are the results:
 
-![plot results](https://github.com/tshort-/Sims/raw/master/vanderpol.png "Van Der Pol results")
+![plot results](https://github.com/tshort-/Sims/blob/master/examples/vanderpol.png?raw=true "Van Der Pol results")
 
 
 Electrical example
