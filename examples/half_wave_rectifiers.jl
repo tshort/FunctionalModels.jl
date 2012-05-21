@@ -32,15 +32,15 @@ end
 function OpenDiode(n1, n2)
     v = Voltage()
     StructuralEvent(v+0.0,     # when V goes positive, this changes to a ClosedDiode
-        :(ClosedDiode($n1, $n2)),
-        Branch(n1, n2, v, 0.0))
+        Branch(n1, n2, v, 0.0),
+        () -> ClosedDiode(n1, n2))
 end
 
 function ClosedDiode(n1, n2)
     i = Current()
     StructuralEvent(-i,     # when I goes negative, this changes to an OpenDiode
-        :(OpenDiode($n1, $n2)),
-        Branch(n1, n2, 0.0, i))
+        Branch(n1, n2, 0.0, i),
+        () -> OpenDiode(n1, n2))
 end
 
 # Cellier, fig 9.27

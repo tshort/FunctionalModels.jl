@@ -255,10 +255,10 @@ the model.
 
 ```jl
 type StructuralEvent <: ModelType
-    condition::ModelType  # Expression indicating a zero crossing for event detection.
-    new_relation
-    default
-    activated::Bool       # Used internally to indicate whether the event fired.
+    condition::ModelType   # Expression indicating a zero crossing for event detection.
+    default                # The default relation.
+    new_relation::Function # Function to call when the new relation is needed.
+    activated::Bool        # Used internally to indicate whether the event fired.
 end
 ```
 
@@ -275,19 +275,16 @@ function BreakingPendulum()
     vy = Unknown()
     {
      StructuralEvent(MTime - 5.0,     # when time hits 5 sec, switch to FreeFall
-         {:(FreeFall($x,$y,$vx,$vy))},
-         Pendulum(x,y,vx,vy))
+         Pendulum(x,y,vx,vy),
+         () -> FreeFall(x,y,vx,vy))
     }
 end
 ```
 
-One special thing to note is that new_relation, the second argument to
-StructuralEvent, must be an expression. If it is not, it will evaluate
-right away. We want to delay evaluation until the model is recompiled.
-Related to that, each variable must be "escaped" with the dollar sign,
-meaning it's value will be plugged into the expression. Normally, we
-can avoid this sort of thing because expressions are built up
-automatically, but here is one case where we cannot.
+One special thing to note is that new_relation must be a function (in
+the case above, an anonymous function). If new_relation is not a
+function, it will evaluate right away. The use of a function delays
+evaluation until the model is recompiled.
 
 ## Installation 
 

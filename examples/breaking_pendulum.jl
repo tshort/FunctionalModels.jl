@@ -36,8 +36,8 @@ function BreakingPendulum()
     vy = Unknown()
     {
      StructuralEvent(MTime - 5.0,     # when time hits 5 sec, switch to FreeFall
-         {:(FreeFall($x,$y,$vx,$vy))},
-         Pendulum(x,y,vx,vy))
+         Pendulum(x,y,vx,vy),
+         () -> FreeFall(x,y,vx,vy))
     }
 end
 

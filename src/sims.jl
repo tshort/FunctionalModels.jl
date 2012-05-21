@@ -327,11 +327,11 @@ ifelse(x::MExpr, y::MExpr, z::MExpr) = mexpr(:call, :ifelse, x.ex, y.ex, z.ex)
 # after replacing default with new_relation in the model. 
 type StructuralEvent <: ModelType
     condition::ModelType  # Expression indicating a zero crossing for event detection.
-    new_relation
     default
+    new_relation::Function
     activated::Bool       # Indicates whether the event condition has fired
 end
-StructuralEvent(condition::MExpr, new_relation, default) = StructuralEvent(condition, new_relation, default, false)
+StructuralEvent(condition::MExpr, default, new_relation::Function) = StructuralEvent(condition, default, new_relation, false)
 
 
 
@@ -404,7 +404,7 @@ end
 #
 handle_events(a::Model) = traverse_mod(handle_events, a)
 handle_events(x) = x
-handle_events(ev::StructuralEvent) = ev.activated ? eval_all(ev.new_relation) : ev
+handle_events(ev::StructuralEvent) = ev.activated ? ev.new_relation() : ev
 
 #
 # elaborate_unit flattens the set of equations while building up
