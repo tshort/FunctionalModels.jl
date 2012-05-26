@@ -1,3 +1,19 @@
+function str(x, indent)
+    T = typeof(x)
+    if isa(x,Array)
+        println("Array($(eltype(x)),$(size(x)))", " ", x)
+    elseif isa(T,CompositeKind)
+        println(T)
+        for field = T.names
+            print(indent, "  ", field, ": ")
+            str(getfield(x, field), strcat(indent, "  "))
+        end
+    else
+        println(x)
+    end
+end
+
+
 
 
 ########################################
@@ -26,8 +42,9 @@ Step() = Step(1.0, 0.0, 0.0)
 ## Types
 ########################################
 
-typealias NumberOrUnknown{T} Union(AbstractArray, Number, Unknown{T})
-
+# typealias NumberOrUnknown{T} Union(AbstractArray, Number, Unknown{T})
+typealias NumberOrUnknown{T} Union(AbstractArray, Number,
+                                   RefUnknown{T}, Unknown{T})
 
 type UVoltage <: UnknownCategory
 end
@@ -269,10 +286,10 @@ function ex_CauerLowPassAnalog()
      StepVoltage(n1, g, 1.0, 1.0, 0.0)
      Resistor(n1, n2, 1.0)
      Capacitor(n2, g, 1.072)
-     Capacitor(n2, n3, 1/(1.704992^2 * 11))
+     Capacitor(n2, n3, 1/(1.704992^2 * 1.304))
      Inductor(n2, n3, 1.304)
      Capacitor(n3, g, 1.682)
-     Capacitor(n3, n4, 1/(1.179945^2 * 12))
+     Capacitor(n3, n4, 1/(1.179945^2 * 0.8586))
      Inductor(n3, n4, 0.8565)
      Capacitor(n4, g, 0.7262)
      Resistor(n4, g, 1.0)
@@ -284,14 +301,14 @@ function sim_CauerLowPassAnalog()
     wplot(y, "CauerLowPassAnalog.pdf")
 end
 
-# m = ex_CauerLowPassAnalog()
-# f = elaborate(m)
-# s = create_sim(f)
-# y = sim(s, 60.0)
+m = ex_CauerLowPassAnalog()
+f = elaborate(m)
+s = create_sim(f)
+y = sim(s, 60.0)
 
 
 function ex_CauerLowPassOPV()
-    n1 = Voltage(zeros(11), "n")
+    n = Voltage(zeros(11), "n")
     g = 0.0
     {
      StepVoltage(n[1], g, 1.0, 1.0, 0.0)
@@ -321,4 +338,9 @@ function ex_CauerLowPassOPV()
      Capacitor(n[6], n[11], 1/(1.179945^2 * 0.8586))
      Capacitor(n[7], n[10], 1/(1.179945^2 * 0.8586))
      }
+end
+
+function sim_CauerLowPassOPV()
+    y = sim(ex_CauerLowPassOPV(), 60.0)
+    wplot(y.y[:,1], y.y[:,12], "CauerLowPassOPV.pdf")
 end

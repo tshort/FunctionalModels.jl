@@ -148,18 +148,6 @@ Unknown(x, label::String) = Unknown{DefaultUnknown}(gensym(), x, label)
 Unknown(label::String) = Unknown{DefaultUnknown}(gensym(), 0.0, label)
 Unknown(s::Symbol, x) = Unknown{DefaultUnknown}(s, x, "")
 
-# The following helper functions are to return the base value from an
-# unknown to use when creating other unknowns. An example would be:
-#   a = Unknown(45.0 + 10im)
-#   b = Unknown(base_value(a))   # This one gets initialized to 0.0 + 0.0im.
-#
-compatible_values(u::Unknown) = u.value .* 0.0
-# The value from the unknown determines the base value returned:
-compatible_values(u1::Unknown, u2::Unknown) = length(u1.value) > length(u2.value) ? u1.value .* 0.0 : u2.value .* 0.0  
-compatible_values(u::Unknown, num::Number) = length(u.value) > length(num) ? u.value .* 0.0 : num .* 0.0 
-compatible_values(num::Number, u::Unknown) = length(u.value) > length(num) ? u.value .* 0.0 : num .* 0.0 
-# This should work for real and complex valued unknowns, including
-# arrays. For something more complicated, it may not.
 
 is_unknown(x) = isa(x, Unknown)
     
@@ -226,7 +214,30 @@ end
 
 # Add array access capability for Unknowns:
 
-ref(x::Unknown, args...) = mexpr(:call, :ref, x, args...)
+# ref(x::Unknown, args...) = mexpr(:call, :ref, x, args...)
+type RefUnknown{T<:UnknownCategory} <: UnknownVariable
+    u::Unknown{T}
+    idx
+end
+ref(x::Unknown, args...) = RefUnknown(x, args)
+
+value(x::UnknownVariable) = x.value
+value(x::RefUnknown) = x.u.value[x.idx...]
+
+# The following helper functions are to return the base value from an
+# unknown to use when creating other unknowns. An example would be:
+#   a = Unknown(45.0 + 10im)
+#   b = Unknown(base_value(a))   # This one gets initialized to 0.0 + 0.0im.
+#
+compatible_values(u::UnknownVariable) = value(u) .* 0.0
+# The value from the unknown determines the base value returned:
+compatible_values(u1::UnknownVariable, u2::UnknownVariable) = length(value(u1)) > length(value(u2)) ? value(u1) .* 0.0 : value(u2) .* 0.0  
+compatible_values(u::UnknownVariable, num::Number) = length(value(u)) > length(num) ? value(u) .* 0.0 : num .* 0.0 
+compatible_values(num::Number, u::UnknownVariable) = length(value(u)) > length(num) ? value(u) .* 0.0 : num .* 0.0 
+# This should work for real and complex valued unknowns, including
+# arrays. For something more complicated, it may not.
+
+
 
 # System time - a special unknown variable
 MTime = Unknown(:time, 0.0)
@@ -664,6 +675,16 @@ function replace_unknowns(a::Unknown, sm::Sim)
         :(from_real(ref(y, ($(sm.unknown_idx_map[a.sym]))), $(a.value)))
     end
 end
+function replace_unknowns(a::RefUnknown, sm::Sim) # handle array referencing
+    add_var(a.u, sm)
+    sm.unknown_map[a.u.sym] = a.u
+    sm.y_map[sm.unknown_idx_map[a.u.sym]] = a.u
+    if isreal(a.u.value)
+        :(ref(y, ($(sm.unknown_idx_map[a.u.sym][a.idx...]))))
+    else
+        :(from_real(ref(y, ($(sm.unknown_idx_map[a.sym][a.idx...]))), $(a.value)))
+    end
+end
 function replace_unknowns(a::DerUnknown, sm::Sim) 
     add_var(a, sm)
     sm.unknown_map[a.parent.sym] = a.parent
@@ -906,7 +927,6 @@ end
 
 ########################################
 ## Basic plotting with Winston        ##
-## MAYBE BROKEN                       ##
 ########################################
 
 
