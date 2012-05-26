@@ -153,11 +153,11 @@ Unknown(s::Symbol, x) = Unknown{DefaultUnknown}(s, x, "")
 #   a = Unknown(45.0 + 10im)
 #   b = Unknown(base_value(a))   # This one gets initialized to 0.0 + 0.0im.
 #
-base_value(u::Unknown) = u.value .* 0.0
+compatible_value(u::Unknown) = u.value .* 0.0
 # The value from the unknown determines the base value returned:
-base_value(u1::Unknown, u2::Unknown) = length(u1.value) > length(u2.value) ? u1.value .* 0.0 : u2.value .* 0.0  
-base_value(u::Unknown, num::Number) = length(u.value) > length(num) ? u.value .* 0.0 : num .* 0.0 
-base_value(num::Number, u::Unknown) = length(u.value) > length(num) ? u.value .* 0.0 : num .* 0.0 
+compatible_value(u1::Unknown, u2::Unknown) = length(u1.value) > length(u2.value) ? u1.value .* 0.0 : u2.value .* 0.0  
+compatible_value(u::Unknown, num::Number) = length(u.value) > length(num) ? u.value .* 0.0 : num .* 0.0 
+compatible_value(num::Number, u::Unknown) = length(u.value) > length(num) ? u.value .* 0.0 : num .* 0.0 
 # This should work for real and complex valued unknowns, including
 # arrays. For something more complicated, it may not.
 
