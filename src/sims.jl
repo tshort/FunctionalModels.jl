@@ -153,11 +153,11 @@ Unknown(s::Symbol, x) = Unknown{DefaultUnknown}(s, x, "")
 #   a = Unknown(45.0 + 10im)
 #   b = Unknown(base_value(a))   # This one gets initialized to 0.0 + 0.0im.
 #
-compatible_value(u::Unknown) = u.value .* 0.0
+compatible_values(u::Unknown) = u.value .* 0.0
 # The value from the unknown determines the base value returned:
-compatible_value(u1::Unknown, u2::Unknown) = length(u1.value) > length(u2.value) ? u1.value .* 0.0 : u2.value .* 0.0  
-compatible_value(u::Unknown, num::Number) = length(u.value) > length(num) ? u.value .* 0.0 : num .* 0.0 
-compatible_value(num::Number, u::Unknown) = length(u.value) > length(num) ? u.value .* 0.0 : num .* 0.0 
+compatible_values(u1::Unknown, u2::Unknown) = length(u1.value) > length(u2.value) ? u1.value .* 0.0 : u2.value .* 0.0  
+compatible_values(u::Unknown, num::Number) = length(u.value) > length(num) ? u.value .* 0.0 : num .* 0.0 
+compatible_values(num::Number, u::Unknown) = length(u.value) > length(num) ? u.value .* 0.0 : num .* 0.0 
 # This should work for real and complex valued unknowns, including
 # arrays. For something more complicated, it may not.
 
@@ -614,6 +614,7 @@ function setup_functions(sm::Sim)
             SimFunctions(resid, event_at, event_pos_array, event_neg_array, get_discretes)
         end
     end
+    global _ex = copy(expr)
     F = eval(expr)()
 
     # For event responses that were actual functions, insert those into

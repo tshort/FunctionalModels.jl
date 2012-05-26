@@ -5,15 +5,16 @@
 ########################################
 
 
-function Step(x::Real, start::Real, offset::Real)
-    result = Unknown(offset)
+function Step(result, x::Real, start::Real, offset::Real)
+    {
     Event(MTime - start,
           {reinit(result, x + offset)},    # positive crossing
           {-1})      # dummy
+     }
 end
-function Step(x::Real, start::Real) = Step(x, start, 0.0)
-function Step(x::Real) = Step(x, 0.0, 0.0)
-function Step() = Step(1.0, 0.0, 0.0)
+Step(x::Real, start::Real) = Step(x, start, 0.0)
+Step(x::Real) = Step(x, 0.0, 0.0)
+Step() = Step(1.0, 0.0, 0.0)
 
 
 ########################################
@@ -32,8 +33,12 @@ type UVoltage <: UnknownCategory
 end
 type UCurrent <: UnknownCategory
 end
+type UHeatPort <: UnknownCategory
+end
 typealias ElectricalNode NumberOrUnknown{UVoltage}
-typealias Signal NumberOrUnknown{DefaultUnknown}
+# typealias Signal NumberOrUnknown{DefaultUnknown}
+typealias Signal Any
+typealias HeatPort NumberOrUnknown{UHeatPort}
 typealias Voltage Unknown{UVoltage}
 typealias Current Unknown{UCurrent}
 
@@ -227,8 +232,18 @@ SineVoltage(n1::ElectricalNode, n2::ElectricalNode, V::Signal, f::Signal, ang::S
 SineVoltage(n1::ElectricalNode, n2::ElectricalNode, V::Signal, f::Signal) =
     SineVoltage(n1, n2, V, f, 0.0) 
 
-StepVoltage(n1::ElectricalNode, n2::ElectricalNode, V::Real, start::Real, offset::Real) = 
-    SignalVoltage(n1, n2, Step(V, start, offset))
+function StepVoltage(n1::ElectricalNode, n2::ElectricalNode, V::Real, start::Real, offset::Real)
+    i = Current(compatible_values(n1, n2))
+    v = Voltage(compatible_values(n1, n2))
+    v_mag = Discrete(offset)
+    {
+     Branch(n1, n2, v, i) 
+     v - v_mag
+     Event(MTime - start,
+           {reinit(v_mag, offset + V)},        # positive crossing
+           {reinit(v_mag, offset)})            # negative crossing
+     }
+end
     
 function SignalCurrent(n1::ElectricalNode, n2::ElectricalNode, I::Signal)  
     i = Current(compatible_values(n1, n2))
@@ -263,6 +278,17 @@ function ex_CauerLowPassAnalog()
      Resistor(n4, g, 1.0)
      }
 end
+
+function sim_CauerLowPassAnalog()
+    y = sim(ex_CauerLowPassAnalog(), 60.0)
+    wplot(y, "CauerLowPassAnalog.pdf")
+end
+
+# m = ex_CauerLowPassAnalog()
+# f = elaborate(m)
+# s = create_sim(f)
+# y = sim(s, 60.0)
+
 
 function ex_CauerLowPassOPV()
     n1 = Voltage(zeros(11), "n")
