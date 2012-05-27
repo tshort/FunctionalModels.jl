@@ -320,6 +320,13 @@ end
 function ex_CauerLowPassOPV()
     n = Voltage(zeros(11), "n")
     g = 0.0
+    l1 = 1.304
+    l2 = 0.8586
+    c1 = 1.072
+    c2 = 1/(1.704992^2 * l1)
+    c3 = 1.682
+    c4 = 1 / (1.179945^2 + l2)
+    c5 = 0.7262
     {
      StepVoltage(n[1], g, 1.0, 1.0, 0.0)
      IdealOpAmp(g, n[2], n[3])
@@ -332,21 +339,70 @@ function ex_CauerLowPassOPV()
      Resistor(n[5], n[6], 1.0)
      Resistor(n[7], n[8], -1.0)
      Resistor(n[9], n[10], 1.0)
-     Capacitor(n[2], n[3], 1.304)
-     Capacitor(n[4], n[5], 1.682)
-     Capacitor(n[6], n[7], 1/(1.704992^2 * 1.304))
-     Capacitor(n[8], n[9], 0.8586)
-     Capacitor(n[10], n[11], 1/(1.179945^2 * 0.8586))
+     Capacitor(n[2], n[3], c1 + c2)
+     Capacitor(n[4], n[5], l1)
+     Capacitor(n[6], n[7], c2 + c3 + c4)
+     Capacitor(n[8], n[9], l2)
+     Capacitor(n[10], n[11], c4 + c5)
      Resistor(n[2], n[3], 1.0)
      Resistor(n[2], n[5], 1.0)
      Resistor(n[4], n[7], -1.0)
      Resistor(n[6], n[9], 1.0)
      Resistor(n[8], n[11], -1.0)
      Resistor(n[10], n[11], 1.0)
-     Capacitor(n[2], n[7], 1.072)
-     Capacitor(n[3], n[6], 1.072)
-     Capacitor(n[6], n[11], 1/(1.179945^2 * 0.8586))
-     Capacitor(n[7], n[10], 1/(1.179945^2 * 0.8586))
+     Capacitor(n[2], n[7], c2)
+     Capacitor(n[3], n[6], c2)
+     Capacitor(n[6], n[11], c4)
+     Capacitor(n[7], n[10], c4)
+     }
+end
+function ex_CauerLowPassOPV2()
+    n1 = Voltage("n1")
+    n2 = Voltage("n2")
+    n3 = Voltage("n3")
+    n4 = Voltage("n4")
+    n5 = Voltage("n5")
+    n6 = Voltage("n6")
+    n7 = Voltage("n7")
+    n8 = Voltage("n8")
+    n9 = Voltage("n9")
+    n10 = Voltage("n10")
+    n11 = Voltage("n11")
+    g = 0.0
+    l1 = 1.304
+    l2 = 0.8586
+    c1 = 1.072
+    c2 = 1/(1.704992^2 * l1)
+    c3 = 1.682
+    c4 = 1 / (1.179945^2 + l2)
+    c5 = 0.7262
+    {
+     StepVoltage(n1, g, 1.0, 1.0, 0.0)
+     IdealOpAmp(g, n2, n3)
+     IdealOpAmp(g, n4, n5)
+     IdealOpAmp(g, n6, n7)
+     IdealOpAmp(g, n8, n9)
+     IdealOpAmp(g, n10, n11)
+     Resistor(n1, n2, 1.0)
+     Resistor(n3, n4, -1.0)
+     Resistor(n5, n6, 1.0)
+     Resistor(n7, n8, -1.0)
+     Resistor(n9, n10, 1.0)
+     Capacitor(n2, n3, c1 + c2)
+     Capacitor(n4, n5, l1)
+     Capacitor(n6, n7, c2 + c3 + c4)
+     Capacitor(n8, n9, l2)
+     Capacitor(n10, n11, c4 + c5)
+     Resistor(n2, n3, 1.0)
+     Resistor(n2, n5, 1.0)
+     Resistor(n4, n7, -1.0)
+     Resistor(n6, n9, 1.0)
+     Resistor(n8, n11, -1.0)
+     Resistor(n10, n11, 1.0)
+     Capacitor(n2, n7, c2)
+     Capacitor(n3, n6, c2)
+     Capacitor(n6, n11, c4)
+     Capacitor(n7, n10, c4)
      }
 end
 
@@ -359,3 +415,11 @@ m = ex_CauerLowPassOPV()
 f = elaborate(m)
 s = create_sim(f)
 y = sim(s, 20.0)
+
+
+m2 = ex_CauerLowPassOPV2()
+f2 = elaborate(m2)
+s2 = create_sim(f2)
+y2 = sim(s2, 20.0)
+
+

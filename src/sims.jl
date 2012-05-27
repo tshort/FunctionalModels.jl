@@ -212,6 +212,12 @@ for f = (:der,
     @eval ($f)(x::MExpr) = mexpr(:call, ($f), x.ex)
 end
 
+
+# For now, a model is just a vector that anything, but probably it
+# should include just ModelType's.
+Model = Vector{Any}
+
+
 # Add array access capability for Unknowns:
 
 # ref(x::Unknown, args...) = mexpr(:call, :ref, x, args...)
@@ -267,10 +273,6 @@ function Branch(n1, n2, v, i)
      }
 end
 
-
-# For now, a model is just a vector that anything, but probably it
-# should include just ModelType's.
-Model = Vector{Any}
 
 
 
