@@ -149,7 +149,7 @@ Unknown(label::String) = Unknown{DefaultUnknown}(gensym(), 0.0, label)
 Unknown(s::Symbol, x) = Unknown{DefaultUnknown}(s, x, "")
 
 
-is_unknown(x) = isa(x, Unknown)
+is_unknown(x) = isa(x, UnknownVariable)
     
 type DerUnknown <: UnknownVariable
     sym::Symbol
@@ -221,9 +221,17 @@ type RefUnknown{T<:UnknownCategory} <: UnknownVariable
 end
 ref(x::Unknown, args...) = RefUnknown(x, args)
 
+value(x) = x
+value(x::Model) = map(value, x)
 value(x::UnknownVariable) = x.value
 value(x::RefUnknown) = x.u.value[x.idx...]
-
+value(a::MExpr) = value(a.ex)
+function value(a::Expr)
+    ret = copy(a)
+    ret.args = value(ret.args)
+    eval(ret)
+end
+                       
 # The following helper functions are to return the base value from an
 # unknown to use when creating other unknowns. An example would be:
 #   a = Unknown(45.0 + 10im)
@@ -426,8 +434,12 @@ elaborate_unit(a::ModelType, eq::EquationSet) = a
 elaborate_unit(a::Model, eq::EquationSet) = traverse_mod((x) -> elaborate_unit(x, eq), a)
 
 function elaborate_unit(b::RefBranch, eq::EquationSet)
-    if (is_unknown(b.n))
+    if (isa(b.n, Unknown))
         eq.nodeMap[b.n] = get(eq.nodeMap, b.n, 0.0) + b.i
+    elseif (isa(b.n, RefUnknown))
+        vec = compatible_values(b.n.u)
+        vec[b.n.idx...] = 1.0
+        eq.nodeMap[b.n.u] = get(eq.nodeMap, b.n.u, 0.0) + b.i .* vec 
     end
     {}
 end

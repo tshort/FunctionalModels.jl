@@ -1,19 +1,6 @@
-function str(x, indent)
-    T = typeof(x)
-    if isa(x,Array)
-        println("Array($(eltype(x)),$(size(x)))", " ", x)
-    elseif isa(T,CompositeKind)
-        println(T)
-        for field = T.names
-            print(indent, "  ", field, ": ")
-            str(getfield(x, field), strcat(indent, "  "))
-        end
-    else
-        println(x)
-    end
-end
 
 
+    
 
 
 ########################################
@@ -301,11 +288,34 @@ function sim_CauerLowPassAnalog()
     wplot(y, "CauerLowPassAnalog.pdf")
 end
 
-m = ex_CauerLowPassAnalog()
-f = elaborate(m)
-s = create_sim(f)
-y = sim(s, 60.0)
+# m = ex_CauerLowPassAnalog()
+# f = elaborate(m)
+# s = create_sim(f)
+# y = sim(s, 60.0)
+# y = sim(ex_CauerLowPassAnalog(), 60.0)
+# _ex1 = copy(_ex)
 
+function ex_CauerLowPassAnalog2()
+    n = Voltage(zeros(4), "n")
+    g = 0.0
+    {
+     StepVoltage(n[1], g, 1.0, 1.0, 0.0)
+     Resistor(n[1], n[2], 1.0)
+     Capacitor(n[2], g, 1.072)
+     Capacitor(n[2], n[3], 1/(1.704992^2 * 1.304))
+     Inductor(n[2], n[3], 1.304)
+     Capacitor(n[3], g, 1.682)
+     Capacitor(n[3], n[4], 1/(1.179945^2 * 0.8586))
+     Inductor(n[3], n[4], 0.8565)
+     Capacitor(n[4], g, 0.7262)
+     Resistor(n[4], g, 1.0)
+     }
+end
+
+# m = ex_CauerLowPassAnalog2()
+# f = elaborate(m)
+# s = create_sim(f)
+# y2 = sim(s, 60.0)
 
 function ex_CauerLowPassOPV()
     n = Voltage(zeros(11), "n")
@@ -344,3 +354,8 @@ function sim_CauerLowPassOPV()
     y = sim(ex_CauerLowPassOPV(), 60.0)
     wplot(y.y[:,1], y.y[:,12], "CauerLowPassOPV.pdf")
 end
+
+m = ex_CauerLowPassOPV()
+f = elaborate(m)
+s = create_sim(f)
+y = sim(s, 20.0)
