@@ -469,11 +469,7 @@ strip_mexpr(a) = a
 strip_mexpr{T}(a::Vector{T}) = map(strip_mexpr, a)
 strip_mexpr(a::MExpr) = strip_mexpr(a.ex)
 ## strip_mexpr(a::MSymbol) = a.sym 
-function strip_mexpr(a::Expr)
-    ret = copy(a)
-    ret.args = strip_mexpr(ret.args)
-    ret
-end
+strip_mexpr(e::Expr) = Expr(e.head, isempty(e.args) ? e.args : map(strip_mexpr, e.args), e.typ)
 
 # Other utilities:
 remove_empties(l::Vector{Any}) = filter(x -> !isequal(x, {}), l)
@@ -669,11 +665,7 @@ end
 # references to the positions in the y or yp vectors.
 replace_unknowns(a, sm::Sim) = a
 replace_unknowns{T}(a::Array{T,1}, sm::Sim) = map(x -> replace_unknowns(x, sm), a)
-function replace_unknowns(a::Expr, sm::Sim)
-    ret = copy(a)
-    ret.args = replace_unknowns(ret.args, sm)
-    ret
-end
+replace_unknowns(e::Expr, sm::Sim) = Expr(e.head, replace_unknowns(e.args, sm), e.typ)
 function replace_unknowns(a::Unknown, sm::Sim)
     if isequal(a.sym, :time)
         return :(t[1])
