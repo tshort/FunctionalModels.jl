@@ -520,7 +520,6 @@ type Sim
     id::Array{Int, 1}         # indicates whether a variable is algebraic or differential
     outputs::Array{ASCIIString, 1} # output labels
     unknown_idx_map::Dict     # symbol => index into y (or yp)
-    unknown_map::Dict         # symbol => the Unknown object
     discrete_map::Dict        # sym => Discrete variable 
     y_map::Dict               # sym => Unknown variable 
     yp_map::Dict              # sym => DerUnknown variable 
@@ -536,7 +535,6 @@ function create_sim(eq::EquationSet)
     sm = Sim(eq)
     sm.varnum = 1
     sm.unknown_idx_map = Dict()
-    sm.unknown_map = Dict()
     sm.discrete_map = Dict()
     sm.y_map = Dict()
     sm.yp_map = Dict()
@@ -639,7 +637,7 @@ function setup_functions(sm::Sim)
             SimFunctions(resid, event_at, event_pos_array, event_neg_array, get_discretes)
         end
     end
-    global _ex = copy(expr)
+    # global _ex = copy(expr)
     F = eval(expr)()
 
     # For event responses that were actual functions, insert those into
@@ -655,7 +653,7 @@ function setup_functions(sm::Sim)
     F
 end
 
-# add_var add's a variable to the unknown_map if it isn't already
+# add_var add's a variable to the unknown_idx_map if it isn't already
 # there. 
 function add_var(v, sm) 
     if !has(sm.unknown_idx_map, v.sym)
@@ -681,7 +679,6 @@ function replace_unknowns(a::Unknown, sm::Sim)
         return :(t[1])
     end
     add_var(a, sm)
-    sm.unknown_map[a.sym] = a
     sm.y_map[sm.unknown_idx_map[a.sym]] = a
     if isreal(a.value)
         :(ref(y, ($(sm.unknown_idx_map[a.sym]))))
@@ -691,7 +688,6 @@ function replace_unknowns(a::Unknown, sm::Sim)
 end
 function replace_unknowns(a::RefUnknown, sm::Sim) # handle array referencing
     add_var(a.u, sm)
-    sm.unknown_map[a.u.sym] = a.u
     sm.y_map[sm.unknown_idx_map[a.u.sym]] = a.u
     if isreal(a.u.value)
         :(ref(y, ($(sm.unknown_idx_map[a.u.sym][a.idx...]))))
@@ -701,7 +697,6 @@ function replace_unknowns(a::RefUnknown, sm::Sim) # handle array referencing
 end
 function replace_unknowns(a::DerUnknown, sm::Sim) 
     add_var(a, sm)
-    sm.unknown_map[a.parent.sym] = a.parent
     sm.y_map[sm.unknown_idx_map[a.parent.sym]] = a.parent
     sm.yp_map[sm.unknown_idx_map[a.sym]] = a
     :(ref(yp, ($(sm.unknown_idx_map[a.sym]))))

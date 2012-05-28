@@ -187,14 +187,20 @@ Diode(n1::ElectricalNode, n2::ElectricalNode, hp::HeatPort,
 
 function IdealOpAmp(p1::ElectricalNode, n1::ElectricalNode, p2::ElectricalNode, n2::ElectricalNode)
     i = Current(compatible_values(p2, n2))
-    v = Current(compatible_values(p2, n2))
+    v = Voltage(compatible_values(p2, n2))
     {
      p1 - n1      # voltages at the input are equal
                   # currents at the input are zero, so leave out
      Branch(p2, n2, v, i) # at the output, make the currents equal
      }
 end
-IdealOpAmp(p1::ElectricalNode, n1::ElectricalNode, p2::ElectricalNode) = p1 - n1 
+function IdealOpAmp(p1::ElectricalNode, n1::ElectricalNode, p2::ElectricalNode)
+    v = Voltage(compatible_values(p1, n1))
+    {
+     v
+     Branch(p1, n1, v, 0.0) 
+     }
+end
 
 
 function BranchHeatPort(n1::ElectricalNode, n2::ElectricalNode, hp::HeatPort,
@@ -312,10 +318,10 @@ function ex_CauerLowPassAnalog2()
      }
 end
 
-# m = ex_CauerLowPassAnalog2()
-# f = elaborate(m)
-# s = create_sim(f)
-# y2 = sim(s, 60.0)
+# m2 = ex_CauerLowPassAnalog2()
+# f2 = elaborate(m2)
+# s2 = create_sim(f2)
+# y2 = sim(s2, 60.0)
 
 function ex_CauerLowPassOPV()
     n = Voltage(zeros(11), "n")
@@ -411,15 +417,17 @@ function sim_CauerLowPassOPV()
     wplot(y.y[:,1], y.y[:,12], "CauerLowPassOPV.pdf")
 end
 
-m = ex_CauerLowPassOPV()
-f = elaborate(m)
-s = create_sim(f)
-y = sim(s, 20.0)
+# m = ex_CauerLowPassOPV()
+# f = elaborate(m)
+# s = create_sim(f)
+# y = sim(s, 20.0)
+# # _ex1 = copy(_ex)
 
 
 m2 = ex_CauerLowPassOPV2()
 f2 = elaborate(m2)
 s2 = create_sim(f2)
 y2 = sim(s2, 20.0)
+# _ex2 = copy(_ex)
 
 
