@@ -334,7 +334,7 @@ function ex_CauerLowPassOPV()
     c4 = 1 / (1.179945^2 + l2)
     c5 = 0.7262
     {
-     StepVoltage(n[1], g, 1.0, 1.0, 0.0)
+     StepVoltage(n[1], g, -1.0, 1.0, 0.0)
      IdealOpAmp(g, n[2], n[3])
      IdealOpAmp(g, n[4], n[5])
      IdealOpAmp(g, n[6], n[7])
@@ -383,7 +383,7 @@ function ex_CauerLowPassOPV2()
     c4 = 1 / (1.179945^2 + l2)
     c5 = 0.7262
     {
-     StepVoltage(n1, g, 1.0, 1.0, 0.0)
+     StepVoltage(n1, g, -1.0, 1.0, 0.0)
      IdealOpAmp(g, n2, n3)
      IdealOpAmp(g, n4, n5)
      IdealOpAmp(g, n6, n7)
@@ -429,26 +429,3 @@ f2 = elaborate(m2)
 s2 = create_sim(f2)
 y2 = sim(s2, 20.0)
 # _ex2 = copy(_ex)
-
-
-function ex_OpAmp()
-    n1 = Voltage("n1")
-    n2 = Voltage("n2")
-    n3 = Voltage("n3")
-    l1 = 1.304
-    c1 = 1.072
-    c2 = 1/(1.704992^2 * l1)
-    g = 0.0
-    {
-     StepVoltage(n1, g, 1.0, 1.0, 0.0)
-     IdealOpAmp(g, n2, n3)
-     Resistor(n1, n2, 1.0)
-     Capacitor(n2, n3, c1 + c2)
-     }
-end
-
-# m = ex_OpAmp()
-# f = elaborate(m)
-# s = create_sim(f)
-# y = sim(s, 20.0)
-# # _ex1 = copy(_ex)
