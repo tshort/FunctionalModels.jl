@@ -195,10 +195,10 @@ function IdealOpAmp(p1::ElectricalNode, n1::ElectricalNode, p2::ElectricalNode, 
      }
 end
 function IdealOpAmp(p1::ElectricalNode, n1::ElectricalNode, p2::ElectricalNode)
-    v = Voltage(compatible_values(p1, n1))
+    i = Current(compatible_values(p2))
     {
-     v
-     Branch(p1, n1, v, 0.0) 
+     p1 - n1
+     RefBranch(p2, i)
      }
 end
 
@@ -417,11 +417,11 @@ function sim_CauerLowPassOPV()
     wplot(y.y[:,1], y.y[:,12], "CauerLowPassOPV.pdf")
 end
 
-# m = ex_CauerLowPassOPV()
-# f = elaborate(m)
-# s = create_sim(f)
-# y = sim(s, 20.0)
-# # _ex1 = copy(_ex)
+m = ex_CauerLowPassOPV()
+f = elaborate(m)
+s = create_sim(f)
+y = sim(s, 20.0)
+# _ex1 = copy(_ex)
 
 
 m2 = ex_CauerLowPassOPV2()
@@ -431,3 +431,24 @@ y2 = sim(s2, 20.0)
 # _ex2 = copy(_ex)
 
 
+function ex_OpAmp()
+    n1 = Voltage("n1")
+    n2 = Voltage("n2")
+    n3 = Voltage("n3")
+    l1 = 1.304
+    c1 = 1.072
+    c2 = 1/(1.704992^2 * l1)
+    g = 0.0
+    {
+     StepVoltage(n1, g, 1.0, 1.0, 0.0)
+     IdealOpAmp(g, n2, n3)
+     Resistor(n1, n2, 1.0)
+     Capacitor(n2, n3, c1 + c2)
+     }
+end
+
+# m = ex_OpAmp()
+# f = elaborate(m)
+# s = create_sim(f)
+# y = sim(s, 20.0)
+# # _ex1 = copy(_ex)
