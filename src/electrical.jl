@@ -1,50 +1,8 @@
 
-
-    
-
-
-########################################
-## General Signals
-########################################
-
-
-function Step(result, x::Real, start::Real, offset::Real)
-    {
-    Event(MTime - start,
-          {reinit(result, x + offset)},    # positive crossing
-          {-1})      # dummy
-     }
-end
-Step(x::Real, start::Real) = Step(x, start, 0.0)
-Step(x::Real) = Step(x, 0.0, 0.0)
-Step() = Step(1.0, 0.0, 0.0)
-
-
 ########################################
 ## Electrical library                 ##
 ########################################
 
-
-########################################
-## Types
-########################################
-
-# typealias NumberOrUnknown{T} Union(AbstractArray, Number, Unknown{T})
-typealias NumberOrUnknown{T} Union(AbstractArray, Number,
-                                   RefUnknown{T}, Unknown{T})
-
-type UVoltage <: UnknownCategory
-end
-type UCurrent <: UnknownCategory
-end
-type UHeatPort <: UnknownCategory
-end
-typealias ElectricalNode NumberOrUnknown{UVoltage}
-# typealias Signal NumberOrUnknown{DefaultUnknown}
-typealias Signal Any
-typealias HeatPort NumberOrUnknown{UHeatPort}
-typealias Voltage Unknown{UVoltage}
-typealias Current Unknown{UCurrent}
 
 
 ########################################
@@ -452,3 +410,5 @@ end
 # f = elaborate(m)
 # s = create_sim(f)
 # y = sim(s, 1.0)
+
+
