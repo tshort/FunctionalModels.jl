@@ -307,6 +307,7 @@ type LeftVar <: ModelType
     var
 end
 function reinit(x, y)
+    println("reinit: ", y)
     x[:] = y
 end
 reinit(x::LeftVar, y) = mexpr(:call, :reinit, x, y)
@@ -767,8 +768,8 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
         yp = copy(sm.yp0)
         nrt = [int32(length(sm.F.event_pos))]
         rpar = [0.0]
-        rtol = [0.0]
-        atol = [1e-3]
+        rtol = [1e-5]
+        atol = [1e-5]
         lrw = [int32(N[1]^2 + 9 * N[1] + 60 + 3 * nrt[1])] 
         rwork = fill(0.0, lrw[1])
         liw = [int32(2*N[1] + 40)] 
@@ -848,6 +849,7 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
                 elseif any(jroot != 0)
                     println("event found at t = $(t[1]), restarting")
                     info[1] = 0
+                    info[11] = 1    # do/don't calc initial conditions
                 end
             end
         elseif idid[1] < 0 && idid[1] > -11

@@ -154,7 +154,7 @@ function IdealDiode(n1::ElectricalNode, n2::ElectricalNode, Vknee::Signal, Ron::
     i = Current(vals)
     v = Voltage(vals)
     s = Unknown(vals)  # dummy variable
-    openswitch = Discrete(fill(false, length(vals)))  # on/off state of diode
+    openswitch = Discrete(fill(true, length(vals)))  # on/off state of diode
     {
      Branch(n1, n2, v, i)
      BoolEvent(openswitch, -s)  # openswitch becomes true when s goes negative
@@ -163,8 +163,8 @@ function IdealDiode(n1::ElectricalNode, n2::ElectricalNode, Vknee::Signal, Ron::
      }
 end
 
-IdealDiode(n1::ElectricalNode, n2::ElectricalNode) = IdealDiode(n1, n2, 0.0, 1e5, 1e5)
-IdealDiode(n1::ElectricalNode, n2::ElectricalNode, Vknee::Signal) = IdealDiode(n1, n2, Vknee, 1e5, 1e5)
+IdealDiode(n1::ElectricalNode, n2::ElectricalNode) = IdealDiode(n1, n2, 0.0, 1e-5, 1e-5)
+IdealDiode(n1::ElectricalNode, n2::ElectricalNode, Vknee::Signal) = IdealDiode(n1, n2, Vknee, 1e-5, 1e-5)
 
 function Diode(n1::ElectricalNode, n2::ElectricalNode,
                Ids::Signal, Vt::Signal, Maxexp::Signal, R::Signal)
@@ -236,11 +236,14 @@ function SignalVoltage(n1::ElectricalNode, n2::ElectricalNode, V::Signal)
      }
 end
 
-SineVoltage(n1::ElectricalNode, n2::ElectricalNode, V::Signal, f::Signal, ang::Signal) = 
-    SignalVoltage(n1, n2, sin(2pi .* f .* MTime + ang))
+SineVoltage(n1::ElectricalNode, n2::ElectricalNode, V::Signal, f::Signal, ang::Signal, offset::Signal) = 
+    SignalVoltage(n1, n2, V .* sin(2pi .* f .* MTime + ang) + offset)
+
+SineVoltage(n1::ElectricalNode, n2::ElectricalNode, V::Signal, f::Signal, ang::Signal) =
+    SineVoltage(n1, n2, V, f, ang, 0.0) 
 
 SineVoltage(n1::ElectricalNode, n2::ElectricalNode, V::Signal, f::Signal) =
-    SineVoltage(n1, n2, V, f, 0.0) 
+    SineVoltage(n1, n2, V, f, 0.0, 0.0) 
 
 function StepVoltage(n1::ElectricalNode, n2::ElectricalNode, V::Real, start::Real, offset::Real)
     i = Current(compatible_values(n1, n2))
@@ -300,28 +303,6 @@ end
 # y = sim(s, 60.0)
 # y = sim(ex_CauerLowPassAnalog(), 60.0)
 # _ex1 = copy(_ex)
-
-function ex_CauerLowPassAnalog2()
-    n = Voltage(zeros(4), "n")
-    g = 0.0
-    {
-     StepVoltage(n[1], g, 1.0, 1.0, 0.0)
-     Resistor(n[1], n[2], 1.0)
-     Capacitor(n[2], g, 1.072)
-     Capacitor(n[2], n[3], 1/(1.704992^2 * 1.304))
-     Inductor(n[2], n[3], 1.304)
-     Capacitor(n[3], g, 1.682)
-     Capacitor(n[3], n[4], 1/(1.179945^2 * 0.8586))
-     Inductor(n[3], n[4], 0.8565)
-     Capacitor(n[4], g, 0.7262)
-     Resistor(n[4], g, 1.0)
-     }
-end
-
-# m2 = ex_CauerLowPassAnalog2()
-# f2 = elaborate(m2)
-# s2 = create_sim(f2)
-# y2 = sim(s2, 60.0)
 
 function ex_CauerLowPassOPV()
     n = Voltage(zeros(11), "n")
@@ -417,15 +398,57 @@ function sim_CauerLowPassOPV()
     wplot(y.y[:,1], y.y[:,12], "CauerLowPassOPV.pdf")
 end
 
-m = ex_CauerLowPassOPV()
-f = elaborate(m)
-s = create_sim(f)
-y = sim(s, 20.0)
-# _ex1 = copy(_ex)
+# m = ex_CauerLowPassOPV()
+# f = elaborate(m)
+# s = create_sim(f)
+# y = sim(s, 20.0)
+# # _ex1 = copy(_ex)
 
 
-m2 = ex_CauerLowPassOPV2()
-f2 = elaborate(m2)
-s2 = create_sim(f2)
-y2 = sim(s2, 20.0)
-# _ex2 = copy(_ex)
+# m2 = ex_CauerLowPassOPV2()
+# f2 = elaborate(m2)
+# s2 = create_sim(f2)
+# y2 = sim(s2, 20.0)
+# # _ex2 = copy(_ex)
+
+function ex_CharacteristicIdealDiodes()
+    s1 = Voltage("s1")
+    s2 = Voltage("s2")
+    s3 = Voltage("s3")
+    n1 = Voltage("n1")
+    n2 = Voltage("n2")
+    n3 = Voltage("n3")
+    g = 0.0
+    {
+     SineVoltage(s1, g, 10.0, 1.0, -pi/10.0) 
+     SineVoltage(s2, g, 10.0, 1.0, -pi/15.0, -9.0) 
+     SineVoltage(s3, g, 10.0, 1.0, -pi/20.0) 
+     Resistor(n1, g, 1e-3) 
+     Resistor(n2, g, 1e-3) 
+     Resistor(n3, g, 1e-3) 
+     IdealDiode(s1, n1, 0.0, 0.0, 0.0)
+     IdealDiode(s2, n2, 0.0, 0.1, 0.1) 
+     IdealDiode(s3, n3, 5.0, 0.2, 0.2) 
+     }
+end
+
+function sim_CharacteristicIdealDiodes()
+    y = sim(ex_CharacteristicIdealDiodes(), 1.0)
+    wplot(y, "CharacteristicIdealDiodes.pdf")
+end
+
+# function ex_CharacteristicIdealDiodes1()
+#     s1 = Voltage("s1")
+#     n1 = Voltage("n1")
+#     g = 0.0
+#     {
+#      SineVoltage(s1, g, 10.0, 1.0, -pi/10.0, 0.0) 
+#      Resistor(n1, g, 1e-3) 
+#      IdealDiode(s1, n1, 0.0, 0.0, 0.0)
+#      }
+# end
+
+# m = ex_CharacteristicIdealDiodes()
+# f = elaborate(m)
+# s = create_sim(f)
+# y = sim(s, 1.0)
