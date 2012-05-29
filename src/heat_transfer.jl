@@ -113,7 +113,7 @@ function ex_Motor()
     {
      # Winding
      HeatCapacitor(p1, 2500.0, TAmb)
-     PrescribedHeatFlow(p1, , 95 + 273.15, 3.03E-3)
+     PrescribedHeatFlow(p1, interp(winding_losses, t, MTime), 95 + 273.15, 3.03E-3)
      # Core
      HeatCapacitor(p2, 25000.0, TAmb)
      PrescribedHeatFlow(p2, 500.0)

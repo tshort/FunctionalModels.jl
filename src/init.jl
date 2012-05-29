@@ -5,5 +5,5 @@ load("sims.jl")
 
 load("types.jl")
 load("electrical.jl")
-# load("mechanical.jl")
-# load("thermal.jl")
+load("heat_transfer.jl")
+load("rotational.jl")
