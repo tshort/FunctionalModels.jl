@@ -11,7 +11,8 @@
 
 
 function HeatCapacitor(hp::HeatPort, C::Signal, Tstart::Real)
-    Q_flow = HeatFlow(Tstart + compatible_values(hp))
+# can't really use Tstart here. Need to define at the top level.
+    Q_flow = HeatFlow(compatible_values(hp))
     {
      RefBranch(hp, Q_flow)
      C .* der(hp) - Q_flow
@@ -93,13 +94,19 @@ PrescribedHeatFlow = FixedHeatFlow
 
 
 function ex_TwoMasses()
-    p1 = Temperature("p1")
-    p2 = Temperature("p2")
+    p1 = Temperature(373.15, "p1")
+    p2 = Temperature(273.15, "p2")
     {
      HeatCapacitor(p1, 15.0, 373.15)
      HeatCapacitor(p2, 15.0, 273.15)
      ThermalConductor(p1, p2, 10.0)
      }
+end
+
+
+function sim_TwoMasses()
+    y = sim(ex_TwoMasses(), 1.0)
+    wplot(y, "TwoMasses.pdf")
 end
 
 
@@ -123,4 +130,9 @@ function ex_Motor()
      Convection(p2, p3, 25.0)
      FixedTemperature(p3, TAmb)
      }
+end
+
+function sim_Motor()
+    y = sim(ex_Motor(), 7200.0)
+    wplot(y, "Motor.pdf")
 end

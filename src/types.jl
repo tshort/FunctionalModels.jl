@@ -36,17 +36,19 @@ end
 
 # Thermal node:
 typealias HeatPort NumberOrUnknown{UHeatPort}
-typealias HeatFlow NumberOrUnknown{UHeatFlow}
-typealias Temperature Unknown{UTemperature}
+typealias HeatFlow Unknown{UHeatFlow}
+typealias Temperature Unknown{UHeatPort}
 
 
 ## Mechanical
-type UAngle <: UnknownCategory
-end
-type UTorque <: UnknownCategory
-end
+type UAngle <: UnknownCategory; end
+type UTorque <: UnknownCategory; end
 typealias Angle Unknown{UAngle}
 typealias Torque Unknown{UTorque}
+type UAngularVelocity <: UnknownCategory; end
+typealias AngularVelocity Unknown{UAngularVelocity}
+type UAngularAcceleration <: UnknownCategory; end
+typealias AngularAcceleration Unknown{UAngularAcceleration}
 
 # Mechanical node:
 typealias Flange NumberOrUnknown{UAngle}

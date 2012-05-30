@@ -200,7 +200,7 @@ for f = (:+, :-, :*, :.*, :/, :./, :^, :isless)
 end 
 
 for f = (:der, 
-         :-, :!, :ceil, :floor,  :trunc,  :round, 
+         :-, :!, :ceil, :floor,  :trunc,  :round, :sum, 
          :iceil,  :ifloor, :itrunc, :iround,
          :abs,    :angle,  :log10,
          :sqrt,   :cbrt,   :log,    :log2,   :exp,   :expm1,
@@ -331,6 +331,7 @@ end
 # ifelse is like an if-then-else block, but for ModelTypes.
 #
 ifelse(x::Bool, y, z) = x ? y : z
+ifelse(x::Array{Bool}, y, z) = map((x) -> ifelse(x,y,z), x)
 ifelse(x::ModelType, y, z) = mexpr(:call, :ifelse, x, y, z)
 ifelse(x::MExpr, y, z) = mexpr(:call, :ifelse, x.ex, y, z)
 ifelse(x::MExpr, y::MExpr, z::MExpr) = mexpr(:call, :ifelse, x.ex, y.ex, z.ex)
@@ -634,7 +635,7 @@ function setup_functions(sm::Sim)
             SimFunctions(resid, event_at, event_pos_array, event_neg_array, get_discretes)
         end
     end
-    # global _ex = copy(expr)
+    global _ex = expr
     F = eval(expr)()
 
     # For event responses that were actual functions, insert those into
@@ -757,8 +758,8 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
     tout = [tstep]
     idid = [int32(0)]
     info = fill(int32(0), 20)
-    info[11] = 1    # calc initial conditions (1 or 2) / don't calc (0)
-    ## info[18] = 2    # more initialization info
+    info[11] = 0    # calc initial conditions (1 or 2) / don't calc (0)
+    info[18] = 2    # more initialization info
     
     function setup_sim(sm::Sim, tstart::Float64, tstop::Float64, Nsteps::Int)
         global __sim_structural_change = false

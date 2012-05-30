@@ -6,6 +6,32 @@
 
 
 ########################################
+## General
+########################################
+
+function BranchHeatPort(n1::ElectricalNode, n2::ElectricalNode, hp::HeatPort,
+                        model::Function, args...)
+    vals = compatible_values(n1, n2)
+    i = Current(vals)
+    v = Voltage(vals)
+    n = Voltage(vals)
+    PowerLoss = HeatFlow(compatible_values(hp))
+    {
+     if length(value(hp)) > 1  # hp is an array
+         PowerLoss - v .* i
+     else
+         PowerLoss - sum(v .* i)
+     end
+     RefBranch(hp, -PowerLoss)
+     n1 - n2 - v
+     Branch(n1, n, 0.0, i)
+     model(n, n2, args...)
+     }
+end
+
+
+
+########################################
 ## Basic
 ########################################
 
@@ -18,21 +44,8 @@ function Resistor(n1::ElectricalNode, n2::ElectricalNode, R::Signal)
      }
 end
 
-function Resistor(n1::ElectricalNode, n2::ElectricalNode, hp::HeatPort, R::Signal)
-    i = Current(compatible_values(n1, n2))
-    v = Voltage(compatible_values(n1, n2))
-    LossPower = Power(compatible_values(hp))
-    {
-     if length(hp) > 1
-         PowerLoss - v .* i
-     else
-         PowerLoss - sum(v .* i)
-     end
-     RefBranch(hp, -PowerLoss) 
-     Branch(n1, n2, v, i)
-     R .* i - v   # == 0 is implied
-     }
-end
+Resistor(n1::ElectricalNode, n2::ElectricalNode, hp::HeatPort, R::Signal) = 
+    BranchHeatPort(n1, n2, hp, Resistor, R)
 
 Resistor(n1::ElectricalNode, n2::ElectricalNode, hp::HeatPort, R::Signal, T_ref::Signal, alpha::Signal) =
     Resistor(n1, n2, hp, R * (1 + alpha * (hp - T_ref)))
@@ -98,6 +111,24 @@ function Transformer(p1::ElectricalNode, n1::ElectricalNode, p2::ElectricalNode,
      }
 end
 
+function EMF(n1::ElectricalNode, n2::ElectricalNode, flange::Flange, support_flange::Flange, k::Real)
+    vals = compatible_values(n1, n2) 
+    i = Current(vals)
+    v = Voltage(vals)
+    tau = Torque(compatible_values(flange, support_flange))
+    w = AngularVelocity(compatible_values(flange, support_flange))
+    {
+     Branch(n1, n2, i, v)
+     Branch(flange, support_flange, phi, tau)
+     w - der(flange)
+     v - k * w
+     tau + k * i
+     }
+end
+EMF(n1::ElectricalNode, n2::ElectricalNode, flange::Flange, k::Real) =
+    EMF(n1, n2, flange, 0.0, k::Real)
+
+
 
 
 ########################################
@@ -124,6 +155,29 @@ end
 IdealDiode(n1::ElectricalNode, n2::ElectricalNode) = IdealDiode(n1, n2, 0.0, 1e-5, 1e-5)
 IdealDiode(n1::ElectricalNode, n2::ElectricalNode, Vknee::Signal) = IdealDiode(n1, n2, Vknee, 1e-5, 1e-5)
 
+function IdealOpAmp(p1::ElectricalNode, n1::ElectricalNode, p2::ElectricalNode, n2::ElectricalNode)
+    i = Current(compatible_values(p2, n2))
+    v = Voltage(compatible_values(p2, n2))
+    {
+     p1 - n1      # voltages at the input are equal
+                  # currents at the input are zero, so leave out
+     Branch(p2, n2, v, i) # at the output, make the currents equal
+     }
+end
+function IdealOpAmp(p1::ElectricalNode, n1::ElectricalNode, p2::ElectricalNode)
+    i = Current(compatible_values(p2))
+    {
+     p1 - n1
+     RefBranch(p2, i)
+     }
+end
+
+
+########################################
+## Semiconductors
+########################################
+
+
 function Diode(n1::ElectricalNode, n2::ElectricalNode,
                Ids::Signal, Vt::Signal, Maxexp::Signal, R::Signal)
     vals = compatible_values(n1, n2)
@@ -143,41 +197,8 @@ Diode(n1::ElectricalNode, n2::ElectricalNode, hp::HeatPort,
     BranchHeatPort(n1, n2, hp, Diode, Ids, Vt, Maxexp, R)
 
 
-function IdealOpAmp(p1::ElectricalNode, n1::ElectricalNode, p2::ElectricalNode, n2::ElectricalNode)
-    i = Current(compatible_values(p2, n2))
-    v = Voltage(compatible_values(p2, n2))
-    {
-     p1 - n1      # voltages at the input are equal
-                  # currents at the input are zero, so leave out
-     Branch(p2, n2, v, i) # at the output, make the currents equal
-     }
-end
-function IdealOpAmp(p1::ElectricalNode, n1::ElectricalNode, p2::ElectricalNode)
-    i = Current(compatible_values(p2))
-    {
-     p1 - n1
-     RefBranch(p2, i)
-     }
-end
 
 
-function BranchHeatPort(n1::ElectricalNode, n2::ElectricalNode, hp::HeatPort,
-                        model::Function, args...)
-    vals = compatible_values(n1, n2)
-    i = Current(vals)
-    v = Voltage(vals)
-    LossPower = Power(compatible_values(hp))
-    {
-     if length(value(hp)) > 1  # an array
-         PowerLoss - v .* i
-     else
-         PowerLoss - sum(v .* i)
-     end
-     n1 - n2 - v
-     Branch(n1, n, 0.0, i)
-     model(n, n2, args...)
-     }
-end
 
 
 ########################################
@@ -412,3 +433,112 @@ end
 # y = sim(s, 1.0)
 
 
+function ex_ChuaCircuit()
+    n1 = Voltage("n1")
+    n2 = Voltage("n2")
+    n3 = Voltage(4.0, "n3")
+    g = 0.0
+    function NonlinearResistor(n1::ElectricalNode, n2::ElectricalNode, Ga, Gb, Ve)
+        i = Current(compatible_values(n1, n2))
+        v = Voltage(compatible_values(n1, n2))
+        {
+         Branch(n1, n2, v, i)
+         i - ifelse(v < -Ve, Gb .* (v + Ve) - Ga .* Ve,
+                    ifelse(v > Ve, Gb .* (v - Ve) + Ga*Ve, Ga*v))
+         }
+    end
+    {
+     Resistor(n1, g, 12.5e-3) 
+     Inductor(n1, n2, 18.0)
+     Resistor(n2, n3, 1 / 0.565) 
+     Capacitor(n2, g, 100.0)
+     Capacitor(n3, g, 10.0)
+     NonlinearResistor(n3, g, -0.757576, -0.409091, 1.0)
+     }
+end
+
+function sim_ChuaCircuit()
+    y = sim(ex_ChuaCircuit(), 1.0)
+    wplot(y, "ChuaCircuit.pdf")
+end
+
+function ex_HeatingResistor()
+    n1 = Voltage("n1")
+    hp1 = Temperature("hp1")
+    hp2 = Temperature("hp2")
+    g = 0.0
+    {
+     SineVoltage(n1, g, 220, 1.0)
+     Resistor(n1, g, hp1, 100.0, 20 + 273.15, 1e-3)
+     ThermalConductor(hp1, hp2, 50.0)
+     FixedTemperature(hp2, 20 + 273.15)
+     }
+end
+
+function sim_HeatingResistor()
+    y = sim(ex_HeatingResistor(), 5.0)
+    wplot(y, "HeatingResistor.pdf")
+end
+
+function ex_HeatingRectifier()
+    n1 = Voltage("n1")
+    hp1 = Temperature("hp1")
+    hp2 = Temperature("hp2")
+    g = 0.0
+    {
+     SineVoltage(n1, g, 1.0, 1.0)
+     HeatingDiode(n1, n2, hp1, morejunkXX)
+     Capacitor(n2, g, 1.0)
+     Resistor(n2, g, 1.0)
+     ThermalConductor(hp1, hp2, 10.0)
+     HeatCapacitor(hp2, 20 + 273.15)
+     }
+end
+
+function sim_HeatingRectifier(BROKEN)
+    y = sim(ex_HeatingRectifier(), 5.0)
+    wplot(y, "HeatingRectifier.pdf")
+end
+
+function ex_Rectifier()
+    n = Voltage("n")
+    VAC = 400.0
+    n1 = Voltage(VAC .* sqrt(2/3) .* sin([0,-2pi/3, 2pi/3]), "Vs")
+    n2 = Voltage(VAC .* sqrt(2/3) .* sin([0,-2pi/3, 2pi/3]), "Vl")
+    ## np = Voltage("Vp")
+    ## nn = Voltage("Vn")
+    np = Voltage( VAC*sqrt(2)/2, "Vp")
+    nn = Voltage(-VAC*sqrt(2)/2, "Vn")
+    nout = Voltage("Vout")
+    g = 0.0
+    f = 50.0
+    LAC = 60e-6
+    Ron = 1e-3
+    Goff = 1e-3
+    Vknee = 2.0
+    CDC = 15e-3
+    IDC = 500.0
+    {
+     SineVoltage(n1, g, VAC .* sqrt(2/3), f, [0.0, -2pi/3, 2pi/3])
+     Inductor(n1, n2, LAC)
+     ## Resistor(n2, np, 1e3)
+     ## Resistor(n2, nn, 1e3)
+     IdealDiode(n2, np, Vknee, Ron, Goff)
+     IdealDiode(nn, n2, Vknee, Ron, Goff)
+     ## Capacitor(np, nn, CDC)
+     Capacitor(np, g, 2 * CDC)
+     Capacitor(nn, g, 2 * CDC)
+     ## SignalCurrent(np, nn, IDC)
+     }
+end
+
+function sim_Rectifier()
+    y = sim(ex_Rectifier(), 0.1)
+    wplot(y, "Rectifier.pdf")
+end
+
+
+m = ex_Rectifier()
+f = elaborate(m)
+s = create_sim(f)
+y = sim(s, 0.1)

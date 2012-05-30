@@ -12,8 +12,6 @@
 
 
 
-Angle = AngularVelocity = AngularAcceleration = Torque = RotationalNode = Unknown
-
 function Inertia(flange_a::Flange, flange_b::Flange, J::Real)
     "1D-rotational component with inertia"
     val = compatible_values(flange_a, flange_b)
@@ -51,7 +49,7 @@ function Spring(flange_a::Flange, flange_b::Flange, c::Real, phi_rel0::Signal)
      tau - c .* (phi_rel - phi_rel0)
      }
 end
-Spring(flange_a::Flange, flange_b::Flange, c::Real, phi_rel0::Signal) = Spring(flange_a, flange_b, c, 0.0)
+Spring(flange_a::Flange, flange_b::Flange, c::Real) = Spring(flange_a, flange_b, c, 0.0)
 
 
 function BranchHeatPort(n1::Flange, n2::Flange, hp::HeatPort,
@@ -60,7 +58,7 @@ function BranchHeatPort(n1::Flange, n2::Flange, hp::HeatPort,
     phi_rel = Angle(val)
     w_rel = AngularVelocity(val)
     tau = Torque(val)
-    LossPower = Power(compatible_values(hp))
+    PowerLoss = Power(compatible_values(hp))
     {
      n1 - n2 - phi_rel
      w_rel - der(phi_rel)
@@ -69,6 +67,7 @@ function BranchHeatPort(n1::Flange, n2::Flange, hp::HeatPort,
      else
          PowerLoss - sum(w_rel .* tau)
      end
+     RefBranch(hp, -PowerLoss)
      Branch(n1, n, 0.0, tau)
      model(n, n2, args...)
      }
@@ -85,7 +84,7 @@ function Damper(flange_a::Flange, flange_b::Flange, d::Signal)
      tau - d .* der(phi_rel)
      }
 end
-function Damper(flange_a::Flange, flange_b::Flange, hp::HeatPort, d::Signal) =
+Damper(flange_a::Flange, flange_b::Flange, hp::HeatPort, d::Signal) =
     BranchHeatPort(flange_a, flange_b, hp, Damper, d)
 
 
@@ -99,7 +98,7 @@ function SpringDamper(flange_a::Flange, flange_b::Flange, c::Signal, d::Signal)
      Damper(flange_a, flange_b, d)
      }
 end
-function SpringDamper(flange_a::Flange, flange_b::Flange, hp::HeatPort, c::Signal, d::Signal) =
+SpringDamper(flange_a::Flange, flange_b::Flange, hp::HeatPort, c::Signal, d::Signal) =
     BranchHeatPort(flange_a, flange_b, hp, SpringDamper, c, d)
 
     
@@ -108,8 +107,8 @@ function IdealGear(flange_a::Flange, flange_b::Flange, ratio::Real)
     tau_a = Torque(val)
     tau_b = Torque(val)
     {
-     RefBranch(flange_a, tauA)
-     RefBranch(flange_b, tauB)
+     RefBranch(flange_a, tau_a)
+     RefBranch(flange_b, tau_b)
      flange_a - ratio * flange_b
      ratio * tau_a + tau_b
      }
@@ -124,7 +123,7 @@ end
 
 function SignalTorque(flange_a::Flange, flange_b::Flange, tau::Signal)
     {
-     RefBranch(flange_a, tau)
+     RefBranch(flange_a, -tau)
      RefBranch(flange_b, tau)
      }
 end
@@ -143,6 +142,7 @@ function ex_First()
     n5 = Angle("n5")
     n6 = Angle("n6")
     g = 0.0
+    amplitude = 10.0
     freqHz = 5.0
     Jmotor = 0.1
     Jload = 2.0
@@ -157,4 +157,9 @@ function ex_First()
      Spring(n4, n5, 1e4)
      Inertia(n5, n6, Jload)
     }
+end
+
+function sim_First()
+    y = sim(ex_First())
+    wplot(y, "First.pdf")
 end
