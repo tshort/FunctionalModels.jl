@@ -173,6 +173,74 @@ function IdealOpAmp(p1::ElectricalNode, n1::ElectricalNode, p2::ElectricalNode)
 end
 
 
+function ControlledIdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Signal,
+                                      level::Signal, Ron::Real, Goff::Real)
+    vals = compatible_values(n1, n2)
+    i = Current(vals)
+    v = Voltage(vals)
+    s = Unknown(vals)  # dummy variable
+    openswitch = Discrete(fill(true, length(vals)))  # on/off state of diode
+    {
+     Branch(n1, n2, v, i)
+     BoolEvent(openswitch, control - level)  # openswitch becomes false when control goes below level
+     s .* ifelse(openswitch, 1.0, Ron) - v
+     s .* ifelse(openswitch, Goff, 1.0) - i
+     }
+end
+ControlledIdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Signal,
+                                      level::Signal) =
+    ControlledIdealOpeningSwitch(n1, n2, control, level, 1e-5, 1e-5)
+                                      
+
+ControlledIdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Signal,
+                             level::Signal, Ron::Real, Goff::Real) =
+    ControlledIdealOpeningSwitch(n1, n2, level, control, Ron, Goff)
+ControlledIdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Signal,
+                                      level::Signal) =
+    ControlledIdealClosingSwitch(n1, n2, control, level, 1e-5, 1e-5)
+
+
+function ControlledOpenerWithArc(n1::ElectricalNode, n2::ElectricalNode, control::Signal,
+                                 level::Signal, Ron::Real, Goff::Real, V0::Real, dVdt::Real, Vmax::Real)
+    i = Current("i")
+    v = Voltage()
+    on = Discrete(false)  # on/off state of switch
+    quenched = Discrete(true)  # whether the arc is quenched or not
+    tSwitch = Discrete(0.0)  # time of last open initiation
+    ipositive = Discrete(true)  # whether the current is positive
+    {
+     Branch(n1, n2, v, i)
+     Event(level - control,
+           reinit(on, true),
+           {
+               reinit(on, false)
+               reinit(quenched, false)
+               reinit(tSwitch, MTime)
+           })
+     Event(i,
+           {
+            reinit(i, 0.0)
+            reinit(ipositive, true)
+            ifelse(!quenched, reinit(quenched, true))
+           },
+           {
+            reinit(i, 0.0)
+            reinit(ipositive, false)
+            ifelse(!quenched, reinit(quenched, true))
+           })
+     ifelse(on,
+            v - Ron .* i,
+            ifelse(quenched,
+                   i - Goff .* v,
+                   v - min(Vmax, V0 + dVdt .* (MTime - tSwitch))) .* sign(i))
+     }
+end
+
+ControlledCloserWithArc(n1::ElectricalNode, n2::ElectricalNode, control::Signal,
+                        level::Signal, Ron::Real, Goff::Real, V0::Real, dVdt::Real, Vmax::Real) = 
+    ControlledOpenerWithArc(n1, n2, level, control, Ron, Goff, V0, dVdt, Vmax)
+
+    
 ########################################
 ## Semiconductors
 ########################################
@@ -532,13 +600,118 @@ function ex_Rectifier()
      }
 end
 
-function sim_Rectifier()
+function sim_Rectifier(BROKEN)
     y = sim(ex_Rectifier(), 0.1)
     wplot(y, "Rectifier.pdf")
 end
 
 
-m = ex_Rectifier()
+## m = ex_Rectifier()
+## f = elaborate(m)
+## s = create_sim(f)
+## y = sim(s, 0.1)
+
+
+
+function ex_ShowSaturatingInductor()
+    n1 = Voltage("V")
+    g = 0.0
+    Lzer = 2.0
+    Lnom = 1.0
+    Inom = 1.0
+    Linf = 0.5
+    U = 1.25
+    f = 1/(2pi)
+    phase = pi/2
+    {
+     SineVoltage(n1, g, U, f, phase)
+     SaturatingInductor(n1, g, Inom, Lnom, Lzer, Linf)
+     Inductor(n1, g, Inom, Lnom, Lzer, Linf)
+     Inductor(n1, n2, Lnom)
+     }
+end
+
+function sim_ShowSaturatingInductor()
+    y = sim(ex_ShowSaturatingInductor(), 6.2832)
+    wplot(y, "ShowSaturatingInductor.pdf")
+end
+
+function ex_ShowVariableResistor()
+    n = Voltage("Vs")
+    n1 = Voltage("n1")
+    n2 = Voltage("n2")
+    n3 = Voltage("n3")
+    n4 = Voltage("n4")
+    n5 = Voltage("n5")
+    isig1 = Voltage("Ir1")
+    isig2 = Voltage("Ir2")
+    vres = Voltage("Vres")
+    g = 0.0
+    {
+     n2 - n3 - isig1    # current monitor
+     n5 - n3 - isig2    # current monitor
+     n5 - n4 - vres 
+     SineVoltage(n, g, 1.0, 1.0)
+     Resistor(n, n1, 1.0)
+     Resistor(n1, n2, 1.0)
+     Resistor(n2, n3, 1.0)
+     Resistor(n, n4, 1.0)
+     VariableResistor(n4, n5, 2 + 2.5 * MTime)
+     Resistor(n5, n3, 1.0)
+     }
+end
+
+function sim_ShowVariableResistor()
+    y = sim(ex_ShowVariableResistor(), 6.2832)
+    wplot(y, "ShowVariableResistor.pdf")
+end
+
+
+function ex_ControlledSwitchWithArc()
+    a1 = Voltage("a1")
+    a2 = Voltage("a2")
+    a3 = Voltage("a3")
+    b1 = Voltage("b1")
+    b2 = Voltage("b2")
+    b3 = Voltage("b3")
+    vs = Voltage("vs")
+    g = 0.0
+    {
+     SineVoltage(vs, g, 1.0, 1.0)
+     ## SignalVoltage(a1, g, 50.0)
+     ## ControlledIdealClosingSwitch(a1, a2, vs, 0.5, 1e-5, 1e-5)
+     ## Inductor(a2, a3, 0.1)
+     ## Resistor(a3, g, 1.0)
+     SignalVoltage(b1, g, 50.0)
+     ## ControlledCloserWithArc(b1, b2, vs, 0.5, 1e-5, 1e-5, 30.0, 1e4, 60.0)
+     ControlledCloserWithArc(b1, b2, vs, 0.5, 1e-5, 1e-5, 60.0, 1e-2, 60.0)
+     Inductor(b2, b3, 0.1)
+     Resistor(b3, g, 1.0)
+     }
+end
+
+function sim_ControlledSwitchWithArc()
+    y = sim(ex_ControlledSwitchWithArc(), 6)
+    wplot(y, "ex_ControlledSwitchWithArc.pdf")
+end
+
+m = ex_ControlledSwitchWithArc()
 f = elaborate(m)
 s = create_sim(f)
-y = sim(s, 0.1)
+y = sim(s, 6.1)
+
+function ex_dc()
+    n1 = Voltage("n1")
+    n2 = Voltage("n2")
+    g = 0.0
+    {
+     SignalVoltage(n1, g, 50.0)
+     Resistor(n1, n2, 0.1)
+     Inductor(n2, g, 0.1)
+     }
+end
+
+## m = ex_dc()
+## f = elaborate(m)
+## s = create_sim(f)
+## y = sim(s, .1)

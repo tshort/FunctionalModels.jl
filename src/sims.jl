@@ -188,7 +188,7 @@ mexpr(hd::Symbol, args::ANY...) = MExpr(expr(hd, args...))
 # Set up defaults for operations on ModelType's for many common
 # methods.
 
-for f = (:+, :-, :*, :.*, :/, :./, :^, :isless)
+for f = (:+, :-, :*, :.*, :/, :./, :^, :min, :max, :isless)
     @eval ($f)(x::ModelType, y::ModelType) = mexpr(:call, ($f), x, y)
     @eval ($f)(x::ModelType, y::Any) = mexpr(:call, ($f), x, y)
     @eval ($f)(x::Any, y::ModelType) = mexpr(:call, ($f), x, y)
@@ -199,7 +199,7 @@ for f = (:+, :-, :*, :.*, :/, :./, :^, :isless)
     @eval ($f)(x::Any, y::MExpr) = mexpr(:call, ($f), x, y.ex)
 end 
 
-for f = (:der, 
+for f = (:der, :sign,
          :-, :!, :ceil, :floor,  :trunc,  :round, :sum, 
          :iceil,  :ifloor, :itrunc, :iround,
          :abs,    :angle,  :log10,
@@ -297,6 +297,9 @@ type Event <: ModelType
                            # the condition crosses zero in the
                            # negative direction.
 end
+Event(condition::ModelType, p::MExpr, n::MExpr) = Event(condition, {p}, {n})
+Event(condition::ModelType, p::Model, n::MExpr) = Event(condition, p, {n})
+Event(condition::ModelType, p::MExpr, n::Model) = Event(condition, {p}, n)
 
 #
 # reinit is used in Event responses to redefine variables. LeftVar is
@@ -307,7 +310,7 @@ type LeftVar <: ModelType
     var
 end
 function reinit(x, y)
-    println("reinit: ", y)
+    println("reinit: ", x[], " to ", y)
     x[:] = y
 end
 reinit(x::LeftVar, y) = mexpr(:call, :reinit, x, y)
@@ -331,10 +334,15 @@ end
 # ifelse is like an if-then-else block, but for ModelTypes.
 #
 ifelse(x::Bool, y, z) = x ? y : z
+ifelse(x::Bool, y) = x ? y : nothing
 ifelse(x::Array{Bool}, y, z) = map((x) -> ifelse(x,y,z), x)
+ifelse(x::Array{Bool}, y) = map((x) -> ifelse(x,y), x)
 ifelse(x::ModelType, y, z) = mexpr(:call, :ifelse, x, y, z)
+ifelse(x::ModelType, y) = mexpr(:call, :ifelse, x, y)
 ifelse(x::MExpr, y, z) = mexpr(:call, :ifelse, x.ex, y, z)
+ifelse(x::MExpr, y) = mexpr(:call, :ifelse, x.ex, y)
 ifelse(x::MExpr, y::MExpr, z::MExpr) = mexpr(:call, :ifelse, x.ex, y.ex, z.ex)
+ifelse(x::MExpr, y::MExpr) = mexpr(:call, :ifelse, x.ex, y.ex)
 
 
 
@@ -744,8 +752,7 @@ type SimResult
     y::Array{Float64, 2}
     colnames::Array{ASCIIString, 1}
 end
-
-
+ref(x::SimResult, idx...) = SimResult(x.y[:,idx...], x.colnames[idx...])
 
 function sim(sm::Sim, tstop::Float64, Nsteps::Int)
     # tstop & Nsteps should be in options
@@ -758,8 +765,8 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
     tout = [tstep]
     idid = [int32(0)]
     info = fill(int32(0), 20)
-    info[11] = 0    # calc initial conditions (1 or 2) / don't calc (0)
-    info[18] = 2    # more initialization info
+    info[11] = 1    # calc initial conditions (1 or 2) / don't calc (0)
+    info[18] = 0    # more initialization info
     
     function setup_sim(sm::Sim, tstart::Float64, tstop::Float64, Nsteps::Int)
         global __sim_structural_change = false
