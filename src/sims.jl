@@ -199,7 +199,7 @@ for f = (:+, :-, :*, :.*, :/, :./, :^, :min, :max, :isless)
     @eval ($f)(x::Any, y::MExpr) = mexpr(:call, ($f), x, y.ex)
 end 
 
-for f = (:der, :sign,
+for f = (:der, :sign, 
          :-, :!, :ceil, :floor,  :trunc,  :round, :sum, 
          :iceil,  :ifloor, :itrunc, :iround,
          :abs,    :angle,  :log10,
@@ -218,25 +218,27 @@ end
 Model = Vector{Any}
 
 
-# Add array access capability for Unknowns:
+# Add array access capability for Discretes and Unknowns:
 
-# ref(x::Unknown, args...) = mexpr(:call, :ref, x, args...)
+type RefDiscrete <: UnknownVariable
+    u::Discrete
+    idx
+end
+ref(x::Discrete, args...) = RefDiscrete(x, args)
 type RefUnknown{T<:UnknownCategory} <: UnknownVariable
     u::Unknown{T}
     idx
 end
 ref(x::Unknown, args...) = RefUnknown(x, args)
+ref(x::MExpr, args...) = mexpr(:call, :ref, args...)
 
 value(x) = x
 value(x::Model) = map(value, x)
 value(x::UnknownVariable) = x.value
 value(x::RefUnknown) = x.u.value[x.idx...]
+value(x::RefDiscrete) = x.u.value[x.idx...]
 value(a::MExpr) = value(a.ex)
-function value(a::Expr)
-    ret = copy(a)
-    ret.args = value(ret.args)
-    eval(ret)
-end
+value(e::Expr) = eval(Expr(e.head, isempty(e.args) ? e.args : map(value, e.args), e.typ))
                        
 # The following helper functions are to return the base value from an
 # unknown to use when creating other unknowns. An example would be:
@@ -316,18 +318,29 @@ end
 reinit(x::LeftVar, y) = mexpr(:call, :reinit, x, y)
 reinit(x::LeftVar, y::MExpr) = mexpr(:call, :reinit, x, y.ex)
 reinit(x::Unknown, y) = reinit(LeftVar(x), y)
+reinit(x::RefUnknown, y) = reinit(LeftVar(x), y)
 reinit(x::DerUnknown, y) = reinit(LeftVar(x), y)
 reinit(x::Discrete, y) = reinit(LeftVar(x), y)
+reinit(x::RefDiscrete, y) = reinit(LeftVar(x), y)
 
 #
 # BoolEvent is a helper for attaching an event to a boolean variable.
 # In conjunction with ifelse, this allows constructs like Modelica's
 # if blocks.
 #
-function BoolEvent(d::Discrete, cond::ModelType)
-    Event(cond,       
-          {reinit(d, true)},
-          {reinit(d, false)})
+function BoolEvent(d::ModelType, condition::Union(Discrete, RefDiscrete))
+    lend = length(value(d))
+    lencond = length(value(condition))
+    if lend > 1 && lencond == lend
+        convert(Vector{Any},
+                map((idx) -> BoolEvent(d[idx], condition[idx]), [1:lend]))
+    elseif lend == 1 && lencond == 1
+        Event(condition,       
+              {reinit(d, true)},
+              {reinit(d, false)})
+    else
+        error("Mismatched lengths for BoolEvent")
+    end
 end
 
 #
@@ -706,6 +719,10 @@ end
 function replace_unknowns(a::Discrete, sm::Sim)
     sm.discrete_map[a.sym] = a
     :(ref($(a.sym), 1))
+end
+function replace_unknowns(a::RefDiscrete, sm::Sim) # handle array referencing
+    sm.discrete_map[a.u.sym] = a.u
+    :(ref(ref($(a.u.sym), 1), a.idx))
 end
 # In assigned variables (LeftVar), use SubArrays (sub), instead of ref.
 # This allows assignment.

@@ -139,11 +139,11 @@ EMF(n1::ElectricalNode, n2::ElectricalNode, flange::Flange, k::Real) =
 
 
 function IdealDiode(n1::ElectricalNode, n2::ElectricalNode, Vknee::Signal, Ron::Signal, Goff::Signal)
-    vals = compatible_values(n1, n2)
+    vals = compatible_values(n1, n2) 
     i = Current(vals)
     v = Voltage(vals)
     s = Unknown(vals)  # dummy variable
-    openswitch = Discrete(fill(true, length(vals)))  # on/off state of diode
+    openswitch = Discrete(fill(true, length(vals)))  # on/off state of each diode
     {
      Branch(n1, n2, v, i)
      BoolEvent(openswitch, -s)  # openswitch becomes true when s goes negative
@@ -606,10 +606,10 @@ function sim_Rectifier(BROKEN)
 end
 
 
-## m = ex_Rectifier()
-## f = elaborate(m)
-## s = create_sim(f)
-## y = sim(s, 0.1)
+m = ex_Rectifier()
+f = elaborate(m)
+s = create_sim(f)
+y = sim(s, 0.1)
 
 
 
@@ -695,10 +695,10 @@ function sim_ControlledSwitchWithArc()
     wplot(y, "ex_ControlledSwitchWithArc.pdf")
 end
 
-m = ex_ControlledSwitchWithArc()
-f = elaborate(m)
-s = create_sim(f)
-y = sim(s, 6.1)
+## m = ex_ControlledSwitchWithArc()
+## f = elaborate(m)
+## s = create_sim(f)
+## y = sim(s, 6.1)
 
 function ex_dc()
     n1 = Voltage("n1")
