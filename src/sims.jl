@@ -170,14 +170,16 @@ der(x::Unknown, val) = DerUnknown(x.sym, val, x)
 type Discrete <: UnknownVariable
     sym::Symbol
     value
-    label::String 
+    label::String
+    hooks::Vector{Function}
 end
-Discrete() = Discrete(gensym(), 0.0, "")
-Discrete(x) = Discrete(gensym(), x, "")
-Discrete(s::Symbol, label::String) = Discrete(s, 0.0, label)
-Discrete(x, label::String) = Discrete(gensym(), x, label)
-Discrete(label::String) = Discrete(gensym(), 0.0, label)
-Discrete(s::Symbol, x) = Discrete(s, x, "")
+Discrete() = Discrete(gensym(), 0.0, "", Function[])
+Discrete(x) = Discrete(gensym(), x, "", Function[])
+Discrete(s::Symbol, label::String) = Discrete(s, 0.0, label, Function[])
+Discrete(x, label::String) = Discrete(gensym(), x, label, Function[])
+Discrete(label::String) = Discrete(gensym(), 0.0, label, Function[])
+Discrete(s::Symbol, x) = Discrete(s, x, "", Function[])
+Discrete(s::Symbol, x, label::String) = Discrete(s, x, "", label, Function[])
 
 
 type MExpr <: ModelType

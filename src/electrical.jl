@@ -155,6 +155,26 @@ end
 IdealDiode(n1::ElectricalNode, n2::ElectricalNode) = IdealDiode(n1, n2, 0.0, 1e-5, 1e-5)
 IdealDiode(n1::ElectricalNode, n2::ElectricalNode, Vknee::Signal) = IdealDiode(n1, n2, Vknee, 1e-5, 1e-5)
 
+
+function IdealThyristor(n1::ElectricalNode, n2::ElectricalNode, Vknee::Signal, Ron::Signal, Goff::Signal)
+    vals = compatible_values(n1, n2) 
+    i = Current(vals)
+    v = Voltage(vals)
+    s = Unknown(vals)  # dummy variable
+    off = Discrete(fill(true, length(vals)))  # on/off state of each switch
+    {
+     Branch(n1, n2, v, i)
+     EventHook(fire,                  ## Not defined, yet.
+               ifelse(fire,
+                      reinit(off, false)))
+     Event(-s,
+           reinit(off, true)) 
+     s .* ifelse(off, 1.0, Ron) + Vknee - v
+     s .* ifelse(off, Goff, 1.0) + Goff .* Vknee - i
+     }
+end
+
+  
 function IdealOpAmp(p1::ElectricalNode, n1::ElectricalNode, p2::ElectricalNode, n2::ElectricalNode)
     i = Current(compatible_values(p2, n2))
     v = Voltage(compatible_values(p2, n2))
