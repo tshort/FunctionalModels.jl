@@ -8,6 +8,12 @@
 
 
 
+########################################
+## Line Models
+########################################
+
+
+
 function RLLine(n1::ElectricalNode, n2::ElectricalNode, Z::SeriesImpedance, len::Real, freq::Real)
     vals = compatible_values(n1, n2) 
     i = Current(vals)
@@ -75,12 +81,21 @@ end
 
 type ConductorGeometries
     nc::Int           # Number of conductors
-    x::Array(Real, 1) # Horizontal positioning of conductors
-    y::Array(Real, 1) # Vertical positioning of conductors
-    radius::Array(Real, 1)  # Conductor radius
-    gmr::Array(Real, 1)     # Conductor geometric mean radius
-    rho::Array(Real, 1)     # Conductor resistivity (ohm-m)
+    x::Vector(Real)   # Horizontal positioning of conductors, m
+    y::Vector(Real)   # Vertical positioning of conductors, m
+    radius::Vector(Real)  # Conductor radius, m
+    gmr::Vector(Real)     # Conductor geometric mean radius, m
+    rho::Vector(Real)     # Conductor resistivity, ohm-m
 end
+ConductorGeometries(cl::Vector{ConductorLocation}) =
+    ConductorGeometries(length(cl),
+                        map(x -> x.x, cl),
+                        map(x -> x.y, cl),
+                        map(x -> x.cond.radius, cl),
+                        map(x -> x.cond.gmr, cl),
+                        map(x -> x.cond.rho, cl))
+ConductorGeometries(args...) = ConductorGeometries([args...])
+
 
 type ConductorLocation
     x::Real  # Horizontal positioning of conductors
@@ -124,3 +139,31 @@ Conductors["AAC 874 kcmil" ] = Conductor(0.0136779, 0.0104752368933353,  6.61138
 Conductors["AAC 900 kcmil" ] = Conductor(0.0138684, 0.0106493242174353,  6.42497812773403e-05, 0.000456257152) 
 Conductors["AAC 954 kcmil" ] = Conductor(0.0142748, 0.0110062263865808,  6.058369124314e-05,   0.00048354742)  
 Conductors["AAC 1000 kcmil"] = Conductor(0.0146177, 0.0111891381927375,  5.78496579972958e-05, 0.000506708664) 
+
+
+
+########################################
+## Examples
+########################################
+
+
+
+function ex_RLModel()
+    ns = Voltage(zeros(3), "Vs")
+    nl = Voltage(zeros(3), "Vs")
+    g = 0.0
+    Vln = 7200.0
+    freq = 60.0
+    len = 4000.0
+    load_VA = 1e5   # per phase
+    load_pf = 0.85
+    Z, Y = ConductorGeometries(
+        ConductorLocation(-1.0, 10.0, Conductors("AAC 500 kcmil")),
+        ConductorLocation( 0.0, 10.0, Conductors("AAC 500 kcmil")),
+        ConductorLocation( 1.0, 10.0, Conductors("AAC 500 kcmil")))
+    {
+     SineVoltage(ns, g, Vln, freq, [0, -2/3*pi, 2/3*pi])
+     RLLine(ns, nl, Z, len, freq)
+     Load(nl, load_VA, load_pf, Vln, freq)
+     }
+end
