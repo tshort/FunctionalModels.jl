@@ -190,7 +190,7 @@ mexpr(hd::Symbol, args::ANY...) = MExpr(expr(hd, args...))
 # Set up defaults for operations on ModelType's for many common
 # methods.
 
-for f = (:+, :-, :*, :.*, :/, :./, :^, :min, :max, :isless)
+for f = (:+, :-, :*, :.*, :/, :./, :^, :min, :max, :isless, :&, :|)
     @eval ($f)(x::ModelType, y::ModelType) = mexpr(:call, ($f), x, y)
     @eval ($f)(x::ModelType, y::Any) = mexpr(:call, ($f), x, y)
     @eval ($f)(x::Any, y::ModelType) = mexpr(:call, ($f), x, y)
@@ -330,7 +330,7 @@ reinit(x::RefDiscrete, y) = reinit(LeftVar(x), y)
 # In conjunction with ifelse, this allows constructs like Modelica's
 # if blocks.
 #
-function BoolEvent(d::ModelType, condition::Union(Discrete, RefDiscrete))
+function BoolEvent(d::Union(Discrete, RefDiscrete), condition::ModelType)
     lend = length(value(d))
     lencond = length(value(condition))
     if lend > 1 && lencond == lend
@@ -876,7 +876,7 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
                 elseif any(jroot != 0)
                     println("event found at t = $(t[1]), restarting")
                     info[1] = 0
-                    info[11] = 1    # do/don't calc initial conditions
+                    info[11] = 0    # do/don't calc initial conditions
                 end
             end
         elseif idid[1] < 0 && idid[1] > -11

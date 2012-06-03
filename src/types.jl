@@ -4,12 +4,12 @@
 ########################################
 
 # typealias NumberOrUnknown{T} Union(AbstractArray, Number, Unknown{T})
-typealias NumberOrUnknown{T} Union(AbstractArray, Number,
+typealias NumberOrUnknown{T} Union(AbstractArray, Number, MExpr,
                                    RefUnknown{T}, Unknown{T})
 
 ## Generic
-# typealias Signal NumberOrUnknown{DefaultUnknown}
-typealias Signal Any
+typealias Signal NumberOrUnknown{DefaultUnknown}
+## typealias Signal Any
 
 
 ## Electrical

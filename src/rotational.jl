@@ -117,6 +117,27 @@ end
 
 
 ########################################
+## Sensors
+########################################
+
+function SpeedSensor(flange::Flange, w::Signal)
+    {
+     w - der(flange)
+     }
+end
+
+
+function AccSensor(flange::Flange, a::Signal)
+    w = AngularVelocity(compatible_values(flange))
+    {
+     w - der(flange)
+     a - der(w)
+     }
+end
+
+
+
+########################################
 ## Sources
 ########################################
 

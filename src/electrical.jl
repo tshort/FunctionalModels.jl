@@ -626,10 +626,10 @@ function sim_Rectifier(BROKEN)
 end
 
 
-m = ex_Rectifier()
-f = elaborate(m)
-s = create_sim(f)
-y = sim(s, 0.1)
+## m = ex_Rectifier()
+## f = elaborate(m)
+## s = create_sim(f)
+## y = sim(s, 0.1)
 
 
 
