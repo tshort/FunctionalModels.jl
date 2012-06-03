@@ -4,15 +4,15 @@
 ## PowerSystems
 ########################################
 
-
-
-
+const c = 299792458.0
+const mue_0 = 4pi * 1.e-7
+const epsilon_0 = 1 / (mue_0 * c * c)
 
 ########################################
 ## Line Models
 ########################################
 
-
+SeriesImpedance = ShuntAdmittance = Array{Complex128, 2}
 
 function RLLine(n1::ElectricalNode, n2::ElectricalNode, Z::SeriesImpedance, len::Real, freq::Real)
     vals = compatible_values(n1, n2) 
@@ -53,54 +53,13 @@ end
 ########################################
 
 
-function OverheadImpedances(cg::ConductorGeometries, freq)
-    P = fill(0.0i, cg.nc, cg.nc)
-    w = 2pi * freq
-    De = sqrt(1 / 1.0im * rho / w / mue_0)
-    for idx in 1:cg.nc
-        de = sqrt(cg.rho[idx] / 1im / w / mue_0)
-        Z[idx,idx] = j * w * mue_0 / 2 / pi * log(2 * (cg.y[i]*re + De) / cg.radius[idx]) +
-            cg.rho[idx] / pi / cg.radius[idx]^2 *
-            (0.3565*re + cg.radius[idx] / 2 / de * acoth(0.777 * cg.radius[idx] / de))
-        P[idx,idx] = 1 / ( 1im * w * 2 * pi * epsilon_0) *
-            log(2 * cg.y[idx] / cg.radius[idx])
-        for kdx in (idx+1):cg.nc
-            dik = sqrt((cg.y[idx] - cg.y[kdx])^2 + (cg.x[idx] - cg.x[kdx])^2)
-            Dik = sqrt((cg.y[idx] + cg.y[kdx])^2 + (cg.x[idx] - cg.x[kdx])^2)
-            Z[idx,kdx] = j * w * mue_0 / 2 / pi *
-                log(sqrt((cg.y[idx]*re + cg.y[kdx]*re + 2*De)^2 + re*(cg.x[idx] - cg.x[idx])^2) / dik)
-            Z[kdx,idx] = Z[idx,kdx]
-            P[idx,kdx] = 1 / (1im * w * 2 * pi * epsilon_0) * log(Dik / dik)
-            P[kdx,idx] = P[idx,kdx]
-        end
-    end
-    Y = inv(P)
-    Z, Y
-end
-
-
 type ConductorGeometries
     nc::Int           # Number of conductors
-    x::Vector(Real)   # Horizontal positioning of conductors, m
-    y::Vector(Real)   # Vertical positioning of conductors, m
-    radius::Vector(Real)  # Conductor radius, m
-    gmr::Vector(Real)     # Conductor geometric mean radius, m
-    rho::Vector(Real)     # Conductor resistivity, ohm-m
-end
-ConductorGeometries(cl::Vector{ConductorLocation}) =
-    ConductorGeometries(length(cl),
-                        map(x -> x.x, cl),
-                        map(x -> x.y, cl),
-                        map(x -> x.cond.radius, cl),
-                        map(x -> x.cond.gmr, cl),
-                        map(x -> x.cond.rho, cl))
-ConductorGeometries(args...) = ConductorGeometries([args...])
-
-
-type ConductorLocation
-    x::Real  # Horizontal positioning of conductors
-    y::Real  # Vertical positioning of conductors
-    cond::Conductor  # Conductor specs
+    x::Vector{Float64}   # Horizontal positioning of conductors, m
+    y::Vector{Float64}   # Vertical positioning of conductors, m
+    radius::Vector{Float64}  # Conductor radius, m
+    gmr::Vector{Float64}     # Conductor geometric mean radius, m
+    rho::Vector{Float64}     # Conductor resistivity, ohm-m
 end
 
 type Conductor
@@ -111,6 +70,51 @@ type Conductor
     rho::Real    # Conductor resistivity, ohm-m
 end
 Conductor(radius::Real, gmr::Real, Rdc::Real, area::Real) = Conductor(radius, gmr, Rdc, area, Rdc .* area)
+
+type ConductorLocation
+    x::Real  # Horizontal positioning of conductors
+    y::Real  # Vertical positioning of conductors
+    cond::Conductor  # Conductor specs
+end
+
+ConductorGeometries(cl::Vector{ConductorLocation}) =
+    ConductorGeometries(length(cl),
+                        map(x -> x.x, cl),
+                        map(x -> x.y, cl),
+                        map(x -> x.cond.radius, cl),
+                        map(x -> x.cond.gmr, cl),
+                        map(x -> x.cond.rho, cl))
+ConductorGeometries(args::ConductorLocation...) = ConductorGeometries([args...])
+
+
+
+function OverheadImpedances(freq::Real, rho::Real, cg::ConductorGeometries)
+    P = fill(0.0im, cg.nc, cg.nc)
+    w = 2pi * freq
+    De = sqrt(1 / 1.0im * rho / w / mue_0)
+    Z = P = fill(0.0im, cg.nc, cg.nc)
+    for idx in 1:cg.nc
+        de = sqrt(cg.rho[idx] / 1im / w / mue_0)
+        Z[idx,idx] = 1im * w * mue_0 / 2 / pi * log(2 * (cg.y[idx] + De) / cg.radius[idx]) +
+            cg.rho[idx] / pi / cg.radius[idx]^2 *
+            (0.3565 + cg.radius[idx] / 2 / de * acoth(0.777 * cg.radius[idx] / de))
+        P[idx,idx] = 1 / ( 1im * w * 2 * pi * epsilon_0) *
+            log(2 * cg.y[idx] / cg.radius[idx])
+        for kdx in (idx+1):cg.nc
+            dik = sqrt((cg.y[idx] - cg.y[kdx])^2 + (cg.x[idx] - cg.x[kdx])^2)
+            Dik = sqrt((cg.y[idx] + cg.y[kdx])^2 + (cg.x[idx] - cg.x[kdx])^2)
+            Z[idx,kdx] = 1im * w * mue_0 / 2 / pi *
+                log(sqrt((cg.y[idx] + cg.y[kdx] + 2*De)^2 + (cg.x[idx] - cg.x[idx])^2) / dik)
+            Z[kdx,idx] = Z[idx,kdx]
+            P[idx,kdx] = 1 / (1im * w * 2 * pi * epsilon_0) * log(Dik / dik)
+            P[kdx,idx] = P[idx,kdx]
+        end
+    end
+    Y = inv(P)
+    Z, Y
+end
+
+
 
 Conductors = Dict()
 Conductors["AAC 6"         ] = Conductor(0.0023368, 0.00169505260283220, 0.00220648910363477,  1.3290296e-05)  
@@ -142,6 +146,29 @@ Conductors["AAC 1000 kcmil"] = Conductor(0.0146177, 0.0111891381927375,  5.78496
 
 
 
+
+########################################
+## Load Models
+########################################
+
+
+
+function ConstZSeriesLoad(n1::ElectricalNode, n2::ElectricalNode,
+                    load_VA, load_pf, Vln, freq::Real)
+    vals = compatible_values(n1, n2) 
+    i = Current(vals)
+    v = Voltage(vals)
+    Z = Vln .^ 2 / load_VA .* (load_pf + 1.0im * sqrt(1 - load_pf .^ 2))
+    R = real(Z)
+    L = imag(Z) / (2pi .* freq)
+    {
+     Branch(n1, n2, v, i)
+     L * der(i) + R * i - v
+     }
+end
+
+
+
 ########################################
 ## Examples
 ########################################
@@ -154,16 +181,18 @@ function ex_RLModel()
     g = 0.0
     Vln = 7200.0
     freq = 60.0
+    rho = 100.0
     len = 4000.0
     load_VA = 1e5   # per phase
     load_pf = 0.85
-    Z, Y = ConductorGeometries(
-        ConductorLocation(-1.0, 10.0, Conductors("AAC 500 kcmil")),
-        ConductorLocation( 0.0, 10.0, Conductors("AAC 500 kcmil")),
-        ConductorLocation( 1.0, 10.0, Conductors("AAC 500 kcmil")))
+    Z, Y = OverheadImpedances(freq, rho,
+        ConductorGeometries(
+            ConductorLocation(-1.0, 10.0, Conductors["AAC 500 kcmil"]),
+            ConductorLocation( 0.0, 10.0, Conductors["AAC 500 kcmil"]),
+            ConductorLocation( 1.0, 10.0, Conductors["AAC 500 kcmil"])))
     {
      SineVoltage(ns, g, Vln, freq, [0, -2/3*pi, 2/3*pi])
      RLLine(ns, nl, Z, len, freq)
-     Load(nl, load_VA, load_pf, Vln, freq)
+     ConstZSeriesLoad(nl, g, load_VA, load_pf, Vln, freq)
      }
 end
