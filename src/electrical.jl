@@ -6,6 +6,17 @@
 
 
 ########################################
+## Probes
+########################################
+
+function SeriesProbe(n1, n2, name::String) 
+    i = Unknown(compatible_values(n1, n2), name)   
+    Branch(n1, n2, compatible_values(n1, n2), i)
+end
+
+
+
+########################################
 ## General
 ########################################
 

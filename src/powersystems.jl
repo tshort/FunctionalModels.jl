@@ -92,7 +92,8 @@ function OverheadImpedances(freq::Real, rho::Real, cg::ConductorGeometries)
     P = fill(0.0im, cg.nc, cg.nc)
     w = 2pi * freq
     De = sqrt(1 / 1.0im * rho / w / mue_0)
-    Z = P = fill(0.0im, cg.nc, cg.nc)
+    Z = fill(0.0im, cg.nc, cg.nc)
+    P = fill(0.0im, cg.nc, cg.nc)
     for idx in 1:cg.nc
         de = sqrt(cg.rho[idx] / 1im / w / mue_0)
         Z[idx,idx] = 1im * w * mue_0 / 2 / pi * log(2 * (cg.y[idx] + De) / cg.radius[idx]) +
@@ -111,7 +112,7 @@ function OverheadImpedances(freq::Real, rho::Real, cg::ConductorGeometries)
         end
     end
     Y = inv(P)
-    Z, Y
+    Z, Y     # both in ohms/m
 end
 
 
@@ -153,17 +154,14 @@ Conductors["AAC 1000 kcmil"] = Conductor(0.0146177, 0.0111891381927375,  5.78496
 
 
 
-function ConstZSeriesLoad(n1::ElectricalNode, n2::ElectricalNode,
+function ConstZLoad(n1::ElectricalNode, n2::ElectricalNode,
                     load_VA, load_pf, Vln, freq::Real)
-    vals = compatible_values(n1, n2) 
-    i = Current(vals)
-    v = Voltage(vals)
     Z = Vln .^ 2 / load_VA .* (load_pf + 1.0im * sqrt(1 - load_pf .^ 2))
     R = real(Z)
     L = imag(Z) / (2pi .* freq)
     {
-     Branch(n1, n2, v, i)
-     L * der(i) + R * i - v
+     Resistor(n1, n2, R)
+     Inductor(n1, n2, L)
      }
 end
 
@@ -177,7 +175,8 @@ end
 
 function ex_RLModel()
     ns = Voltage(zeros(3), "Vs")
-    nl = Voltage(zeros(3), "Vs")
+    np = Voltage(zeros(3))
+    nl = Voltage(zeros(3), "Vl")
     g = 0.0
     Vln = 7200.0
     freq = 60.0
@@ -192,7 +191,13 @@ function ex_RLModel()
             ConductorLocation( 1.0, 10.0, Conductors["AAC 500 kcmil"])))
     {
      SineVoltage(ns, g, Vln, freq, [0, -2/3*pi, 2/3*pi])
-     RLLine(ns, nl, Z, len, freq)
-     ConstZSeriesLoad(nl, g, load_VA, load_pf, Vln, freq)
+     SeriesProbe(ns, np, "I")
+     RLLine(np, nl, Z, len, freq)
+     ConstZLoad(nl, g, load_VA, load_pf, Vln, freq)
      }
 end
+
+m = ex_RLModel()
+f = elaborate(m)
+s = create_sim(f)
+y = sim(s, 0.05)

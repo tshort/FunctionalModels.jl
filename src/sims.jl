@@ -158,7 +158,7 @@ type DerUnknown <: UnknownVariable
     # label::String    # Do we want this? 
 end
 DerUnknown(u::Unknown) = DerUnknown(u.sym, 0.0, u)
-der(x::Unknown) = DerUnknown(x.sym, 0.0, x)
+der(x::Unknown) = DerUnknown(x.sym, compatible_values(x), x)
 der(x::Unknown, val) = DerUnknown(x.sym, val, x)
 
 # show(a::Unknown) = show(a.sym)
