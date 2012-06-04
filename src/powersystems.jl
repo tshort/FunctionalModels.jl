@@ -156,12 +156,26 @@ Conductors["AAC 1000 kcmil"] = Conductor(0.0146177, 0.0111891381927375,  5.78496
 
 function ConstZLoad(n1::ElectricalNode, n2::ElectricalNode,
                     load_VA, load_pf, Vln, freq::Real)
-    Z = Vln .^ 2 / load_VA .* (load_pf + 1.0im * sqrt(1 - load_pf .^ 2))
-    R = real(Z)
-    L = imag(Z) / (2pi .* freq)
+    baseZ =  (Vln .^ 2) / load_VA
+    R = baseZ / load_pf
+    L = baseZ / sqrt(1 - load_pf .^ 2) / (2pi .* freq)
     {
      Resistor(n1, n2, R)
      Inductor(n1, n2, L)
+     }
+end
+
+function ConstZSeriesLoad(n1::ElectricalNode, n2::ElectricalNode,
+                          load_VA, load_pf, Vln, freq::Real)
+    vals = compatible_values(n1, n2) 
+    i = Current(vals)
+    v = Voltage(vals)
+    baseZ =  (Vln .^ 2) / load_VA
+    R = baseZ * load_pf
+    L = baseZ * sqrt(1 - load_pf .^ 2) / (2pi .* freq)
+    {
+     Branch(n1, n2, v, i)
+     L * der(i) + R * i - v
      }
 end
 
@@ -182,7 +196,7 @@ function ex_RLModel()
     freq = 60.0
     rho = 100.0
     len = 4000.0
-    load_VA = 1e5   # per phase
+    load_VA = 1e6   # per phase
     load_pf = 0.85
     Z, Y = OverheadImpedances(freq, rho,
         ConductorGeometries(
@@ -193,7 +207,7 @@ function ex_RLModel()
      SineVoltage(ns, g, Vln, freq, [0, -2/3*pi, 2/3*pi])
      SeriesProbe(ns, np, "I")
      RLLine(np, nl, Z, len, freq)
-     ConstZLoad(nl, g, load_VA, load_pf, Vln, freq)
+     ConstZSeriesLoad(nl, g, load_VA, load_pf, Vln, freq)
      }
 end
 
@@ -201,3 +215,17 @@ m = ex_RLModel()
 f = elaborate(m)
 s = create_sim(f)
 y = sim(s, 0.05)
+
+    g = 0.0
+    Vln = 7200.0
+    freq = 60.0
+    rho = 100.0
+    len = 4000.0
+    load_VA = 1e5   # per phase
+    load_pf = 0.85
+    Z, Y = OverheadImpedances(freq, rho,
+        ConductorGeometries(
+            ConductorLocation(-1.0, 10.0, Conductors["AAC 500 kcmil"]),
+            ConductorLocation( 0.0, 10.0, Conductors["AAC 500 kcmil"]),
+            ConductorLocation( 1.0, 10.0, Conductors["AAC 500 kcmil"])))
+Z1 = Vln .^ 2 / load_VA .* (load_pf + 1.0im * sqrt(1 - load_pf .^ 2))
