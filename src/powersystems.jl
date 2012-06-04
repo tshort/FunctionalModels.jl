@@ -154,15 +154,20 @@ Conductors["AAC 1000 kcmil"] = Conductor(0.0146177, 0.0111891381927375,  5.78496
 
 
 
-function ConstZLoad(n1::ElectricalNode, n2::ElectricalNode,
+function ConstZParallelLoad(n1::ElectricalNode, n2::ElectricalNode,
                     load_VA, load_pf, Vln, freq::Real)
     baseZ =  (Vln .^ 2) / load_VA
     R = baseZ / load_pf
-    L = baseZ / sqrt(1 - load_pf .^ 2) / (2pi .* freq)
+    if load_pf < 1.0
+        L = baseZ / sqrt(1 - load_pf .^ 2) / (2pi .* freq)
+    end
     {
      Resistor(n1, n2, R)
-     Inductor(n1, n2, L)
+     load_pf < 1.0 ? Inductor(n1, n2, L) : {}
      }
+     ## This seems broken when used in the example below.
+     ## With pf=1, it takes a long time (stiff?). With
+     ## pf = 0.85, there's a large offset.
 end
 
 function ConstZSeriesLoad(n1::ElectricalNode, n2::ElectricalNode,
@@ -175,7 +180,7 @@ function ConstZSeriesLoad(n1::ElectricalNode, n2::ElectricalNode,
     L = baseZ * sqrt(1 - load_pf .^ 2) / (2pi .* freq)
     {
      Branch(n1, n2, v, i)
-     L * der(i) + R * i - v
+     L .* der(i) + R .* i - v
      }
 end
 
@@ -198,6 +203,7 @@ function ex_RLModel()
     len = 4000.0
     load_VA = 1e6   # per phase
     load_pf = 0.85
+    ## load_pf = 1.0
     Z, Y = OverheadImpedances(freq, rho,
         ConductorGeometries(
             ConductorLocation(-1.0, 10.0, Conductors["AAC 500 kcmil"]),
@@ -208,6 +214,7 @@ function ex_RLModel()
      SeriesProbe(ns, np, "I")
      RLLine(np, nl, Z, len, freq)
      ConstZSeriesLoad(nl, g, load_VA, load_pf, Vln, freq)
+     ## ConstZParallelLoad(nl, g, load_VA, load_pf, Vln, freq)
      }
 end
 
@@ -216,16 +223,16 @@ f = elaborate(m)
 s = create_sim(f)
 y = sim(s, 0.05)
 
-    g = 0.0
-    Vln = 7200.0
-    freq = 60.0
-    rho = 100.0
-    len = 4000.0
-    load_VA = 1e5   # per phase
-    load_pf = 0.85
-    Z, Y = OverheadImpedances(freq, rho,
-        ConductorGeometries(
-            ConductorLocation(-1.0, 10.0, Conductors["AAC 500 kcmil"]),
-            ConductorLocation( 0.0, 10.0, Conductors["AAC 500 kcmil"]),
-            ConductorLocation( 1.0, 10.0, Conductors["AAC 500 kcmil"])))
-Z1 = Vln .^ 2 / load_VA .* (load_pf + 1.0im * sqrt(1 - load_pf .^ 2))
+##     g = 0.0
+##     Vln = 7200.0
+##     freq = 60.0
+##     rho = 100.0
+##     len = 4000.0
+##     load_VA = 1e5   # per phase
+##     load_pf = 0.85
+##     Z, Y = OverheadImpedances(freq, rho,
+##         ConductorGeometries(
+##             ConductorLocation(-1.0, 10.0, Conductors["AAC 500 kcmil"]),
+##             ConductorLocation( 0.0, 10.0, Conductors["AAC 500 kcmil"]),
+##             ConductorLocation( 1.0, 10.0, Conductors["AAC 500 kcmil"])))
+## Z1 = Vln .^ 2 / load_VA .* (load_pf + 1.0im * sqrt(1 - load_pf .^ 2))
