@@ -217,17 +217,23 @@ function ex_RLModel()
 end
 
 function ex_PiModel()
+    # Lots of junk on the load voltage with this configuration.
+    # Also, it won't solve at 60 Hz. It's probably too stiff. It
+    # may need some more shunt resistance in parallel with the cap.
+    # With load_pf = 1.0, it is much cleaner but still doesn't solve
+    # at 60 Hz.
     ns = Voltage(zeros(3), "Vs")
     np = Voltage(zeros(3))
     nl = Voltage(zeros(3), "Vl")
     g = 0.0
     Vln = 7200.0
-    freq = 60.0
+    freq = 600.0
     rho = 100.0
     len = 4000.0
-    load_VA = 1e6   # per phase
-    load_pf = 0.85
-    ne = 1
+    load_VA = 1e4   # per phase
+    load_pf = 0.95
+    ## load_pf = 1.0
+    ne = 5
     ## load_pf = 1.0
     Z, Y = OverheadImpedances(freq, rho,
         ConductorGeometries(
@@ -238,59 +244,13 @@ function ex_PiModel()
      SineVoltage(ns, g, Vln, freq, [0, -2/3*pi, 2/3*pi])
      SeriesProbe(ns, np, "I")
      PiLine(np, nl, Z, Y, len, freq, ne)
-     ConstZSeriesLoad(nl, g, load_VA, load_pf, Vln, freq)
+     ## ConstZSeriesLoad(nl, g, load_VA, load_pf, Vln, freq)
      ## ConstZParallelLoad(nl, g, load_VA, load_pf, Vln, freq)
      }
 end
 
-    ## g = 0.0
-    ## Vln = 7200.0
-    ## freq = 60.0
-    ## rho = 100.0
-    ## len = 4000.0
-    ## load_VA = 1e6   # per phase
-    ## load_pf = 0.85
-    ## ne = 10
-    ## Z, Y = OverheadImpedances(freq, rho,
-    ##     ConductorGeometries(
-    ##         ConductorLocation(-1.0, 10.0, Conductors["AAC 500 kcmil"]),
-    ##         ConductorLocation( 0.0, 10.0, Conductors["AAC 500 kcmil"]),
-    ##         ConductorLocation( 1.0, 10.0, Conductors["AAC 500 kcmil"])))
-    ## n1 = Voltage(zeros(3))
-    ## n2 = Voltage(zeros(3), "Vl")
-    ## vals1 = compatible_values(n1, n2)
-    ## nc = length(vals1)
-    ## ne1 = ne + 1
-    ## i = Current(zeros(nc, ne1))
-    ## v = Voltage(zeros(nc, ne))
-    ## R = real(Z) / ne * len
-    ## L = imag(Z) / ne * len / (2pi * freq)
-    ## G = real(Z) * ne / len
-    ## C = imag(Z) * ne / len / (2pi * freq)
-    ## {
-    ##  RefBranch(n1, i[:, 1])
-    ##  RefBranch(n2, -i[:, ne1])
-    ##  C * der(v) + G * v - (i[:, 1:ne] - i[:, 2:ne1])
-    ##  L * der(i) + R * i - [[2 * (n1 - v[:, 1])],
-    ##                        v[:, 1:ne - 1] - v[:, 2:ne],
-    ##                        [2 * (v[:, ne] - n2)]]
-    ##  }
      
 m = ex_PiModel()
 f = elaborate(m)
 s = create_sim(f)
-y = sim(s, 0.05)
-
-##     g = 0.0
-##     Vln = 7200.0
-##     freq = 60.0
-##     rho = 100.0
-##     len = 4000.0
-##     load_VA = 1e5   # per phase
-##     load_pf = 0.85
-##     Z, Y = OverheadImpedances(freq, rho,
-##         ConductorGeometries(
-##             ConductorLocation(-1.0, 10.0, Conductors["AAC 500 kcmil"]),
-##             ConductorLocation( 0.0, 10.0, Conductors["AAC 500 kcmil"]),
-##             ConductorLocation( 1.0, 10.0, Conductors["AAC 500 kcmil"])))
-## Z1 = Vln .^ 2 / load_VA .* (load_pf + 1.0im * sqrt(1 - load_pf .^ 2))
+y = sim(s, 0.01)
