@@ -233,6 +233,10 @@ type RefUnknown{T<:UnknownCategory} <: UnknownVariable
 end
 ref(x::Unknown, args...) = RefUnknown(x, args)
 ref(x::MExpr, args...) = mexpr(:call, :ref, args...)
+length(u::UnknownVariable) = length(value(u))
+size(u::UnknownVariable, i) = size(value(u), i)
+hcat(x::ModelType...) = mexpr(:call, :hcat, x...)
+vcat(x::ModelType...) = mexpr(:call, :vcat, x...)
 
 value(x) = x
 value(x::Model) = map(value, x)
@@ -554,6 +558,7 @@ end
 #
 function create_sim(eq::EquationSet)
     sm = Sim(eq)
+    global _sm = sm
     sm.varnum = 1
     sm.unknown_idx_map = Dict()
     sm.discrete_map = Dict()
@@ -697,26 +702,30 @@ function replace_unknowns(a::Unknown, sm::Sim)
     end
     add_var(a, sm)
     sm.y_map[sm.unknown_idx_map[a.sym]] = a
-    if isreal(a.value)
+    if isreal(a.value) && ndims(a.value) < 2
         :(ref(y, ($(sm.unknown_idx_map[a.sym]))))
     else
-        :(from_real(ref(y, ($(sm.unknown_idx_map[a.sym]))), $(a.value)))
+        :(from_real(ref(y, ($(sm.unknown_idx_map[a.sym]))), $(basetypeof(a.value)), $(size(a.value))))
     end
 end
 function replace_unknowns(a::RefUnknown, sm::Sim) # handle array referencing
     add_var(a.u, sm)
     sm.y_map[sm.unknown_idx_map[a.u.sym]] = a.u
-    if isreal(a.u.value)
+    if isreal(a.u.value) && ndims(a.u.value) < 2
         :(ref(y, ($(sm.unknown_idx_map[a.u.sym][a.idx...]))))
     else
-        :(from_real(ref(y, ($(sm.unknown_idx_map[a.sym][a.idx...]))), $(a.value)))
+        :(from_real(ref(y, ($(sm.unknown_idx_map[a.u.sym]))), $(basetypeof(a.u.value)), $(size(a.u.value)))[$(a.idx...)])
     end
 end
 function replace_unknowns(a::DerUnknown, sm::Sim) 
     add_var(a, sm)
     sm.y_map[sm.unknown_idx_map[a.parent.sym]] = a.parent
     sm.yp_map[sm.unknown_idx_map[a.sym]] = a
-    :(ref(yp, ($(sm.unknown_idx_map[a.sym]))))
+    if isreal(a.value) && ndims(a.value) < 2
+        :(ref(yp, ($(sm.unknown_idx_map[a.sym]))))
+    else
+        :(from_real(ref(yp, ($(sm.unknown_idx_map[a.sym]))), $(basetypeof(a.value)), $(size(a.value))))
+    end
 end
 function replace_unknowns(a::Discrete, sm::Sim)
     sm.discrete_map[a.sym] = a
@@ -796,7 +805,7 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
         nrt = [int32(length(sm.F.event_pos))]
         rpar = [0.0]
         rtol = [1e-5]
-        atol = [1e-5]
+        atol = [1e-3]
         lrw = [int32(N[1]^2 + 9 * N[1] + 60 + 3 * nrt[1])] 
         rwork = fill(0.0, lrw[1])
         liw = [int32(2*N[1] + 40)] 
@@ -910,21 +919,24 @@ sim(m::Model, tstop::Float64) = sim(m, tstop, 500)
 # real and imaginary parts. These will not be labeled as such.
 #
 
-from_real(x::Array{Float64, 1}, ref::Complex) = complex(x[1:2:length(x)], x[2:2:length(x)])
+## from_real(x::Array{Float64, 1}, ref::Complex) = complex(x[1:2:length(x)], x[2:2:length(x)])
+basetypeof{T}(x::Array{T}) = T
+basetypeof(x) = typeof(x)
+from_real(x::Array{Float64, 1}, basetype, sz) = reinterpret(basetype, x, sz)
+
 to_real(x::Float64) = x
 to_real(x::Array{Float64, 1}) = x
-to_real(x::Complex) = Float64[real(x), imag(x)]
-function to_real(x::Array{Complex128, 1}) # I tried reinterpret for this, but it seemed broken.
-    res = fill(0., 2*length(x))
-    for idx = 1:length(x)
-        res[2 * idx - 1] = real(x[idx])
-        res[2 * idx] = imag(x[idx])
-    end
-    res
-end
-
-
-
+to_real(x::Array{Float64}) = x[:]
+## to_real(x::Complex) = Float64[real(x), imag(x)]
+## function to_real(x::Array{Complex128, 1}) # I tried reinterpret for this, but it seemed broken.
+##     res = fill(0., 2*length(x))
+##     for idx = 1:length(x)
+##         res[2 * idx - 1] = real(x[idx])
+##         res[2 * idx] = imag(x[idx])
+##     end
+##     res
+## end
+to_real(x) = reinterpret(Float64, [x][:])
 
 
 
