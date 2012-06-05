@@ -793,7 +793,7 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
     tout = [tstep]
     idid = [int32(0)]
     info = fill(int32(0), 20)
-    info[11] = 1    # calc initial conditions (1 or 2) / don't calc (0)
+    info[11] = 2    # calc initial conditions (1 or 2) / don't calc (0)
     info[18] = 0    # more initialization info
     
     function setup_sim(sm::Sim, tstart::Float64, tstop::Float64, Nsteps::Int)

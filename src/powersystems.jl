@@ -221,18 +221,19 @@ function ex_PiModel()
     # Also, it won't solve at 60 Hz. It's probably too stiff. It
     # may need some more shunt resistance in parallel with the cap.
     # With load_pf = 1.0, it is much cleaner but still doesn't solve
-    # at 60 Hz.
+    # at 60 Hz. Also, it's cleaner with info[11] = 2.
+    # 
     ns = Voltage(zeros(3), "Vs")
     np = Voltage(zeros(3))
     nl = Voltage(zeros(3), "Vl")
     g = 0.0
     Vln = 7200.0
-    freq = 600.0
+    freq = 6000.0
     rho = 100.0
     len = 4000.0
-    load_VA = 1e4   # per phase
-    load_pf = 0.95
-    ## load_pf = 1.0
+    load_VA = 1e6   # per phase
+    ## load_pf = 0.95
+    load_pf = 1.0
     ne = 5
     ## load_pf = 1.0
     Z, Y = OverheadImpedances(freq, rho,
@@ -241,10 +242,11 @@ function ex_PiModel()
             ConductorLocation( 0.0, 10.0, Conductors["AAC 500 kcmil"]),
             ConductorLocation( 1.0, 10.0, Conductors["AAC 500 kcmil"])))
     {
-     SineVoltage(ns, g, Vln, freq, [0, -2/3*pi, 2/3*pi])
+     SineVoltage(ns, g, Vln, 60.0, [0, -2/3*pi, 2/3*pi])
      SeriesProbe(ns, np, "I")
      PiLine(np, nl, Z, Y, len, freq, ne)
      ## ConstZSeriesLoad(nl, g, load_VA, load_pf, Vln, freq)
+     ConstZSeriesLoad(nl, g, load_VA, load_pf, Vln, 60.0)
      ## ConstZParallelLoad(nl, g, load_VA, load_pf, Vln, freq)
      }
 end
@@ -253,4 +255,4 @@ end
 m = ex_PiModel()
 f = elaborate(m)
 s = create_sim(f)
-y = sim(s, 0.01)
+y = sim(s, 0.1)
