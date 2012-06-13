@@ -336,12 +336,23 @@ function StepVoltage(n1::ElectricalNode, n2::ElectricalNode, V::Real, start::Rea
      }
 end
     
+
+
 function SignalCurrent(n1::ElectricalNode, n2::ElectricalNode, I::Signal)  
     i = Current(compatible_values(n1, n2))
     v = Voltage(compatible_values(n1, n2))
     {
      Branch(n1, n2, v, i) 
      i - I
+     }
+end
+
+function SignalCurrent(n1::ElectricalNode, n2::ElectricalNode, I::Signal)  
+    ## i = Current(compatible_values(n1, n2))
+    ## v = Voltage(compatible_values(n1, n2))
+    {
+     RefBranch(n1, I) 
+     RefBranch(n2, -I) 
      }
 end
 
@@ -631,16 +642,52 @@ function ex_Rectifier()
      }
 end
 
+function ex_Rectifier()
+    n = Voltage("n")
+    VAC = 400.0
+    n1 = Voltage(VAC .* sqrt(2/3) .* sin([0,-2pi/3, 2pi/3]), "Vs")
+    n2 = Voltage(VAC .* sqrt(2/3) .* sin([0,-2pi/3, 2pi/3]), "Vl")
+    ## np = Voltage("Vp")
+    ## nn = Voltage("Vn")
+    np = Voltage( VAC*sqrt(2)/2, "Vp")
+    nn = Voltage(-VAC*sqrt(2)/2, "Vn")
+    nout = Voltage("Vout")
+    g = 0.0
+    f = 50.0
+    LAC = 60e-6
+    Ron = 1e-3
+    Goff = 1e-3
+    Vknee = 2.0
+    CDC = 15e-3
+    IDC = -500.0
+    {
+     SineVoltage(n1, g, VAC .* sqrt(2/3), f, [0.0, -2pi/3, 2pi/3])
+     Inductor(n1, n2, LAC)
+     ## Resistor(n2, np, 1e3)
+     ## Resistor(n2, nn, 1e3)
+     IdealDiode(n2[1], np, Vknee, Ron, Goff)
+     IdealDiode(n2[2], np, Vknee, Ron, Goff)
+     IdealDiode(n2[3], np, Vknee, Ron, Goff)
+     IdealDiode(nn, n2[1], Vknee, Ron, Goff)
+     IdealDiode(nn, n2[2], Vknee, Ron, Goff)
+     IdealDiode(nn, n2[3], Vknee, Ron, Goff)
+     ## Capacitor(np, nn, CDC)
+     Capacitor(np, g, 2 * CDC)
+     Capacitor(nn, g, 2 * CDC)
+     SignalCurrent(np, nn, IDC)
+     }
+end
+
 function sim_Rectifier(BROKEN)
     y = sim(ex_Rectifier(), 0.1)
     wplot(y, "Rectifier.pdf")
 end
 
 
-## m = ex_Rectifier()
-## f = elaborate(m)
-## s = create_sim(f)
-## y = sim(s, 0.1)
+m = ex_Rectifier()
+f = elaborate(m)
+s = create_sim(f)
+y = sim(s, 0.1)
 
 
 

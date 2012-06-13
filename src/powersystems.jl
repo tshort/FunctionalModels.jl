@@ -252,7 +252,7 @@ function ex_PiModel()
 end
 
      
-m = ex_PiModel()
-f = elaborate(m)
-s = create_sim(f)
-y = sim(s, 0.1)
+## m = ex_PiModel()
+## f = elaborate(m)
+## s = create_sim(f)
+## y = sim(s, 0.1)

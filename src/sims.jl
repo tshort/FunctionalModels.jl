@@ -785,8 +785,8 @@ ref(x::SimResult, idx...) = SimResult(x.y[:,idx...], x.colnames[idx...])
 function sim(sm::Sim, tstop::Float64, Nsteps::Int)
     # tstop & Nsteps should be in options
 
-    yidx = sm.outputs != ""
-    yidx = map((s) -> s != "", sm.outputs)
+    yidx = sm.outputs .!= ""
+    ## yidx = map((s) -> s != "", sm.outputs)
     Noutputs = sum(yidx)
     Ncol = Noutputs
     tstep = tstop / Nsteps
@@ -881,8 +881,8 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
                     info[1] = 0
                     info[11] = 1    # do/don't calc initial conditions
                     simulate = setup_sim(sm, t[1], tstop, int(Nsteps * (tstop - t[1]) / tstop))
-                    yidx = map((s) -> s != "", sm.outputs)
-                elseif any(jroot != 0)
+                    yidx = sm.outputs .!= ""
+                elseif any(jroot .!= 0)
                     println("event found at t = $(t[1]), restarting")
                     info[1] = 0
                     info[11] = 0    # do/don't calc initial conditions
