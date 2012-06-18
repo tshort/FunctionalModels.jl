@@ -167,23 +167,43 @@ IdealDiode(n1::ElectricalNode, n2::ElectricalNode) = IdealDiode(n1, n2, 0.0, 1e-
 IdealDiode(n1::ElectricalNode, n2::ElectricalNode, Vknee::Signal) = IdealDiode(n1, n2, Vknee, 1e-5, 1e-5)
 
 
-function IdealThyristor(n1::ElectricalNode, n2::ElectricalNode, Vknee::Signal, Ron::Signal, Goff::Signal)
+function IdealThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete, Vknee::Signal, Ron::Signal, Goff::Signal)
+    # BROKEN
     vals = compatible_values(n1, n2) 
     i = Current(vals)
     v = Voltage(vals)
     s = Unknown(vals)  # dummy variable
-    off = Discrete(fill(true, length(vals)))  # on/off state of each switch
+    off = Discrete(false)  # on/off state of each switch
+    addhook!(fire, 
+             ifelse(fire, reinit(off, false)))
     {
      Branch(n1, n2, v, i)
-     EventHook(fire,                  ## Not defined, yet.
-               ifelse(fire,
-                      reinit(off, false)))
-     Event(-s,
-           reinit(off, true)) 
+     Event(-s, reinit(off, true)) 
      s .* ifelse(off, 1.0, Ron) + Vknee - v
      s .* ifelse(off, Goff, 1.0) + Goff .* Vknee - i
      }
 end
+IdealThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete) = IdealThyristor(n1, n2, fire, 0.0, 1e-5, 1e-5)
+IdealThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete, Vknee::Signal) = IdealThyristor(n1, n2, fire, Vknee, 1e-5, 1e-5)
+
+  
+function IdealGTOThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete, Vknee::Signal, Ron::Signal, Goff::Signal)
+    # BROKEN
+    vals = compatible_values(n1, n2) 
+    i = Current(vals)
+    v = Voltage(vals)
+    s = Unknown(vals)  # dummy variable
+    off = Discrete(false)  # on/off state of each switch
+    addhook!(fire, reinit(off, !fire))
+    {
+     Branch(n1, n2, v, i)
+     Event(-s, reinit(off, true)) 
+     s .* ifelse(off, 1.0, Ron) + Vknee - v
+     s .* ifelse(off, Goff, 1.0) + Goff .* Vknee - i
+     }
+end
+IdealGTOThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete) = IdealGTOThyristor(n1, n2, fire, 0.0, 1e-5, 1e-5)
+IdealGTOThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete, Vknee::Signal) = IdealGTOThyristor(n1, n2, fire, Vknee, 1e-5, 1e-5)
 
   
 function IdealOpAmp(p1::ElectricalNode, n1::ElectricalNode, p2::ElectricalNode, n2::ElectricalNode)
@@ -659,7 +679,7 @@ function ex_Rectifier()
     Goff = 1e-3
     Vknee = 2.0
     CDC = 15e-3
-    IDC = -500.0
+    IDC = 500.0
     {
      SineVoltage(n1, g, VAC .* sqrt(2/3), f, [0.0, -2pi/3, 2pi/3])
      Inductor(n1, n2, LAC)
@@ -674,7 +694,8 @@ function ex_Rectifier()
      ## Capacitor(np, nn, CDC)
      Capacitor(np, g, 2 * CDC)
      Capacitor(nn, g, 2 * CDC)
-     SignalCurrent(np, nn, IDC)
+     ## SignalCurrent(np, nn, IDC)
+     Resistor(np, nn, 400 / IDC)
      }
 end
 
@@ -684,10 +705,10 @@ function sim_Rectifier(BROKEN)
 end
 
 
-m = ex_Rectifier()
-f = elaborate(m)
-s = create_sim(f)
-y = sim(s, 0.1)
+## m = ex_Rectifier()
+## f = elaborate(m)
+## s = create_sim(f)
+## y = sim(s, 0.1)
 
 
 
@@ -793,3 +814,26 @@ end
 ## f = elaborate(m)
 ## s = create_sim(f)
 ## y = sim(s, .1)
+
+function ex_CharacteristicThyristors()
+    n1 = Voltage("n1")
+    n2 = Voltage("n2")
+    n3 = Voltage("n3")
+    sig = Discrete(false)
+    g = 0.0
+    {
+     SineVoltage(n1, g, 10.0, 1.0) 
+     IdealThyristor(n1, n2, sig, 5.0)
+     IdealGTOThyristor(n1, n3, sig, 0.0)
+     BoolEvent(sig, MTime - 1.25)  
+     Resistor(n2, g, 1e-3)
+     Resistor(n3, g, 1e-3)
+    }
+end
+
+BooleanStep(ns::Discrete, t::Real) = BoolEvent(ns, MTime - t)  
+
+m = ex_CharacteristicThyristors()
+f = elaborate(m)
+s = create_sim(f)
+y = sim(s, 2.0)

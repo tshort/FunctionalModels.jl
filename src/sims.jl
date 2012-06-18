@@ -163,25 +163,6 @@ der(x::Unknown, val) = DerUnknown(x.sym, val, x)
 
 # show(a::Unknown) = show(a.sym)
 
-#
-# Discrete is a type for discrete variables. These are only changed
-# during events. They are not used by the integrator.
-#
-type Discrete <: UnknownVariable
-    sym::Symbol
-    value
-    label::String
-    hooks::Vector{Function}
-end
-Discrete() = Discrete(gensym(), 0.0, "", Function[])
-Discrete(x) = Discrete(gensym(), x, "", Function[])
-Discrete(s::Symbol, label::String) = Discrete(s, 0.0, label, Function[])
-Discrete(x, label::String) = Discrete(gensym(), x, label, Function[])
-Discrete(label::String) = Discrete(gensym(), 0.0, label, Function[])
-Discrete(s::Symbol, x) = Discrete(s, x, "", Function[])
-Discrete(s::Symbol, x, label::String) = Discrete(s, x, "", label, Function[])
-
-
 type MExpr <: ModelType
     ex::Expr
 end
@@ -220,13 +201,8 @@ end
 Model = Vector{Any}
 
 
-# Add array access capability for Discretes and Unknowns:
+# Add array access capability for Unknowns:
 
-type RefDiscrete <: UnknownVariable
-    u::Discrete
-    idx
-end
-ref(x::Discrete, args...) = RefDiscrete(x, args)
 type RefUnknown{T<:UnknownCategory} <: UnknownVariable
     u::Unknown{T}
     idx
@@ -242,7 +218,6 @@ value(x) = x
 value(x::Model) = map(value, x)
 value(x::UnknownVariable) = x.value
 value(x::RefUnknown) = x.u.value[x.idx...]
-value(x::RefDiscrete) = x.u.value[x.idx...]
 value(a::MExpr) = value(a.ex)
 value(e::Expr) = eval(Expr(e.head, isempty(e.args) ? e.args : map(value, e.args), e.typ))
                        
@@ -291,6 +266,52 @@ end
 ########################################
 
 
+
+#
+# Discrete is a type for discrete variables. These are only changed
+# during events. They are not used by the integrator.
+#
+type Discrete <: UnknownVariable
+    sym::Symbol
+    value
+    label::String
+    ## hooks::Vector{Function}
+    hookex::Vector{Expr}
+end
+Discrete() = Discrete(gensym(), 0.0, "")
+Discrete(x) = Discrete(gensym(), x, "")
+Discrete(s::Symbol, label::String) = Discrete(s, 0.0, label)
+Discrete(x, label::String) = Discrete(gensym(), x, label)
+Discrete(label::String) = Discrete(gensym(), 0.0, label)
+Discrete(s::Symbol, x) = Discrete(s, x, "")
+Discrete(s::Symbol, x, label::String) = Discrete(s, x, label, Expr[])
+
+## function Discrete(s::Symbol, x, ex::MExpr, label::String)
+##     res = Discrete(s, x, label)
+##     x.value = value(ex)
+##     x.ex = ex
+## end
+
+type RefDiscrete <: UnknownVariable
+    u::Discrete
+    idx
+end
+ref(x::Discrete, args...) = RefDiscrete(x, args)
+
+## DiscreteVar is used inside of the residual function.
+type DiscreteVar
+    value
+    pre
+    hooks::Vector{Function}
+end
+DiscreteVar(d::Discrete, funs::Vector{Function}) = DiscreteVar(d.value, d.value, funs)
+
+# Add hooks to a discrete variable.
+addhook!(d::Discrete, ex::ModelType) = push(d.hookex, strip_mexpr(ex))
+
+value(x::RefDiscrete) = x.u.value[x.idx...]
+value(x::DiscreteVar) = x.value
+
 #
 # Event is the main type used for hybrid modeling. It contains a
 # condition for root finding and model expressions to process after
@@ -308,6 +329,8 @@ end
 Event(condition::ModelType, p::MExpr, n::MExpr) = Event(condition, {p}, {n})
 Event(condition::ModelType, p::Model, n::MExpr) = Event(condition, p, {n})
 Event(condition::ModelType, p::MExpr, n::Model) = Event(condition, {p}, n)
+Event(condition::ModelType, p::MExpr) = Event(condition, {p}, {})
+Event(condition::ModelType, p::Expr) = Event(condition, p, {})
 
 #
 # reinit is used in Event responses to redefine variables. LeftVar is
@@ -316,6 +339,14 @@ Event(condition::ModelType, p::MExpr, n::Model) = Event(condition, {p}, n)
 # 
 type LeftVar <: ModelType
     var
+end
+function reinit(x::DiscreteVar, y)
+    println("reinit discrete: ", x.value, " to ", y)
+    x.pre = x.value
+    x.value = y
+    for fun in x.hooks
+        fun()
+    end
 end
 function reinit(x, y)
     println("reinit: ", x[], " to ", y)
@@ -326,8 +357,10 @@ reinit(x::LeftVar, y::MExpr) = mexpr(:call, :reinit, x, y.ex)
 reinit(x::Unknown, y) = reinit(LeftVar(x), y)
 reinit(x::RefUnknown, y) = reinit(LeftVar(x), y)
 reinit(x::DerUnknown, y) = reinit(LeftVar(x), y)
-reinit(x::Discrete, y) = reinit(LeftVar(x), y)
-reinit(x::RefDiscrete, y) = reinit(LeftVar(x), y)
+## reinit(x::Discrete, y) = reinit(LeftVar(x), y)
+## reinit(x::RefDiscrete, y) = reinit(LeftVar(x), y)
+reinit(x::Discrete, y) = mexpr(:call, :reinit, x, y)
+reinit(x::RefDiscrete, y) = mexpr(:call, :reinit, x, y)
 
 #
 # BoolEvent is a helper for attaching an event to a boolean variable.
@@ -603,10 +636,21 @@ function setup_functions(sm::Sim)
     # Set up a master function with variable declarations and 
     # functions that have access to those variables.
     #
-    # Variable declarations are for Discrete variables. Each
-    # is stored in its own array, so it can be overwritten by
-    # reinit.
-    discrete_defs = reduce((x,y) -> :($x;$(y[1]) = [$(y[2].value)]), :(), sm.discrete_map)
+    # Variable declarations are for Discrete variables. Each is stored
+    # in its own array, so it can be overwritten by reinit. From th
+    # esidcrete_map Dict, y[1] is the key (symbol name), and y[2] is
+    # the value (type Discrete).
+    ## discrete_defs = reduce((x,y) -> :($x;$(y[1]) = [$(y[2].value)]), :(), sm.discrete_map)
+    discrete_defs = :()
+    for (k, v) in sm.discrete_map
+        funs = map(x -> eval(:(() -> $(replace_unknowns(x, sm)))), v.hookex)
+        global _funs = funs
+        if length(funs) == 0
+            funs = Function[]
+        end
+        ex = :($k = DiscreteVar($v, $funs))
+        discrete_defs = :($discrete_defs; $ex)
+    end
     # The following is a code block (thunk) for insertion into
     # the residual calculation function.
     resid_thunk = Expr(:call, append({:vcat_real}, eq_block), Any)
@@ -729,11 +773,11 @@ function replace_unknowns(a::DerUnknown, sm::Sim)
 end
 function replace_unknowns(a::Discrete, sm::Sim)
     sm.discrete_map[a.sym] = a
-    :(ref($(a.sym), 1))
+    :(($(a.sym)).value)
 end
 function replace_unknowns(a::RefDiscrete, sm::Sim) # handle array referencing
     sm.discrete_map[a.u.sym] = a.u
-    :(ref(ref($(a.u.sym), 1), a.idx))
+    :(ref(($(a.u.sym)).value, a.idx))
 end
 # In assigned variables (LeftVar), use SubArrays (sub), instead of ref.
 # This allows assignment.
@@ -793,7 +837,7 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
     tout = [tstep]
     idid = [int32(0)]
     info = fill(int32(0), 20)
-    info[11] = 2    # calc initial conditions (1 or 2) / don't calc (0)
+    info[11] = 1    # calc initial conditions (1 or 2) / don't calc (0)
     info[18] = 0    # more initialization info
     
     function setup_sim(sm::Sim, tstart::Float64, tstop::Float64, Nsteps::Int)
