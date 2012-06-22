@@ -168,12 +168,11 @@ IdealDiode(n1::ElectricalNode, n2::ElectricalNode, Vknee::Signal) = IdealDiode(n
 
 
 function IdealThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete, Vknee::Signal, Ron::Signal, Goff::Signal)
-    # BROKEN
     vals = compatible_values(n1, n2) 
     i = Current(vals)
     v = Voltage(vals)
     s = Unknown(vals)  # dummy variable
-    off = Discrete(false)  # on/off state of each switch
+    off = Discrete(true)  # on/off state of each switch
     addhook!(fire, 
              ifelse(fire, reinit(off, false)))
     {
@@ -188,12 +187,11 @@ IdealThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete, Vknee::Si
 
   
 function IdealGTOThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete, Vknee::Signal, Ron::Signal, Goff::Signal)
-    # BROKEN
     vals = compatible_values(n1, n2) 
     i = Current(vals)
     v = Voltage(vals)
     s = Unknown(vals)  # dummy variable
-    off = Discrete(false)  # on/off state of each switch
+    off = Discrete(true)  # on/off state of each switch
     addhook!(fire, reinit(off, !fire))
     {
      Branch(n1, n2, v, i)
@@ -822,7 +820,7 @@ function ex_CharacteristicThyristors()
     sig = Discrete(false)
     g = 0.0
     {
-     SineVoltage(n1, g, 10.0, 1.0, 0.002) 
+     SineVoltage(n1, g, 10.0, 1.0, -0.006) 
      IdealThyristor(n1, n2, sig, 5.0)
      IdealGTOThyristor(n1, n3, sig, 0.0)
      BoolEvent(sig, MTime - 1.25)  
