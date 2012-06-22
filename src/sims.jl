@@ -1,23 +1,23 @@
 
 ##############################################
 ## Non-causal time-domain modeling in Julia ##
-##############################################
+#####################     #########################
 
-# Tom Short, tshort@epri.com
-#
-#
-# Copyright (c) 2012, Electric Power Research Institute 
-# BSD license - see the LICENSE file
- 
-# 
-# This file is an experiment in doing non-causal modeling in Julia.
-# The idea behind non-causal modeling is that the user develops models
-# based on components which are described by a set of equations. A
-# tool can then transform the equations and solve the differential
-# algebraic equations. Non-causal models tend to match their physical
-# counterparts in terms of their specification and implementation.
-#
-# Causal modeling is where all signals have an input and an output,
+                          # Tom Short, tshort@epri.com
+                          #
+                          #
+                          # Copyright (c) 2012, Electric Power Research Institute 
+                          # BSD license - see the LICENSE file
+                           
+                           # 
+                           # This file is an experiment in doing non-causal modeling in Julia.
+                           # The idea behind non-causal modeling is that the user develops models
+                           # based on components which are described by a set of equations. A
+                           # tool can then transform the equations and solve the differential
+                           # algebraic equations. Non-causal models tend to match their physical
+                           # counterparts in terms of their specification and implementation.
+                           #
+                           # Causal modeling is where all signals have an input and an output,
 # and the flow of information is clear. Simulink is the
 # highest-profile example.
 # 
@@ -305,6 +305,7 @@ type DiscreteVar
     hooks::Vector{Function}
 end
 DiscreteVar(d::Discrete, funs::Vector{Function}) = DiscreteVar(d.value, d.value, funs)
+DiscreteVar(d::Discrete) = DiscreteVar(d.value, d.value, Function[])
 
 # Add hooks to a discrete variable.
 addhook!(d::Discrete, ex::ModelType) = push(d.hookex, strip_mexpr(ex))
@@ -620,6 +621,8 @@ function fill_from_map(default_val,# Default value for the vector.
     x
 end
 
+cmb(x, args...) = expr(x, args...)
+
 #
 # setup_functions sets up several functions in a closure setup to
 # share common variables. This allows model components to access
@@ -638,18 +641,19 @@ function setup_functions(sm::Sim)
     # functions that have access to those variables.
     #
     # Variable declarations are for Discrete variables. Each is stored
-    # in its own array, so it can be overwritten by reinit. From th
-    # esidcrete_map Dict, y[1] is the key (symbol name), and y[2] is
+    # in its own array, so it can be overwritten by reinit. From the
+    # discrete_map Dict, y[1] is the key (symbol name), and y[2] is
     # the value (type Discrete).
-    ## discrete_defs = reduce((x,y) -> :($x;$(y[1]) = [$(y[2].value)]), :(), sm.discrete_map)
     discrete_defs = :()
     for (k, v) in sm.discrete_map
-        funs = map(x -> eval(:(() -> $(replace_unknowns(x, sm)))), v.hookex)
-        global _funs = funs
-        if length(funs) == 0
-            funs = Function[]
+        if length(v.hookex) == 0
+            ex = :($k = DiscreteVar($v))
+        else
+            funs = map(x -> :(() -> $(replace_unknowns(x, sm))), v.hookex)
+            global _funs = funs
+            funs = cmb(:vcat, funs...)
+            ex = :($k = DiscreteVar($v, $funs))
         end
-        ex = :($k = $(DiscreteVar(v, funs)))
         discrete_defs = :($discrete_defs; $ex)
     end
     # The following is a code block (thunk) for insertion into
@@ -784,6 +788,7 @@ end
 # This allows assignment.
 function replace_unknowns(a::LeftVar, sm::Sim)
     if isa(a.var, Discrete)
+        sm.discrete_map[a.var.sym] = a.var
         :($(a.var.sym))
     else
         var = replace_unknowns(a.var, sm)
@@ -934,7 +939,7 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
                 elseif any(jroot .!= 0)
                     println("event found at t = $(t[1]), restarting")
                     info[1] = 0
-                    info[11] = 0    # do/don't calc initial conditions
+                    info[11] = 1    # do/don't calc initial conditions
                 end
             end
         elseif idid[1] < 0 && idid[1] > -11
