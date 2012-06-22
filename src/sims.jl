@@ -340,6 +340,10 @@ Event(condition::ModelType, p::Expr) = Event(condition, p, {})
 type LeftVar <: ModelType
     var
 end
+function reinit(x, y)
+    println("reinit: ", x[], " to ", y)
+    x[:] = y
+end
 function reinit(x::DiscreteVar, y)
     println("reinit discrete: ", x.value, " to ", y)
     x.pre = x.value
@@ -348,19 +352,16 @@ function reinit(x::DiscreteVar, y)
         fun()
     end
 end
-function reinit(x, y)
-    println("reinit: ", x[], " to ", y)
-    x[:] = y
-end
 reinit(x::LeftVar, y) = mexpr(:call, :reinit, x, y)
 reinit(x::LeftVar, y::MExpr) = mexpr(:call, :reinit, x, y.ex)
 reinit(x::Unknown, y) = reinit(LeftVar(x), y)
 reinit(x::RefUnknown, y) = reinit(LeftVar(x), y)
 reinit(x::DerUnknown, y) = reinit(LeftVar(x), y)
-## reinit(x::Discrete, y) = reinit(LeftVar(x), y)
-## reinit(x::RefDiscrete, y) = reinit(LeftVar(x), y)
-reinit(x::Discrete, y) = mexpr(:call, :reinit, x, y)
-reinit(x::RefDiscrete, y) = mexpr(:call, :reinit, x, y)
+reinit(x::Discrete, y) = reinit(LeftVar(x), y)
+reinit(x::RefDiscrete, y) = reinit(LeftVar(x), y)
+## reinit(x::Discrete, y) = mexpr(:call, :reinit, x, y)
+## reinit(x::RefDiscrete, y) = mexpr(:call, :reinit, x, y)
+assign(x::DiscreteVar, y, idx) = x.value = y
 
 #
 # BoolEvent is a helper for attaching an event to a boolean variable.
@@ -648,7 +649,7 @@ function setup_functions(sm::Sim)
         if length(funs) == 0
             funs = Function[]
         end
-        ex = :($k = DiscreteVar($v, $funs))
+        ex = :($k = $(DiscreteVar(v, funs)))
         discrete_defs = :($discrete_defs; $ex)
     end
     # The following is a code block (thunk) for insertion into
@@ -782,8 +783,12 @@ end
 # In assigned variables (LeftVar), use SubArrays (sub), instead of ref.
 # This allows assignment.
 function replace_unknowns(a::LeftVar, sm::Sim)
-    var = replace_unknowns(a.var, sm)
-    :(sub($(var.args[2]), $(var.args[3])))
+    if isa(a.var, Discrete)
+        :($(a.var.sym))
+    else
+        var = replace_unknowns(a.var, sm)
+        :(sub($(var.args[2]), $(var.args[3])))
+    end
 end
 
 #

@@ -823,17 +823,37 @@ function ex_CharacteristicThyristors()
     g = 0.0
     {
      SineVoltage(n1, g, 10.0, 1.0) 
-     IdealThyristor(n1, n2, sig, 5.0)
+     ## IdealThyristor(n1, n2, sig, 5.0)
      IdealGTOThyristor(n1, n3, sig, 0.0)
      BoolEvent(sig, MTime - 1.25)  
-     Resistor(n2, g, 1e-3)
+     ## Resistor(n2, g, 1e-3)
      Resistor(n3, g, 1e-3)
     }
 end
 
 BooleanStep(ns::Discrete, t::Real) = BoolEvent(ns, MTime - t)  
 
-m = ex_CharacteristicThyristors()
+## m = ex_CharacteristicThyristors()
+## f = elaborate(m)
+## s = create_sim(f)
+## y = sim(s, 2.0)
+
+
+function test_BoolEventHook()
+    n1 = Voltage("n1")
+    sig = Discrete(false)
+    sig2 = Discrete(true)
+    addhook!(sig, 
+             reinit(sig2, false))
+    g = 0.0
+    {
+     SineVoltage(n1, g, ifelse(sig2, 10.0, 5.0), ifelse(sig, 1.0, 2.0)) 
+     BoolEvent(sig, MTime - 0.25)  
+     Resistor(n1, g, 1e-3)
+    }
+end
+
+m = test_BoolEventHook()
 f = elaborate(m)
 s = create_sim(f)
 y = sim(s, 2.0)
