@@ -640,22 +640,6 @@ function setup_functions(sm::Sim)
     # Set up a master function with variable declarations and 
     # functions that have access to those variables.
     #
-    # Variable declarations are for Discrete variables. Each is stored
-    # in its own array, so it can be overwritten by reinit. From the
-    # discrete_map Dict, y[1] is the key (symbol name), and y[2] is
-    # the value (type Discrete).
-    discrete_defs = :()
-    for (k, v) in sm.discrete_map
-        if length(v.hookex) == 0
-            ex = :($k = DiscreteVar($v))
-        else
-            funs = map(x -> :(() -> $(replace_unknowns(x, sm))), v.hookex)
-            global _funs = funs
-            funs = cmb(:vcat, funs...)
-            ex = :($k = DiscreteVar($v, $funs))
-        end
-        discrete_defs = :($discrete_defs; $ex)
-    end
     # The following is a code block (thunk) for insertion into
     # the residual calculation function.
     resid_thunk = Expr(:call, append({:vcat_real}, eq_block), Any)
@@ -691,6 +675,26 @@ function setup_functions(sm::Sim)
     
     get_discretes_thunk = :(() -> 1)   # dummy function for now
 
+    # Variable declarations are for Discrete variables. Each is stored
+    # in its own array, so it can be overwritten by reinit. From the
+    # discrete_map Dict, y[1] is the key (symbol name), and y[2] is
+    # the value (type Discrete).
+    discrete_defs = :()
+    for (k, v) in sm.discrete_map
+        println("k", k)
+        if length(v.hookex) == 0
+            ex = :($k = DiscreteVar($v))
+        else
+            println("here")
+            funs = map(x -> :(() -> $(replace_unknowns(x, sm))), v.hookex)
+            funs = cmb(:vcat, funs...)
+            global _funs = funs
+            ex = :($k = DiscreteVar($v, $funs))
+        end
+        discrete_defs = :($discrete_defs; $ex)
+        global _dis = discrete_defs
+    end
+    
     #
     # The framework for the master function defined. Each "thunk" gets
     # plugged into a function which is evaluated.
@@ -777,6 +781,7 @@ function replace_unknowns(a::DerUnknown, sm::Sim)
     end
 end
 function replace_unknowns(a::Discrete, sm::Sim)
+        println(a.sym)
     sm.discrete_map[a.sym] = a
     :(($(a.sym)).value)
 end
@@ -788,6 +793,7 @@ end
 # This allows assignment.
 function replace_unknowns(a::LeftVar, sm::Sim)
     if isa(a.var, Discrete)
+        println("D",a.var.sym)
         sm.discrete_map[a.var.sym] = a.var
         :($(a.var.sym))
     else
