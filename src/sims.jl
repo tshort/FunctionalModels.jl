@@ -1,23 +1,23 @@
 
 ##############################################
 ## Non-causal time-domain modeling in Julia ##
-#####################     #########################
+##############################################
 
-                          # Tom Short, tshort@epri.com
-                          #
-                          #
-                          # Copyright (c) 2012, Electric Power Research Institute 
-                          # BSD license - see the LICENSE file
-                           
-                           # 
-                           # This file is an experiment in doing non-causal modeling in Julia.
-                           # The idea behind non-causal modeling is that the user develops models
-                           # based on components which are described by a set of equations. A
-                           # tool can then transform the equations and solve the differential
-                           # algebraic equations. Non-causal models tend to match their physical
-                           # counterparts in terms of their specification and implementation.
-                           #
-                           # Causal modeling is where all signals have an input and an output,
+# Tom Short, tshort@epri.com
+#
+#
+# Copyright (c) 2012, Electric Power Research Institute 
+# BSD license - see the LICENSE file
+ 
+# 
+# This file is an experiment in doing non-causal modeling in Julia.
+# The idea behind non-causal modeling is that the user develops models
+# based on components which are described by a set of equations. A
+# tool can then transform the equations and solve the differential
+# algebraic equations. Non-causal models tend to match their physical
+# counterparts in terms of their specification and implementation.
+#
+# Causal modeling is where all signals have an input and an output,
 # and the flow of information is clear. Simulink is the
 # highest-profile example.
 # 
