@@ -48,7 +48,7 @@ end
 
 function Resistor(n1::ElectricalNode, n2::ElectricalNode, R::Signal)
     i = Current(compatible_values(n1, n2))
-    v = Voltage(compatible_values(n1, n2))
+    v = Voltage(value(n1) - value(n2))
     {
      Branch(n1, n2, v, i)
      R .* i - v   # == 0 is implied
@@ -67,7 +67,7 @@ Resistor(n1::ElectricalNode, n2::ElectricalNode, R::Signal, T_ref::Signal, alpha
 
 function Capacitor(n1::ElectricalNode, n2::ElectricalNode, C::Signal) 
     i = Current(compatible_values(n1, n2))
-    v = Voltage(compatible_values(n1, n2))
+    v = Voltage(value(n1) - value(n2))
     {
      Branch(n1, n2, v, i) 
      C .* der(v) - i      
@@ -76,7 +76,7 @@ end
 
 function Inductor(n1::ElectricalNode, n2::ElectricalNode, L::Signal) 
     i = Current(compatible_values(n1, n2))
-    v = Voltage(compatible_values(n1, n2))
+    v = Voltage(value(n1) - value(n2))
     {
      Branch(n1, n2, v, i) 
      L .* der(i) - v
@@ -85,32 +85,46 @@ end
 
 function SaturatingInductor(n1::ElectricalNode, n2::ElectricalNode,
                             Inom::Signal, Lnom::Signal, Linf::Signal, Lzer::Signal)
+    @assert Lzer > Lnom
+    @assert Linf < Lnom
     vals = compatible_values(n1, n2) 
-    i = Current(vals)
-    v = Voltage(vals)
-    Psi = Unknown(vals)
-    Lact = Unknown(vals)
-    Ipar = Unknown(vals)
-# initial equation 
-#   (Lnom - Linf) = (Lzer - Linf)*Ipar/Inom*(Modelica.Constants.pi/2-Modelica.Math.atan(Ipar/Inom));
+    i = Current(vals, "i_s")
+    v = Voltage(value(n1) - value(n2), "v_s")
+    Psi = Unknown(vals, "psi")
+    Lact = Unknown(value(Linf), "Lact")
+    ## Lact = Unknown(vals)
+    # initial equation equivalent (uses John Myles White's optim package):
+    Ipar = optimize(Ipar -> ((Lnom - Linf) - (Lzer - Linf)*Ipar[1]/Inom*(pi/2-atan2(Ipar[1],Inom))) ^ 2, [Inom]).minimum[1]
+    println("Ipar: ", Ipar)
     {
-     # @assert Lzer > Lnom + eps() "Lzer has to be > Lnom"
-     # @assert Linf < Lnom + eps() "Linf has to be < Lnom"
      Branch(n1, n2, v, i)
-     (Lact - Linf) .* i ./ Ipar - (Lzer - Linf) .* atan(i ./ Ipar)
+     (Lact - Linf) .* i ./ Ipar - (Lzer - Linf) .* atan2(i, Ipar)
      Psi - Lact .* i
      der(Psi) - v
      }
 end
 
 SaturatingInductor(n1::ElectricalNode, n2::ElectricalNode, Inom::Signal, Lnom::Signal) =
-    SaturatingInductor(n1, n2, Inom, Lnom, 2 * Lnom, Lnom / 2)
+    SaturatingInductor(n1, n2, Inom, Lnom, Lnom ./ 2, Lnom .* 2)
+
+function SaturatingInductor2(n1::ElectricalNode, n2::ElectricalNode,
+                             a, b, c)
+    vals = compatible_values(n1, n2) 
+    i = Current(vals, "i_s")
+    v = Voltage(value(n1) - value(n2), "v_s")
+    Psi = Unknown(vals, "psi")
+    {
+     Branch(n1, n2, v, i)
+     a * i ^ b + c * i - Psi
+     v - der(Psi)
+     }
+end
 
 function Transformer(p1::ElectricalNode, n1::ElectricalNode, p2::ElectricalNode, n2::ElectricalNode,
                      L1::Signal, L2::Signal, M::Signal)
     vals = compatible_values(compatible_values(p1, n1),
                              compatible_values(p2, n2)) 
-    v1 = Voltage(vals)
+    v1 = Voltage(value(p1) - value(n1))
     i1 = Current(vals)
     v2 = Voltage(vals)
     i2 = Current(vals)
@@ -402,6 +416,7 @@ end
 function sim_CauerLowPassAnalog()
     y = sim(ex_CauerLowPassAnalog(), 60.0)
     wplot(y, "CauerLowPassAnalog.pdf")
+    ## plot(y, "CauerLowPassAnalog.pdf")
 end
 
 # m = ex_CauerLowPassAnalog()
@@ -502,7 +517,13 @@ end
 
 function sim_CauerLowPassOPV()
     y = sim(ex_CauerLowPassOPV(), 60.0)
-    wplot(y.y[:,1], y.y[:,12], "CauerLowPassOPV.pdf")
+    wplot(y, "CauerLowPassOPV.pdf")
+    # plot(y, "CauerLowPassOPV.pdf")
+end
+
+function sim_CauerLowPassOPV2()
+    y = sim(ex_CauerLowPassOPV2(), 60.0)
+    wplot(y, "CauerLowPassOPV2.pdf")
 end
 
 # m = ex_CauerLowPassOPV()
@@ -586,9 +607,15 @@ function ex_ChuaCircuit()
 end
 
 function sim_ChuaCircuit()
-    y = sim(ex_ChuaCircuit(), 1.0)
+    y = sim(ex_ChuaCircuit(), 200.0)
     wplot(y, "ChuaCircuit.pdf")
 end
+
+## m = ex_ChuaCircuit()
+## f = elaborate(m)
+## s = create_sim(f)
+## y = sim(s, 1.0)
+
 
 function ex_HeatingResistor()
     n1 = Voltage("n1")
@@ -720,18 +747,35 @@ function ex_ShowSaturatingInductor()
     U = 1.25
     f = 1/(2pi)
     phase = pi/2
+    phase = 0.0
     {
      SineVoltage(n1, g, U, f, phase)
-     SaturatingInductor(n1, g, Inom, Lnom, Lzer, Linf)
-     Inductor(n1, g, Inom, Lnom, Lzer, Linf)
-     Inductor(n1, n2, Lnom)
+     ## SaturatingInductor(n1, g, Inom, Lnom, Linf, Lzer)
+     SaturatingInductor(n1, g, Inom, Lnom)
      }
 end
 
-function sim_ShowSaturatingInductor()
+function sim_ShowSaturatingInductor(BROKEN)
     y = sim(ex_ShowSaturatingInductor(), 6.2832)
     wplot(y, "ShowSaturatingInductor.pdf")
 end
+
+function ex_ShowSaturatingInductor2()
+    n1 = Voltage()
+    g = 0.0
+    U = 1.25
+    f = 1/(2pi)
+    phase = 0.0
+    {
+     SineVoltage(n1, g, U, f, phase)
+     SaturatingInductor2(n1, g, 55.0, 1.1, 0.0)
+     }
+end
+m = ex_ShowSaturatingInductor2()
+f = elaborate(m)
+s = create_sim(f)
+y = sim(s, 10.0)
+y | dump
 
 function ex_ShowVariableResistor()
     n = Voltage("Vs")
@@ -753,7 +797,7 @@ function ex_ShowVariableResistor()
      Resistor(n1, n2, 1.0)
      Resistor(n2, n3, 1.0)
      Resistor(n, n4, 1.0)
-     VariableResistor(n4, n5, 2 + 2.5 * MTime)
+     Resistor(n4, n5, 2 + 2.5 * MTime)
      Resistor(n5, n3, 1.0)
      }
 end
@@ -775,15 +819,15 @@ function ex_ControlledSwitchWithArc()
     g = 0.0
     {
      SineVoltage(vs, g, 1.0, 1.0)
-     ## SignalVoltage(a1, g, 50.0)
-     ## ControlledIdealClosingSwitch(a1, a2, vs, 0.5, 1e-5, 1e-5)
-     ## Inductor(a2, a3, 0.1)
-     ## Resistor(a3, g, 1.0)
-     SignalVoltage(b1, g, 50.0)
-     ## ControlledCloserWithArc(b1, b2, vs, 0.5, 1e-5, 1e-5, 30.0, 1e4, 60.0)
-     ControlledCloserWithArc(b1, b2, vs, 0.5, 1e-5, 1e-5, 60.0, 1e-2, 60.0)
-     Inductor(b2, b3, 0.1)
-     Resistor(b3, g, 1.0)
+     SignalVoltage(a1, g, 50.0)
+     ControlledIdealClosingSwitch(a1, a2, vs, 0.5, 1e-5, 1e-5)
+     Inductor(a2, a3, 0.1)
+     Resistor(a3, g, 1.0)
+     ## SignalVoltage(b1, g, 50.0)
+     ## ## ControlledCloserWithArc(b1, b2, vs, 0.5, 1e-5, 1e-5, 30.0, 1e4, 60.0)
+     ## ControlledCloserWithArc(b1, b2, vs, 0.5, 1e-5, 1e-5, 60.0, 1e-2, 60.0)
+     ## Inductor(b2, b3, 0.1)
+     ## Resistor(b3, g, 1.0)
      }
 end
 
@@ -829,12 +873,10 @@ function ex_CharacteristicThyristors()
     }
 end
 
-BooleanStep(ns::Discrete, t::Real) = BoolEvent(ns, MTime - t)  
-
-m = ex_CharacteristicThyristors()
-f = elaborate(m)
-s = create_sim(f)
-y = sim(s, 2.0)
+function sim_CharacteristicThyristors()
+    y = sim(ex_CharacteristicThyristors(), 2.0)
+    wplot(y, "ex_CharacteristicThyristors.pdf")
+end
 
 
 function test_BoolEventHook()
@@ -855,3 +897,18 @@ end
 ## f = elaborate(m)
 ## s = create_sim(f)
 ## y = sim(s, 2.0)
+
+function run_electrical_examples()
+    sim_CauerLowPassAnalog()
+    sim_CauerLowPassOPV()
+    sim_CauerLowPassOPV2()
+    sim_CharacteristicIdealDiodes()
+    sim_ChuaCircuit()
+    sim_HeatingResistor()
+    ## sim_HeatingRectifier(BROKEN)
+    ## sim_Rectifier(BROKEN)
+    ## sim_ShowSaturatingInductor(BROKEN)
+    sim_ShowVariableResistor()
+    sim_CharacteristicThyristors()
+    sim_ControlledSwitchWithArc()
+end

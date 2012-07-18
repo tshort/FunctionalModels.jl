@@ -171,7 +171,7 @@ mexpr(hd::Symbol, args::ANY...) = MExpr(expr(hd, args...))
 # Set up defaults for operations on ModelType's for many common
 # methods.
 
-for f = (:+, :-, :*, :.*, :/, :./, :^, :min, :max, :isless, :&, :|)
+for f = (:+, :-, :*, :.*, :/, :./, :^, :min, :max, :isless, :&, :|, :atan2)
     @eval ($f)(x::ModelType, y::ModelType) = mexpr(:call, ($f), x, y)
     @eval ($f)(x::ModelType, y::Any) = mexpr(:call, ($f), x, y)
     @eval ($f)(x::Any, y::ModelType) = mexpr(:call, ($f), x, y)
@@ -681,11 +681,10 @@ function setup_functions(sm::Sim)
     # the value (type Discrete).
     discrete_defs = :()
     for (k, v) in sm.discrete_map
-        println("k", k)
+        # println("k", k)
         if length(v.hookex) == 0
             ex = :($k = DiscreteVar($v))
         else
-            println("here")
             funs = map(x -> :(() -> $(replace_unknowns(x, sm))), v.hookex)
             funs = cmb(:vcat, funs...)
             global _funs = funs
@@ -703,7 +702,12 @@ function setup_functions(sm::Sim)
         () -> begin
             $discrete_defs
             function resid(t, y, yp)
-                 $resid_thunk
+                 ## println("t: ",t)
+                 ## println("y: ",y)
+                 ## println("yp: ",yp)
+                 res = $resid_thunk
+                 ## println("res: ",res)
+                 res
             end
             function event_at(t, y, yp)
                  $event_thunk
@@ -781,7 +785,7 @@ function replace_unknowns(a::DerUnknown, sm::Sim)
     end
 end
 function replace_unknowns(a::Discrete, sm::Sim)
-        println(a.sym)
+    # println(a.sym)
     sm.discrete_map[a.sym] = a
     :(($(a.sym)).value)
 end
@@ -793,7 +797,7 @@ end
 # This allows assignment.
 function replace_unknowns(a::LeftVar, sm::Sim)
     if isa(a.var, Discrete)
-        println("D",a.var.sym)
+        # println("D",a.var.sym)
         sm.discrete_map[a.var.sym] = a.var
         :($(a.var.sym))
     else
@@ -854,7 +858,7 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
     idid = [int32(0)]
     info = fill(int32(0), 20)
     info[11] = 1    # calc initial conditions (1 or 2) / don't calc (0)
-    info[18] = 0    # more initialization info
+    info[18] = 2    # more initialization info
     
     function setup_sim(sm::Sim, tstart::Float64, tstop::Float64, Nsteps::Int)
         global __sim_structural_change = false
@@ -911,6 +915,7 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
         ## if t[1] > 0.005     #### DEBUG
         ##     break
         ## end
+        ## println(y)
         if idid[1] >= 0 && idid[1] <= 5 
             yout[idx, 1] = t[1]
             yout[idx, 2:(Noutputs + 1)] = y[yidx]
@@ -1023,8 +1028,11 @@ function plot(sm::SimResult)
     end
     llplot()
 end
-
-
+function plot(sm::SimResult, filename::ASCIIString)
+    set_filename(filename)
+    plot(sm)
+    printfigure("pdf")
+end
 
 
 ########################################
@@ -1050,12 +1058,22 @@ function wplot( sm::SimResult, filename::String, args... )
     a
 end
 
+function wplot( sm::SimResult, filename::String, args... )
+    N = length( sm.colnames )
+    a = Table( N, 1 )
+    for plotnum = 1:N
+        p = FramedPlot()
+        add( p, Curve(sm.y[:,1],sm.y[:, plotnum + 1]) )
+        setattr( p, "ylabel", sm.colnames[plotnum] )
+        a[plotnum,1] = p
+    end
+    file( a, filename, args... )
+    a
+end
 
 
 ########################################
 ## Utilities                          ##
 ########################################
 
-keys(d::Dict) = [k for (k, v) in d]
-vals(d::Dict) = [v for (k, v) in d]
         

@@ -6,7 +6,7 @@
 // BSD license - see the LICENSE file
  
 
-#include "../../src/julia.h"
+#include <julia.h>
 #include <stdio.h>
 
 #define MAX(a,b) ((a) > (b) ? a : b)
@@ -23,6 +23,7 @@ void res_callback(double *t, double *y, double *yp, double *cj, double *res, int
     jl_array_t *_y = jl_get_global(jl_base_module,jl_symbol("__daskr_y"));
     jl_array_t *_yp = jl_get_global(jl_base_module,jl_symbol("__daskr_yp"));
     jl_array_t *_res = jl_get_global(jl_base_module,jl_symbol("__daskr_res"));
+    JL_GC_PUSH(&f, &_t, &_y, &_yp, &_res);
     _t->data = (void *)t;
     _t->length = 1;
     _t->nrows = 1;
@@ -37,17 +38,18 @@ void res_callback(double *t, double *y, double *yp, double *cj, double *res, int
     _res->nrows = ipar[0];
     
     int count = 3;
-    jl_value_t *args[3];
+    jl_value_t *args[count];
+    JL_GC_PUSHARGS(args,count);  
     args[0] = _t;
     args[1] = _y;
     args[2] = _yp;
     
-    JL_GC_PUSHARGS(args,count);   // I don't know what this does.
     jl_array_t *fres = jl_apply((jl_function_t*)f, args, count);
-    JL_GC_POP();
     for (int i = 0; i < ipar[0]; i++) {
         res[i] = ((double *)(fres->data))[i];
     }
+    JL_GC_POP();
+    JL_GC_POP();
 }
 
 void event_callback(int32_t *Neq, double *t, double *y, double *yp, int32_t *Nrt, double *res, double *rpar, int32_t *ipar) {
@@ -58,6 +60,7 @@ void event_callback(int32_t *Neq, double *t, double *y, double *yp, int32_t *Nrt
     jl_array_t *_y = jl_get_global(jl_base_module,jl_symbol("__daskr_y"));
     jl_array_t *_yp = jl_get_global(jl_base_module,jl_symbol("__daskr_yp"));
     jl_array_t *_res = jl_get_global(jl_base_module,jl_symbol("__daskr_res"));
+    JL_GC_PUSH(&f, &_t, &_y, &_yp, &_res);
     _t->data = (void *)t;
     _t->length = 1;
     _t->nrows = 1;
@@ -72,15 +75,16 @@ void event_callback(int32_t *Neq, double *t, double *y, double *yp, int32_t *Nrt
     _res->nrows = ipar[1];
     
     int count = 3;
-    jl_value_t *args[3];
+    jl_value_t *args[count];
+    JL_GC_PUSHARGS(args,count);   // I don't know what this does.
     args[0] = _t;
     args[1] = _y;
     args[2] = _yp;
     
-    JL_GC_PUSHARGS(args,count);   // I don't know what this does.
     jl_array_t *fres = jl_apply((jl_function_t*)f, args, count);
-    JL_GC_POP();
     for (int i = 0; i < ipar[1]; i++) {
         res[i] = ((double *)(fres->data))[i];
     }
+    JL_GC_POP();
+    JL_GC_POP();
 }
