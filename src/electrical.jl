@@ -910,5 +910,5 @@ function run_electrical_examples()
     ## sim_ShowSaturatingInductor(BROKEN)
     sim_ShowVariableResistor()
     sim_CharacteristicThyristors()
-    sim_ControlledSwitchWithArc()
+    ## sim_ControlledSwitchWithArc(BROKEN)
 end
