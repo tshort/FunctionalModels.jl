@@ -848,6 +848,7 @@ ref(x::SimResult, idx...) = SimResult(x.y[:,idx...], x.colnames[idx...])
 
 function sim(sm::Sim, tstop::Float64, Nsteps::Int)
     # tstop & Nsteps should be in options
+println("starting sim()")
 
     yidx = sm.outputs .!= ""
     ## yidx = map((s) -> s != "", sm.outputs)
@@ -889,7 +890,6 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
         global __daskr_y = y
         global __daskr_yp = yp
         global __daskr_res = copy(y)
-        
         (tout) -> begin
             ccall(dlsym(lib, :ddaskr_), Void,
                   (Ptr{Void}, Ptr{Int32}, Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, # RES, NEQ, T, Y, YPRIME
@@ -908,7 +908,9 @@ function sim(sm::Sim, tstop::Float64, Nsteps::Int)
     yout = zeros(Nsteps, Ncol + 1)
 
     for idx in 1:Nsteps
+
         (t,y,yp,jroot) = simulate(tout)
+
         ## if t[1] * 1.01 > tstop
         ##     break
         ## end

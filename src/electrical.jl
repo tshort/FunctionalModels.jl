@@ -112,11 +112,37 @@ function SaturatingInductor2(n1::ElectricalNode, n2::ElectricalNode,
     vals = compatible_values(n1, n2) 
     i = Current(vals, "i_s")
     v = Voltage(value(n1) - value(n2), "v_s")
-    Psi = Unknown(vals, "psi")
+    psi = Unknown(vals, "psi")
     {
      Branch(n1, n2, v, i)
-     a * i ^ b + c * i - Psi
-     v - der(Psi)
+     psi - a * tanh(b * i) + c * i
+     v - der(psi)
+     }
+end
+
+function SaturatingInductor3(n1::ElectricalNode, n2::ElectricalNode,
+                             a, b, c)
+    vals = compatible_values(n1, n2) 
+    i = Current(vals, "i_s")
+    v = Voltage(value(n1) - value(n2), "v_s")
+    psi = Unknown(vals, "psi")
+    {
+     Branch(n1, n2, v, i)
+     i - a * sinh(b * psi) + c * psi
+     v - der(psi)
+     }
+end
+
+function SaturatingInductor4(n1::ElectricalNode, n2::ElectricalNode,
+                             a, b, c)
+    vals = compatible_values(n1, n2) 
+    i = Current(vals, "i_s")
+    v = Voltage(value(n1) - value(n2), "v_s")
+    psi = Unknown(vals, "psi")
+    {
+     Branch(n1, n2, v, i)
+     a * sign(i) * abs(i) ^ b + c * i - psi
+     v - der(psi)
      }
 end
 
@@ -768,14 +794,48 @@ function ex_ShowSaturatingInductor2()
     phase = 0.0
     {
      SineVoltage(n1, g, U, f, phase)
-     SaturatingInductor2(n1, g, 55.0, 1.1, 0.0)
+     SaturatingInductor2(n1, g, 71.0, 0.1, 0.04)
      }
 end
-m = ex_ShowSaturatingInductor2()
-f = elaborate(m)
-s = create_sim(f)
-y = sim(s, 10.0)
-y | dump
+## m = ex_ShowSaturatingInductor2()
+## f = elaborate(m)
+## s = create_sim(f)
+## y = sim(s, 10.0)
+## y | dump
+
+function ex_ShowSaturatingInductor3()
+    n1 = Voltage()
+    g = 0.0
+    U = 1.25
+    f = 1/(2pi)
+    phase = 0.0
+    {
+     SineVoltage(n1, g, U, f, phase)
+     SaturatingInductor3(n1, g, 3e-9, 0.33, 0.15)
+     }
+end
+## m = ex_ShowSaturatingInductor3()
+## f = elaborate(m)
+## s = create_sim(f)
+## y = sim(s, 10.0)
+## y | dump
+
+function ex_ShowSaturatingInductor4()
+    n1 = Voltage()
+    g = 0.0
+    U = 1.25
+    f = 1/(2pi)
+    phase = 0.0
+    {
+     SineVoltage(n1, g, U, f, phase)
+     SaturatingInductor4(n1, g, .50, 0.7, 0.0)
+     }
+end
+## m = ex_ShowSaturatingInductor4()
+## f = elaborate(m)
+## s = create_sim(f)
+## y = sim(s, 10.0)
+## y | dump
 
 function ex_ShowVariableResistor()
     n = Voltage("Vs")

@@ -1,12 +1,14 @@
 
-require("sims.jl")
-
+load("sims.jl")
 # load standard Sims libraries
 
-require("types.jl")
-require("blocks.jl")
-require("electrical.jl")
-require("powersystems.jl")
-require("heat_transfer.jl")
-require("rotational.jl")
-require("examples.jl")
+load("types.jl")
+load("blocks.jl")
+load("electrical.jl")
+load("powersystems.jl")
+load("heat_transfer.jl")
+load("rotational.jl")
+load("examples.jl")
+
+
+## load("../examples/vanderpol.jl")
