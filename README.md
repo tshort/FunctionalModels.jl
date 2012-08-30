@@ -104,7 +104,7 @@ plot(y)
 
 Here are the results:
 
-![plot results](https://github.com/tshort-/Sims/blob/master/examples/vanderpol.png?raw=true "Van Der Pol results")
+![plot results](https://github.com/tshort/Sims/blob/master/examples/vanderpol.png?raw=true "Van Der Pol results")
 
 
 Electrical example
@@ -180,7 +180,7 @@ plot(ckt_y)
 ```
 Here are the results:
 
-![plot results](https://github.com/tshort-/Sims/blob/master/examples/circuit.png?raw=true "Circuit results")
+![plot results](https://github.com/tshort/Sims/blob/master/examples/circuit.png?raw=true "Circuit results")
 
 Hybrid Modeling and Structural Variability
 ------------------------------------------
@@ -188,7 +188,7 @@ Hybrid Modeling and Structural Variability
 Sims supports basic hybrid modeling, including the ability to handle
 structural model changes. Consider the following example:
 
-[Breaking pendulum](https://github.com/tshort-/Sims/blob/master/examples/breaking_pendulum_in_box.jl)
+[Breaking pendulum](https://github.com/tshort/Sims/blob/master/examples/breaking_pendulum_in_box.jl)
 
 This model starts as a pendulum, then the wire breaks, and the ball
 goes into free fall. Sims handles this much like
@@ -201,27 +201,27 @@ time the wall is hit, the velocity is adjusted for the "bounce".
 Here is an animation of the results. Note that the actual animation
 was done in R, not Julia.
 
-![plot results](https://github.com/tshort-/Sims/blob/master/examples/pendulum.gif?raw=true "Pendulum")
+![plot results](https://github.com/tshort/Sims/blob/master/examples/pendulum.gif?raw=true "Pendulum")
 
 To Look Deeper
 --------------
 
 For further examples, see here:
     
-https://github.com/tshort-/Sims/tree/master/examples
+https://github.com/tshort/Sims/tree/master/examples
 
 Minimal documentation is here:
 
-https://github.com/tshort-/Sims/blob/master/doc/README.md
+https://github.com/tshort/Sims/blob/master/doc/README.md
 
 The main code that defines functions and types for simulations is
 here:
 
-https://github.com/tshort-/Sims/blob/master/src/sims.jl
+https://github.com/tshort/Sims/blob/master/src/sims.jl
 
-For future development options, see here (somewhat outdated):
+For future development options, see here:
 
-https://github.com/tshort-/Sims/wiki/Possible-future-developments
+https://github.com/tshort/Sims/blob/Possible-future-developments.md
 
 Status
 ------
