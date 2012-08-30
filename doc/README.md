@@ -303,9 +303,6 @@ redefined.
 
 ## Known Issues
 
-- I regularly get segfaults. I probably have an error in the C
-  interface, so the stack is getting corrupted.
-
 - Things are not tested much.
 
 
