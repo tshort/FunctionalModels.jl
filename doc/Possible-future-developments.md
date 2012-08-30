@@ -105,7 +105,7 @@ Resistor(::SIMS_PARAMETERS, n1::ElectricalNode, n2::ElectricalNode, R::Signal) =
 # Parameter metadata - alternate definition
 Resistor(::SIMS_PARAMETERS, n1::ElectricalNode, n2::ElectricalNode, R::Signal) = {
     "Positive pin (potential `n1` > `n2` for positive voltage drop `v`)"
-     ElectricalNode, "Negative pin"
+    "Negative pin"
     "Electrical resistance"
 }
 ```
@@ -135,7 +135,7 @@ MyType(::SIMS_PARAMETERS, male::Bool, radius::Float64, name::String, state::Choi
     {"Male", "Tab1"}
     {"Conductor radius, m", "Tab1"}
     {"Name", "Tab2"}
-    {"State", "Tab2}
+    {"State", "Tab2"}
 }
 
 ```

@@ -221,7 +221,7 @@ https://github.com/tshort/Sims/blob/master/src/sims.jl
 
 For future development options, see here:
 
-https://github.com/tshort/Sims/blob/Possible-future-developments.md
+https://github.com/tshort/Sims/blob/master/doc/Possible-future-developments.md
 
 Status
 ------
