@@ -831,11 +831,7 @@ end
 # improves. I use global variables for the callback function and for
 # the main variables used in the residual function callback.
 #
-global __daskr_res_callback 
-global __daskr_event_callback 
-global __daskr_t  
-ilib = dlopen("daskr_interface.so")  # Something went wrong when these were
-lib = dlopen("daskr.so")             # inside the sim function.
+lib = dlopen("daskr.so")
 
 type SimResult
     y::Array{Float64, 2}
@@ -879,11 +875,12 @@ println("starting sim()")
         jroot = fill(int32(0), max(nrt[1], 1))
          
         # Set up the callback.
-        callback = dlsym(ilib, :res_callback)
-        rt = dlsym(ilib, :event_callback)
-        global __daskr_res_callback = sm.F.resid
-        global __daskr_event_callback = sm.F.event_at
-        global __daskr_t = [0.0] 
+        callback = cfunction(sm.F.resid, nothing,
+                             (Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, Ptr{Float64},
+                              Ptr{Int32}, Ptr{Float64}, Ptr{Int32}))
+        rt = cfunction(sm.F.event_at, nothing,
+                             (Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, Ptr{Float64},
+                              Ptr{Int32}, Ptr{Float64}, Ptr{Int32}))
         (tout) -> begin
             ccall(dlsym(lib, :ddaskr_), Void,
                   (Ptr{Void}, Ptr{Int32}, Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, # RES, NEQ, T, Y, YPRIME
