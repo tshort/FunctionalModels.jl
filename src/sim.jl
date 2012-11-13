@@ -632,6 +632,16 @@ cmb(x, args...) = expr(x, args...)
 # Unknowns are also replaced by references to y and yp. As part of
 # replacing unknowns, several of the Dicts in sm are populated.
 #
+macro resid(thunk)
+    quote
+        (t, y, yp, cj, delta, ires, rpar, ipar) -> $thunk
+    end
+end
+macro event_at(thunk)
+    quote
+        (neq, t, y, yp, nrt, rval, rpar, ipar) -> $thunk
+    end
+end
 function setup_functions(sm::Sim)
     # eq_block should be just expressions suitable for eval'ing.
     eq_block = replace_unknowns(sm.eq.equations, sm)
@@ -721,7 +731,9 @@ function setup_functions(sm::Sim)
         end
     end
     global _ex = expr
-    F = eval(expr)()
+    ## F = eval(expr)()
+    F = Sims.SimFunctions(@resid(resid_thunk), @event_at(event_thunk),
+                          [], [], () -> nothing)
 
     # For event responses that were actual functions, insert those into
     # the F structure.
