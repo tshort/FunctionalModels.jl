@@ -632,16 +632,6 @@ cmb(x, args...) = expr(x, args...)
 # Unknowns are also replaced by references to y and yp. As part of
 # replacing unknowns, several of the Dicts in sm are populated.
 #
-macro resid(thunk)
-    quote
-        (t, y, yp, cj, delta, ires, rpar, ipar) -> $thunk
-    end
-end
-macro event_at(thunk)
-    quote
-        (neq, t, y, yp, nrt, rval, rpar, ipar) -> $thunk
-    end
-end
 function setup_functions(sm::Sim)
     # eq_block should be just expressions suitable for eval'ing.
     eq_block = replace_unknowns(sm.eq.equations, sm)
@@ -652,9 +642,9 @@ function setup_functions(sm::Sim)
     #
     # The following is a code block (thunk) for insertion into
     # the residual calculation function.
-    resid_thunk = Expr(:call, append_any({:vcat_real}, eq_block), Any)
+    resid_thunk = Expr(:call, append_any({:(Sims.vcat_real)}, eq_block), Any)
     # Same but for the root crossing function:
-    event_thunk = Expr(:call, append_any({:vcat_real}, ev_block), Any)
+    event_thunk = Expr(:call, append_any({:(Sims.vcat_real)}, ev_block), Any)
 
     # Helpers to convert an array of expressions into a single expression.
     to_thunk{T}(ex::Vector{T}) = reduce((x,y) -> :($x;$y), :(), ex)
@@ -709,31 +699,42 @@ function setup_functions(sm::Sim)
     # plugged into a function which is evaluated.
     #
     expr = quote
-        () -> begin
             $discrete_defs
-            function resid(t, y, yp, cj, delta, ires, rpar, ipar)
+            function resid(t_in, y_in, yp_in, cj, delta_out, ires, rpar, ipar)
+                 n = int(unsafe_ref(ipar))
+                 t = pointer_to_array(t_in, (1,))
+                 y = pointer_to_array(y_in, (n,))
+                 yp = pointer_to_array(yp_in, (n,))
+                 delta = pointer_to_array(delta_out, (n,))
                  ## println("t: ",t)
                  ## println("y: ",y)
                  ## println("yp: ",yp)
-                 res = $resid_thunk
+                 delta[1:end] = $resid_thunk
                  ## println("res: ",res)
-                 res
+                 nothing
             end
-            function event_at(neq, t, y, yp, nrt, rval, rpar, ipar)
-                 $event_thunk
+            function event_at(neq, t_in, y_in, yp_in, nrt, rval_out, rpar, ipar)
+                 n = int(pointer_to_array(ipar, (2,)))
+                 println(n)
+                 t = pointer_to_array(t_in, (1,))
+                 y = pointer_to_array(y_in, (n[1],))
+                 yp = pointer_to_array(yp_in, (n[1],))
+                 rval = pointer_to_array(rval_out, (n[2],))
+                 rval[1:end] = $event_thunk
+                 nothing
             end
             event_pos_array = $ev_pos_thunk
             event_neg_array = $ev_neg_thunk
             function get_discretes()
                  $get_discretes_thunk
+                 nothing
             end
+        () -> begin
             Sims.SimFunctions(resid, event_at, event_pos_array, event_neg_array, get_discretes)
         end
     end
     global _ex = expr
-    ## F = eval(expr)()
-    F = Sims.SimFunctions(@resid(resid_thunk), @event_at(event_thunk),
-                          [], [], () -> nothing)
+    F = eval(expr)()
 
     # For event responses that were actual functions, insert those into
     # the F structure.
