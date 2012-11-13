@@ -70,16 +70,16 @@ export Inertia, Disc, Spring, BranchHeatPort, Damper, SpringDamper,
        IdealGear, SpeedSensor, AccSensor, SignalTorque
            
 
-load("sims.jl")
-# load standard Sims libraries
+load("Sims/src/sim.jl")
 
-load("types.jl")
-load("blocks.jl")
-load("electrical.jl")
-load("powersystems.jl")
-load("heat_transfer.jl")
-load("rotational.jl")
-## load("examples.jl")
+# load standard Sims libraries
+load("Sims/src/types.jl")
+load("Sims/src/blocks.jl")
+load("Sims/src/electrical.jl")
+load("Sims/src/powersystems.jl")
+load("Sims/src/heat_transfer.jl")
+load("Sims/src/rotational.jl")
+## load("Sims/src/examples.jl")
 
 end # module Sims
 
@@ -109,6 +109,23 @@ import Base.iround, Base.itrunc, Base.ifloor, Base.iceil, Base.abs
 import Base.string, Base.show
 import Base.isnan, Base.isinf, Base.^, Base.cmp, Base.sqrt, Base.min, Base.max, Base.isless, Base.atan2
 
-load("sims.jl")
+## Types
+export ModelType, UnknownCategory, UnknownVariable, DefaultUnknown, DerUnknown, RefUnknown, RefBranch,
+       Model, MExpr, Discrete, RefDiscrete, DiscreteVar, Event, LeftVar, StructuralEvent,
+       EquationSet, SimFunctions, Sim, SimResult
+
+## Specials
+export MTime
+
+## Methods
+export is_unknown, der, mexpr, value, compatible_values, reinit, ifelse,
+       basetypeof, from_real, to_real,
+       ## plot, wplot,
+       elaborate, create_sim, sim 
+
+## Model methods
+export Branch 
+
+load("Sims/src/sim.jl")
 
 end # module SimsCore
