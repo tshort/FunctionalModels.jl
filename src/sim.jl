@@ -701,7 +701,7 @@ function setup_functions(sm::Sim)
     expr = quote
         () -> begin
             $discrete_defs
-            function resid(t, y, yp)
+            function resid(t, y, yp, cj, delta, ires, rpar, ipar)
                  ## println("t: ",t)
                  ## println("y: ",y)
                  ## println("yp: ",yp)
@@ -709,7 +709,7 @@ function setup_functions(sm::Sim)
                  ## println("res: ",res)
                  res
             end
-            function event_at(t, y, yp)
+            function event_at(neq, t, y, yp, nrt, rval, rpar, ipar)
                  $event_thunk
             end
             event_pos_array = $ev_pos_thunk
@@ -875,12 +875,12 @@ println("starting sim()")
         jroot = fill(int32(0), max(nrt[1], 1))
          
         # Set up the callback.
-        callback = cfunction(sm.F.resid, nothing,
+        callback = cfunction(sm.F.resid, Nothing,
                              (Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, Ptr{Float64},
                               Ptr{Int32}, Ptr{Float64}, Ptr{Int32}))
-        rt = cfunction(sm.F.event_at, nothing,
-                             (Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, Ptr{Float64},
-                              Ptr{Int32}, Ptr{Float64}, Ptr{Int32}))
+        rt = cfunction(sm.F.event_at, Nothing,
+                             (Ptr{Int32}, Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, Ptr{Int32},
+                              Ptr{Float64}, Ptr{Float64}, Ptr{Int32}))
         (tout) -> begin
             ccall(dlsym(lib, :ddaskr_), Void,
                   (Ptr{Void}, Ptr{Int32}, Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, # RES, NEQ, T, Y, YPRIME
