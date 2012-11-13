@@ -198,7 +198,7 @@ end
 
 # For now, a model is just a vector that anything, but probably it
 # should include just ModelType's.
-Model = Vector{Any}
+const Model = Vector{Any}
 
 
 # Add array access capability for Unknowns:
@@ -237,7 +237,7 @@ compatible_values(num::Number, u::UnknownVariable) = length(value(u)) > length(n
 
 
 # System time - a special unknown variable
-MTime = Unknown(:time, 0.0)
+const MTime = Unknown(:time, 0.0)
 
 
 #  The type RefBranch and the helper Branch are used to indicate the
@@ -642,9 +642,9 @@ function setup_functions(sm::Sim)
     #
     # The following is a code block (thunk) for insertion into
     # the residual calculation function.
-    resid_thunk = Expr(:call, append({:vcat_real}, eq_block), Any)
+    resid_thunk = Expr(:call, append_any({:vcat_real}, eq_block), Any)
     # Same but for the root crossing function:
-    event_thunk = Expr(:call, append({:vcat_real}, ev_block), Any)
+    event_thunk = Expr(:call, append_any({:vcat_real}, ev_block), Any)
 
     # Helpers to convert an array of expressions into a single expression.
     to_thunk{T}(ex::Vector{T}) = reduce((x,y) -> :($x;$y), :(), ex)
@@ -670,8 +670,8 @@ function setup_functions(sm::Sim)
                  (t, y, yp) -> begin $ex; return; end
              end)
     end
-    ev_pos_thunk = length(ev_pos_array) > 0 ? Expr(:call, append({:vcat}, ev_pos_array), Any) : Function[]
-    ev_neg_thunk = length(ev_neg_array) > 0 ? Expr(:call, append({:vcat}, ev_neg_array), Any) : Function[]
+    ev_pos_thunk = length(ev_pos_array) > 0 ? Expr(:call, append_any({:vcat}, ev_pos_array), Any) : Function[]
+    ev_neg_thunk = length(ev_neg_array) > 0 ? Expr(:call, append_any({:vcat}, ev_neg_array), Any) : Function[]
     
     get_discretes_thunk = :(() -> 1)   # dummy function for now
 
@@ -683,12 +683,12 @@ function setup_functions(sm::Sim)
     for (k, v) in sm.discrete_map
         # println("k", k)
         if length(v.hookex) == 0
-            ex = :($k = DiscreteVar($v))
+            ex = :($k = Sims.DiscreteVar($v))
         else
             funs = map(x -> :(() -> $(replace_unknowns(x, sm))), v.hookex)
             funs = cmb(:vcat, funs...)
             global _funs = funs
-            ex = :($k = DiscreteVar($v, $funs))
+            ex = :($k = Sims.DiscreteVar($v, $funs))
         end
         discrete_defs = :($discrete_defs; $ex)
         global _dis = discrete_defs
@@ -717,7 +717,7 @@ function setup_functions(sm::Sim)
             function get_discretes()
                  $get_discretes_thunk
             end
-            SimFunctions(resid, event_at, event_pos_array, event_neg_array, get_discretes)
+            Sims.SimFunctions(resid, event_at, event_pos_array, event_neg_array, get_discretes)
         end
     end
     global _ex = expr
