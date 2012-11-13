@@ -834,9 +834,6 @@ end
 global __daskr_res_callback 
 global __daskr_event_callback 
 global __daskr_t  
-global __daskr_y 
-global __daskr_yp
-global __daskr_res
 ilib = dlopen("daskr_interface.so")  # Something went wrong when these were
 lib = dlopen("daskr.so")             # inside the sim function.
 
@@ -887,9 +884,6 @@ println("starting sim()")
         global __daskr_res_callback = sm.F.resid
         global __daskr_event_callback = sm.F.event_at
         global __daskr_t = [0.0] 
-        global __daskr_y = y
-        global __daskr_yp = yp
-        global __daskr_res = copy(y)
         (tout) -> begin
             ccall(dlsym(lib, :ddaskr_), Void,
                   (Ptr{Void}, Ptr{Int32}, Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, # RES, NEQ, T, Y, YPRIME
