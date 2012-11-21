@@ -353,8 +353,8 @@ function reinit(x::DiscreteVar, y)
         fun()
     end
 end
-reinit(x::LeftVar, y) = mexpr(:call, :reinit, x, y)
-reinit(x::LeftVar, y::MExpr) = mexpr(:call, :reinit, x, y.ex)
+reinit(x::LeftVar, y) = mexpr(:call, :(Sims.reinit), x, y)
+reinit(x::LeftVar, y::MExpr) = mexpr(:call, :(Sims.reinit), x, y.ex)
 reinit(x::Unknown, y) = reinit(LeftVar(x), y)
 reinit(x::RefUnknown, y) = reinit(LeftVar(x), y)
 reinit(x::DerUnknown, y) = reinit(LeftVar(x), y)
@@ -699,8 +699,12 @@ function setup_functions(sm::Sim)
     # plugged into a function which is evaluated.
     #
     expr = quote
+            # Note: this was originally a closure, but it was converted
+            # to eval globally for two reasons: (1) performance and (2) so
+            # cfunction could be used to set up Julia callbacks. This does
+            # mean that the _sim_* functions are seen globally.
             $discrete_defs
-            function resid(t_in, y_in, yp_in, cj, delta_out, ires, rpar, ipar)
+            function _sim_resid(t_in, y_in, yp_in, cj, delta_out, ires, rpar, ipar)
                  n = int(unsafe_ref(ipar))
                  t = pointer_to_array(t_in, (1,))
                  y = pointer_to_array(y_in, (n,))
@@ -713,9 +717,8 @@ function setup_functions(sm::Sim)
                  ## println("res: ",res)
                  nothing
             end
-            function event_at(neq, t_in, y_in, yp_in, nrt, rval_out, rpar, ipar)
+            function _sim_event_at(neq, t_in, y_in, yp_in, nrt, rval_out, rpar, ipar)
                  n = int(pointer_to_array(ipar, (2,)))
-                 println(n)
                  t = pointer_to_array(t_in, (1,))
                  y = pointer_to_array(y_in, (n[1],))
                  yp = pointer_to_array(yp_in, (n[1],))
@@ -723,14 +726,14 @@ function setup_functions(sm::Sim)
                  rval[1:end] = $event_thunk
                  nothing
             end
-            event_pos_array = $ev_pos_thunk
-            event_neg_array = $ev_neg_thunk
-            function get_discretes()
+            _sim_event_pos_array = $ev_pos_thunk
+            _sim_event_neg_array = $ev_neg_thunk
+            function _sim_get_discretes()
                  $get_discretes_thunk
                  nothing
             end
         () -> begin
-            Sims.SimFunctions(resid, event_at, event_pos_array, event_neg_array, get_discretes)
+            Sims.SimFunctions(_sim_resid, _sim_event_at, _sim_event_pos_array, _sim_event_neg_array, _sim_get_discretes)
         end
     end
     global _ex = expr
@@ -844,7 +847,7 @@ end
 # improves. I use global variables for the callback function and for
 # the main variables used in the residual function callback.
 #
-lib = dlopen("daskr.so")
+lib = dlopen(julia_pkgdir() * "/Sims/lib/daskr.so")
 
 type SimResult
     y::Array{Float64, 2}
@@ -1016,10 +1019,8 @@ to_real(x) = reinterpret(Float64, [x][:])
 ## Basic plotting with Gaston         ##
 ########################################
 
-
-
-
-function plot(sm::SimResult)
+# Note: Gaston hasn't been "modularized", yet.
+function gplot(sm::SimResult)
     N = length(sm.colnames)
     figure()
     c = CurveConf()
@@ -1034,7 +1035,7 @@ function plot(sm::SimResult)
     end
     llplot()
 end
-function plot(sm::SimResult, filename::ASCIIString)
+function gplot(sm::SimResult, filename::ASCIIString)
     set_filename(filename)
     plot(sm)
     printfigure("pdf")
@@ -1049,27 +1050,27 @@ end
 # the following is needed:
 # load("winston.jl")
 
-function wplot( sm::SimResult, filename::String, args... )
-    N = length( sm.colnames )
-    a = FramedArray( N, 1, "", "" )
-    setattr( a, "xlabel", "Time (s)" )
-    setattr( a, "ylabel", " Y " )
-    ## setattr(a, "tickdir", +1)
-    ## setattr(a, "draw_spine", false)
-    for plotnum = 1:N
-        add( a[plotnum,1], Curve(sm.y[:,1],sm.y[:, plotnum + 1]) )
-        setattr( a[plotnum,1], "ylabel", sm.colnames[plotnum] )
-    end
-    file( a, filename, args... )
-    a
-end
+## function wplot( sm::SimResult, filename::String, args... )
+##     N = length( sm.colnames )
+##     a = FramedArray( N, 1, "", "" )
+##     setattr( a, "xlabel", "Time (s)" )
+##     setattr( a, "ylabel", " Y " )
+##     ## setattr(a, "tickdir", +1)
+##     ## setattr(a, "draw_spine", false)
+##     for plotnum = 1:N
+##         add( a[plotnum,1], Curve(sm.y[:,1],sm.y[:, plotnum + 1]) )
+##         setattr( a[plotnum,1], "ylabel", sm.colnames[plotnum] )
+##     end
+##     file( a, filename, args... )
+##     a
+## end
 
 function wplot( sm::SimResult, filename::String, args... )
     N = length( sm.colnames )
-    a = Table( N, 1 )
+    a = Winston.Table( N, 1 )
     for plotnum = 1:N
-        p = FramedPlot()
-        add( p, Curve(sm.y[:,1],sm.y[:, plotnum + 1]) )
+        p = Winston.FramedPlot()
+        add( p, Winston.Curve(sm.y[:,1],sm.y[:, plotnum + 1]) )
         setattr( p, "ylabel", sm.colnames[plotnum] )
         a[plotnum,1] = p
     end
@@ -1077,9 +1078,26 @@ function wplot( sm::SimResult, filename::String, args... )
     a
 end
 
+function wplot( sm::SimResult )
+    N = length( sm.colnames )
+    a = Winston.Table( N, 1 )
+    for plotnum = 1:N
+        p = Winston.FramedPlot()
+        add( p, Winston.Curve(sm.y[:,1],sm.y[:, plotnum + 1]) )
+        setattr( p, "ylabel", sm.colnames[plotnum] )
+        a[plotnum,1] = p
+    end
+    dev = Tk.TkRenderer("plot", w, h)
+    Winston.page_compose(self, dev, false)
+    dev.on_close()
+    Tk.tk( a, 800, 600 )
+end
+
 
 ########################################
 ## Utilities                          ##
 ########################################
 
-        
+install_daskr() = cd(julia_pkgdir() * "/Sims/lib") do
+    run(`gfortran -fPIC -O2 -ggdb -shared -o daskr.so DASKR/ddaskr.f DASKR/dlinpk.f DASKR/daux.f`) 
+end

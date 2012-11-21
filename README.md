@@ -45,6 +45,39 @@ functional hybrid modeling . The DASKR solver is used to solve the
 implicit DAE's generated. DASKR is a derivative of DASSL with root
 finding.
     
+Installation
+------------
+
+Sims is an installable package. If you have not initialized
+the package system before, you will need to do the following:
+
+```julia
+load("pkg.jl")
+Pkg.init()
+```
+
+To install Sims, use the following:
+
+```julia
+load("pkg.jl")   # if not done previously
+Pkg.add("Sims")
+```
+
+Because the Julia package manager cannot compile C or FORTRAN code,
+yet, you must compile the DASKR solver (in Sims/lib). Do this whenever
+you install a new version of Sims. This can be done as follows in
+Julia:
+
+```julia
+load("Sims")
+using Sims
+install_daskr()
+```
+
+Sims.jl has one main module named `Sims`. This loads simulation code
+and a standard library of components. Another module named `SimsCore`
+only includes the core simulation code, not the standard library.
+
 Basic example
 -------------
 
@@ -53,6 +86,8 @@ the model. As unknown variables are evaluated, expressions (of
 type MExpr) are built up.
 
 ``` .jl
+julia> load("Sims"); using Sims
+
 julia> a = Unknown()
 ##1243
 
@@ -98,13 +133,13 @@ end
 
 y = sim(Vanderpol(), 10.0) # Run the simulation to 10 seconds and return
                            # the result as an array.
-# plot the results
-plot(y)
+# plot the results with Gaston
+gplot(y)
 ``` 
 
 Here are the results:
 
-![plot results](https://github.com/tshort/Sims/blob/master/examples/vanderpol.png?raw=true "Van Der Pol results")
+![plot results](https://github.com/tshort/Sims.jl/blob/master/examples/vanderpol.png?raw=true "Van Der Pol results")
 
 
 Electrical example
@@ -176,11 +211,11 @@ end
 
 ckt = Circuit()
 ckt_y = sim(ckt, 0.1)
-plot(ckt_y)
+gplot(ckt_y)
 ```
 Here are the results:
 
-![plot results](https://github.com/tshort/Sims/blob/master/examples/circuit.png?raw=true "Circuit results")
+![plot results](https://github.com/tshort/Sims.jl/blob/master/examples/circuit.png?raw=true "Circuit results")
 
 Hybrid Modeling and Structural Variability
 ------------------------------------------
@@ -188,40 +223,41 @@ Hybrid Modeling and Structural Variability
 Sims supports basic hybrid modeling, including the ability to handle
 structural model changes. Consider the following example:
 
-[Breaking pendulum](https://github.com/tshort/Sims/blob/master/examples/breaking_pendulum_in_box.jl)
+[Breaking pendulum](https://github.com/tshort/Sims.jl/blob/master/examples/breaking_pendulum_in_box.jl)
 
 This model starts as a pendulum, then the wire breaks, and the ball
 goes into free fall. Sims handles this much like
 [Hydra](https://github.com/giorgidze/Hydra); the model is recompiled.
-Because Julia can quickly JIT code, this happens relatively quickly.
-After the pendulum breaks, the ball bounces around in a box. This
-shows off another feature of Sims: handling nonstructural events. Each
-time the wall is hit, the velocity is adjusted for the "bounce".
+Because Julia can compile code just-in-time (JIT), this happens
+relatively quickly. After the pendulum breaks, the ball bounces around
+in a box. This shows off another feature of Sims: handling
+nonstructural events. Each time the wall is hit, the velocity is
+adjusted for the "bounce".
 
 Here is an animation of the results. Note that the actual animation
 was done in R, not Julia.
 
-![plot results](https://github.com/tshort/Sims/blob/master/examples/pendulum.gif?raw=true "Pendulum")
+![plot results](https://github.com/tshort/Sims.jl/blob/master/examples/pendulum.gif?raw=true "Pendulum")
 
 To Look Deeper
 --------------
 
 For further examples, see here:
     
-https://github.com/tshort/Sims/tree/master/examples
+https://github.com/tshort/Sims.jl/tree/master/examples
 
 Minimal documentation is here:
 
-https://github.com/tshort/Sims/blob/master/doc/README.md
+https://github.com/tshort/Sims.jl/blob/master/doc/README.md
 
 The main code that defines functions and types for simulations is
 here:
 
-https://github.com/tshort/Sims/blob/master/src/sims.jl
+https://github.com/tshort/Sims.jl/blob/master/src/sim.jl
 
 For future development options, see here:
 
-https://github.com/tshort/Sims/blob/master/doc/Possible-future-developments.md
+https://github.com/tshort/Sims.jl/blob/master/doc/Possible-future-developments.md
 
 Status
 ------

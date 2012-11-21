@@ -1,3 +1,6 @@
+## load("Plot.jl")
+## load("Tk.jl")
+
 module Sims
 
 using Base
@@ -21,6 +24,7 @@ import Base.write, Base.read, Base.msync, Base.findn_nzs, Base.reverse
 import Base.iround, Base.itrunc, Base.ifloor, Base.iceil, Base.abs
 import Base.string, Base.show
 import Base.isnan, Base.isinf, Base.^, Base.cmp, Base.sqrt, Base.min, Base.max, Base.isless, Base.atan2
+## import Plot.plot
 
 ## Types
 export ModelType, UnknownCategory, UnknownVariable, DefaultUnknown, DerUnknown, RefUnknown, RefBranch,
@@ -33,8 +37,9 @@ export MTime
 ## Methods
 export is_unknown, der, mexpr, value, compatible_values, reinit, ifelse,
        basetypeof, from_real, to_real,
-       ## plot, wplot,
-       elaborate, create_sim, sim 
+       gplot, wplot,
+       elaborate, create_sim, sim,
+       install_daskr
 
 ## Model methods
 export Branch 
@@ -120,8 +125,9 @@ export MTime
 ## Methods
 export is_unknown, der, mexpr, value, compatible_values, reinit, ifelse,
        basetypeof, from_real, to_real,
-       ## plot, wplot,
-       elaborate, create_sim, sim 
+       gplot, wplot,
+       elaborate, create_sim, sim,
+       install_daskr
 
 ## Model methods
 export Branch 

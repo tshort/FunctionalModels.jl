@@ -3,8 +3,6 @@
 # Basic Documentation
 
 Documentation is limited as Sims is in its early stages (like Julia).
-The [examples](../examples) are probably the best place to start.
-
 The basics are described here.
 
 ## Unknowns
@@ -22,7 +20,7 @@ type Unknown{T<:UnknownCategory} <: UnknownVariable
 end
 ```
 
-Unknowns can be grouped into categories. That's what the T is for in
+Unknowns can be grouped into categories. That's what the `T` is for in
 the definition above. One can define different types of Unknowns
 (electrical vs. mechanical for example). The default is
 DefaultUnknown. Unknowns of different types can also be used to define
@@ -32,7 +30,7 @@ node they are connected to.
 Unknowns also contain a value. This is used for setting initial
 values, and these values are updated if there is a structural change
 in the model. Unknowns can be different types. Eventually, all
-Unknowns are converted to Float64s in an array for simulation.
+Unknowns are converted to Float64's in an array for simulation.
 Currently, Sim supports Unknowns of type Float64, Complex128, and
 arrays of either of these. Adding support for other structures is not
 hard as long as they can be converted to Float64's.
@@ -72,7 +70,7 @@ In model equations, derivatives are specified with der:
 
 Derivatives of Unknowns are an object of type DerUnknown. DerUnknown
 objects contain an initial value, and a pointer to the Unknown object
-it references. Initial values are most commonly entered as the second
+it references. Initial values can be entered as the second
 parameter to the der function:
 
 ```jl
@@ -285,21 +283,6 @@ One special thing to note is that new_relation must be a function (in
 the case above, an anonymous function). If new_relation is not a
 function, it will evaluate right away. The use of a function delays
 evaluation until the model is recompiled.
-
-## Installation 
-
-Since Julia doesn't have a package system, yet, you have to download
-and compile the code manually. The C and Fortran code is under the
-Sims/lib directory. There is a shell script there that will compile
-two shared libraries. You also need to add that directory path to your
-shared library path (or copy the files somewhere where they can be
-found). This is LD_LIBRARY_PATH on linux.
-
-The main code for types and models is in Sims/src/sims.jl directory.
-Just use load to pull that code in. All of the examples also load this
-file, so it may get loaded multiple times. That shouldn't hurt
-anything, but you will see warning messages that types can't be
-redefined.
 
 ## Known Issues
 
