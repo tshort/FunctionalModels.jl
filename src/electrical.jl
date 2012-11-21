@@ -441,7 +441,7 @@ end
 
 function sim_CauerLowPassAnalog()
     y = sim(ex_CauerLowPassAnalog(), 60.0)
-    plot(y, "CauerLowPassAnalog.pdf")
+    wplot(y, "CauerLowPassAnalog.pdf")
 end
 
 # m = ex_CauerLowPassAnalog()
@@ -542,12 +542,12 @@ end
 
 function sim_CauerLowPassOPV()
     y = sim(ex_CauerLowPassOPV(), 60.0)
-    plot(y, "CauerLowPassOPV.pdf")
+    wplot(y, "CauerLowPassOPV.pdf")
 end
 
 function sim_CauerLowPassOPV2()
     y = sim(ex_CauerLowPassOPV2(), 60.0)
-    plot(y, "CauerLowPassOPV2.pdf")
+    wplot(y, "CauerLowPassOPV2.pdf")
 end
 
 # m = ex_CauerLowPassOPV()
@@ -586,7 +586,7 @@ end
 
 function sim_CharacteristicIdealDiodes()
     y = sim(ex_CharacteristicIdealDiodes(), 1.0)
-    plot(y, "CharacteristicIdealDiodes.pdf")
+    wplot(y, "CharacteristicIdealDiodes.pdf")
 end
 
 # function ex_CharacteristicIdealDiodes1()
@@ -632,7 +632,7 @@ end
 
 function sim_ChuaCircuit()
     y = sim(ex_ChuaCircuit(), 200.0)
-    plot(y, "ChuaCircuit.pdf")
+    wplot(y, "ChuaCircuit.pdf")
 end
 
 ## m = ex_ChuaCircuit()
@@ -656,7 +656,7 @@ end
 
 function sim_HeatingResistor()
     y = sim(ex_HeatingResistor(), 5.0)
-    plot(y, "HeatingResistor.pdf")
+    wplot(y, "HeatingResistor.pdf")
 end
 
 function ex_HeatingRectifier()
@@ -676,7 +676,7 @@ end
 
 function sim_HeatingRectifier(BROKEN)
     y = sim(ex_HeatingRectifier(), 5.0)
-    plot(y, "HeatingRectifier.pdf")
+    wplot(y, "HeatingRectifier.pdf")
 end
 
 function ex_Rectifier()
@@ -750,7 +750,7 @@ end
 
 function sim_Rectifier(BROKEN)
     y = sim(ex_Rectifier(), 0.1)
-    plot(y, "Rectifier.pdf")
+    wplot(y, "Rectifier.pdf")
 end
 
 
@@ -781,7 +781,7 @@ end
 
 function sim_ShowSaturatingInductor(BROKEN)
     y = sim(ex_ShowSaturatingInductor(), 6.2832)
-    plot(y, "ShowSaturatingInductor.pdf")
+    wplot(y, "ShowSaturatingInductor.pdf")
 end
 
 function ex_ShowSaturatingInductor2()
@@ -862,7 +862,7 @@ end
 
 function sim_ShowVariableResistor()
     y = sim(ex_ShowVariableResistor(), 6.2832)
-    plot(y, "ShowVariableResistor.pdf")
+    wplot(y, "ShowVariableResistor.pdf")
 end
 
 
@@ -891,7 +891,7 @@ end
 
 function sim_ControlledSwitchWithArc()
     y = sim(ex_ControlledSwitchWithArc(), 6)
-    plot(y, "ex_ControlledSwitchWithArc.pdf")
+    wplot(y, "ex_ControlledSwitchWithArc.pdf")
 end
 
 ## m = ex_ControlledSwitchWithArc()
@@ -933,7 +933,7 @@ end
 
 function sim_CharacteristicThyristors()
     y = sim(ex_CharacteristicThyristors(), 2.0)
-    plot(y, "ex_CharacteristicThyristors.pdf")
+    wplot(y, "ex_CharacteristicThyristors.pdf")
 end
 
 
