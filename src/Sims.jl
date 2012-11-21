@@ -125,7 +125,8 @@ export MTime
 export is_unknown, der, mexpr, value, compatible_values, reinit, ifelse,
        basetypeof, from_real, to_real,
        gplot, wplot,
-       elaborate, create_sim, sim
+       elaborate, create_sim, sim,
+       install_daskr
 
 ## Model methods
 export Branch 

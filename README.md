@@ -67,7 +67,7 @@ Because the Julia package manager cannot automatically compile C or
 FORTRAN code, yet, Sims attempts to compile the DASKR solver (in
 Sims/lib) if the dynamic linked library is not found. If DASKR is
 updated, it may need to be recompiled (the function
-`Sims.install_daskr` does this).
+`Sims.compile_daskr` does this).
 
 Sims.jl has one main module named `Sims`. This loads simulation code
 and a standard library of components. Another module named `SimsCore`

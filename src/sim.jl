@@ -96,6 +96,14 @@
 # 
 
 ########################################
+## Utilities                          ##
+########################################
+
+compile_daskr() = cd(julia_pkgdir() * "/Sims/lib") do
+    run(`gfortran -fPIC -O2 -ggdb -shared -o daskr.so DASKR/ddaskr.f DASKR/dlinpk.f DASKR/daux.f`) 
+end
+
+########################################
 ## Type definitions                   ##
 ########################################
 
@@ -847,7 +855,15 @@ end
 # improves. I use global variables for the callback function and for
 # the main variables used in the residual function callback.
 #
-lib = dlopen(julia_pkgdir() * "/Sims/lib/daskr.so")
+
+dllname = julia_pkgdir() * "/Sims/lib/daskr.so"
+if !isfile(dllname)
+    println("*********************************************")
+    println("Can't find daskr.so; attempting to compile...")
+    println("*********************************************")
+    compile_daskr() 
+end    
+const lib = dlopen(dllname)
 
 type SimResult
     y::Array{Float64, 2}
@@ -1066,6 +1082,7 @@ end
 ## end
 
 function wplot( sm::SimResult, filename::String, args... )
+    require( "Winston" )
     N = length( sm.colnames )
     a = Winston.Table( N, 1 )
     for plotnum = 1:N
@@ -1074,11 +1091,13 @@ function wplot( sm::SimResult, filename::String, args... )
         setattr( p, "ylabel", sm.colnames[plotnum] )
         a[plotnum,1] = p
     end
-    file( a, filename, args... )
+    Winston.file( a, filename, args... )
     a
 end
 
 function wplot( sm::SimResult )
+    require( "Winston" )
+    require( "Tk" )
     N = length( sm.colnames )
     a = Winston.Table( N, 1 )
     for plotnum = 1:N
@@ -1093,11 +1112,3 @@ function wplot( sm::SimResult )
     Tk.tk( a, 800, 600 )
 end
 
-
-########################################
-## Utilities                          ##
-########################################
-
-install_daskr() = cd(julia_pkgdir() * "/Sims/lib") do
-    run(`gfortran -fPIC -O2 -ggdb -shared -o daskr.so DASKR/ddaskr.f DASKR/dlinpk.f DASKR/daux.f`) 
-end
