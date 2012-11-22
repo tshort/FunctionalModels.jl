@@ -1,5 +1,3 @@
-load("Winston.jl")
-## load("Tk.jl")
 
 module Sims
 
@@ -33,8 +31,13 @@ import Base.sinh,Base.cosh,Base.tanh,Base.coth,Base.sech,Base.csch
 import Base.asin,Base.acos,Base.atan,Base.acot,Base.asec,Base.acsc
 import Base.acoth,Base.asech,Base.acsch,Base.sinc,Base.cosc                 
 
-## import Plot.plot
-import Winston
+if isdir(julia_pkgdir() * "/Winston")
+    load("Winston")
+end    
+if isdir(julia_pkgdir() * "/Tk")
+    load("Tk")
+end    
+
 ## Types
 export ModelType, UnknownCategory, UnknownVariable, DefaultUnknown, DerUnknown, RefUnknown, RefBranch,
        Model, MExpr, Discrete, RefDiscrete, DiscreteVar, Event, LeftVar, StructuralEvent,

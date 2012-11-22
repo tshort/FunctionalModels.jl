@@ -1082,7 +1082,6 @@ end
 ## end
 
 function wplot( sm::SimResult, filename::String, args... )
-    ## require( "Winston" )
     N = length( sm.colnames )
     a = Winston.Table( N, 1 )
     for plotnum = 1:N
@@ -1096,8 +1095,6 @@ function wplot( sm::SimResult, filename::String, args... )
 end
 
 function wplot( sm::SimResult )
-    require( "Winston" )
-    require( "Tk" )
     N = length( sm.colnames )
     a = Winston.Table( N, 1 )
     for plotnum = 1:N
