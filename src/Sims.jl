@@ -1,4 +1,4 @@
-## load("Plot.jl")
+load("Winston.jl")
 ## load("Tk.jl")
 
 module Sims
@@ -24,8 +24,17 @@ import Base.write, Base.read, Base.msync, Base.findn_nzs, Base.reverse
 import Base.iround, Base.itrunc, Base.ifloor, Base.iceil, Base.abs
 import Base.string, Base.show
 import Base.isnan, Base.isinf, Base.^, Base.cmp, Base.sqrt, Base.min, Base.max, Base.isless, Base.atan2
-## import Plot.plot
+import Base.ceil, Base.floor, Base.trunc  
+import Base.round 
+import Base.angle,Base.log10
+import Base.cbrt,Base.log,Base.log2,Base.exp,Base.expm1
+import Base.sin,Base.cos,Base.tan,Base.cot,Base.sec,Base.csc      
+import Base.sinh,Base.cosh,Base.tanh,Base.coth,Base.sech,Base.csch
+import Base.asin,Base.acos,Base.atan,Base.acot,Base.asec,Base.acsc
+import Base.acoth,Base.asech,Base.acsch,Base.sinc,Base.cosc                 
 
+## import Plot.plot
+import Winston
 ## Types
 export ModelType, UnknownCategory, UnknownVariable, DefaultUnknown, DerUnknown, RefUnknown, RefBranch,
        Model, MExpr, Discrete, RefDiscrete, DiscreteVar, Event, LeftVar, StructuralEvent,
@@ -41,7 +50,7 @@ export is_unknown, der, mexpr, value, compatible_values, reinit, ifelse,
        elaborate, create_sim, sim
 
 ## Model methods
-export Branch 
+export Branch, BoolEvent
 
 ## Standard library
 ## Base types
@@ -49,7 +58,7 @@ export NumberOrUnknown, Signal, UVoltage, UCurrent, ElectricalNode, Voltage, Cur
        UHeatPort, UTemperature, UHeatFlow,
        HeatPort, Temperature,
        UAngle, UTorque, Angle, Torque, UAngularVelocity, AngularVelocity,
-       UAngularAcceleration, AngularAcceleration, Flange  
+       UAngularAcceleration, AngularAcceleration, Flange
 ## Blocks
 export Integrator, Derivativ, Integrator, Derivative,
        LimPID, StateSpace, Limiter, DeadZone

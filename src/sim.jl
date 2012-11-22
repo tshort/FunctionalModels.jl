@@ -1082,13 +1082,13 @@ end
 ## end
 
 function wplot( sm::SimResult, filename::String, args... )
-    require( "Winston" )
+    ## require( "Winston" )
     N = length( sm.colnames )
     a = Winston.Table( N, 1 )
     for plotnum = 1:N
         p = Winston.FramedPlot()
         add( p, Winston.Curve(sm.y[:,1],sm.y[:, plotnum + 1]) )
-        setattr( p, "ylabel", sm.colnames[plotnum] )
+        Winston.setattr( p, "ylabel", sm.colnames[plotnum] )
         a[plotnum,1] = p
     end
     Winston.file( a, filename, args... )
@@ -1103,7 +1103,7 @@ function wplot( sm::SimResult )
     for plotnum = 1:N
         p = Winston.FramedPlot()
         add( p, Winston.Curve(sm.y[:,1],sm.y[:, plotnum + 1]) )
-        setattr( p, "ylabel", sm.colnames[plotnum] )
+        Winston.setattr( p, "ylabel", sm.colnames[plotnum] )
         a[plotnum,1] = p
     end
     dev = Tk.TkRenderer("plot", w, h)
