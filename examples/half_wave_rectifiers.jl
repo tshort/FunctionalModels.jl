@@ -1,6 +1,7 @@
 
-load("../src/sims.jl")
-load("electrical.jl")
+load("Sims")
+using Sims
+
 
 # With a zero angle, both of the problems below fail.
 function VSource(n1::NumberOrUnknown{UVoltage}, n2::NumberOrUnknown{UVoltage}, V::Real, f::Real, ang::Real)  

@@ -1,7 +1,6 @@
 
-load("../src/sims.jl")
-load("electromechanical.jl")
-
+load("Sims")
+using Sims
 
 
 

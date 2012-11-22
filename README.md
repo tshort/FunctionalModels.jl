@@ -52,14 +52,14 @@ Sims is an installable package. If you have not initialized
 the package system before, you will need to do the following:
 
 ```julia
-load("pkg.jl")
+load("pkg")
 Pkg.init()
 ```
 
 To install Sims, use the following:
 
 ```julia
-load("pkg.jl")   # if not done previously
+load("pkg")   # if not done previously
 Pkg.add("Sims")
 ```
 
@@ -67,11 +67,13 @@ Because the Julia package manager cannot automatically compile C or
 FORTRAN code, yet, Sims attempts to compile the DASKR solver (in
 Sims/lib) if the dynamic linked library is not found. If DASKR is
 updated, it may need to be recompiled (the function
-`Sims.compile_daskr` does this).
+`Sims.compile_daskr` does this). Note: to compile DASKR, gfortran must
+be installed.
 
-Sims.jl has one main module named `Sims`. This loads simulation code
-and a standard library of components. Another module named `SimsCore`
-only includes the core simulation code, not the standard library.
+Sims.jl has one main module named `Sims`. This module includes
+simulation code and a standard library of components. Another module
+named `SimsCore` only includes the core simulation code, not the
+standard library.
 
 Basic example
 -------------

@@ -1,4 +1,5 @@
-load("../src/sims.jl")
+load("Sims")
+using Sims
 
 ########################################
 ## Test of the simulator with events  ##

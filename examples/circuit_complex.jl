@@ -1,5 +1,6 @@
 
-load("../src/sims.jl")
+load("Sims")
+using Sims
 
 
 
