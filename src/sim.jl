@@ -650,9 +650,9 @@ function setup_functions(sm::Sim)
     #
     # The following is a code block (thunk) for insertion into
     # the residual calculation function.
-    resid_thunk = Expr(:call, append_any({:(Sims.vcat_real)}, eq_block), Any)
+    resid_thunk = Expr(:call, Base.append_any({:(Sims.vcat_real)}, eq_block), Any)
     # Same but for the root crossing function:
-    event_thunk = Expr(:call, append_any({:(Sims.vcat_real)}, ev_block), Any)
+    event_thunk = Expr(:call, Base.append_any({:(Sims.vcat_real)}, ev_block), Any)
 
     # Helpers to convert an array of expressions into a single expression.
     to_thunk{T}(ex::Vector{T}) = reduce((x,y) -> :($x;$y), :(), ex)
@@ -678,8 +678,8 @@ function setup_functions(sm::Sim)
                  (t, y, yp) -> begin $ex; return; end
              end)
     end
-    ev_pos_thunk = length(ev_pos_array) > 0 ? Expr(:call, append_any({:vcat}, ev_pos_array), Any) : Function[]
-    ev_neg_thunk = length(ev_neg_array) > 0 ? Expr(:call, append_any({:vcat}, ev_neg_array), Any) : Function[]
+    ev_pos_thunk = length(ev_pos_array) > 0 ? Expr(:call, Base.append_any({:vcat}, ev_pos_array), Any) : Function[]
+    ev_neg_thunk = length(ev_neg_array) > 0 ? Expr(:call, Base.append_any({:vcat}, ev_neg_array), Any) : Function[]
     
     get_discretes_thunk = :(() -> 1)   # dummy function for now
 
