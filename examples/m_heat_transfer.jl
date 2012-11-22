@@ -27,7 +27,7 @@ function sim_TwoMasses()
 end
 
 
-function ex_Motor()
+function ex_Motor(BROKEN)   ## needs to have `interp` defined
     p1 = Temperature("p1")
     p2 = Temperature("p2")
     p3 = Temperature("p3")

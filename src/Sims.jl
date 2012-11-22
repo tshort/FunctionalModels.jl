@@ -34,12 +34,12 @@ import Base.acoth,Base.asech,Base.acsch,Base.sinc,Base.cosc
 if isdir(julia_pkgdir() * "/Winston")
     load("Winston")
 end    
-if isdir(julia_pkgdir() * "/Tk")
-    load("Tk")
-end    
+## if isdir(julia_pkgdir() * "/Tk")
+##     load("Tk")
+## end    
 
 ## Types
-export ModelType, UnknownCategory, UnknownVariable, DefaultUnknown, DerUnknown, RefUnknown, RefBranch,
+export ModelType, UnknownCategory, Unknown, UnknownVariable, DefaultUnknown, DerUnknown, RefUnknown, RefBranch,
        Model, MExpr, Discrete, RefDiscrete, DiscreteVar, Event, LeftVar, StructuralEvent,
        EquationSet, SimFunctions, Sim, SimResult
 
@@ -80,7 +80,7 @@ export SeriesImpedance, ShuntAdmittance,
        ConstZParallelLoad, ConstZSeriesLoad
 ## Heat Transfer
 export HeatCapacitor, ThermalConductor, Convection, BodyRadiation, ThermalCollector,
-       FixedTemperature, FixedHeatFlow
+       FixedTemperature, FixedHeatFlow, PrescribedHeatFlow
 ## Rotational
 export Inertia, Disc, Spring, BranchHeatPort, Damper, SpringDamper,
        IdealGear, SpeedSensor, AccSensor, SignalTorque
