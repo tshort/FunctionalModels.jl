@@ -49,3 +49,8 @@ end
 # starting transients. This example only solves if info[11] = 0
 # after event restarts (don't recalc initial conditions). it info[11]
 # is 1, it fails after the limiter kicks in.
+
+function sim_PID_Controller()
+    y = sim(ex_PID_Controller(), 1.0)
+    wplot(y, "PID_Controller.pdf")
+end
