@@ -46,9 +46,9 @@ end
 
 # Cellier, fig 9.27
 function HalfWaveRectifier()
-    nsrc = ElectricalNode("Source voltage")
-    n2 = ElectricalNode("")
-    nout = ElectricalNode("Output voltage")
+    nsrc = Voltage("Source voltage")
+    n2 = Voltage("")
+    nout = Voltage("Output voltage")
     g = 0.0 
     {
      VSource(nsrc, g, 1.0, 60.0, pi/32)
@@ -65,7 +65,7 @@ rct = HalfWaveRectifier()
 rct_f = elaborate(rct)
 rct_s = create_sim(rct_f) 
 rct_y = sim(rct_s, 0.1)  
-
+wplot(rct_y, "HalfWaveRectifier.pdf")
 
 
 
@@ -73,9 +73,9 @@ rct_y = sim(rct_s, 0.1)
 
 # The same circuit with a structurally variable diode.
 function StructuralHalfWaveRectifier()
-    nsrc = ElectricalNode("Source voltage")
-    n2 = ElectricalNode("")
-    nout = ElectricalNode("Output voltage")
+    nsrc = Voltage("Source voltage")
+    n2 = Voltage("")
+    nout = Voltage("Output voltage")
     Vdiode = Unknown("Vdiode")    # probe variable
     g = 0.0 
     {
@@ -93,5 +93,6 @@ sct = StructuralHalfWaveRectifier()
 sct_f = elaborate(sct)
 sct_s = create_sim(sct_f) 
 sct_y = sim(sct_s, 0.1)  
+wplot(sct_y, "StructuralHalfWaveRectifier.pdf")
 
 

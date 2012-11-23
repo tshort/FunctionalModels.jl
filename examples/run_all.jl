@@ -17,7 +17,7 @@ load(path * "circuit_complex.jl")
 
 load(path * "dc_motor_w_shaft.jl")
 
-## load(path * "half_wave_rectifiers.jl")
+load(path * "half_wave_rectifiers.jl")
 
 load(path * "m_blocks.jl")
 sim_PID_Controller()
