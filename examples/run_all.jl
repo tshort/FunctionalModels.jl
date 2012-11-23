@@ -13,9 +13,9 @@ load(path * "breaking_pendulum_in_box.jl")
 
 load(path * "breaking_pendulum.jl")
 
-## load(path * "circuit_complex.jl")
+load(path * "circuit_complex.jl")
 
-## load(path * "dc_motor_w_shaft.jl")
+load(path * "dc_motor_w_shaft.jl")
 
 ## load(path * "half_wave_rectifiers.jl")
 

@@ -20,8 +20,35 @@ using Sims
 # The FlexibleShaft shows how to build up several elements.
 # 
 
-function ShaftElement(flangeA, flangeB)
-    r1 = RotationalNode()
+function EMF(n1::ElectricalNode, n2::ElectricalNode, flange::Flange, k::Real)
+    tau = Angle()
+    i = Current()
+    v = Voltage()
+    w = AngularVelocity()
+    {
+     Branch(n1, n2, i, v)
+     RefBranch(flange, tau)
+     w - der(flange)
+     v - k * w
+     tau - k * i
+     }
+end
+
+function DCMotor(flange::Flange)
+    n1 = Voltage()
+    n2 = Voltage()
+    n3 = Voltage()
+    g = 0.0
+    {
+     SignalVoltage(n1, g, 60.0)
+     Resistor(n1, n2, 100.0)
+     Inductor(n2, n3, 0.2)
+     EMF(n3, g, flange, 1.0)
+     }
+end
+
+function ShaftElement(flangeA::Flange, flangeB::Flange)
+    r1 = Angle()
     {
      Spring(flangeA, r1, 8.0) 
      Damper(flangeA, r1, 1.5) 
@@ -29,11 +56,11 @@ function ShaftElement(flangeA, flangeB)
      }
 end
 
-function FlexibleShaft(flangeA, flangeB, n::Int)
+function FlexibleShaft(flangeA::Flange, flangeB::Flange, n::Int)
     # n is the number of elements
     r = Array(Unknown, n)
     for i in 1:n
-        r[i] = Unknown()
+        r[i] = Angle()
     end
     r[1] = flangeA
     r[end] = flangeB
@@ -45,9 +72,9 @@ function FlexibleShaft(flangeA, flangeB, n::Int)
 end
 
 function MechSys()
-    r1 = RotationalNode("Source angle") 
-    r2 = RotationalNode()
-    r3 = RotationalNode("End-of-shaft angle")
+    r1 = Angle("Source angle") 
+    r2 = Angle()
+    r3 = Angle("End-of-shaft angle")
     {
      DCMotor(r1)
      Inertia(r1, r2, 0.02)
@@ -58,3 +85,4 @@ end
     
 m = MechSys()
 m_yout = sim(m, 4.0)
+wplot(m_yout, "DcMotorWShaft.pdf")

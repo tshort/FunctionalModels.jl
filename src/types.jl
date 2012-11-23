@@ -40,7 +40,7 @@ typealias HeatFlow Unknown{UHeatFlow}
 typealias Temperature Unknown{UHeatPort}
 
 
-## Mechanical
+## Mechanical rotation
 type UAngle <: UnknownCategory; end
 type UTorque <: UnknownCategory; end
 typealias Angle Unknown{UAngle}
