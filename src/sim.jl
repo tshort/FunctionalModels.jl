@@ -482,7 +482,7 @@ function traverse_mod(f::Function, a::Model)
     emodel = {}
     for el in a
         el1 = f(el)
-        if applicable(length, el1)
+        if isa(el1, Array)
             append!(emodel, el1)
         else  # this handles symbols
             push(emodel, el1)
@@ -966,7 +966,7 @@ println("starting sim()")
                     MTime.value = t[1]
                     # Reflatten equations
                     sm = create_sim(elaborate(sm.eq))
-                    global _sm = copy(sm)
+                    global _sm = sm
                     # Restart the simulation:
                     info[1] = 0
                     info[11] = 1    # do/don't calc initial conditions

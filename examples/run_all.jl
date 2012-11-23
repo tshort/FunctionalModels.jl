@@ -9,9 +9,9 @@ using Sims
 
 path = julia_pkgdir() * "/Sims/examples/"
 
-## load(path * "breaking_pendulum_in_box.jl")
+load(path * "breaking_pendulum_in_box.jl")
 
-## load(path * "breaking_pendulum.jl")
+load(path * "breaking_pendulum.jl")
 
 ## load(path * "circuit_complex.jl")
 

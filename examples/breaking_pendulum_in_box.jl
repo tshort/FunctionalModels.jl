@@ -39,7 +39,7 @@ function Pendulum(x,y,vx,vy)
     }
 end
 
-function BreakingPendulum()
+function BreakingPendulumInBox()
     x = Unknown(cos(pi/4), "x")
     y = Unknown(-cos(pi/4), "y")
     vx = Unknown()
@@ -51,8 +51,9 @@ function BreakingPendulum()
     }
 end
 
-p = BreakingPendulum()
+p = BreakingPendulumInBox()
 p_f = elaborate(p)
 p_s = create_sim(p_f) 
 p_y = sim(p_s, 5.0)  
 
+wplot(p_y, "BreakingPendulumInBox.pdf")
