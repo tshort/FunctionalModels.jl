@@ -193,12 +193,12 @@ models with various parameters.
    
 ``` .jl
 function Circuit()
-    n1 = ElectricalNode("Source voltage")   # The string indicates labeling for plots
-    n2 = ElectricalNode("Output voltage")
-    n3 = ElectricalNode()
+    n1 = Voltage("Source voltage")   # The string indicates labeling for plots
+    n2 = Voltage("Output voltage")
+    n3 = Voltage()
     g = 0.0  # A ground has zero volts; it's not an unknown.
     {
-     VSource(n1, g, 10.0, 60.0)
+     SineVoltage(n1, g, 10.0, 60.0)
      Resistor(n1, n2, 10.0)
      Resistor(n2, g, 5.0)
      SeriesProbe(n2, n3, "Capacitor current")
