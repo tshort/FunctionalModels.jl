@@ -2,6 +2,7 @@
 ## Run all _working_ examples
 ##
 ## Examples commented out probably don't work.
+##
 #######################
 
 load("Sims")
@@ -28,6 +29,10 @@ run_electrical_examples()
 load(path * "m_heat_transfer.jl")
 sim_TwoMasses()
 ## sim_Motor()
+
+load(path * "m_powersystems.jl")
+## sim_RLModel()
+sim_PiModel()
 
 load(path * "m_rotational.jl")
 sim_First()
