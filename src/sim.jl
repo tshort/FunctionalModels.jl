@@ -142,8 +142,8 @@ type Unknown{T<:UnknownCategory} <: UnknownVariable
     value         # holds initial values (and type info)
     label::String
     save_history::Bool
-    t::Array{Any}
-    x::Array{Any}
+    t::Array{Any,1}
+    x::Array{Any,1}
     Unknown() = new(gensym(), 0.0, "", false, {}, {})
     Unknown(sym::Symbol, label::String) = new(sym, 0.0, label, true, {}, {})
     Unknown(sym::Symbol, value) = new(sym, value, "", false, {}, {})
@@ -151,6 +151,7 @@ type Unknown{T<:UnknownCategory} <: UnknownVariable
     Unknown(label::String) = new(gensym(), 0.0, label, true, {}, {})
     Unknown(value, label::String) = new(gensym(), value, label, true, {}, {})
     Unknown(sym::Symbol, value, label::String) = new(sym, value, label, true, {}, {})
+    Unknown(sym::Symbol, value, label::String, save_history::Bool, t::Array{Any,1}, x::Array{Any,1}) = new(sym, value, label, save_history, t, x)
 end
 Unknown() = Unknown{DefaultUnknown}(gensym(), 0.0, "", false, {}, {})
 Unknown(x) = Unknown{DefaultUnknown}(gensym(), x, "", false, {}, {})
@@ -951,7 +952,7 @@ println("starting sim()")
             for (k,v) in sm.y_map
                 if v.save_history
                     push(v.t, t[1])
-                    push(v.x, y[yidx])
+                    push(v.x, y[k])
                 end
             end
             if idid[1] == 5 # Event found
