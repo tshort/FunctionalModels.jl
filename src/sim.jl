@@ -140,21 +140,24 @@ end
 type Unknown{T<:UnknownCategory} <: UnknownVariable
     sym::Symbol
     value         # holds initial values (and type info)
-    label::String 
-    Unknown() = new(gensym(), 0.0, "")
-    Unknown(sym::Symbol, label::String) = new(sym, 0.0, label)
-    Unknown(sym::Symbol, value) = new(sym, value, "")
-    Unknown(value) = new(gensym(), value, "")
-    Unknown(label::String) = new(gensym(), 0.0, label)
-    Unknown(value, label::String) = new(gensym(), value, label)
-    Unknown(sym::Symbol, value, label::String) = new(sym, value, label)
+    label::String
+    save_history::Bool
+    t::Array{Any}
+    x::Array{Any}
+    Unknown() = new(gensym(), 0.0, "", false, {}, {})
+    Unknown(sym::Symbol, label::String) = new(sym, 0.0, label, true, {}, {})
+    Unknown(sym::Symbol, value) = new(sym, value, "", false, {}, {})
+    Unknown(value) = new(gensym(), value, "", false, {}, {})
+    Unknown(label::String) = new(gensym(), 0.0, label, true, {}, {})
+    Unknown(value, label::String) = new(gensym(), value, label, true, {}, {})
+    Unknown(sym::Symbol, value, label::String) = new(sym, value, label, true, {}, {})
 end
-Unknown() = Unknown{DefaultUnknown}(gensym(), 0.0, "")
-Unknown(x) = Unknown{DefaultUnknown}(gensym(), x, "")
-Unknown(s::Symbol, label::String) = Unknown{DefaultUnknown}(s, 0.0, label)
-Unknown(x, label::String) = Unknown{DefaultUnknown}(gensym(), x, label)
-Unknown(label::String) = Unknown{DefaultUnknown}(gensym(), 0.0, label)
-Unknown(s::Symbol, x) = Unknown{DefaultUnknown}(s, x, "")
+Unknown() = Unknown{DefaultUnknown}(gensym(), 0.0, "", false, {}, {})
+Unknown(x) = Unknown{DefaultUnknown}(gensym(), x, "", false, {}, {})
+Unknown(s::Symbol, label::String) = Unknown{DefaultUnknown}(s, 0.0, label, true, {}, {})
+Unknown(x, label::String) = Unknown{DefaultUnknown}(gensym(), x, label, true, {}, {})
+Unknown(label::String) = Unknown{DefaultUnknown}(gensym(), 0.0, label, true, {}, {})
+Unknown(s::Symbol, x) = Unknown{DefaultUnknown}(s, x, "", false, {}, {})
 
 
 is_unknown(x) = isa(x, UnknownVariable)
@@ -945,6 +948,12 @@ println("starting sim()")
             yout[idx, 1] = t[1]
             yout[idx, 2:(Noutputs + 1)] = y[yidx]
             tout = t + tstep
+            for (k,v) in sm.y_map
+                if v.save_history
+                    push(v.t, t[1])
+                    push(v.x, y[yidx])
+                end
+            end
             if idid[1] == 5 # Event found
                 for ridx in 1:length(jroot)
                     if jroot[ridx] == 1
