@@ -270,7 +270,27 @@ end
 
 
 
+########################################
+## delay                              ##
+########################################
 
+function _interp(tvec, xvec, t)
+   # assumes that tvec is sorted from low to high
+   idx = search_sorted_first(tvec, t)
+   if idx == 1
+       return xvec[idx]
+   else
+       return (t - tvec[idx-1]) / (tvec[idx] - tvec[idx-1]) .* (xvec[idx] - xvec[idx-1]) + xvec[idx-1]
+   end
+end
+
+function delay(x::Unknown, val)
+    x.save_history = true
+    mexpr(:call, ($f), x)
+    quote
+        Sims._interp($(x.t), $(x.x), MTime - $(val))
+    end
+end
 
 
 ########################################
