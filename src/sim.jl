@@ -284,7 +284,8 @@ end
 function _interp(x, t)
    # assumes that tvec is sorted from low to high
    ## @show t
-   if length(x.t) == 0 return x.value end
+   ## if length(x.t) == 0 return x.value end
+   if length(x.t) == 0 || t < 0.0 return zero(x.value) end
    idx = search_sorted_first(x.t, t)
    ## @show idx
    ## @show x.x[idx]

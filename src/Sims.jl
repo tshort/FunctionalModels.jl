@@ -47,7 +47,7 @@ export ModelType, UnknownCategory, Unknown, UnknownVariable, DefaultUnknown, Der
 export MTime
 
 ## Methods
-export is_unknown, der, mexpr, value, compatible_values, reinit, ifelse,
+export is_unknown, der, delay, mexpr, value, compatible_values, reinit, ifelse,
        basetypeof, from_real, to_real,
        gplot, wplot,
        elaborate, create_sim, sim
