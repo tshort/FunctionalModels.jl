@@ -74,7 +74,7 @@ export SeriesProbe, BranchHeatPort,
        SignalVoltage, SineVoltage, StepVoltage, SignalCurrent
 ## Power Systems
 export SeriesImpedance, ShuntAdmittance,
-       RLLine, PiLine,
+       RLLine, PiLine, ModalLine,
        ConductorGeometries, Conductor, ConductorLocation,
        OverheadImpedances, Conductors,
        ConstZParallelLoad, ConstZSeriesLoad

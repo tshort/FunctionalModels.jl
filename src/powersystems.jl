@@ -45,6 +45,52 @@ function PiLine(n1::ElectricalNode, n2::ElectricalNode, Z::SeriesImpedance, Y::S
      }
 end
 
+function ModalLine(v1::ElectricalNode, v2::ElectricalNode, Z::SeriesImpedance, Y::ShuntAdmittance, len::Real, freq::Real)
+    # unknowns
+    vals = compatible_values(v1, v2)
+    i1 = Current(vals)
+    i2 = Current(vals)
+    Imode1 = Current(vals)
+    Imode2 = Current(vals)
+    Vmode1 = Voltage(vals)
+    Vmode2 = Voltage(vals)
+    Iout1 = Current(vals)
+    Iout2 = Current(vals)
+
+    # prep
+    e,Tv = eig(Z * Y)
+    velocity = 2pi * freq ./ imag(sqrt(e))
+    delays = len ./ velocity
+    Ti = inv(Tv.')
+    Zmode = Ti.' * Z * Ti
+    Ymode = Tv.' * Y * Tv
+    Zsurge = real(sqrt(diag(Zmode)) ./ sqrt(diag(Ymode)))
+    Ti = real(Ti)
+    Tv = real(Tv)
+
+    # equations
+    {
+     RefBranch(v1,  i1)
+     RefBranch(v2, -i2)
+     Imode1 - Tv.' * i1
+     Imode2 - Tv.' * i2
+     Vmode1 - Ti.' * v1
+     Vmode2 - Ti.' * v2
+     ## i1 - Ti * Imode1
+     ## i2 - Ti * Imode2
+     ## v1 - Tv * Vmode1 
+     ## v2 - Tv * Vmode2 
+     Imode1 - Iout1 + delay(Iout2, delays)
+     Imode2 - Iout2 + delay(Iout1, delays)
+     Vmode1 ./ Zsurge - Iout1 - delay(Iout2, delays)
+     Vmode2 ./ Zsurge - Iout2 - delay(Iout1, delays)
+     ## Imode1 ->   <- delay(Iout2)       delay(Iout1) ->  <- Imode2
+     ##           |                                      |
+     ##           \/                                     \/
+     ##          Iout1                                 Iout2
+    }
+end
+
 
 ########################################
 ## Impedance Models
