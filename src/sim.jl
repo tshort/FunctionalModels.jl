@@ -145,19 +145,19 @@ type Unknown{T<:UnknownCategory} <: UnknownVariable
     t::Array{Any,1}
     x::Array{Any,1}
     Unknown() = new(gensym(), 0.0, "", false, {}, {})
-    Unknown(sym::Symbol, label::String) = new(sym, 0.0, label, true, {}, {})
+    Unknown(sym::Symbol, label::String) = new(sym, 0.0, label, true, {0.0}, {0.0})
     Unknown(sym::Symbol, value) = new(sym, value, "", false, {}, {})
     Unknown(value) = new(gensym(), value, "", false, {}, {})
-    Unknown(label::String) = new(gensym(), 0.0, label, true, {}, {})
-    Unknown(value, label::String) = new(gensym(), value, label, true, {}, {})
-    Unknown(sym::Symbol, value, label::String) = new(sym, value, label, true, {}, {})
+    Unknown(label::String) = new(gensym(), 0.0, label, true, {0.0}, {0.0})
+    Unknown(value, label::String) = new(gensym(), value, label, true, {0.0}, {0.0})
+    Unknown(sym::Symbol, value, label::String) = new(sym, value, label, true, {0.0}, {value})
     Unknown(sym::Symbol, value, label::String, save_history::Bool, t::Array{Any,1}, x::Array{Any,1}) = new(sym, value, label, save_history, t, x)
 end
 Unknown() = Unknown{DefaultUnknown}(gensym(), 0.0, "", false, {}, {})
 Unknown(x) = Unknown{DefaultUnknown}(gensym(), x, "", false, {}, {})
-Unknown(s::Symbol, label::String) = Unknown{DefaultUnknown}(s, 0.0, label, true, {}, {})
-Unknown(x, label::String) = Unknown{DefaultUnknown}(gensym(), x, label, true, {}, {})
-Unknown(label::String) = Unknown{DefaultUnknown}(gensym(), 0.0, label, true, {}, {})
+Unknown(s::Symbol, label::String) = Unknown{DefaultUnknown}(s, 0.0, label, true, {0.0}, {0.0})
+Unknown(x, label::String) = Unknown{DefaultUnknown}(gensym(), x, label, true, {0.0}, {0.0})
+Unknown(label::String) = Unknown{DefaultUnknown}(gensym(), 0.0, label, true, {0.0}, {0.0})
 Unknown(s::Symbol, x) = Unknown{DefaultUnknown}(s, x, "", false, {}, {})
 
 
@@ -274,22 +274,32 @@ end
 ## delay                              ##
 ########################################
 
-function _interp(tvec, xvec, t)
+
+# Identity unknown: don't replace with a ref to the y array
+type PassedUnknown <: UnknownVariable
+    ref
+end
+
+
+function _interp(x, t)
    # assumes that tvec is sorted from low to high
-   idx = search_sorted_first(tvec, t)
+   ## @show t
+   if length(x.t) == 0 return x.value end
+   idx = search_sorted_first(x.t, t)
+   ## @show idx
+   ## @show x.x[idx]
    if idx == 1
-       return xvec[idx]
+       return x.x[1]
    else
-       return (t - tvec[idx-1]) / (tvec[idx] - tvec[idx-1]) .* (xvec[idx] - xvec[idx-1]) + xvec[idx-1]
+       return (t - x.t[idx-1]) / (x.t[idx] - x.t[idx-1]) .* (x.x[idx] - x.x[idx-1]) + x.x[idx-1]
    end
 end
 
 function delay(x::Unknown, val)
     x.save_history = true
-    mexpr(:call, ($f), x)
-    quote
-        Sims._interp($(x.t), $(x.x), MTime - $(val))
-    end
+    x.t = {0.0}
+    x.x = {x.value}
+    MExpr(:(Sims._interp($(PassedUnknown(x)), t[1] - $(val))))
 end
 
 
@@ -831,6 +841,9 @@ function replace_unknowns(a::DerUnknown, sm::Sim)
     else
         :(from_real(ref(yp, ($(sm.unknown_idx_map[a.sym]))), $(basetypeof(a.value)), $(size(a.value))))
     end
+end
+function replace_unknowns(a::PassedUnknown, sm::Sim)
+    a.ref
 end
 function replace_unknowns(a::Discrete, sm::Sim)
     # println(a.sym)
