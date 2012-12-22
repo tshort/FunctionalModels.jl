@@ -32,7 +32,7 @@ import Base.asin,Base.acos,Base.atan,Base.acot,Base.asec,Base.acsc
 import Base.acoth,Base.asech,Base.acsch,Base.sinc,Base.cosc                 
 
 if isdir(julia_pkgdir() * "/Winston")
-    load("Winston")
+    include(find_in_path("Winston"))
 end    
 ## if isdir(julia_pkgdir() * "/Tk")
 ##     load("Tk")
@@ -86,16 +86,16 @@ export Inertia, Disc, Spring, BranchHeatPort, Damper, SpringDamper,
        IdealGear, SpeedSensor, AccSensor, SignalTorque
            
 
-load("Sims/src/sim.jl")
+include(find_in_path("Sims/src/sim.jl"))
 
 # load standard Sims libraries
-load("Sims/src/types.jl")
-load("Sims/src/blocks.jl")
-load("Sims/src/electrical.jl")
-load("Sims/src/powersystems.jl")
-load("Sims/src/heat_transfer.jl")
-load("Sims/src/rotational.jl")
-## load("Sims/src/examples.jl")
+include(find_in_path("Sims/src/types.jl"))
+include(find_in_path("Sims/src/blocks.jl"))
+include(find_in_path("Sims/src/electrical.jl"))
+include(find_in_path("Sims/src/powersystems.jl"))
+include(find_in_path("Sims/src/heat_transfer.jl"))
+include(find_in_path("Sims/src/rotational.jl"))
+## include(find_in_path("Sims/src/examples.jl"))
 
 end # module Sims
 
@@ -142,6 +142,6 @@ export is_unknown, der, mexpr, value, compatible_values, reinit, ifelse,
 ## Model methods
 export Branch 
 
-load("Sims/src/sim.jl")
+include(find_in_path("Sims/src/sim.jl"))
 
 end # module SimsCore
