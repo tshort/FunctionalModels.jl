@@ -1,4 +1,4 @@
-load("Sims")
+require("Sims")
 using Sims
 
 ########################################
