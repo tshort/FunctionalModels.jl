@@ -193,15 +193,15 @@ unary_functions = [:(+), :(-), :(!),
                    :erf, :erfc, :square,
                    :min, :max, :prod, :sum, :mean, :median, :std,
                    :var, :norm,
-                   :diff, :reldiff, :percent_change,
+                   :diff, 
                    :cumprod, :cumsum, :cumsum_kbn, :cummin, :cummax,
                    :fft,
-                   :rowmins, :rowmaxs, :rowprods, :rowsums,
-                   :rowmeans, :rowmedians, :rowstds, :rowvars,
-                   :rowffts, :rownorms,
-                   :colmins, :colmaxs, :colprods, :colsums,
-                   :colmeans, :colmedians, :colstds, :colvars,
-                   :colffts, :colnorms,
+                   ## :rowmins, :rowmaxs, :rowprods, :rowsums,
+                   ## :rowmeans, :rowmedians, :rowstds, :rowvars,
+                   ## :rowffts, :rownorms,
+                   ## :colmins, :colmaxs, :colprods, :colsums,
+                   ## :colmeans, :colmedians, :colstds, :colvars,
+                   ## :colffts, :colnorms,
                    :any, :all,
                    :iceil,  :ifloor, :itrunc, :iround,
                    :angle,
@@ -226,19 +226,26 @@ _expr(x) = x
 _expr(x::MExpr) = x.ex
 
 macro doimport(name)
-  expr(:toplevel, Any[expr(:import, Any[:Base, esc($name)])])
+  expr(:toplevel, Any[expr(:import, Any[:Base, esc(name)])])
 end
 
+# special case to avoid a warning:
+import Base.(^)
+(^)(x::ModelType, y::Integer) = mexpr(:call, (^), _expr(x), y)
+
 for f in binary_functions
-    @doimport f
+    ## @eval import Base.(f)
+    eval(expr(:toplevel, Any[expr(:import, Any[:Base, f])]))
     @eval ($f)(x::ModelType, y::ModelType) = mexpr(:call, ($f), _expr(x), _expr(y))
-    @eval ($f)(x::ModelType, y::Any) = mexpr(:call, ($f), _expr(x), y)
-    @eval ($f)(x::Any, y::ModelType) = mexpr(:call, ($f), x, _expr(y))
+    @eval ($f)(x::ModelType, y::Number) = mexpr(:call, ($f), _expr(x), y)
+    @eval ($f)(x::ModelType, y::AbstractArray) = mexpr(:call, ($f), _expr(x), y)
+    @eval ($f)(x::Number, y::ModelType) = mexpr(:call, ($f), x, _expr(y))
+    @eval ($f)(x::AbstractArray, y::ModelType) = mexpr(:call, ($f), x, _expr(y))
 end 
 
-for f in unary functions
+for f in unary_functions
     ## @eval import Base.(f)
-    @doimport f
+    eval(expr(:toplevel, Any[expr(:import, Any[:Base, f])]))
     @eval ($f)(x::ModelType, args...) = mexpr(:call, ($f), _expr(x), args...)
 end
 
