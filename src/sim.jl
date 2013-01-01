@@ -183,30 +183,69 @@ mexpr(hd::Symbol, args::ANY...) = MExpr(expr(hd, args...))
 # Set up defaults for operations on ModelType's for many common
 # methods.
 
-for f = (:+, :-, :*, :.*, :/, :./, :^, :min, :max, :isless, :&, :|, :atan2)
-    @eval ($f)(x::ModelType, y::ModelType) = mexpr(:call, ($f), x, y)
-    @eval ($f)(x::ModelType, y::Any) = mexpr(:call, ($f), x, y)
-    @eval ($f)(x::Any, y::ModelType) = mexpr(:call, ($f), x, y)
-    @eval ($f)(x::MExpr, y::MExpr) = mexpr(:call, ($f), x.ex, y.ex)
-    @eval ($f)(x::MExpr, y::ModelType) = mexpr(:call, ($f), x.ex, y)
-    @eval ($f)(x::ModelType, y::MExpr) = mexpr(:call, ($f), x, y.ex)
-    @eval ($f)(x::MExpr, y::Any) = mexpr(:call, ($f), x.ex, y)
-    @eval ($f)(x::Any, y::MExpr) = mexpr(:call, ($f), x, y.ex)
-end 
 
-for f = (:der, :sign, 
-         :-, :!, :ceil, :floor,  :trunc,  :round, :sum, 
-         :iceil,  :ifloor, :itrunc, :iround,
-         :abs,    :angle,  :log10,
-         :sqrt,   :cbrt,   :log,    :log2,   :exp,   :expm1,
-         :sin,    :cos,    :tan,    :cot,    :sec,   :csc,
-         :sinh,   :cosh,   :tanh,   :coth,   :sech,  :csch,
-         :asin,   :acos,   :atan,   :acot,   :asec,  :acsc,
-         :acoth,  :asech,  :acsch,  :sinc,   :cosc)
-    @eval ($f)(x::ModelType) = mexpr(:call, ($f), x)
-    @eval ($f)(x::MExpr) = mexpr(:call, ($f), x.ex)
+unary_functions = [:(+), :(-), :(!),
+                   :abs, :sign, :acos, :acosh, :asin,
+                   :asinh, :atan, :atanh, :sin, :sinh,
+                   :cos, :cosh, :tan, :tanh, :ceil, :floor,
+                   :round, :trunc, :exp, :exp2, :expm1, :log, :log10, :log1p,
+                   :log2, :logb, :sqrt, :gamma, :lgamma, :digamma,
+                   :erf, :erfc, :square,
+                   :min, :max, :prod, :sum, :mean, :median, :std,
+                   :var, :norm,
+                   :diff, :reldiff, :percent_change,
+                   :cumprod, :cumsum, :cumsum_kbn, :cummin, :cummax,
+                   :fft,
+                   :rowmins, :rowmaxs, :rowprods, :rowsums,
+                   :rowmeans, :rowmedians, :rowstds, :rowvars,
+                   :rowffts, :rownorms,
+                   :colmins, :colmaxs, :colprods, :colsums,
+                   :colmeans, :colmedians, :colstds, :colvars,
+                   :colffts, :colnorms,
+                   :any, :all,
+                   :iceil,  :ifloor, :itrunc, :iround,
+                   :angle,
+                   :sin,    :cos,    :tan,    :cot,    :sec,   :csc,
+                   :sinh,   :cosh,   :tanh,   :coth,   :sech,  :csch,
+                   :asin,   :acos,   :atan,   :acot,   :asec,  :acsc,
+                   :acoth,  :asech,  :acsch,  :sinc,   :cosc]
+
+binary_functions = [:(==), :(.==), :(!=), :(.!=), :isless,
+                    :(>), :(.>), :(>=), :(.>=), :(<), :(.<),
+                    :(<=), :(.<=),
+                    :(==), :(!=), :isless, :(>), :(>=),
+                    :(<), :(<=),
+                    :(+), :(.+), :(-), :(.-), :(*), :(.*), :(/), :(./),
+                    :(.^), :(^), :(div), :(mod), :(fld), :(rem),
+                    :(&), :(|), :($),
+                    :atan2,
+                    :dot, :cor_pearson, :cov_pearson,
+                    :cor_spearman, :cov_spearman]
+
+_expr(x) = x
+_expr(x::MExpr) = x.ex
+
+macro doimport(name)
+  expr(:toplevel, Any[expr(:import, Any[:Base, esc($name)])])
 end
 
+for f in binary_functions
+    @doimport f
+    @eval ($f)(x::ModelType, y::ModelType) = mexpr(:call, ($f), _expr(x), _expr(y))
+    @eval ($f)(x::ModelType, y::Any) = mexpr(:call, ($f), _expr(x), y)
+    @eval ($f)(x::Any, y::ModelType) = mexpr(:call, ($f), x, _expr(y))
+end 
+
+for f in unary functions
+    ## @eval import Base.(f)
+    @doimport f
+    @eval ($f)(x::ModelType, args...) = mexpr(:call, ($f), _expr(x), args...)
+end
+
+# Non-Base functions:
+for f in [:der]
+    @eval ($f)(x::ModelType, args...) = mexpr(:call, ($f), _expr(x), args...)
+end
 
 # For now, a model is just a vector that anything, but probably it
 # should include just ModelType's.
