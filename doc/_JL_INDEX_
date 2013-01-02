@@ -1,0 +1,3 @@
+Resistor   stdlib/resistor   Ideal linear electrical resistor with optional temperature dependence
+Capacitor  stdlib/capacitor  Ideal linear electrical capacitor
+Inductor   stdlib/inductor   Ideal linear electrical inductor
