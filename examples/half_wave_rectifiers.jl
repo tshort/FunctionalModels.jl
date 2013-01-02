@@ -1,7 +1,7 @@
 
 require("Sims")
 using Sims
-
+import Sims.IdealDiode
 
 # With a zero angle, both of the problems below fail.
 function VSource(n1::NumberOrUnknown{UVoltage}, n2::NumberOrUnknown{UVoltage}, V::Real, f::Real, ang::Real)  

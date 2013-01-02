@@ -1,3 +1,5 @@
+load("Options")
+
 
 module Sims
 
@@ -8,6 +10,9 @@ import Base.assign,
        Base.ref, 
        Base.size, 
        Base.vcat
+
+using OptionsMod
+export Options, @options     # export these so with `using Sims` the user doesn't have to do `using OptionsMod`
 
 if isdir(julia_pkgdir() * "/Winston")
     include(find_in_path("Winston"))

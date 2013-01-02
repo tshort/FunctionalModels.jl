@@ -237,7 +237,7 @@ function ex_HeatingResistor()
     g = 0.0
     {
      SineVoltage(n1, g, 220, 1.0)
-     Resistor(n1, g, hp1, 100.0, 20 + 273.15, 1e-3)
+     Resistor(n1, g, 100.0, hp1, 20 + 273.15, 1e-3)
      ThermalConductor(hp1, hp2, 50.0)
      FixedTemperature(hp2, 20 + 273.15)
      }
