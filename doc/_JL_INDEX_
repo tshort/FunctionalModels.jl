@@ -1,3 +1,25 @@
-Resistor   stdlib/resistor   Ideal linear electrical resistor with optional temperature dependence
-Capacitor  stdlib/capacitor  Ideal linear electrical capacitor
-Inductor   stdlib/inductor   Ideal linear electrical inductor
+electrical  stdlib/electrical  Electrical library modeled on Modelica.Electrical.Analog
+Voltage     stdlib/electrical  Voltage nodes; the main unknown type used in electrical circuits
+Current     stdlib/electrical  Unknown current
+ElectricalNode stdlib/electrical  Union type that can be an unknown *Voltage* or other signal.
+SeriesProbe    stdlib/probe  A series current probe
+BranchHeatPort stdlib/branchheatport  Wrap an electrical model with a heat port
+Resistor    stdlib/resistor    Ideal linear electrical resistor with optional temperature dependence
+Capacitor   stdlib/capacitor   Ideal linear electrical capacitor
+Inductor    stdlib/inductor    Ideal linear electrical inductor
+Transformer stdlib/transformer Ideal linear transformer
+EMF         stdlib/emf         Electromotive force; electrical/mechanical transformer
+IdealDiode       stdlib/idealdiode        Ideal diode
+IdealThyristor   stdlib/idealthyristor    Ideal thyristor
+IdealGTOTyristor stdlib/idealgtothyristor Ideal GTO thyristor
+IdealOpAmp       stdlib/idealopamp        Ideal op amp
+ControlledIdealOpeningSwitch stdlib/idealswitches   Ideal electrical opener
+ControlledIdealClosingSwitch stdlib/idealswitches   Ideal electrical closer
+ControlledOpenerWithArc      stdlib/idealswitches   Ideal opening switch with a simple arc model
+ControlledCloserWithArc      stdlib/idealswitches   Ideal closing switch with a simple arc model
+Diode         stdlib/diode   Simple diode
+HeatingDiode  stdlib/diode   Simple diode with a heating port
+SignalVoltage stdlib/sources Electrical voltage source given by a signal
+SineVoltage   stdlib/sources Sinusoidal voltage source
+StepVoltage   stdlib/sources Step voltage source
+SignalCurrent stdlib/sources Electrical current source given by a signal
