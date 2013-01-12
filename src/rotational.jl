@@ -101,6 +101,92 @@ end
 SpringDamper(flange_a::Flange, flange_b::Flange, hp::HeatPort, c::Signal, d::Signal) =
     BranchHeatPort(flange_a, flange_b, hp, SpringDamper, c, d)
 
+function Brake(flange_a::Flange, flange_b::Flange, support::Flange, f_normalized::Signal,
+               mue_pos, peak, cgeo, fn_max, w_small)
+    ## NOT WORKING!!!
+    "Brake based on Coulomb friction"
+    val = compatible_values(flange_a, flange_b)
+    phi = Angle(val)   # Angle between shaft flanges and support
+    tau = Torque(val)  # Brake friction torque
+    tau_a = Torque(val)
+    tau_b = Torque(val)
+    w = AngularVelocity(val)  # Absolute angular velocity of flange_a and flange_b
+    a = AngularAcceleration(val)  # Absolute angular acceleration of flange_a and flange_b
+    mue0 = tempInterpol1(0, mue_pos, 2)
+    free = Discrete(fill(true, length(vals)))
+    locked = Discrete(fill(false, length(vals)))
+    startForward = Discrete(fill(false, length(vals)))
+    startBackward = Discrete(fill(false, length(vals)))
+    const UnknownMode=3   # Value of mode is not known
+    const Free=2      # Element is not active
+    const Forward=1   # w_rel > 0 (forward sliding)
+    const Stuck=0     # w_rel = 0 (forward sliding, locked or backward sliding)
+    const Backward=-1 # w_rel < 0 (backward sliding)
+    mode = Discrete(fill(UnknownMode, length(vals)))
+    {
+     RefBranch(flange_a, tau_a)
+     RefBranch(flange_b, tau_b)
+     
+     phi - flange_a + support
+     flange_b - flange_a
+   
+     # Angular velocity and angular acceleration of flanges flange_a and flange_b
+     w - der(phi)
+     a - der(w)
+     w_relfric - w
+     a_relfric - a
+
+     # Friction torque, normal force and friction torque for w_rel=0
+     tau_a + tau_b - tau - 0
+     fn - fn_max .* f_normalized
+     tau0 - mue0 .* cgeo .* fn
+     tau0_max - peak .* tau0
+     BoolEvent(free, fn)
+     Event(w,
+           {
+            reinit(startForward,
+                   pre(mode) == Stuck & (sa > tau0_max/unitTorque | pre(startForward)) &
+                   sa > tau0/unitTorque | pre(mode) == Backward & w > w_small | initial() & (w > 0))
+            reinit(startBackward,
+                   pre(mode) == Stuck & (sa < -tau0_max/unitTorque | pre(startBackward) &
+                   sa < -tau0/unitTorque) | pre(mode) == Forward & w < -w_small | initial() & (w < 0))
+            reinit(locked,
+                   !free && !(pre(mode) == Forward | startForward | pre(mode) == Backward | startBackward))
+            # finite state machine to determine configuration
+            reinit(mode,
+                   ifelse(free, Free,
+                   ifelse((pre(mode) == Forward  | pre(mode) == Free | startForward) & w > 0, Forward,
+                   ifelse((pre(mode) == Backward | pre(mode) == Free | startBackward) & w < 0, Backward,
+                   Stuck))))
+           })
+   
+     # Friction torque
+     tau - ifelse(locked,
+                  sa*unitTorque,
+           ifelse(free,
+                  0.0,
+                  cgeo .* fn .* (ifelse(startForward,
+                                         tempInterpol1( w, mue_pos, 2),
+                                 ifelse(startBackward,
+                                        -tempInterpol1(-w, mue_pos, 2),
+                                 ifelse(pre(mode) == Forward,
+                                         tempInterpol1( w, mue_pos, 2),
+                                        -tempInterpol1(-w, mue_pos, 2)))))))
+   
+     a - unitAngularAcceleration .*
+         ifelse(locked,
+                0.0,
+         ifelse(free,
+                sa,
+         ifelse(startForward,
+                sa - tau0_max ./ unitTorque,
+         ifelse(startBackward,
+                sa + tau0_max ./ unitTorque,
+         ifelse(pre(mode) == Forward,
+                sa - tau0_max ./ unitTorque,
+                sa + tau0_max ./ unitTorque)))))
+    }
+end
     
 function IdealGear(flange_a::Flange, flange_b::Flange, ratio::Real)
     val = compatible_values(flange_a, flange_b)
@@ -149,3 +235,18 @@ function SignalTorque(flange_a::Flange, flange_b::Flange, tau::Signal)
      }
 end
 
+function QuadraticSpeedDependentTorque(flange_a::Flange, flange_b::Flange,
+                                       tau_nominal::Signal, TorqueDirection::Bool, w_nominal::Signal)
+    "Quadratic dependency of torque versus speed"
+    val = compatible_values(flange_a, flange_b)
+    tau = Torque(val)
+    phi = Angle(val)
+    w = AngularVelocity(val)
+    {
+     Branch(flange_b, flange_a, phi, tau)
+     w - der(phi)
+     tau - ifelse(TorqueDirection,
+                  tau_nominal*(w/w_nominal)^2,
+                  tau_nominal*ifelse(w >= 0, (w/w_nominal)^2, -(w/w_nominal)^2))
+    }
+end 

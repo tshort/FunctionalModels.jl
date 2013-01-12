@@ -172,6 +172,7 @@ end
 DerUnknown(u::Unknown) = DerUnknown(u.sym, 0.0, u)
 der(x::Unknown) = DerUnknown(x.sym, compatible_values(x), x)
 der(x::Unknown, val) = DerUnknown(x.sym, val, x)
+der(x) = 0.0
 
 # show(a::Unknown) = show(a.sym)
 
@@ -208,7 +209,8 @@ unary_functions = [:(+), :(-), :(!),
                    :sin,    :cos,    :tan,    :cot,    :sec,   :csc,
                    :sinh,   :cosh,   :tanh,   :coth,   :sech,  :csch,
                    :asin,   :acos,   :atan,   :acot,   :asec,  :acsc,
-                   :acoth,  :asech,  :acsch,  :sinc,   :cosc]
+                   :acoth,  :asech,  :acsch,  :sinc,   :cosc,
+                   :transpose, :ctranspose]
 
 binary_functions = [:(==), :(.==), :(!=), :(.!=), :isless,
                     :(>), :(.>), :(>=), :(.>=), :(<), :(.<),
@@ -250,7 +252,7 @@ for f in unary_functions
 end
 
 # Non-Base functions:
-for f in [:der]
+for f in [:der, :pre]
     @eval ($f)(x::ModelType, args...) = mexpr(:call, ($f), _expr(x), args...)
 end
 
@@ -284,6 +286,8 @@ value(e::Expr) = eval(Expr(e.head, isempty(e.args) ? e.args : map(value, e.args)
 #   a = Unknown(45.0 + 10im)
 #   b = Unknown(base_value(a))   # This one gets initialized to 0.0 + 0.0im.
 #
+compatible_values(x) = zero(x)
+compatible_values(x,y) = length(x) > length(y) ? zero(x) : zero(y)
 compatible_values(u::UnknownVariable) = value(u) .* 0.0
 # The value from the unknown determines the base value returned:
 compatible_values(u1::UnknownVariable, u2::UnknownVariable) = length(value(u1)) > length(value(u2)) ? value(u1) .* 0.0 : value(u2) .* 0.0  
@@ -412,11 +416,13 @@ end
 DiscreteVar(d::Discrete, funs::Vector{Function}) = DiscreteVar(d.value, d.value, funs)
 DiscreteVar(d::Discrete) = DiscreteVar(d.value, d.value, Function[])
 
+
 # Add hooks to a discrete variable.
-addhook!(d::Discrete, ex::ModelType) = push(d.hookex, strip_mexpr(ex))
+addhook!(d::Discrete, ex::ModelType) = push!(d.hookex, strip_mexpr(ex))
 
 value(x::RefDiscrete) = x.u.value[x.idx...]
 value(x::DiscreteVar) = x.value
+pre(x::DiscreteVar) = x.pre
 
 #
 # Event is the main type used for hybrid modeling. It contains a
@@ -566,7 +572,7 @@ function elaborate(x::EquationSet)
 
     # Add in equations for each node to sum flows to zero:
     for (key, nodeset) in eq.nodeMap
-        push(eq.equations, nodeset)
+        push!(eq.equations, nodeset)
     end
     # last fixups: 
     eq.equations = remove_empties(strip_mexpr(eq.equations))
@@ -582,7 +588,7 @@ function traverse_mod(f::Function, a::Model)
         if isa(el1, Array)
             append!(emodel, el1)
         else  # this handles symbols
-            push(emodel, el1)
+            push!(emodel, el1)
         end
     end
     emodel
@@ -600,9 +606,11 @@ handle_events(ev::StructuralEvent) = ev.activated ? ev.new_relation() : ev
 # elaborate_unit flattens the set of equations while building up
 # events, event responses, and a Dict of nodes.
 #
-elaborate_unit(a::Any, eq::EquationSet) = Expr[] # The default is to ignore undefined types.
+elaborate_unit(a::Any, eq::EquationSet) = Any[] # The default is to ignore undefined types.
 elaborate_unit(a::ModelType, eq::EquationSet) = a
-elaborate_unit(a::Model, eq::EquationSet) = traverse_mod((x) -> elaborate_unit(x, eq), a)
+function elaborate_unit(a::Model, eq::EquationSet)
+    traverse_mod((x) -> elaborate_unit(x, eq), a)
+end
 
 function elaborate_unit(b::RefBranch, eq::EquationSet)
     if (isa(b.n, Unknown))
@@ -616,19 +624,19 @@ function elaborate_unit(b::RefBranch, eq::EquationSet)
 end
 
 function elaborate_unit(ev::Event, eq::EquationSet)
-    push(eq.events, strip_mexpr(elaborate_unit(ev.condition, eq)))
-    push(eq.pos_responses, strip_mexpr(elaborate_unit(ev.pos_response, eq)))
-    push(eq.neg_responses, strip_mexpr(elaborate_unit(ev.neg_response, eq)))
+    push!(eq.events, strip_mexpr(elaborate_unit(ev.condition, eq)))
+    push!(eq.pos_responses, strip_mexpr(elaborate_unit(ev.pos_response, eq)))
+    push!(eq.neg_responses, strip_mexpr(elaborate_unit(ev.neg_response, eq)))
     {}
 end
 
 function elaborate_unit(ev::StructuralEvent, eq::EquationSet)
     # Set up the event:
-    push(eq.events, strip_mexpr(elaborate_unit(ev.condition, eq)))
+    push!(eq.events, strip_mexpr(elaborate_unit(ev.condition, eq)))
     # A positive zero crossing initiates a change:
-    push(eq.pos_responses, (t,y,yp) -> begin global __sim_structural_change = true; ev.activated = true; end)
+    push!(eq.pos_responses, (t,y,yp) -> begin global __sim_structural_change = true; ev.activated = true; end)
     # Dummy negative zero crossing
-    push(eq.neg_responses, (t,y,yp) -> return)
+    push!(eq.neg_responses, (t,y,yp) -> return)
     strip_mexpr(elaborate_unit(ev.default, eq))
 end
 
@@ -673,9 +681,10 @@ type SimFunctions
                                 #   negative root crossing is detected.
     get_discretes::Function     # Placeholder for a function to return
                                 #   discrete values.
+    resid_check::Function           
 end
-SimFunctions(resid::Function, event_at::Function, event_pos::Vector{None}, event_neg::Vector{None}, get_discretes::Function) = 
-    SimFunctions(resid, event_at, Function[], Function[], get_discretes)
+SimFunctions(resid::Function, event_at::Function, event_pos::Vector{None}, event_neg::Vector{None}, get_discretes::Function, resid_check::Function) = 
+    SimFunctions(resid, event_at, Function[], Function[], get_discretes, resid_check)
 
 type Sim
     eq::EquationSet           # the input
@@ -765,12 +774,12 @@ function setup_functions(sm::Sim)
     ev_neg_array = Expr[]
     for idx in 1:length(sm.eq.events)
         ex = to_thunk(replace_unknowns(sm.eq.pos_responses[idx], sm))
-        push(ev_pos_array, 
+        push!(ev_pos_array, 
              quote
                  (t, y, yp) -> begin $ex; return; end
              end)
         ex = to_thunk(replace_unknowns(sm.eq.neg_responses[idx], sm))
-        push(ev_neg_array, 
+        push!(ev_neg_array, 
              quote
                  (t, y, yp) -> begin $ex; return; end
              end)
@@ -809,17 +818,24 @@ function setup_functions(sm::Sim)
             # cfunction could be used to set up Julia callbacks. This does
             # mean that the _sim_* functions are seen globally.
             $discrete_defs
+            function _sim_resid_check(n)
+                 t = [0.0]
+                 y = zeros(n)
+                 yp = zeros(n)
+                 $resid_thunk
+            end
             function _sim_resid(t_in, y_in, yp_in, cj, delta_out, ires, rpar, ipar)
                  n = int(unsafe_ref(ipar))
                  t = pointer_to_array(t_in, (1,))
                  y = pointer_to_array(y_in, (n,))
                  yp = pointer_to_array(yp_in, (n,))
                  delta = pointer_to_array(delta_out, (n,))
-                 ## println("t: ",t)
-                 ## println("y: ",y)
-                 ## println("yp: ",yp)
-                 delta[1:end] = $resid_thunk
-                 ## println("res: ",res)
+                 ## @show y
+                 ## @show length(y)
+                 a = $resid_thunk
+                 ## @show a
+                 ## @show length(a)
+                 delta[1:end] = a
                  nothing
             end
             function _sim_event_at(neq, t_in, y_in, yp_in, nrt, rval_out, rpar, ipar)
@@ -838,7 +854,7 @@ function setup_functions(sm::Sim)
                  nothing
             end
         () -> begin
-            Sims.SimFunctions(_sim_resid, _sim_event_at, _sim_event_pos_array, _sim_event_neg_array, _sim_get_discretes)
+            Sims.SimFunctions(_sim_resid, _sim_event_at, _sim_event_pos_array, _sim_event_neg_array, _sim_get_discretes, _sim_resid_check)
         end
     end
     global _ex = expr
@@ -1047,8 +1063,8 @@ println("starting sim()")
             tout = t + tstep
             for (k,v) in sm.y_map
                 if v.save_history
-                    push(v.t, t[1])
-                    push(v.x, y[k])
+                    push!(v.t, t[1])
+                    push!(v.x, y[k])
                 end
             end
             if idid[1] == 5 # Event found
@@ -1099,6 +1115,23 @@ sim(sm::Sim, tstop::Float64) = sim(sm, tstop, 500)
 sim(m::Model, tstop::Float64, Nsteps::Int)  = sim(create_sim(elaborate(m)), tstop, Nsteps)
 sim(m::Model) = sim(m, 1.0, 500)
 sim(m::Model, tstop::Float64) = sim(m, tstop, 500)
+
+
+
+
+########################################
+## Model checks                       ##
+########################################
+
+# Compare the number of variables and the number of unknowns
+function check(s::Sim)
+    Nvar = length(s.y0)
+    println("Number of floating point variables: ", Nvar)
+    Neq = length(s.F.resid_check(Nvar))
+    println("Number of equations: ", Neq)
+end
+check(e::EquationSet) = check(create_sim(e))
+check(m::Model) = check(create_sim(elaborate(m)))
 
 
 

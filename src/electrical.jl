@@ -3,6 +3,7 @@
 ## Electrical library                 ##
 ########################################
 
+## Patterned after Modelica.Electrical.Analog
 
 
 ########################################
@@ -59,16 +60,16 @@ Resistor(n1::ElectricalNode, n2::ElectricalNode, R::Signal, hp::HeatPort) =
     BranchHeatPort(n1, n2, hp, Resistor, R)
 
 Resistor(n1::ElectricalNode, n2::ElectricalNode, R::Signal, hp::HeatPort, T_ref::Signal, alpha::Signal) =
-    BranchHeatPort(n1, n2, hp, Resistor, R * (1 + alpha * (hp - T_ref)))
+    BranchHeatPort(n1, n2, hp, Resistor, R .* (1 + alpha .* (hp - T_ref)))
 
 function Resistor(n1::ElectricalNode, n2::ElectricalNode, opts::Options)
     @defaults opts R=1.0  T=293.15  T_ref=300.15  alpha=0.0
-    Resistor(n1, n2, T, R * (1 + alpha * (T - T_ref)), T_ref, alpha)
+    Resistor(n1, n2, T, R .* (1 + alpha .* (T - T_ref)), T_ref, alpha)
 end
 
 function Resistor(n1::ElectricalNode, n2::ElectricalNode, hp::HeatPort, opts::Options)
     @defaults opts R=1.0  T_ref=300.15  alpha=0.0
-    BranchHeatPort(n1, n2, hp, R * (1 + alpha * (hp - T_ref)), T_ref, alpha)
+    BranchHeatPort(n1, n2, hp, R .* (1 + alpha .* (hp - T_ref)), T_ref, alpha)
 end
 
 function Capacitor(n1::ElectricalNode, n2::ElectricalNode, C::Signal) 
@@ -195,12 +196,13 @@ function EMF(n1::ElectricalNode, n2::ElectricalNode, flange::Flange, support_fla
     vals = compatible_values(n1, n2) 
     i = Current(vals)
     v = Voltage(vals)
+    phi = Angle(compatible_values(flange, support_flange))
     tau = Torque(compatible_values(flange, support_flange))
     w = AngularVelocity(compatible_values(flange, support_flange))
     {
      Branch(n1, n2, i, v)
      Branch(flange, support_flange, phi, tau)
-     w - der(flange)
+     w - der(phi)
      v - k * w
      tau + k * i
      }
@@ -309,7 +311,44 @@ function IdealOpAmp(p1::ElectricalNode, n1::ElectricalNode, p2::ElectricalNode)
      }
 end
 
-
+function IdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Discrete,
+                            Ron::Real, Goff::Real)
+    vals = compatible_values(n1, n2)
+    i = Current(vals)
+    v = Voltage(vals)
+    s = Unknown(vals)  # dummy variable
+    {
+     Branch(n1, n2, v, i)
+     v - s .* ifelse(control, 1.0, Ron)
+     i - s .* ifelse(control, Goff, 1.0)
+    }
+end
+IdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Discrete) =
+    IdealOpeningSwitch(n1, n2, control, 1e-5, 1e-5)
+function IdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Discrete, opts::Options)
+    @defaults opts  Ron=1e-5  Goff=1e-5
+    IdealOpeningSwitch(n1, n2, control, Ron, Goff)
+end
+  
+function IdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Discrete,
+                            Ron::Real, Goff::Real)
+    vals = compatible_values(n1, n2)
+    i = Current(vals)
+    v = Voltage(vals)
+    s = Unknown(vals)  # dummy variable
+    {
+     Branch(n1, n2, v, i)
+     v - s .* ifelse(control, Ron, 1.0)
+     i - s .* ifelse(control, 1.0, Goff)
+    }
+end
+IdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Discrete) =
+    IdealClosingSwitch(n1, n2, control, 1e-5, 1e-5)
+function IdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Discrete, opts::Options)
+    @defaults opts  Ron=1e-5  Goff=1e-5
+    IdealClosingSwitch(n1, n2, control, Ron, Goff)
+end
+  
 function ControlledIdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Signal,
                                       level::Signal, Ron::Real, Goff::Real)
     vals = compatible_values(n1, n2)
@@ -329,7 +368,7 @@ ControlledIdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Si
     ControlledIdealOpeningSwitch(n1, n2, control, level, 1e-5, 1e-5)
 function ControlledIdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Signal, opts::Options)
     @defaults opts  level=0.0  Ron=1e-5  Goff=1e-5
-    ControlledIdealOpeningSwitch(n1, n2, level, Vknee, Ron, Goff)
+    ControlledIdealOpeningSwitch(n1, n2, control, level, Ron, Goff)
 end
                                       
 
@@ -341,7 +380,7 @@ ControlledIdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Si
     ControlledIdealClosingSwitch(n1, n2, control, level, 1e-5, 1e-5)
 function ControlledIdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Signal, opts::Options)
     @defaults opts  level=0.0  Ron=1e-5  Goff=1e-5
-    ControlledIdealClosingSwitch(n1, n2, level, Vknee, Ron, Goff)
+    ControlledIdealClosingSwitch(n1, n2, control, level, Ron, Goff)
 end
 
 
@@ -416,6 +455,32 @@ Diode(n1::ElectricalNode, n2::ElectricalNode, hp::HeatPort,
     BranchHeatPort(n1, n2, hp, Diode, Ids, Vt, Maxexp, R)
 Diode(n1::ElectricalNode, n2::ElectricalNode, hp::HeatPort, opts::Options) =
     BranchHeatPort(n1, n2, hp, Diode, opts)
+
+function ZDiode(n1::ElectricalNode, n2::ElectricalNode,
+                Ids::Signal, Vt::Signal, Maxexp::Signal, R::Signal, Bv::Signal, Ibv::Signal, Nbv::Signal)
+    vals = compatible_values(n1, n2)
+    i = Current(vals)
+    v = Voltage(vals)
+    {
+     Branch(n1, n2, v, i)
+     i - ifelse(v ./ Vt > Maxexp,
+                Ids .* exp(Maxexp) .* (1 + v ./ Vt - Maxexp) - 1 + v ./ R,
+                ifelse((v + Bv) < -Maxexp .* (Nbv .* Vt),
+                       -Ids - Ibv .* exp(Maxexp) .* (1 - (v+Bv) ./ (Nbv .* Vt) - Maxexp) + v ./ R,
+                       Ids .* (exp(v ./ Vt)-1) - Ibv .* exp(-(v + Bv)/(Nbv .* Vt)) + v ./ R))
+     }
+end
+ZDiode(n1::ElectricalNode, n2::ElectricalNode) = ZDiode(n1, n2, 1e-6, 0.04, 30.0, 1e8, 5.1, 0.7, 0.74)
+function ZDiode(n1::ElectricalNode, n2::ElectricalNode, opts::Options)
+    @defaults opts  Ids=1e-6  Vt=0.04  Maxexp=30.0  R=1e8  Bv=5.1 Ibv=0.7  Nbv=0.74
+    ZDiode(n1, n2, Ids, Vt, Maxexp, R, Bv, Ibv, Nbv)
+end
+
+ZDiode(n1::ElectricalNode, n2::ElectricalNode, hp::HeatPort,
+      Ids::Signal, Vt::Signal, Maxexp::Signal, R::Signal, Bv::Signal, Ibv::Signal, Nbv::Signal) =
+    BranchHeatPort(n1, n2, hp, ZDiode, Ids, Vt, Maxexp, R, Bv, Ibv, Nbv)
+ZDiode(n1::ElectricalNode, n2::ElectricalNode, hp::HeatPort, opts::Options) =
+    BranchHeatPort(n1, n2, hp, ZDiode, opts)
 
 
 function HeatingDiode(n1::ElectricalNode, n2::ElectricalNode, T::HeatPort, opts::Options)
