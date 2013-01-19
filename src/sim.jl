@@ -99,7 +99,7 @@
 ## Utilities                          ##
 ########################################
 
-compile_daskr() = cd(julia_pkgdir() * "/Sims/lib") do
+compile_daskr() = cd(Pkg.dir() * "/Sims/lib") do
     run(`gfortran -fPIC -O2 -ggdb -shared -o daskr.so DASKR/ddaskr.f DASKR/dlinpk.f DASKR/daux.f`) 
 end
 
@@ -972,7 +972,7 @@ end
 # the main variables used in the residual function callback.
 #
 
-dllname = julia_pkgdir() * "/Sims/lib/daskr.so"
+dllname = Pkg.dir() * "/Sims/lib/daskr.so"
 if !isfile(dllname)
     println("*********************************************")
     println("Can't find daskr.so; attempting to compile...")

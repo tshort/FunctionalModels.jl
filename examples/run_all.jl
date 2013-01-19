@@ -5,38 +5,37 @@
 ##
 #######################
 
-require("Sims")
 using Sims
 
-path = julia_pkgdir() * "/Sims/examples/"
+path = Pkg.dir() * "/Sims/examples/"
 
-include(path * "breaking_pendulum_in_box.jl")
+include("breaking_pendulum_in_box.jl")
 
-include(path * "breaking_pendulum.jl")
+include("breaking_pendulum.jl")
 
-include(path * "circuit_complex.jl")
+include("circuit_complex.jl")
 
-include(path * "dc_motor_w_shaft.jl")
+include("dc_motor_w_shaft.jl")
 
-include(path * "half_wave_rectifiers.jl")
+include("half_wave_rectifiers.jl")
 
-include(path * "m_blocks.jl")
+include("m_blocks.jl")
 sim_PID_Controller()
 
-include(path * "m_electrical.jl")
+include("m_electrical.jl")
 run_electrical_examples()
 
-include(path * "m_heat_transfer.jl")
+include("m_heat_transfer.jl")
 sim_TwoMasses()
 ## sim_Motor()
 
-include(path * "m_powersystems.jl")
+include("m_powersystems.jl")
 ## sim_RLModel()
 sim_PiModel()
 
-include(path * "m_rotational.jl")
+include("m_rotational.jl")
 sim_First()
 
-include(path * "vanderpol.jl")
+include("vanderpol.jl")
 
-include(path * "vanderpol_with_events.jl")
+include("vanderpol_with_events.jl")

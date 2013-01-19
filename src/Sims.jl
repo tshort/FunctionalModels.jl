@@ -3,7 +3,6 @@ require("Options")
 
 module Sims
 
-using Base
 import Base.assign,
        Base.hcat,
        Base.length,
@@ -14,9 +13,9 @@ import Base.assign,
 using OptionsMod
 export Options, @options     # export these so with `using Sims` the user doesn't have to do `using OptionsMod`
 
-if isdir(julia_pkgdir() * "/Winston")
-    include(find_in_path("Winston"))
-end    
+## if isdir(julia_pkgdir() * "/Winston")
+##     include(find_in_path("Winston"))
+## end    
 ## if isdir(julia_pkgdir() * "/Tk")
 ##     load("Tk")
 ## end    
@@ -71,17 +70,17 @@ export Inertia, Disc, Spring, BranchHeatPort, Damper, SpringDamper,
        IdealGear, SpeedSensor, AccSensor, SignalTorque
            
 
-include(find_in_path("Sims/src/sim.jl"))
+include("sim.jl")
 
 # load standard Sims libraries
-include(find_in_path("Sims/src/types.jl"))
-include(find_in_path("Sims/src/blocks.jl"))
-include(find_in_path("Sims/src/electrical.jl"))
-include(find_in_path("Sims/src/machines.jl"))
-include(find_in_path("Sims/src/powersystems.jl"))
-include(find_in_path("Sims/src/heat_transfer.jl"))
-include(find_in_path("Sims/src/rotational.jl"))
-## include(find_in_path("Sims/src/examples.jl"))
+include("types.jl")
+include("blocks.jl")
+include("electrical.jl")
+include("machines.jl")
+include("powersystems.jl")
+include("heat_transfer.jl")
+include("rotational.jl")
+## include("examples.jl")
 
 end # module Sims
 
