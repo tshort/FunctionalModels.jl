@@ -58,6 +58,9 @@ function ModalLine(v1::ElectricalNode, v2::ElectricalNode, Z::SeriesImpedance, Y
     Iout2 = Current(vals)
 
     # prep
+    @show Z
+    @show Y
+    @show Z * Y
     e,Tv = eig(Z * Y)
     velocity = 2pi * freq ./ imag(sqrt(e))
     delays = len ./ velocity

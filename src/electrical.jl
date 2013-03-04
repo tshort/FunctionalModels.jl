@@ -62,13 +62,13 @@ Resistor(n1::ElectricalNode, n2::ElectricalNode, R::Signal, hp::HeatPort) =
 Resistor(n1::ElectricalNode, n2::ElectricalNode, R::Signal, hp::HeatPort, T_ref::Signal, alpha::Signal) =
     BranchHeatPort(n1, n2, hp, Resistor, R .* (1 + alpha .* (hp - T_ref)))
 
-function Resistor(n1::ElectricalNode, n2::ElectricalNode, opts::Options)
-    @defaults opts R=1.0  T=293.15  T_ref=300.15  alpha=0.0
+function Resistor(n1::ElectricalNode, n2::ElectricalNode, 
+                  R=1.0, T=293.15,  T_ref=300.15,  alpha=0.0)
     Resistor(n1, n2, T, R .* (1 + alpha .* (T - T_ref)), T_ref, alpha)
 end
 
-function Resistor(n1::ElectricalNode, n2::ElectricalNode, hp::HeatPort, opts::Options)
-    @defaults opts R=1.0  T_ref=300.15  alpha=0.0
+function Resistor(n1::ElectricalNode, n2::ElectricalNode, hp::HeatPort, 
+                  R=1.0,  T_ref=300.15,  alpha=0.0)
     BranchHeatPort(n1, n2, hp, R .* (1 + alpha .* (hp - T_ref)), T_ref, alpha)
 end
 
@@ -80,8 +80,8 @@ function Capacitor(n1::ElectricalNode, n2::ElectricalNode, C::Signal)
      C .* der(v) - i      
      }
 end
-function Capacitor(n1::ElectricalNode, n2::ElectricalNode, opts::Options)
-    @defaults opts C = 1.0
+function Capacitor(n1::ElectricalNode, n2::ElectricalNode, 
+                   C = 1.0)
     Capacitor(n1, n2, C)
 end
 
@@ -94,8 +94,8 @@ function Inductor(n1::ElectricalNode, n2::ElectricalNode, L::Signal)
      L .* der(i) - v
      }
 end
-function Inductor(n1::ElectricalNode, n2::ElectricalNode, opts::Options)
-    @defaults opts L = 1.0
+function Inductor(n1::ElectricalNode, n2::ElectricalNode, 
+                  L = 1.0)
     Inductor(n1, n2, L)
 end
 
@@ -123,13 +123,11 @@ end
 SaturatingInductor(n1::ElectricalNode, n2::ElectricalNode, Inom::Signal, Lnom::Signal) =
     SaturatingInductor(n1, n2, Inom, Lnom, Lnom ./ 2, Lnom .* 2)
     
-function SaturatingInductor(n1::ElectricalNode, n2::ElectricalNode, opts::Options)
-    @defaults opts begin
-        Inom = 1.0
-        Lnom = 1.0
-        Linf = Lnom ./ 2
-        Lzer = Lnom .* 2
-    end
+function SaturatingInductor(n1::ElectricalNode, n2::ElectricalNode, 
+                            Inom = 1.0,
+                            Lnom = 1.0,
+                            Linf = Lnom ./ 2,
+                            Lzer = Lnom .* 2)
     SaturatingInductor(n1, n2, Inom, Lnom, Linf, Lzer)
 end
 
@@ -187,8 +185,8 @@ function Transformer(p1::ElectricalNode, n1::ElectricalNode, p2::ElectricalNode,
      M .* der(i1) + L2 .* der(i2) - v2
      }
 end
-function Transformer(p1::ElectricalNode, n1::ElectricalNode, p2::ElectricalNode, n2::ElectricalNode, opts::Options)
-    @defaults opts  L1=1.0  L2=1.0  M=1.0
+function Transformer(p1::ElectricalNode, n1::ElectricalNode, p2::ElectricalNode, n2::ElectricalNode, 
+                     L1=1.0,  L2=1.0,  M=1.0)
     Transformer(p1, n1, p2, n2, L1, L2, M)
 end
 
@@ -209,12 +207,12 @@ function EMF(n1::ElectricalNode, n2::ElectricalNode, flange::Flange, support_fla
 end
 EMF(n1::ElectricalNode, n2::ElectricalNode, flange::Flange, k::Real) =
     EMF(n1, n2, flange, 0.0, k::Real)
-function EMF(n1::ElectricalNode, n2::ElectricalNode, flange::Flange, support_flange::Flange, opts::Options)
-    @defaults opts k=1.0
+function EMF(n1::ElectricalNode, n2::ElectricalNode, flange::Flange, support_flange::Flange, 
+             k=1.0)
     EMF(n1, n2, flange, support_flange, k)
 end
-function EMF(n1::ElectricalNode, n2::ElectricalNode, flange::Flange, opts::Options)
-    @defaults opts  support_flange=0.0  k=1.0
+function EMF(n1::ElectricalNode, n2::ElectricalNode, flange::Flange,
+             support_flange = 0.0, k = 1.0)
     EMF(n1, n2, flange, support_flange, k)
 end
 
@@ -244,8 +242,8 @@ end
 
 IdealDiode(n1::ElectricalNode, n2::ElectricalNode) = IdealDiode(n1, n2, 0.0, 1e-5, 1e-5)
 IdealDiode(n1::ElectricalNode, n2::ElectricalNode, Vknee::Signal) = IdealDiode(n1, n2, Vknee, 1e-5, 1e-5)
-function IdealDiode(n1::ElectricalNode, n2::ElectricalNode, opts::Options)
-    @defaults opts  Vknee=0.0  Ron=1e-5  Goff=1e-5
+function IdealDiode(n1::ElectricalNode, n2::ElectricalNode, 
+                    Vknee=0.0,  Ron=1e-5,  Goff=1e-5)
     IdealDiode(n1, n2, Vknee, Ron, Goff)
 end
 
@@ -266,8 +264,8 @@ function IdealThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete, 
 end
 IdealThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete) = IdealThyristor(n1, n2, fire, 0.0, 1e-5, 1e-5)
 IdealThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete, Vknee::Signal) = IdealThyristor(n1, n2, fire, Vknee, 1e-5, 1e-5)
-function IdealThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete, opts::Options)
-    @defaults opts  Vknee=0.0  Ron=1e-5  Goff=1e-5
+function IdealThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete, 
+                        Vknee=0.0,  Ron=1e-5,  Goff=1e-5)
     IdealThyristor(n1, n2, fire, Vknee, Ron, Goff)
 end
 
@@ -288,8 +286,8 @@ function IdealGTOThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discret
 end
 IdealGTOThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete) = IdealGTOThyristor(n1, n2, fire, 0.0, 1e-5, 1e-5)
 IdealGTOThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete, Vknee::Signal) = IdealGTOThyristor(n1, n2, fire, Vknee, 1e-5, 1e-5)
-function IdealGTOThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete, opts::Options)
-    @defaults opts  Vknee=0.0  Ron=1e-5  Goff=1e-5
+function IdealGTOThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete, 
+                           Vknee=0.0,  Ron=1e-5,  Goff=1e-5)
     IdealGTOThyristor(n1, n2, fire, Vknee, Ron, Goff)
 end
 
@@ -325,8 +323,8 @@ function IdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Dis
 end
 IdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Discrete) =
     IdealOpeningSwitch(n1, n2, control, 1e-5, 1e-5)
-function IdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Discrete, opts::Options)
-    @defaults opts  Ron=1e-5  Goff=1e-5
+function IdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Discrete,
+                            Ron=1e-5,  Goff=1e-5)
     IdealOpeningSwitch(n1, n2, control, Ron, Goff)
 end
   
@@ -344,8 +342,8 @@ function IdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Dis
 end
 IdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Discrete) =
     IdealClosingSwitch(n1, n2, control, 1e-5, 1e-5)
-function IdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Discrete, opts::Options)
-    @defaults opts  Ron=1e-5  Goff=1e-5
+function IdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Discrete,
+                            Ron=1e-5,  Goff=1e-5)
     IdealClosingSwitch(n1, n2, control, Ron, Goff)
 end
   
@@ -366,8 +364,8 @@ end
 ControlledIdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Signal,
                                       level::Signal) =
     ControlledIdealOpeningSwitch(n1, n2, control, level, 1e-5, 1e-5)
-function ControlledIdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Signal, opts::Options)
-    @defaults opts  level=0.0  Ron=1e-5  Goff=1e-5
+function ControlledIdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Signal,
+                                      level=0.0,  Ron=1e-5,  Goff=1e-5)
     ControlledIdealOpeningSwitch(n1, n2, control, level, Ron, Goff)
 end
                                       
@@ -378,8 +376,8 @@ ControlledIdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Si
 ControlledIdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Signal,
                                       level::Signal) =
     ControlledIdealClosingSwitch(n1, n2, control, level, 1e-5, 1e-5)
-function ControlledIdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Signal, opts::Options)
-    @defaults opts  level=0.0  Ron=1e-5  Goff=1e-5
+function ControlledIdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Signal,
+                                      level=0.0,  Ron=1e-5,  Goff=1e-5)
     ControlledIdealClosingSwitch(n1, n2, control, level, Ron, Goff)
 end
 
@@ -419,8 +417,8 @@ function ControlledOpenerWithArc(n1::ElectricalNode, n2::ElectricalNode, control
                    v - min(Vmax, V0 + dVdt .* (MTime - tSwitch))) .* sign(i))
      }
 end
-function ControlledOpenerWithArc(n1::ElectricalNode, n2::ElectricalNode, control::Signal, opts::Options)
-    @defaults opts  level=0.0  Ron=1e-5  Goff=1e-5  V0=30.0  dVdt=10e3  Vmax=60.0
+function ControlledOpenerWithArc(n1::ElectricalNode, n2::ElectricalNode, control::Signal,
+                                 level=0.0,  Ron=1e-5,  Goff=1e-5,  V0=30.0,  dVdt=10e3,  Vmax=60.0)
     ControlledOpenerWithArc(n1, n2, control, level, Ron, Goff, V0, dVdt, Vmax)
 end
 
@@ -445,16 +443,16 @@ function Diode(n1::ElectricalNode, n2::ElectricalNode,
      }
 end
 Diode(n1::ElectricalNode, n2::ElectricalNode) = Diode(n1, n2, 1e-6, 0.04, 15.0, 1e8)
-function Diode(n1::ElectricalNode, n2::ElectricalNode, opts::Options)
-    @defaults opts  Ids=1e-6  Vt=0.04  Maxexp=15  R=1e8
+function Diode(n1::ElectricalNode, n2::ElectricalNode, 
+               Ids=1e-6,  Vt=0.04,  Maxexp=15,  R=1e8)
     Diode(n1, n2, Ids, Vt, Maxexp, R)
 end
 
 Diode(n1::ElectricalNode, n2::ElectricalNode, hp::HeatPort,
       Ids::Signal, Vt::Signal, Maxexp::Signal, R::Signal) =
     BranchHeatPort(n1, n2, hp, Diode, Ids, Vt, Maxexp, R)
-Diode(n1::ElectricalNode, n2::ElectricalNode, hp::HeatPort, opts::Options) =
-    BranchHeatPort(n1, n2, hp, Diode, opts)
+Diode(n1::ElectricalNode, n2::ElectricalNode, hp::HeatPort, args...) =
+    BranchHeatPort(n1, n2, hp, Diode, args...)
 
 function ZDiode(n1::ElectricalNode, n2::ElectricalNode,
                 Ids::Signal, Vt::Signal, Maxexp::Signal, R::Signal, Bv::Signal, Ibv::Signal, Nbv::Signal)
@@ -471,19 +469,20 @@ function ZDiode(n1::ElectricalNode, n2::ElectricalNode,
      }
 end
 ZDiode(n1::ElectricalNode, n2::ElectricalNode) = ZDiode(n1, n2, 1e-6, 0.04, 30.0, 1e8, 5.1, 0.7, 0.74)
-function ZDiode(n1::ElectricalNode, n2::ElectricalNode, opts::Options)
-    @defaults opts  Ids=1e-6  Vt=0.04  Maxexp=30.0  R=1e8  Bv=5.1 Ibv=0.7  Nbv=0.74
+function ZDiode(n1::ElectricalNode, n2::ElectricalNode,
+                Ids=1e-6,  Vt=0.04,  Maxexp=30.0,  R=1e8,  Bv=5.1, Ibv=0.7,  Nbv=0.74)
     ZDiode(n1, n2, Ids, Vt, Maxexp, R, Bv, Ibv, Nbv)
 end
 
 ZDiode(n1::ElectricalNode, n2::ElectricalNode, hp::HeatPort,
       Ids::Signal, Vt::Signal, Maxexp::Signal, R::Signal, Bv::Signal, Ibv::Signal, Nbv::Signal) =
     BranchHeatPort(n1, n2, hp, ZDiode, Ids, Vt, Maxexp, R, Bv, Ibv, Nbv)
-ZDiode(n1::ElectricalNode, n2::ElectricalNode, hp::HeatPort, opts::Options) =
-    BranchHeatPort(n1, n2, hp, ZDiode, opts)
+ZDiode(n1::ElectricalNode, n2::ElectricalNode, hp::HeatPort, args...) =
+    BranchHeatPort(n1, n2, hp, ZDiode, args...)
 
 
-function HeatingDiode(n1::ElectricalNode, n2::ElectricalNode, T::HeatPort, opts::Options)
+function HeatingDiode(n1::ElectricalNode, n2::ElectricalNode, T::HeatPort,
+                      Ids::Signal, Maxexp::Signal, R::Signal, EG::Signal, N::Signal, TNOM::Signal, XTI::Signal)
     vals = compatible_values(n1, n2)
     i = Current(vals)
     v = Voltage(vals)
@@ -496,8 +495,9 @@ function HeatingDiode(n1::ElectricalNode, n2::ElectricalNode, T::HeatPort, opts:
                 Ids .* (exp(v ./ Vt) - 1) + v ./ R)
      }
 end
-function HeatingDiode(n1::ElectricalNode, n2::ElectricalNode, opts::Options)
-    @defaults opts  T=293.15  Ids=1e-6  Maxexp=15  R=1e8  EG=1.11  N=1.0  TNOM=300.15  XTI=3.0
+function HeatingDiode(n1::ElectricalNode, n2::ElectricalNode, 
+                      T=293.15,  Ids=1e-6,  Maxexp=15,  R=1e8,  EG=1.11,  N=1.0,  TNOM=300.15,  XTI=3.0)
+    HeatingDiode(n1, n2, T, Ids, Maxexp, R, EG, N, TNOM, XTI)                  
 end
 
 
@@ -525,8 +525,8 @@ SineVoltage(n1::ElectricalNode, n2::ElectricalNode, V::Signal, f::Signal, ang::S
 SineVoltage(n1::ElectricalNode, n2::ElectricalNode, V::Signal, f::Signal) =
     SineVoltage(n1, n2, V, f, 0.0, 0.0) 
 
-function SineVoltage(n1::ElectricalNode, n2::ElectricalNode, opts::Options)
-    @defaults opts  V=1.0  f=1.0  ang=0.0  offset=0.0
+function SineVoltage(n1::ElectricalNode, n2::ElectricalNode, 
+                     V=1.0,  f=1.0,  ang=0.0,  offset=0.0)
     SineVoltage(n1, n2, V, f, ang, offset) 
 end
 
@@ -542,8 +542,8 @@ function StepVoltage(n1::ElectricalNode, n2::ElectricalNode, V::Real, start::Rea
            {reinit(v_mag, offset)})            # negative crossing
      }
 end
-function StepVoltage(n1::ElectricalNode, n2::ElectricalNode, opts::Options)
-    @defaults opts  V=1.0  start=0.0  offset=0.0
+function StepVoltage(n1::ElectricalNode, n2::ElectricalNode, 
+                     V=1.0,  start=0.0,  offset=0.0)
     StepVoltage(n1, n2, V, f, ang, offset) 
 end
     

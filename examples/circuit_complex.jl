@@ -1,9 +1,8 @@
 
-require("Sims")
 using Sims
+module ComplexExamples
 
-
-
+importall Sims
 
 ########################################
 ## Basic complex number example       ##
@@ -60,3 +59,5 @@ end
 
 cckt = CmplxCkt()
 cckt_y = sim(cckt, 0.02)  
+
+end # module

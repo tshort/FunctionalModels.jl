@@ -1,5 +1,4 @@
-require("Options")
-
+using Winston
 
 module Sims
 
@@ -10,12 +9,8 @@ import Base.assign,
        Base.size, 
        Base.vcat
 
-using OptionsMod
-export Options, @options     # export these so with `using Sims` the user doesn't have to do `using OptionsMod`
+import Winston
 
-## if isdir(julia_pkgdir() * "/Winston")
-##     include(find_in_path("Winston"))
-## end    
 ## if isdir(julia_pkgdir() * "/Tk")
 ##     load("Tk")
 ## end    
@@ -76,7 +71,7 @@ include("sim.jl")
 include("types.jl")
 include("blocks.jl")
 include("electrical.jl")
-include("machines.jl")
+## include("machines.jl")
 include("powersystems.jl")
 include("heat_transfer.jl")
 include("rotational.jl")

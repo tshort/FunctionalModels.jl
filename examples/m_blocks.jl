@@ -1,4 +1,3 @@
-require("Sims")
 using Sims
 
 
@@ -28,12 +27,12 @@ function ex_PID_Controller()
                         ifelse(MTime < 2.2, 1.0, 3.2 - MTime)))
      SpeedSensor(n2, s3)
      LimPID(s2, s3, s4, 
-            @options(controllerType => "PI",
-                     k  => 100.0,
-                     Ti => 0.1,
-                     Td => 0.1,
-                     yMax => 12.0,
-                     Ni => 0.1))
+            controllerType = "PI",
+            k  = 100.0,
+            Ti = 0.1,
+            Td = 0.1,
+            yMax = 12.0,
+            Ni = 0.1)
      SignalTorque(n1, 0.0, s4)
      Inertia(n1, n2, 1.0)
      SpringDamper(n2, n3, 1e4, 100)

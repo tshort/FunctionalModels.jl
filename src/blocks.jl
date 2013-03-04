@@ -186,7 +186,7 @@ function Step(y::Signal,
            {reinit(ymag, offset)})            # negative crossing
     }
 end
-Step(y, height::Float64) = Step(y, height = height)
+Step(y::Signal, height::Float64) = Step(y, height = height)
 
 function DeadZone(u::Signal, y::Signal, 
                   uMax = 1.0,

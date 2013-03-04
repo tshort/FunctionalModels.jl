@@ -31,7 +31,7 @@ sim_TwoMasses()
 
 include("m_powersystems.jl")
 ## sim_RLModel()
-sim_PiModel()
+## sim_PiModel()
 
 include("m_rotational.jl")
 sim_First()
