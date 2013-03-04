@@ -74,12 +74,12 @@ include("sim.jl")
 
 # load standard Sims libraries
 include("types.jl")
-include("blocks.jl")
-include("electrical.jl")
-include("machines.jl")
-include("powersystems.jl")
-include("heat_transfer.jl")
-include("rotational.jl")
+## include("blocks.jl")
+## include("electrical.jl")
+## include("machines.jl")
+## include("powersystems.jl")
+## include("heat_transfer.jl")
+## include("rotational.jl")
 ## include("examples.jl")
 
 end # module Sims

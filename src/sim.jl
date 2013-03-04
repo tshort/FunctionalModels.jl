@@ -179,7 +179,7 @@ der(x) = 0.0
 type MExpr <: ModelType
     ex::Expr
 end
-mexpr(hd::Symbol, args::ANY...) = MExpr(expr(hd, args...))
+mexpr(hd::Symbol, args::ANY...) = MExpr(Expr(hd, args...))
 
 # Set up defaults for operations on ModelType's for many common
 # methods.
@@ -228,7 +228,7 @@ _expr(x) = x
 _expr(x::MExpr) = x.ex
 
 macro doimport(name)
-  expr(:toplevel, Any[expr(:import, Any[:Base, esc(name)])])
+  Expr(:toplevel, Expr(:import, :Base, esc(name)))
 end
 
 # special case to avoid a warning:
@@ -237,7 +237,7 @@ import Base.(^)
 
 for f in binary_functions
     ## @eval import Base.(f)
-    eval(expr(:toplevel, Any[expr(:import, Any[:Base, f])]))
+    eval(Expr(:toplevel, Expr(:import, :Base, f)))
     @eval ($f)(x::ModelType, y::ModelType) = mexpr(:call, ($f), _expr(x), _expr(y))
     @eval ($f)(x::ModelType, y::Number) = mexpr(:call, ($f), _expr(x), y)
     @eval ($f)(x::ModelType, y::AbstractArray) = mexpr(:call, ($f), _expr(x), y)
@@ -247,7 +247,7 @@ end
 
 for f in unary_functions
     ## @eval import Base.(f)
-    eval(expr(:toplevel, Any[expr(:import, Any[:Base, f])]))
+    eval(Expr(:toplevel, Expr(:import, :Base, f)))
     @eval ($f)(x::ModelType, args...) = mexpr(:call, ($f), _expr(x), args...)
 end
 
@@ -279,7 +279,7 @@ value(x::Model) = map(value, x)
 value(x::UnknownVariable) = x.value
 value(x::RefUnknown) = x.u.value[x.idx...]
 value(a::MExpr) = value(a.ex)
-value(e::Expr) = eval(Expr(e.head, isempty(e.args) ? e.args : map(value, e.args), e.typ))
+value(e::Expr) = eval(Expr(e.head, (isempty(e.args) ? e.args : map(value, e.args))...))
                        
 # The following helper functions are to return the base value from an
 # unknown to use when creating other unknowns. An example would be:
@@ -646,7 +646,7 @@ strip_mexpr(a) = a
 strip_mexpr{T}(a::Vector{T}) = map(strip_mexpr, a)
 strip_mexpr(a::MExpr) = strip_mexpr(a.ex)
 ## strip_mexpr(a::MSymbol) = a.sym 
-strip_mexpr(e::Expr) = Expr(e.head, isempty(e.args) ? e.args : map(strip_mexpr, e.args), e.typ)
+strip_mexpr(e::Expr) = Expr(e.head, (isempty(e.args) ? e.args : map(strip_mexpr, e.args))...)
 
 # Other utilities:
 remove_empties(l::Vector{Any}) = filter(x -> !isequal(x, {}), l)
@@ -735,7 +735,7 @@ function fill_from_map(default_val,# Default value for the vector.
     x
 end
 
-cmb(x, args...) = expr(x, args...)
+cmb(x, args...) = Expr(x, args...)
 
 #
 # setup_functions sets up several functions in a closure setup to
@@ -756,9 +756,9 @@ function setup_functions(sm::Sim)
     #
     # The following is a code block (thunk) for insertion into
     # the residual calculation function.
-    resid_thunk = Expr(:call, Base.append_any({:(Sims.vcat_real)}, eq_block), Any)
+    resid_thunk = Expr(:call, Base.append_any({:(Sims.vcat_real)}, eq_block)...)
     # Same but for the root crossing function:
-    event_thunk = Expr(:call, Base.append_any({:(Sims.vcat_real)}, ev_block), Any)
+    event_thunk = Expr(:call, Base.append_any({:(Sims.vcat_real)}, ev_block)...)
 
     # Helpers to convert an array of expressions into a single expression.
     to_thunk{T}(ex::Vector{T}) = reduce((x,y) -> :($x;$y), :(), ex)
@@ -784,8 +784,8 @@ function setup_functions(sm::Sim)
                  (t, y, yp) -> begin $ex; return; end
              end)
     end
-    ev_pos_thunk = length(ev_pos_array) > 0 ? Expr(:call, Base.append_any({:vcat}, ev_pos_array), Any) : Function[]
-    ev_neg_thunk = length(ev_neg_array) > 0 ? Expr(:call, Base.append_any({:vcat}, ev_neg_array), Any) : Function[]
+    ev_pos_thunk = length(ev_pos_array) > 0 ? Expr(:call, Base.append_any({:vcat}, ev_pos_array)...) : Function[]
+    ev_neg_thunk = length(ev_neg_array) > 0 ? Expr(:call, Base.append_any({:vcat}, ev_neg_array)...) : Function[]
     
     get_discretes_thunk = :(() -> 1)   # dummy function for now
 
@@ -889,7 +889,7 @@ end
 # references to the positions in the y or yp vectors.
 replace_unknowns(a, sm::Sim) = a
 replace_unknowns{T}(a::Array{T,1}, sm::Sim) = map(x -> replace_unknowns(x, sm), a)
-replace_unknowns(e::Expr, sm::Sim) = Expr(e.head, replace_unknowns(e.args, sm), e.typ)
+replace_unknowns(e::Expr, sm::Sim) = Expr(e.head, replace_unknowns(e.args, sm)...)
 function replace_unknowns(a::Unknown, sm::Sim)
     if isequal(a.sym, :time)
         return :(t[1])
