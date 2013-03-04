@@ -166,27 +166,17 @@ function setup_functions(sm::Sim)
                  yp = zeros(n)
                  $resid_thunk
             end
-            function _sim_resid(t_in, y_in, yp_in, cj, delta_out, ires, rpar, ipar)
-                 n = int(unsafe_ref(ipar))
-                 t = pointer_to_array(t_in, (1,))
-                 y = pointer_to_array(y_in, (n,))
-                 yp = pointer_to_array(yp_in, (n,))
-                 delta = pointer_to_array(delta_out, (n,))
+            function _sim_resid(t, y, yp, r)
                  ## @show y
                  ## @show length(y)
                  a = $resid_thunk
                  ## @show a
                  ## @show length(a)
-                 delta[1:end] = a
+                 r[1:end] = a
                  nothing
             end
-            function _sim_event_at(neq, t_in, y_in, yp_in, nrt, rval_out, rpar, ipar)
-                 n = int(pointer_to_array(ipar, (2,)))
-                 t = pointer_to_array(t_in, (1,))
-                 y = pointer_to_array(y_in, (n[1],))
-                 yp = pointer_to_array(yp_in, (n[1],))
-                 rval = pointer_to_array(rval_out, (n[2],))
-                 rval[1:end] = $event_thunk
+            function _sim_event_at(t, y, yp, r)
+                 r[1:end] = $event_thunk
                  nothing
             end
             _sim_event_pos_array = $ev_pos_thunk
@@ -299,3 +289,9 @@ function vcat_real(X::Any...)
     vcat(res...)
 end
 
+
+type SimResult
+    y::Array{Float64, 2}
+    colnames::Array{ASCIIString, 1}
+end
+ref(x::SimResult, idx...) = SimResult(x.y[:,idx...], x.colnames[idx...])

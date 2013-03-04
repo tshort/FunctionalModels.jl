@@ -73,6 +73,7 @@ export Inertia, Disc, Spring, BranchHeatPort, Damper, SpringDamper,
 include("main.jl")
 include("elaboration.jl")
 include("simcreation.jl")
+include("utils.jl")
 # solvers
 include("dassl.jl")
 include("sundials.jl")

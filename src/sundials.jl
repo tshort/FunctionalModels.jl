@@ -1,17 +1,19 @@
 using Sundials
 
-function daefun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, fns::SimFunctions)
+import Sundials.N_Vector, Sundials.nvector
+
+function daefun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, fn::SimFunctions)
     y = Sundials.asarray(y) 
     yp = Sundials.asarray(yp) 
     r = Sundials.asarray(r)
-    fns.resid(t, y, yp, r)
+    fn.resid(t, y, yp, r)
     return int32(0)   # indicates normal return
 end
-function rootfun(t::Float64, y::N_Vector, yp::N_Vector, g::N_Vector, fns::SimFunctions)
+function rootfun(t::Float64, y::N_Vector, yp::N_Vector, g::Ptr{Sundials.realtype}, fn::SimFunctions)
     y = Sundials.asarray(y) 
     yp = Sundials.asarray(yp) 
-    g = Sundials.asarray(g)
-    fns.event_at(t, y, yp, g) 
+    g = Sundials.asarray(g, (length(fn.event_pos),))
+    fn.event_at(t, y, yp, g)
     return int32(0)   # indicates normal return
 end
 
@@ -20,48 +22,63 @@ function sunsim(sm::Sim, tstop::Float64, Nsteps::Int)
     # tstop & Nsteps should be in options
 println("starting sunsim()")
 
-    y = sm.y
-    yp = sm.yp
-    neq = length(y0)
-    mem = Sundials.IDACreate()
-    flag = Sundials.IDAInit(mem, cfunction(daefun, Int32, (realtype, N_Vector, N_Vector, N_Vector, Function)), tstart, nvector(sm.y0), nvector(sm.yp0))
-    flag = Sundials.IDASetUserData(mem, sm.F)
-    flag = Sundials.IDARootInit(mem, int32(2), rootfun)
-    reltol = 1e-4
-    abstol = 1e-6
-    flag = Sundials.IDASStolerances(mem, reltol, abstol)
-    flag = IDADense(mem, neq)
-    
+    tstep = tstop / Nsteps
+    nrt = int32(length(sm.F.event_pos))
+    global __sim_structural_change = false
+    function setup_sim(sm::Sim, tstart::Float64, tstop::Float64, Nsteps::Int, doinit::bool)
+        neq = length(sm.y0)
+        mem = Sundials.IDACreate()
+        flag = Sundials.IDAInit(mem, cfunction(daefun, Int32, (Sundials.realtype, N_Vector, N_Vector, N_Vector, SimFunctions)),
+                                0.0, nvector(sm.y0), nvector(sm.yp0))
+        flag = Sundials.IDASetUserData(mem, sm.F)
+        reltol = 1e-4
+        abstol = 1e-3
+        flag = Sundials.IDASStolerances(mem, reltol, abstol)
+        flag = Sundials.IDADense(mem, neq)
+        flag = Sundials.IDARootInit(mem, int32(2),
+                                    cfunction(rootfun, Int32, (Sundials.realtype, N_Vector, N_Vector,
+                                                               Ptr{Sundials.realtype}, SimFunctions)))
+        id = float64(copy(sm.id))
+        id[id .< 0] = 0
+        flag = Sundials.IDASetId(mem, id)
+        if doinit
+            flag = Sundials.IDACalcIC(mem, Sundials.IDA_Y_INIT, tstep)  # IDA_YA_YDP_INIT or IDA_Y_INIT
+        end
+        return mem
+    end
+    mem = setup_sim(sm, 0.0, tstop, Nsteps, true)
     yidx = sm.outputs .!= ""
     Noutputs = sum(yidx)
     Ncol = Noutputs
-    tstep = tstop / Nsteps
-    tout = [tstep]
     
-    simulate = setup_sim(sm, 0.0, tstop, Nsteps)
     yout = zeros(Nsteps, Ncol + 1)
+    t = tstep
+    tout = [0.0]
+    jroot = fill(int32(0), nrt)
 
     for idx in 1:Nsteps
 
-        flag = Sundials.IDASolve(mem, t[k], tout, y, yp, Sundials.IDA_NORMAL)
-
-        yout[idx, 1] = t[1]
-        yout[idx, 2:(noutputs + 1)] = y[yidx]
-        tout = t + tstep
-        for (k,v) in sm.y_map
-            if v.save_history
-                push!(v.t, t[1])
-                push!(v.x, y[k])
+        flag = Sundials.IDASolve(mem, t, tout, sm.y0, sm.yp0, Sundials.IDA_NORMAL)
+        yout[idx, 1] = tout[1]
+        yout[idx, 2:(Noutputs + 1)] = sm.y0[yidx]
+        t = tout[1] + tstep
+        if flag == Sundials.IDA_SUCCESS
+            for (k,v) in sm.y_map
+                if v.save_history
+                    push!(v.t, tout[1])
+                    push!(v.x, sm.y0[k])
+                end
             end
+            continue
         end
         if flag == Sundials.IDA_ROOT_RETURN 
-            retvalr = Sundials.IDAGetRootInfo(mem, rootsfound)
+            retvalr = Sundials.IDAGetRootInfo(mem, jroot)
             println("roots = ", jroot)
             for ridx in 1:length(jroot)
                 if jroot[ridx] == 1
-                    sm.f.event_pos[ridx](t, y, yp)
+                    sm.F.event_pos[ridx](t, sm.y0, sm.yp0)
                 elseif jroot[ridx] == -1
-                    sm.f.event_neg[ridx](t, y, yp)
+                    sm.F.event_neg[ridx](t, sm.y0, sm.yp0)
                 end
             end
             if __sim_structural_change
@@ -69,37 +86,35 @@ println("starting sunsim()")
                 println("structural change event found at t = $(t[1]), restarting")
                 # put t, y, and yp values back into original equations:
                 for (k,v) in sm.y_map
-                    v.value = y[k]
+                    v.value = sm.y0[k]
                 end
                 for (k,v) in sm.yp_map
-                    v.value = yp[k]
+                    v.value = sm.yp0[k]
                 end
-                mtime.value = t[1]
+                MTime.value = tout[1]
                 # reflatten equations
                 sm = create_sim(elaborate(sm.eq))
                 global _sm = sm
                 # restart the simulation:
-                info[1] = 0
-                info[11] = 1    # do/don't calc initial conditions
-                simulate = setup_sim(sm, t[1], tstop, int(nsteps * (tstop - t[1]) / tstop))
+                mem = setup_sim(sm, tout[1], tstop, int(Nsteps * (tstop - t[1]) / tstop), false)
+                nrt = int32(length(sm.F.event_pos))
+                jroot = fill(int32(0), nrt)
                 yidx = sm.outputs .!= ""
             elseif any(jroot .!= 0)
                 println("event found at t = $(t[1]), restarting")
-                info[1] = 0
-                info[11] = 1    # do/don't calc initial conditions
             end
-        elseif idid[1] < 0 && idid[1] > -11
-            println("restarting")
+        ## elseif flag == Sundials.IDA_??
+        ##     println("restarting")
         else
             println("SUNDIALS failed prematurely")
             break
         end
     end
-    simresult(yout, [sm.outputs[yidx]])
+    SimResult(yout, [sm.outputs[yidx]])
 end
-sunsim(sm::sim) = sunsim(sm, 1.0, 500)
-sunsim(sm::sim, tstop::float64) = sunsim(sm, tstop, 500)
-sunsim(m::model, tstop::float64, nsteps::int)  = sunsim(create_sim(elaborate(m)), tstop, nsteps)
-sunsim(m::model) = sunsim(m, 1.0, 500)
-sunsim(m::model, tstop::float64) = sunsim(m, tstop, 500)
+sunsim(sm::Sim) = sunsim(sm, 1.0, 500)
+sunsim(sm::Sim, tstop::Float64) = sunsim(sm, tstop, 500)
+sunsim(m::Model, tstop::Float64, nsteps::Int)  = sunsim(create_sim(elaborate(m)), tstop, nsteps)
+sunsim(m::Model) = sunsim(m, 1.0, 500)
+sunsim(m::Model, tstop::Float64) = sunsim(m, tstop, 500)
 

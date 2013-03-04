@@ -1,4 +1,3 @@
-require("Sims")
 using Sims
 
 ########################################
@@ -35,4 +34,5 @@ v = SVanderpol()      # returns the hierarchical model
 v_f = elaborate(v)    # returns the flattened model
 v_s = create_sim(v_f) # returns a "Sim" ready for simulation
 v_y = sim(v_s, 10.0)  # run the simulation to 10 seconds and return
+v_y = sunsim(v_s, 10.0)  # run the simulation to 10 seconds and return
 
