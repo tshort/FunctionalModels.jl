@@ -33,7 +33,7 @@ export is_unknown, der, delay, mexpr, value, compatible_values, reinit, ifelse,
        basetypeof, from_real, to_real,
        gplot, wplot,
        check,
-       elaborate, create_sim, sim
+       elaborate, create_sim, sim, sunsim
 
 ## Model methods
 export Branch, BoolEvent
@@ -70,7 +70,12 @@ export Inertia, Disc, Spring, BranchHeatPort, Damper, SpringDamper,
        IdealGear, SpeedSensor, AccSensor, SignalTorque
            
 
-include("sim.jl")
+include("main.jl")
+include("elaboration.jl")
+include("simcreation.jl")
+# solvers
+include("dassl.jl")
+include("sundials.jl")
 
 # load standard Sims libraries
 include("types.jl")
