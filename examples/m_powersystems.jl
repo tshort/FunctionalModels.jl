@@ -112,10 +112,10 @@ function ex_Modal()
 end
 
      
-m = ex_Modal()
-f = elaborate(m)
-s = create_sim(f)
-y = sim(s, 0.2)
+## m = ex_Modal()
+## f = elaborate(m)
+## s = create_sim(f)
+## y = sim(s, 0.2)
 
 function sim_Modal()
     y = sim(ex_Modal(), 0.2)

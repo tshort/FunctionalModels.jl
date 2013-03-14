@@ -23,26 +23,25 @@ function sunsim(sm::Sim, tstop::Float64, Nsteps::Int)
 println("starting sunsim()")
 
     tstep = tstop / Nsteps
-    nrt = int32(length(sm.F.event_pos))
-    global __sim_structural_change = false
     function setup_sim(sm::Sim, tstart::Float64, tstop::Float64, Nsteps::Int)
+        global __sim_structural_change = false
         neq = length(sm.y0)
         mem = Sundials.IDACreate()
-        flag = Sundials.IDAInit(mem, daefun, 0.0, sm.y0, sm.yp0)
+        flag = Sundials.IDAInit(mem, daefun, tstart, sm.y0, sm.yp0)
         global __F = sm.F
         ## flag = Sundials.IDASetUserData(mem, sm.F)
         reltol = 1e-4
         abstol = 1e-3
         flag = Sundials.IDASStolerances(mem, reltol, abstol)
         flag = Sundials.IDADense(mem, neq)
-        flag = Sundials.IDARootInit(mem, int32(2), rootfun)
+        flag = Sundials.IDARootInit(mem, int32(length(sm.F.event_pos)), rootfun)
         id = float64(copy(sm.id))
         id[id .< 0] = 0
         flag = Sundials.IDASetId(mem, id)
         rtest = zeros(neq)
         sm.F.resid(tstart, sm.y0, sm.yp0, rtest)
-        if any(rtest .!= 0.0)
-            flag = Sundials.IDACalcIC(mem, Sundials.IDA_Y_INIT, tstep)  # IDA_YA_YDP_INIT or IDA_Y_INIT
+        if any(abs(rtest) .>= reltol)
+            flag = Sundials.IDACalcIC(mem, Sundials.IDA_YA_YDP_INIT, tstart + tstep)  # IDA_YA_YDP_INIT or IDA_Y_INIT
         end
         return mem
     end
@@ -53,19 +52,20 @@ println("starting sunsim()")
     
     yout = zeros(Nsteps, Ncol + 1)
     t = tstep
-    tout = [0.0]
+    tret = [0.0]
+    nrt = int32(length(sm.F.event_pos))
     jroot = fill(int32(0), nrt)
 
     for idx in 1:Nsteps
 
-        flag = Sundials.IDASolve(mem, t, tout, sm.y0, sm.yp0, Sundials.IDA_NORMAL)
-        yout[idx, 1] = tout[1]
+        flag = Sundials.IDASolve(mem, t, tret, sm.y0, sm.yp0, Sundials.IDA_NORMAL)
+        yout[idx, 1] = tret[1]
         yout[idx, 2:(Noutputs + 1)] = sm.y0[yidx]
-        t = tout[1] + tstep
+        t = tret[1] + tstep
         if flag == Sundials.IDA_SUCCESS
             for (k,v) in sm.y_map
                 if v.save_history
-                    push!(v.t, tout[1])
+                    push!(v.t, tret[1])
                     push!(v.x, sm.y0[k])
                 end
             end
@@ -73,16 +73,16 @@ println("starting sunsim()")
         end
         if flag == Sundials.IDA_ROOT_RETURN 
             retvalr = Sundials.IDAGetRootInfo(mem, jroot)
-            println("roots = ", jroot)
             for ridx in 1:length(jroot)
                 if jroot[ridx] == 1
-                    sm.F.event_pos[ridx](t, sm.y0, sm.yp0)
+                    sm.F.event_pos[ridx](tret[1], sm.y0, sm.yp0)
                 elseif jroot[ridx] == -1
-                    sm.F.event_neg[ridx](t, sm.y0, sm.yp0)
+                    sm.F.event_neg[ridx](tret[1], sm.y0, sm.yp0)
                 end
+                flag = Sundials.IDAReInit(mem, tret[1], sm.y0, sm.yp0)
+                flag = Sundials.IDACalcIC(mem, Sundials.IDA_YA_YDP_INIT, tret[1] + tstep/10)  # IDA_YA_YDP_INIT or IDA_Y_INIT
             end
             if __sim_structural_change
-                println("")
                 println("structural change event found at t = $(t[1]), restarting")
                 # put t, y, and yp values back into original equations:
                 for (k,v) in sm.y_map
@@ -91,18 +91,18 @@ println("starting sunsim()")
                 for (k,v) in sm.yp_map
                     v.value = sm.yp0[k]
                 end
-                MTime.value = tout[1]
+                MTime.value = tret[1]
                 # reflatten equations
                 sm = create_sim(elaborate(sm.eq))
                 global __F = sm.F
                 global _sm = sm
                 # restart the simulation:
-                mem = setup_sim(sm, tout[1], tstop, int(Nsteps * (tstop - t[1]) / tstop))
+                mem = setup_sim(sm, tret[1]+tstep/50, tstop, int(Nsteps * (tstop - t[1]) / tstop))
                 nrt = int32(length(sm.F.event_pos))
                 jroot = fill(int32(0), nrt)
                 yidx = sm.outputs .!= ""
             elseif any(jroot .!= 0)
-                println("event found at t = $(t[1]), restarting")
+                println("event found at t = $(tret[1]), restarting")
             end
         ## elseif flag == Sundials.IDA_??
         ##     println("restarting")

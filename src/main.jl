@@ -334,7 +334,7 @@ end
 function _interp(x, t)
     # assumes that tvec is sorted from low to high
     if length(x.t) == 0 || t < 0.0 return zero(x.value) end
-    idx = search_sorted_first(x.t, t)
+    idx = searchsortedfirst(x.t, t)
     if idx == 1
         return x.x[1]
     elseif idx > length(x.t) 
@@ -348,7 +348,7 @@ function _interp(x, t)
     res = zero(t)
     for i in 1:length(res)
         if t[i] < 0.0 continue end
-        idx = search_sorted_first(x.t, t[i])
+        idx = searchsortedfirst(x.t, t[i])
         if idx > length(res) continue end
         if idx == 1
             res[i] = x.x[1][i]

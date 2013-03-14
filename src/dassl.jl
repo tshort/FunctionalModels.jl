@@ -43,7 +43,7 @@ function dasslrootfun(neq, t_in, y_in, yp_in, nrt, rval_out, rpar, ipar)
 end
 
 
-function sim(sm::Sim, tstop::Float64, Nsteps::Int)
+function dasslsim(sm::Sim, tstop::Float64, Nsteps::Int)
     # tstop & Nsteps should be in options
 println("starting sim()")
 
@@ -77,6 +77,9 @@ println("starting sim()")
         jac = [int32(0)]
         psol = [int32(0)]
         jroot = fill(int32(0), max(nrt[1], 1))
+        ## rtest = zeros(length(sm.y0))
+        ## sm.F.resid(tstart, sm.y0, sm.yp0, rtest)
+        ## @show rtest
 
         global __DF = sm.F
          
@@ -168,8 +171,8 @@ println("starting sim()")
     end
     SimResult(yout, [sm.outputs[yidx]])
 end
-sim(sm::Sim) = sim(sm, 1.0, 500)
-sim(sm::Sim, tstop::Float64) = sim(sm, tstop, 500)
-sim(m::Model, tstop::Float64, Nsteps::Int)  = sim(create_sim(elaborate(m)), tstop, Nsteps)
-sim(m::Model) = sim(m, 1.0, 500)
-sim(m::Model, tstop::Float64) = sim(m, tstop, 500)
+dasslsim(sm::Sim) = dasslsim(sm, 1.0, 500)
+dasslsim(sm::Sim, tstop::Float64) = dasslsim(sm, tstop, 500)
+dasslsim(m::Model, tstop::Float64, Nsteps::Int)  = dasslsim(create_sim(elaborate(m)), tstop, Nsteps)
+dasslsim(m::Model) = dasslsim(m, 1.0, 500)
+dasslsim(m::Model, tstop::Float64) = dasslsim(m, tstop, 500)

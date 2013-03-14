@@ -13,6 +13,8 @@ import Base.assign,
 using OptionsMod
 export Options, @options     # export these so with `using Sims` the user doesn't have to do `using OptionsMod`
 
+
+import Winston
 ## if isdir(julia_pkgdir() * "/Winston")
 ##     include(find_in_path("Winston"))
 ## end    
@@ -33,7 +35,7 @@ export is_unknown, der, delay, mexpr, value, compatible_values, reinit, ifelse,
        basetypeof, from_real, to_real,
        gplot, wplot,
        check,
-       elaborate, create_sim, sim, sunsim
+       elaborate, create_sim, sim, sunsim, dasslsim
 
 ## Model methods
 export Branch, BoolEvent
@@ -77,16 +79,17 @@ include("utils.jl")
 # solvers
 include("dassl.jl")
 include("sundials.jl")
+sim = dasslsim
+sim = sunsim
 
 # load standard Sims libraries
 include("types.jl")
-## include("blocks.jl")
-## include("electrical.jl")
-## include("machines.jl")
-## include("powersystems.jl")
-## include("heat_transfer.jl")
-## include("rotational.jl")
-## include("examples.jl")
+include("blocks.jl")
+include("electrical.jl")
+include("machines.jl")
+include("powersystems.jl")
+include("heat_transfer.jl")
+include("rotational.jl")
 
 end # module Sims
 
