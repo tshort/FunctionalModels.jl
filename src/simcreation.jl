@@ -229,18 +229,18 @@ function replace_unknowns(a::Unknown, sm::Sim)
     add_var(a, sm)
     sm.y_map[sm.unknown_idx_map[a.sym]] = a
     if isreal(a.value) && ndims(a.value) < 2
-        :(ref(y, ($(sm.unknown_idx_map[a.sym]))))
+        :(getindex(y, ($(sm.unknown_idx_map[a.sym]))))
     else
-        :(from_real(ref(y, ($(sm.unknown_idx_map[a.sym]))), $(basetypeof(a.value)), $(size(a.value))))
+        :(from_real(getindex(y, ($(sm.unknown_idx_map[a.sym]))), $(basetypeof(a.value)), $(size(a.value))))
     end
 end
 function replace_unknowns(a::RefUnknown, sm::Sim) # handle array referencing
     add_var(a.u, sm)
     sm.y_map[sm.unknown_idx_map[a.u.sym]] = a.u
     if isreal(a.u.value) && ndims(a.u.value) < 2
-        :(ref(y, ($(sm.unknown_idx_map[a.u.sym][a.idx...]))))
+        :(getindex(y, ($(sm.unknown_idx_map[a.u.sym][a.idx...]))))
     else
-        :(from_real(ref(y, ($(sm.unknown_idx_map[a.u.sym]))), $(basetypeof(a.u.value)), $(size(a.u.value)))[$(a.idx...)])
+        :(from_real(getindex(y, ($(sm.unknown_idx_map[a.u.sym]))), $(basetypeof(a.u.value)), $(size(a.u.value)))[$(a.idx...)])
     end
 end
 function replace_unknowns(a::DerUnknown, sm::Sim) 
@@ -248,9 +248,9 @@ function replace_unknowns(a::DerUnknown, sm::Sim)
     sm.y_map[sm.unknown_idx_map[a.parent.sym]] = a.parent
     sm.yp_map[sm.unknown_idx_map[a.sym]] = a
     if isreal(a.value) && ndims(a.value) < 2
-        :(ref(yp, ($(sm.unknown_idx_map[a.sym]))))
+        :(getindex(yp, ($(sm.unknown_idx_map[a.sym]))))
     else
-        :(from_real(ref(yp, ($(sm.unknown_idx_map[a.sym]))), $(basetypeof(a.value)), $(size(a.value))))
+        :(from_real(getindex(yp, ($(sm.unknown_idx_map[a.sym]))), $(basetypeof(a.value)), $(size(a.value))))
     end
 end
 function replace_unknowns(a::PassedUnknown, sm::Sim)
@@ -263,7 +263,7 @@ function replace_unknowns(a::Discrete, sm::Sim)
 end
 function replace_unknowns(a::RefDiscrete, sm::Sim) # handle array referencing
     sm.discrete_map[a.u.sym] = a.u
-    :(ref(($(a.u.sym)).value, a.idx))
+    :(getindex(($(a.u.sym)).value, a.idx))
 end
 # In assigned variables (LeftVar), use SubArrays (sub), instead of ref.
 # This allows assignment.
@@ -294,4 +294,4 @@ type SimResult
     y::Array{Float64, 2}
     colnames::Array{ASCIIString, 1}
 end
-ref(x::SimResult, idx...) = SimResult(x.y[:,idx...], x.colnames[idx...])
+getindex(x::SimResult, idx...) = SimResult(x.y[:,idx...], x.colnames[idx...])

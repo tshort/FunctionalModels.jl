@@ -3,10 +3,10 @@ require("Options")
 
 module Sims
 
-import Base.assign,
-       Base.hcat,
+import Base.hcat,
        Base.length,
-       Base.ref, 
+       Base.getindex, 
+       Base.setindex!, 
        Base.size, 
        Base.vcat
 

@@ -267,8 +267,8 @@ type RefUnknown{T<:UnknownCategory} <: UnknownVariable
     u::Unknown{T}
     idx
 end
-ref(x::Unknown, args...) = RefUnknown(x, args)
-ref(x::MExpr, args...) = mexpr(:call, :ref, args...)
+getindex(x::Unknown, args...) = RefUnknown(x, args)
+getindex(x::MExpr, args...) = mexpr(:call, :getindex, args...)
 length(u::UnknownVariable) = length(value(u))
 size(u::UnknownVariable, i) = size(value(u), i)
 hcat(x::ModelType...) = mexpr(:call, :hcat, x...)
@@ -405,7 +405,7 @@ type RefDiscrete <: UnknownVariable
     u::Discrete
     idx
 end
-ref(x::Discrete, args...) = RefDiscrete(x, args)
+getindex(x::Discrete, args...) = RefDiscrete(x, args)
 
 ## DiscreteVar is used inside of the residual function.
 type DiscreteVar
@@ -473,7 +473,7 @@ reinit(x::Discrete, y) = reinit(LeftVar(x), y)
 reinit(x::RefDiscrete, y) = reinit(LeftVar(x), y)
 ## reinit(x::Discrete, y) = mexpr(:call, :reinit, x, y)
 ## reinit(x::RefDiscrete, y) = mexpr(:call, :reinit, x, y)
-assign(x::DiscreteVar, y, idx) = x.value = y
+setindex!(x::DiscreteVar, y, idx) = x.value = y
 
 #
 # BoolEvent is a helper for attaching an event to a boolean variable.
