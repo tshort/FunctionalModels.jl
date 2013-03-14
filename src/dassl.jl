@@ -23,24 +23,22 @@ if !isfile(dllname)
 end    
 const lib = dlopen(dllname)
 
-## global __F::SimFunctions
-
-function dasslfun(t_in, y_in, yp_in, cj, delta_out, ires, rpar::SimFunctions, ipar)
+function dasslfun(t_in, y_in, yp_in, cj, delta_out, ires, rpar, ipar)
     n = int(unsafe_ref(ipar))
     t = pointer_to_array(t_in, (1,))
     y = pointer_to_array(y_in, (n,))
     yp = pointer_to_array(yp_in, (n,))
     delta = pointer_to_array(delta_out, (n,))
-    rpar.resid(t, y, yp, delta)
+    __DF.resid(t, y, yp, delta)
     return nothing
 end
-function dasslrootfun(neq, t_in, y_in, yp_in, nrt, rval_out, rpar::SimFunctions, ipar)
+function dasslrootfun(neq, t_in, y_in, yp_in, nrt, rval_out, rpar, ipar)
     n = int(pointer_to_array(ipar, (2,)))
     t = pointer_to_array(t_in, (1,))
     y = pointer_to_array(y_in, (n[1],))
     yp = pointer_to_array(yp_in, (n[1],))
     rval = pointer_to_array(rval_out, (n[2],))
-    rpar.event_at(t, y, yp, rval) 
+    __DF.event_at(t, y, yp, rval) 
     return nothing
 end
 
@@ -80,16 +78,15 @@ println("starting sim()")
         psol = [int32(0)]
         jroot = fill(int32(0), max(nrt[1], 1))
 
-        ## global __F::SimFunctions = sm.F
+        global __DF = sm.F
          
         # Set up the callback.
         callback = cfunction(dasslfun, Nothing,
                              (Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, Ptr{Float64},
-                              Ptr{Int32}, SimFunctions, Ptr{Int32}))
-        dum = 1
+                              Ptr{Int32}, Ptr{Float64}, Ptr{Int32}))
         rt = cfunction(dasslrootfun, Nothing,
                              (Ptr{Int32}, Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, Ptr{Int32},
-                              Ptr{Float64}, SimFunctions, Ptr{Int32}))
+                              Ptr{Float64}, Ptr{Float64}, Ptr{Int32}))
         (tout) -> begin
             ccall(dlsym(lib, :ddaskr_), Void,
                   (Ptr{Void}, Ptr{Int32}, Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, # RES, NEQ, T, Y, YPRIME
@@ -98,7 +95,7 @@ println("starting sim()")
                    Ptr{Int32}, Any, Ptr{Int32}, Ptr{Void}, Ptr{Void},      # LIW, RPAR, IPAR, JAC, PSOL
                    Ptr{Void}, Ptr{Int32}, Ptr{Int32}),                              # RT, NRT, JROOT
                   callback, N, t, y, yp, tout, info, rtol, atol,
-                  idid, rwork, lrw, iwork, liw, sm.F, ipar, jac, psol,
+                  idid, rwork, lrw, iwork, liw, rpar, ipar, jac, psol,
                   rt, nrt, jroot)
              (t,y,yp,jroot)
          end

@@ -39,7 +39,11 @@ println("starting sunsim()")
         id = float64(copy(sm.id))
         id[id .< 0] = 0
         flag = Sundials.IDASetId(mem, id)
-        flag = Sundials.IDACalcIC(mem, Sundials.IDA_Y_INIT, tstep)  # IDA_YA_YDP_INIT or IDA_Y_INIT
+        rtest = zeros(neq)
+        sm.F.resid(tstart, sm.y0, sm.yp0, rtest)
+        if any(rtest .!= 0.0)
+            flag = Sundials.IDACalcIC(mem, Sundials.IDA_Y_INIT, tstep)  # IDA_YA_YDP_INIT or IDA_Y_INIT
+        end
         return mem
     end
     mem = setup_sim(sm, 0.0, tstop, Nsteps)

@@ -44,7 +44,8 @@ end
 p = BreakingPendulum()
 p_f = elaborate(p)
 p_s = create_sim(p_f) 
-## p_y = sunsim(p_s, 6.0)  
+p_y = sunsim(p_s, 6.0)  
+p_s = create_sim(p_f) 
 p_y = sim(p_s, 6.0)  
 
 ## wplot(p_y, "BreakingPendulum.pdf")
