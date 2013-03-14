@@ -79,8 +79,8 @@ include("utils.jl")
 # solvers
 include("dassl.jl")
 include("sundials.jl")
-sim = dasslsim
 sim = sunsim
+sim = dasslsim
 
 # load standard Sims libraries
 include("types.jl")
