@@ -12,8 +12,9 @@
 
 #
 type EquationSet
-    model           # The active model, a hierachichal set of equations.
-    equations       # A flat list of equations.
+    model             # The active model, a hierachichal set of equations.
+    equations         # A flat list of equations.
+    initialequations  # A flat list of initial equations.
     events
     pos_responses
     neg_responses
@@ -31,18 +32,20 @@ end
 # processing (sorting, index reduction, or any of the other stuff a
 # fancy modeling tool would do).
 # 
-elaborate(a::Model) = elaborate(EquationSet(a, {}, {}, {}, {}, Dict()))
+elaborate(a::Model) = elaborate(EquationSet(a, {}, {}, {}, {}, {}, Dict()))
 
 function elaborate(x::EquationSet)
-    eq = EquationSet({}, {}, {}, {}, {}, Dict())
+    eq = EquationSet({}, {}, {}, {}, {}, {}, Dict())
     eq.model = handle_events(x.model)
-    eq.equations = elaborate_unit(eq.model, eq) # This will also modify eq.
+    elaborate_unit(eq.model, eq) # This will modify eq.
 
     # Add in equations for each node to sum flows to zero:
     for (key, nodeset) in eq.nodeMap
         push!(eq.equations, nodeset)
+        push!(eq.initialequations, nodeset)
     end
     # last fixups: 
+    eq.initialequations = replace_fixed(remove_empties(strip_mexpr(eq.equations)))
     eq.equations = remove_empties(strip_mexpr(eq.equations))
     eq
 end
@@ -63,6 +66,17 @@ function traverse_mod(f::Function, a::Model)
 end
 
 #
+# replace_fixed searches through initial equations and replaces
+# Unknowns that have a fixed initial value with that value.
+#
+replace_fixed(a::Model) = map(replace_fixed, a)
+replace_fixed(x) = x
+replace_fixed(eq::InitialEquation) = InitialEquation(map(replace_fixed, eq.eq))
+replace_fixed(a::MExpr) = strip_mexpr(a.ex)
+replace_fixed(e::Expr) = Expr(e.head, (isempty(e.args) ? e.args : map(replace_fixed, e.args))...)
+replace_fixed(u::Unknown) = u.fixed ? u.value : u
+
+#
 # handle_events traverses the model tree and replaces
 # StructuralEvent's that have activated.
 #
@@ -74,10 +88,13 @@ handle_events(ev::StructuralEvent) = ev.activated ? ev.new_relation() : ev
 # elaborate_unit flattens the set of equations while building up
 # events, event responses, and a Dict of nodes.
 #
-elaborate_unit(a::Any, eq::EquationSet) = Any[] # The default is to ignore undefined types.
-elaborate_unit(a::ModelType, eq::EquationSet) = a
+elaborate_unit(a::Any, eq::EquationSet) = nothing # The default is to ignore undefined types.
+function elaborate_unit(a::ModelType, eq::EquationSet)
+    push!(eq.equations, a)
+    push!(eq.initialequations, a)
+end
 function elaborate_unit(a::Model, eq::EquationSet)
-    traverse_mod((x) -> elaborate_unit(x, eq), a)
+    map(x -> elaborate_unit(x, eq), a)
 end
 
 function elaborate_unit(b::RefBranch, eq::EquationSet)
@@ -88,14 +105,12 @@ function elaborate_unit(b::RefBranch, eq::EquationSet)
         vec[b.n.idx...] = 1.0
         eq.nodeMap[b.n.u] = get(eq.nodeMap, b.n.u, 0.0) + b.i .* vec 
     end
-    {}
 end
 
 function elaborate_unit(ev::Event, eq::EquationSet)
     push!(eq.events, strip_mexpr(elaborate_unit(ev.condition, eq)))
     push!(eq.pos_responses, strip_mexpr(elaborate_unit(ev.pos_response, eq)))
     push!(eq.neg_responses, strip_mexpr(elaborate_unit(ev.neg_response, eq)))
-    {}
 end
 
 function elaborate_unit(ev::StructuralEvent, eq::EquationSet)
@@ -105,7 +120,7 @@ function elaborate_unit(ev::StructuralEvent, eq::EquationSet)
     push!(eq.pos_responses, (t,y,yp) -> begin global __sim_structural_change = true; ev.activated = true; end)
     # Dummy negative zero crossing
     push!(eq.neg_responses, (t,y,yp) -> return)
-    strip_mexpr(elaborate_unit(ev.default, eq))
+    elaborate_unit(ev.default, eq)
 end
 
 
