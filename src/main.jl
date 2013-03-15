@@ -136,29 +136,30 @@ abstract UnknownVariable <: ModelType
 
 type DefaultUnknown <: UnknownCategory
 end
-
 type Unknown{T<:UnknownCategory} <: UnknownVariable
     sym::Symbol
     value         # holds initial values (and type info)
     label::String
+    fixed::Bool
     save_history::Bool
     t::Array{Any,1}
     x::Array{Any,1}
-    Unknown() = new(gensym(), 0.0, "", false, {}, {})
-    Unknown(sym::Symbol, label::String) = new(sym, 0.0, label, true, {0.0}, {0.0})
-    Unknown(sym::Symbol, value) = new(sym, value, "", false, {}, {})
-    Unknown(value) = new(gensym(), value, "", false, {}, {})
-    Unknown(label::String) = new(gensym(), 0.0, label, true, {0.0}, {0.0})
-    Unknown(value, label::String) = new(gensym(), value, label, true, {0.0}, {0.0})
-    Unknown(sym::Symbol, value, label::String) = new(sym, value, label, true, {0.0}, {value})
-    Unknown(sym::Symbol, value, label::String, save_history::Bool, t::Array{Any,1}, x::Array{Any,1}) = new(sym, value, label, save_history, t, x)
+    Unknown() = new(gensym(), 0.0, "", false, false, {}, {})
+    Unknown(sym::Symbol, label::String) = new(sym, 0.0, label, false, true, {0.0}, {0.0})
+    Unknown(sym::Symbol, value) = new(sym, value, "", true, false, {}, {})
+    Unknown(value) = new(gensym(), value, "", true, false, {}, {})
+    Unknown(label::String) = new(gensym(), 0.0, label, false, true, {0.0}, {0.0})
+    Unknown(value, label::String) = new(gensym(), value, label, true, true, {0.0}, {0.0})
+    Unknown(sym::Symbol, value, label::String) = new(sym, value, label, true, true, {0.0}, {value})
+    Unknown(sym::Symbol, value, label::String, fixed::Bool, save_history::Bool, t::Array{Any,1}, x::Array{Any,1}) = new(sym, value, label, fixed, save_history, t, x)
 end
-Unknown() = Unknown{DefaultUnknown}(gensym(), 0.0, "", false, {}, {})
-Unknown(x) = Unknown{DefaultUnknown}(gensym(), x, "", false, {}, {})
-Unknown(s::Symbol, label::String) = Unknown{DefaultUnknown}(s, 0.0, label, true, {0.0}, {0.0})
-Unknown(x, label::String) = Unknown{DefaultUnknown}(gensym(), x, label, true, {0.0}, {0.0})
-Unknown(label::String) = Unknown{DefaultUnknown}(gensym(), 0.0, label, true, {0.0}, {0.0})
-Unknown(s::Symbol, x) = Unknown{DefaultUnknown}(s, x, "", false, {}, {})
+Unknown() = Unknown{DefaultUnknown}(gensym(), 0.0, "", false, false, {}, {})
+Unknown(x) = Unknown{DefaultUnknown}(gensym(), x, "", false, false, {}, {})
+Unknown(s::Symbol, label::String) = Unknown{DefaultUnknown}(s, 0.0, label, false, true, {0.0}, {0.0})
+Unknown(x, label::String) = Unknown{DefaultUnknown}(gensym(), x, label, false, true, {0.0}, {0.0})
+Unknown(label::String) = Unknown{DefaultUnknown}(gensym(), 0.0, label, false, true, {0.0}, {0.0})
+Unknown(s::Symbol, x, fixed::Bool) = Unknown{DefaultUnknown}(s, x, "", fixed, false, {}, {})
+Unknown(s::Symbol, x) = Unknown{DefaultUnknown}(s, x, "", true, false, {}, {})
 
 
 is_unknown(x) = isa(x, UnknownVariable)
@@ -166,12 +167,13 @@ is_unknown(x) = isa(x, UnknownVariable)
 type DerUnknown <: UnknownVariable
     sym::Symbol
     value        # holds initial values
+    fixed::Bool
     parent::Unknown
     # label::String    # Do we want this? 
 end
-DerUnknown(u::Unknown) = DerUnknown(u.sym, 0.0, u)
-der(x::Unknown) = DerUnknown(x.sym, compatible_values(x), x)
-der(x::Unknown, val) = DerUnknown(x.sym, val, x)
+DerUnknown(u::Unknown) = DerUnknown(u.sym, 0.0, false, u)
+der(x::Unknown) = DerUnknown(x.sym, compatible_values(x), false, x)
+der(x::Unknown, val) = DerUnknown(x.sym, val, true, x)
 der(x) = 0.0
 
 # show(a::Unknown) = show(a.sym)
