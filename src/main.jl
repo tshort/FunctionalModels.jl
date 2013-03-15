@@ -221,8 +221,7 @@ binary_functions = [:(==), :(.==), :(!=), :(.!=), :isless,
                     :(.^), :(^), :(div), :(mod), :(fld), :(rem),
                     :(&), :(|), :($),
                     :atan2,
-                    :dot, :cor_pearson, :cov_pearson,
-                    :cor_spearman, :cov_spearman]
+                    :dot, :cor, :cov]
 
 _expr(x) = x
 _expr(x::MExpr) = x.ex
