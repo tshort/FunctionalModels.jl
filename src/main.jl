@@ -154,9 +154,9 @@ type Unknown{T<:UnknownCategory} <: UnknownVariable
     Unknown(sym::Symbol, value, label::String, fixed::Bool, save_history::Bool, t::Array{Any,1}, x::Array{Any,1}) = new(sym, value, label, fixed, save_history, t, x)
 end
 Unknown() = Unknown{DefaultUnknown}(gensym(), 0.0, "", false, false, {}, {})
-Unknown(x) = Unknown{DefaultUnknown}(gensym(), x, "", false, false, {}, {})
+Unknown(x) = Unknown{DefaultUnknown}(gensym(), x, "", true, false, {}, {})
 Unknown(s::Symbol, label::String) = Unknown{DefaultUnknown}(s, 0.0, label, false, true, {0.0}, {0.0})
-Unknown(x, label::String) = Unknown{DefaultUnknown}(gensym(), x, label, false, true, {0.0}, {0.0})
+Unknown(x, label::String) = Unknown{DefaultUnknown}(gensym(), x, label, true, true, {0.0}, {0.0})
 Unknown(label::String) = Unknown{DefaultUnknown}(gensym(), 0.0, label, false, true, {0.0}, {0.0})
 Unknown(s::Symbol, x, fixed::Bool) = Unknown{DefaultUnknown}(s, x, "", fixed, false, {}, {})
 Unknown(s::Symbol, x) = Unknown{DefaultUnknown}(s, x, "", true, false, {}, {})
@@ -320,6 +320,19 @@ function Branch(n1, n2, v, i)
 end
 
 
+
+########################################
+## Initial equations                  ##
+########################################
+
+type InitialEquation
+    eq
+end
+
+# TODO enhance this to support begin..end blocks
+macro init(eqs...)
+   Expr(:cell1d, [:(InitialEquation($eq)) for eq in eqs])
+end
 
 ########################################
 ## delay                              ##
