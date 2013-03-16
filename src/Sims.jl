@@ -6,7 +6,8 @@ module Sims
 import Base.hcat,
        Base.length,
        Base.getindex, 
-       Base.setindex!, 
+       Base.setindex!,
+       Base.show,
        Base.size, 
        Base.vcat
 
@@ -24,11 +25,11 @@ import Winston
 
 ## Types
 export ModelType, UnknownCategory, Unknown, UnknownVariable, DefaultUnknown, DerUnknown, RefUnknown, RefBranch,
-       Model, MExpr, Discrete, RefDiscrete, DiscreteVar, Event, LeftVar, StructuralEvent,
+       InitialEquation, Model, MExpr, Discrete, RefDiscrete, DiscreteVar, Event, LeftVar, StructuralEvent,
        EquationSet, SimFunctions, Sim, SimResult
 
 ## Specials
-export MTime
+export MTime, @init
 
 ## Methods
 export is_unknown, der, delay, mexpr, value, compatible_values, reinit, ifelse,

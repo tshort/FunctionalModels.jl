@@ -146,20 +146,20 @@ type Unknown{T<:UnknownCategory} <: UnknownVariable
     x::Array{Any,1}
     Unknown() = new(gensym(), 0.0, "", false, false, {}, {})
     Unknown(sym::Symbol, label::String) = new(sym, 0.0, label, false, true, {0.0}, {0.0})
-    Unknown(sym::Symbol, value) = new(sym, value, "", true, false, {}, {})
-    Unknown(value) = new(gensym(), value, "", true, false, {}, {})
+    Unknown(sym::Symbol, value) = new(sym, value, "", false, false, {}, {})
+    Unknown(value) = new(gensym(), value, "", false, false, {}, {})
     Unknown(label::String) = new(gensym(), 0.0, label, false, true, {0.0}, {0.0})
-    Unknown(value, label::String) = new(gensym(), value, label, true, true, {0.0}, {0.0})
-    Unknown(sym::Symbol, value, label::String) = new(sym, value, label, true, true, {0.0}, {value})
+    Unknown(value, label::String) = new(gensym(), value, label, false, true, {0.0}, {0.0})
+    Unknown(sym::Symbol, value, label::String) = new(sym, value, label, false, true, {0.0}, {value})
     Unknown(sym::Symbol, value, label::String, fixed::Bool, save_history::Bool, t::Array{Any,1}, x::Array{Any,1}) = new(sym, value, label, fixed, save_history, t, x)
 end
 Unknown() = Unknown{DefaultUnknown}(gensym(), 0.0, "", false, false, {}, {})
-Unknown(x) = Unknown{DefaultUnknown}(gensym(), x, "", true, false, {}, {})
+Unknown(x) = Unknown{DefaultUnknown}(gensym(), x, "", false, false, {}, {})
 Unknown(s::Symbol, label::String) = Unknown{DefaultUnknown}(s, 0.0, label, false, true, {0.0}, {0.0})
-Unknown(x, label::String) = Unknown{DefaultUnknown}(gensym(), x, label, true, true, {0.0}, {0.0})
+Unknown(x, label::String) = Unknown{DefaultUnknown}(gensym(), x, label, false, true, {0.0}, {0.0})
 Unknown(label::String) = Unknown{DefaultUnknown}(gensym(), 0.0, label, false, true, {0.0}, {0.0})
 Unknown(s::Symbol, x, fixed::Bool) = Unknown{DefaultUnknown}(s, x, "", fixed, false, {}, {})
-Unknown(s::Symbol, x) = Unknown{DefaultUnknown}(s, x, "", true, false, {}, {})
+Unknown(s::Symbol, x) = Unknown{DefaultUnknown}(s, x, "", false, false, {}, {})
 
 
 is_unknown(x) = isa(x, UnknownVariable)
@@ -176,7 +176,7 @@ der(x::Unknown) = DerUnknown(x.sym, compatible_values(x), false, x)
 der(x::Unknown, val) = DerUnknown(x.sym, val, true, x)
 der(x) = 0.0
 
-# show(a::Unknown) = show(a.sym)
+show(io::IO, a::UnknownVariable) = print(io::IO, "<<", name(a), ",", value(a), ">>")
 
 type MExpr <: ModelType
     ex::Expr
@@ -281,7 +281,12 @@ value(x::UnknownVariable) = x.value
 value(x::RefUnknown) = x.u.value[x.idx...]
 value(a::MExpr) = value(a.ex)
 value(e::Expr) = eval(Expr(e.head, (isempty(e.args) ? e.args : map(value, e.args))...))
-                       
+
+symname(a::Symbol) = "`" * string(a)[3:end] * "`"
+name(a::Unknown) = a.label != "" ? a.label : symname(a.sym)
+name(a::DerUnknown) = a.parent.label != "" ? a.parent.label : symname(a.parent.sym)
+name(a::RefUnknown) = a.u.label != "" ? a.u.label : symname(a.u.sym)
+
 # The following helper functions are to return the base value from an
 # unknown to use when creating other unknowns. An example would be:
 #   a = Unknown(45.0 + 10im)
@@ -430,12 +435,14 @@ end
 DiscreteVar(d::Discrete, funs::Vector{Function}) = DiscreteVar(d.value, d.value, funs)
 DiscreteVar(d::Discrete) = DiscreteVar(d.value, d.value, Function[])
 
-
 # Add hooks to a discrete variable.
 addhook!(d::Discrete, ex::ModelType) = push!(d.hookex, strip_mexpr(ex))
 
 value(x::RefDiscrete) = x.u.value[x.idx...]
 value(x::DiscreteVar) = x.value
+name(x::Discrete) = x.label != "" ? x.label : symname(x.sym)
+name(x::RefDiscrete) = x.u.label != "" ? x.u.label : symname(x.u.sym)
+name(x::DiscreteVar) = "D"
 pre(x::DiscreteVar) = x.pre
 
 #

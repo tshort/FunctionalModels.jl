@@ -44,8 +44,9 @@ function elaborate(x::EquationSet)
         push!(eq.equations, nodeset)
         push!(eq.initialequations, nodeset)
     end
-    # last fixups: 
-    eq.initialequations = replace_fixed(remove_empties(strip_mexpr(eq.equations)))
+    # last fixups:
+    
+    eq.initialequations = replace_fixed(remove_empties(strip_mexpr(eq.initialequations)))
     eq.equations = remove_empties(strip_mexpr(eq.equations))
     eq
 end
@@ -81,6 +82,7 @@ replace_fixed(u::Unknown) = u.fixed ? u.value : u
 # StructuralEvent's that have activated.
 #
 handle_events(a::Model) = traverse_mod(handle_events, a)
+handle_events(a::InitialEquation) = a
 handle_events(x) = x
 handle_events(ev::StructuralEvent) = ev.activated ? ev.new_relation() : ev
 
@@ -92,6 +94,9 @@ elaborate_unit(a::Any, eq::EquationSet) = nothing # The default is to ignore und
 function elaborate_unit(a::ModelType, eq::EquationSet)
     push!(eq.equations, a)
     push!(eq.initialequations, a)
+end
+function elaborate_unit(a::InitialEquation, eq::EquationSet)
+    push!(eq.initialequations, a.eq)
 end
 function elaborate_unit(a::Model, eq::EquationSet)
     map(x -> elaborate_unit(x, eq), a)
@@ -107,15 +112,19 @@ function elaborate_unit(b::RefBranch, eq::EquationSet)
     end
 end
 
+elaborate_subunit(a::Any) = Any[] # The default is to ignore undefined types.
+elaborate_subunit(a::ModelType) = a
+elaborate_subunit(a::Model) = map(x -> elaborate_subunit(x), a)
+
 function elaborate_unit(ev::Event, eq::EquationSet)
-    push!(eq.events, strip_mexpr(elaborate_unit(ev.condition, eq)))
-    push!(eq.pos_responses, strip_mexpr(elaborate_unit(ev.pos_response, eq)))
-    push!(eq.neg_responses, strip_mexpr(elaborate_unit(ev.neg_response, eq)))
+    push!(eq.events, strip_mexpr(elaborate_subunit(ev.condition)))
+    push!(eq.pos_responses, strip_mexpr(elaborate_subunit(ev.pos_response)))
+    push!(eq.neg_responses, strip_mexpr(elaborate_subunit(ev.neg_response)))
 end
 
 function elaborate_unit(ev::StructuralEvent, eq::EquationSet)
     # Set up the event:
-    push!(eq.events, strip_mexpr(elaborate_unit(ev.condition, eq)))
+    push!(eq.events, strip_mexpr(elaborate_subunit(ev.condition)))
     # A positive zero crossing initiates a change:
     push!(eq.pos_responses, (t,y,yp) -> begin global __sim_structural_change = true; ev.activated = true; end)
     # Dummy negative zero crossing

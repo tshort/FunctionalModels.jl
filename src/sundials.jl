@@ -2,21 +2,41 @@ using Sundials
 
 import Sundials.N_Vector, Sundials.nvector
 
+function initfun(u::N_Vector, r::N_Vector, userdata)
+    n = int(Sundials.nvlength(u)/2)
+    y = pointer_to_array(Sundials.N_VGetArrayPointer_Serial(u), (n,1))
+    yp = pointer_to_array(Sundials.N_VGetArrayPointer_Serial(u) + n, (n,1))
+    r = Sundials.asarray(r)
+    __sm.F.init(__sm.t, y, yp, r)
+    return int32(0)   # indicates normal return
+end
 function daefun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userdata)
     y = Sundials.asarray(y) 
     yp = Sundials.asarray(yp) 
     r = Sundials.asarray(r)
-    __F.resid(t, y, yp, r)
+    __sm.F.resid(t, y, yp, r)
     return int32(0)   # indicates normal return
 end
 function rootfun(t::Float64, y::N_Vector, yp::N_Vector, g::Ptr{Sundials.realtype}, userdata)
     y = Sundials.asarray(y) 
     yp = Sundials.asarray(yp) 
     g = Sundials.asarray(g, (length(__F.event_pos),))
-    __F.event_at(t, y, yp, g)
+    __sm.F.event_at(t, y, yp, g)
     return int32(0)   # indicates normal return
 end
 
+function solve(sm::Sim) # initial conditions
+
+    global __sm = sm
+    kmem = Sundials.KINCreate()
+    u = [sm.y0, sm.yp0]
+    neq = length(u)
+    flag = Sundials.KINInit(kmem, initfun, u)
+    flag = Sundials.KINDense(kmem, neq)
+    scale = ones(neq)
+    flag = Sundials.KINSol(kmem, u, Sundials.KIN_NONE, scale, scale) 
+
+end
 
 function sunsim(sm::Sim, tstop::Float64, Nsteps::Int)
     # tstop & Nsteps should be in options
@@ -28,8 +48,7 @@ println("starting sunsim()")
         neq = length(sm.y0)
         mem = Sundials.IDACreate()
         flag = Sundials.IDAInit(mem, daefun, tstart, sm.y0, sm.yp0)
-        global __F = sm.F
-        ## flag = Sundials.IDASetUserData(mem, sm.F)
+        global __sm = sm
         reltol = 1e-4
         abstol = 1e-3
         flag = Sundials.IDASStolerances(mem, reltol, abstol)

@@ -16,6 +16,7 @@
 #
 type SimFunctions
     resid::Function           
+    init::Function           
     event_at::Function          # Returns a Vector of root-crossing values. 
     event_pos::Vector{Function} # Each function is to be run when a
                                 #   positive root crossing is detected.
@@ -23,14 +24,14 @@ type SimFunctions
                                 #   negative root crossing is detected.
     get_discretes::Function     # Placeholder for a function to return
                                 #   discrete values.
-    resid_check::Function           
 end
-SimFunctions(resid::Function, event_at::Function, event_pos::Vector{None}, event_neg::Vector{None}, get_discretes::Function, resid_check::Function) = 
-    SimFunctions(resid, event_at, Function[], Function[], get_discretes, resid_check)
+SimFunctions(resid::Function, event_at::Function, event_pos::Vector{None}, event_neg::Vector{None}, get_discretes::Function) = 
+    SimFunctions(resid, event_at, Function[], Function[], get_discretes)
 
 type Sim
     eq::EquationSet           # the input
     F::SimFunctions
+    t::Array{Float64, 1}      # time
     y0::Array{Float64, 1}     # initial values
     yp0::Array{Float64, 1}    # initial values of derivatives
     id::Array{Int, 1}         # indicates whether a variable is algebraic or differential
@@ -50,6 +51,7 @@ end
 function create_sim(eq::EquationSet)
     sm = Sim(eq)
     global _sm = sm
+    sm.t = [0.0]
     sm.varnum = 1
     sm.unknown_idx_map = Dict()
     sm.discrete_map = Dict()
@@ -91,6 +93,7 @@ cmb(x, args...) = Expr(x, args...)
 function setup_functions(sm::Sim)
     # eq_block should be just expressions suitable for eval'ing.
     eq_block = replace_unknowns(sm.eq.equations, sm)
+    in_block = replace_unknowns(sm.eq.initialequations, sm)
     ev_block = replace_unknowns(sm.eq.events, sm)
     
     # Set up a master function with variable declarations and 
@@ -98,9 +101,11 @@ function setup_functions(sm::Sim)
     #
     # The following is a code block (thunk) for insertion into
     # the residual calculation function.
-    resid_thunk = Expr(:call, Base.append_any({:(Sims.vcat_real)}, eq_block)...)
+    resid_thunk = Expr(:call, :(Sims.vcat_real), eq_block...)
+    # Same but for the initial equations:
+    init_thunk = Expr(:call, :(Sims.vcat_real), in_block...)
     # Same but for the root crossing function:
-    event_thunk = Expr(:call, Base.append_any({:(Sims.vcat_real)}, ev_block)...)
+    event_thunk = Expr(:call, :(Sims.vcat_real), ev_block...)
 
     # Helpers to convert an array of expressions into a single expression.
     to_thunk{T}(ex::Vector{T}) = reduce((x,y) -> :($x;$y), :(), ex)
@@ -126,8 +131,8 @@ function setup_functions(sm::Sim)
                  (t, y, yp) -> begin $ex; return; end
              end)
     end
-    ev_pos_thunk = length(ev_pos_array) > 0 ? Expr(:call, Base.append_any({:vcat}, ev_pos_array)...) : Function[]
-    ev_neg_thunk = length(ev_neg_array) > 0 ? Expr(:call, Base.append_any({:vcat}, ev_neg_array)...) : Function[]
+    ev_pos_thunk = length(ev_pos_array) > 0 ? Expr(:call, :vcat, ev_pos_array...) : Function[]
+    ev_neg_thunk = length(ev_neg_array) > 0 ? Expr(:call, :vcat, ev_neg_array...) : Function[]
     
     get_discretes_thunk = :(() -> 1)   # dummy function for now
 
@@ -160,18 +165,19 @@ function setup_functions(sm::Sim)
             # cfunction could be used to set up Julia callbacks. This does
             # mean that the _sim_* functions are seen globally.
             $discrete_defs
-            function _sim_resid_check(n)
-                 t = [0.0]
-                 y = zeros(n)
-                 yp = zeros(n)
-                 $resid_thunk
-            end
             function _sim_resid(t, y, yp, r)
                  ## @show y
                  ## @show length(y)
                  a = $resid_thunk
                  ## @show a
                  ## @show length(a)
+                 r[1:end] = a
+                 nothing
+            end
+            function _sim_init(t, y, yp, r)
+                 a = $init_thunk
+                 @show a
+                 dump(a)
                  r[1:end] = a
                  nothing
             end
@@ -186,7 +192,7 @@ function setup_functions(sm::Sim)
                  nothing
             end
         () -> begin
-            Sims.SimFunctions(_sim_resid, _sim_event_at, _sim_event_pos_array, _sim_event_neg_array, _sim_get_discretes, _sim_resid_check)
+            Sims.SimFunctions(_sim_resid, _sim_init, _sim_event_at, _sim_event_pos_array, _sim_event_neg_array, _sim_get_discretes)
         end
     end
     global _ex = expr
