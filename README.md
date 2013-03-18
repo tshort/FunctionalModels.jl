@@ -205,6 +205,26 @@ Here are the results:
 
 ![plot results](https://github.com/tshort/Sims.jl/blob/master/examples/circuit.png?raw=true "Circuit results")
 
+Initialization and Solving Sets of Equations
+--------------------------------------------
+
+Sims initialization is still weak, but it is developed enough to be
+able to solve non-differential equations. Here is a small example
+where two Unknowns, `x` and `y`, are solved based on the following two
+equations:
+
+```julia
+function test()
+    @unknown x y
+    {
+     2*x - y - exp(-x)
+      -x + 2*y - exp(-y)
+     }
+end
+
+solution = solve(create_sim(test()))
+```
+
 Hybrid Modeling and Structural Variability
 ------------------------------------------
 

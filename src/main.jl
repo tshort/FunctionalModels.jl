@@ -282,7 +282,10 @@ value(x::RefUnknown) = x.u.value[x.idx...]
 value(a::MExpr) = value(a.ex)
 value(e::Expr) = eval(Expr(e.head, (isempty(e.args) ? e.args : map(value, e.args))...))
 
-symname(a::Symbol) = "`" * string(a)[3:end] * "`"
+function symname(s::Symbol)
+    s = string(s)
+    length(s) > 3 && s[1:2] == "##" ? "`" * s[3:end] * "`" : s
+end
 name(a::Unknown) = a.label != "" ? a.label : symname(a.sym)
 name(a::DerUnknown) = a.parent.label != "" ? a.parent.label : symname(a.parent.sym)
 name(a::RefUnknown) = a.u.label != "" ? a.u.label : symname(a.u.sym)

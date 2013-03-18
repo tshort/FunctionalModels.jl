@@ -8,7 +8,8 @@ import Base.hcat,
        Base.getindex, 
        Base.setindex!,
        Base.show,
-       Base.size, 
+       Base.size,
+       Base.solve,
        Base.vcat
 
 using OptionsMod
@@ -29,7 +30,7 @@ export ModelType, UnknownCategory, Unknown, UnknownVariable, DefaultUnknown, Der
        EquationSet, SimFunctions, Sim, SimResult
 
 ## Specials
-export MTime, @init
+export MTime, @init, @unknown
 
 ## Methods
 export is_unknown, der, delay, mexpr, value, compatible_values, reinit, ifelse,

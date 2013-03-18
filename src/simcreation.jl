@@ -65,6 +65,7 @@ function create_sim(eq::EquationSet)
     sm.outputs = fill_from_map("", N_unknowns, sm.y_map, x -> x.label)
     sm
 end
+create_sim(m::Model) = create_sim(elaborate(m))
 
 # Utility to vectors based on values in Dict's. The key in the Dict
 # gives the indexes in the vector.
@@ -176,8 +177,8 @@ function setup_functions(sm::Sim)
             end
             function _sim_init(t, y, yp, r)
                  a = $init_thunk
-                 @show a
-                 dump(a)
+                 ## @show a
+                 ## dump(a)
                  r[1:end] = a
                  nothing
             end
