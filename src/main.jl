@@ -249,7 +249,7 @@ end
 for f in unary_functions
     ## @eval import Base.(f)
     eval(Expr(:toplevel, Expr(:import, :Base, f)))
-    @eval ($f)(x::ModelType, args...) = mexpr(:call, ($f), _expr(x), args...)
+    @eval ($f)(x::ModelType, args...) = mexpr(:call, ($f), _expr(x), map(_expr, args)...)
 end
 
 # Non-Base functions:
