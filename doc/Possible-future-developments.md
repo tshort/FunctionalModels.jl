@@ -1,6 +1,27 @@
 This document contains various thoughts on future development options.
 Also on the table is a complete rewrite.
 
+## Better symbolic preprocessing
+
+Most Modelica tools do a number of preprocessing steps to simplify the
+system. This makes it easier to calculate initial values and speed up
+solutions. Here are some links:
+
+* http://www.jmodelica.org/5109
+* http://staff.polito.it/roberto.zanino/sub1/teach_files/modelica_minicourse/03%20-%20Symbolic%20Manipulation.pdf
+* https://modelica.org/events/modelica2011/Proceedings/pages/papers/10_3_ID_110_a_fv.pdf  
+
+## Better initialization
+
+The current initialization support is weak. It relies on DASSL or
+Sundials to calculate initial values, and that doesn't honor Unknowns
+with fixed `initial` values. Placeholders are in the Unknowns for
+this, but they are not honored. The idea is to use `solve` for
+initialization. Right now, this works with Kinsol and can solve
+non-differential systems. Better symbolic support should make this
+easier.
+
+
 
 ## Mapping to a GUI
 

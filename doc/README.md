@@ -12,7 +12,7 @@ equations should match the number of unknowns. In Sims, the type
 Unknown is used to define unknown variables. Without the constructor
 parts, the definition of Unknown is:
 
-```jl
+```julia
 type Unknown{T<:UnknownCategory} <: UnknownVariable
     sym::Symbol
     value         # holds initial values (and type info)
@@ -40,7 +40,7 @@ Unknowns are not included in results.
 
 Here are several ways to define Unknowns:
 
-```jl
+```julia
 x = Unknown()          # An initial value of 0.0 with no labeling.
 y = Unknown(1.0, "y")  # An initial value of 1.0 and a label of "y" on outputs.
 z = Unknown([1.0, 0.0], "vector")  # An Unknown with array values.
@@ -98,7 +98,7 @@ end
 A device model is a function that returns a list of equations or other
 devices that also return lists of equations. The equations each are
 assumed equal to zero. In Julia, this is the best we can do, because
-there isn't an equality operator (== doesn't fit the bill, either).
+there isn't an equality operator (`==` doesn't fit the bill, either).
 
 Models should normally be locally balanced, meaning the number of
 unknowns matches the number of equations. It's pretty easy to match
@@ -115,11 +115,11 @@ function Capacitor(n1, n2, C::Real)
 end
 ```
 
-In the model above, the nodes n1 and n2 are also Unknowns, but they
+In the model above, the nodes `n1` and `n2` are also Unknowns, but they
 are defined outside of this model.
 
 Here is the top-level circuit definition. In this case, there are no
-input parameters. The ground reference "g" is assigned zero volts.
+input parameters. The ground reference `g` is assigned zero volts.
 
 ```jl
 function Circuit()
@@ -140,12 +140,11 @@ end
 All of the equations returned in this list of equations are other
 models with different parameters.
 
-In this top-level model, three new Unknowns are introduced (n1, n2,
-and n2). Because these are nodes, each Unknown node will also cause
-an equation to be generated that sums the flows into the node to be
-zero.
+In this top-level model, three new Unknowns are introduced (`n1`, `n2`,
+and `n2`). Because these are nodes, each Unknown node will also cause an
+equation to be generated that sums the flows into the node to be zero.
 
-In this model, the voltages n1 and n2 are labeled, so they will
+In this model, the voltages `n1` and `n2` are labeled, so they will
 appear in the output. A SeriesProbe is used to label the current
 through the capacitor.
 
@@ -162,6 +161,10 @@ v_yout = sim(v_s, 10.0) # run the simulation to 10 seconds and return
                         # the result as an array plus column headings
 ```
 
+Two solvers are available: `dasslsim` and `sunsim` using the
+[Sundials](https://github.com/tshort/Sundials.jl). Right now, `sim` is
+equivalent to `dasslsim`.
+
 Simulations can also be run directly from a hierarchical model:
 
 ```jl
@@ -173,12 +176,12 @@ parameters.
 
 ## Simulation Output
 
-The result of a "sim" run is an object with components "y" and
-"colnames". "y" is a two-dimensional array with time slices along
+The result of a `sim` run is an object with components `y` and
+`colnames`. `y` is a two-dimensional array with time slices along
 rows and variables along columns. The first column is simulation
 time. The remaining columns are for each unknown in the model
-including derivatives. "colnames" contains the names of each of
-the columns in "y" after the time column.
+including derivatives. `colnames` contains the names of each of
+the columns in `y` after the time column.
 
 ## Hybrid Modeling
 
@@ -201,7 +204,7 @@ type Event <: ModelType
 end
 ```
 
-The function reinit is used in Event responses to redefine variables.
+The function `reinit` is used in Event responses to redefine variables.
 Here is an example of a voltage source defined with a square wave:
 
 ```jl
@@ -220,7 +223,7 @@ end
 ```
 
 The variable v_mag is the Discrete variable that is changed using
-reinit whenever the sin(2 * pi * f * MTime) crosses zero. A response
+reinit whenever the `sin(2 * pi * f * MTime)` crosses zero. A response
 is provided for both positive and negative zero crossings.
 
 Two other constructs that are useful are BoolEvent and ifelse. 
@@ -246,10 +249,10 @@ end
 
 ## Structurally Varying Systems
 
-StructuralEvent defines a type for elements that change the structure
+`StructuralEvent` defines a type for elements that change the structure
 of the model. An event is created, and when the event is triggered,
-the model is re-flattened after replacing default with new_relation in
-the model.
+the model is re-flattened after replacing `default` with
+`new_relation` in the model.
 
 ```jl
 type StructuralEvent <: ModelType
@@ -261,7 +264,7 @@ end
 ```
 
 Here is an example for a breaking pendulum. The model starts with the
-Pendulum construct. Then, when fixe seconds is reached, the
+Pendulum construct. Then, when five seconds is reached, the
 StructuralEvent triggers, and the model is recompiled with the
 FreeFall construct.
 
@@ -279,8 +282,8 @@ function BreakingPendulum()
 end
 ```
 
-One special thing to note is that new_relation must be a function (in
-the case above, an anonymous function). If new_relation is not a
+One special thing to note is that `new_relation` must be a function (in
+the case above, an anonymous function). If `new_relation` is not a
 function, it will evaluate right away. The use of a function delays
 evaluation until the model is recompiled.
 

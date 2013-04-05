@@ -136,29 +136,30 @@ abstract UnknownVariable <: ModelType
 
 type DefaultUnknown <: UnknownCategory
 end
-
 type Unknown{T<:UnknownCategory} <: UnknownVariable
     sym::Symbol
     value         # holds initial values (and type info)
     label::String
+    fixed::Bool
     save_history::Bool
     t::Array{Any,1}
     x::Array{Any,1}
-    Unknown() = new(gensym(), 0.0, "", false, {}, {})
-    Unknown(sym::Symbol, label::String) = new(sym, 0.0, label, true, {0.0}, {0.0})
-    Unknown(sym::Symbol, value) = new(sym, value, "", false, {}, {})
-    Unknown(value) = new(gensym(), value, "", false, {}, {})
-    Unknown(label::String) = new(gensym(), 0.0, label, true, {0.0}, {0.0})
-    Unknown(value, label::String) = new(gensym(), value, label, true, {0.0}, {0.0})
-    Unknown(sym::Symbol, value, label::String) = new(sym, value, label, true, {0.0}, {value})
-    Unknown(sym::Symbol, value, label::String, save_history::Bool, t::Array{Any,1}, x::Array{Any,1}) = new(sym, value, label, save_history, t, x)
+    Unknown() = new(gensym(), 0.0, "", false, false, {}, {})
+    Unknown(sym::Symbol, label::String) = new(sym, 0.0, label, false, true, {0.0}, {0.0})
+    Unknown(sym::Symbol, value) = new(sym, value, "", false, false, {}, {})
+    Unknown(value) = new(gensym(), value, "", false, false, {}, {})
+    Unknown(label::String) = new(gensym(), 0.0, label, false, true, {0.0}, {0.0})
+    Unknown(value, label::String) = new(gensym(), value, label, false, true, {0.0}, {0.0})
+    Unknown(sym::Symbol, value, label::String) = new(sym, value, label, false, true, {0.0}, {value})
+    Unknown(sym::Symbol, value, label::String, fixed::Bool, save_history::Bool, t::Array{Any,1}, x::Array{Any,1}) = new(sym, value, label, fixed, save_history, t, x)
 end
-Unknown() = Unknown{DefaultUnknown}(gensym(), 0.0, "", false, {}, {})
-Unknown(x) = Unknown{DefaultUnknown}(gensym(), x, "", false, {}, {})
-Unknown(s::Symbol, label::String) = Unknown{DefaultUnknown}(s, 0.0, label, true, {0.0}, {0.0})
-Unknown(x, label::String) = Unknown{DefaultUnknown}(gensym(), x, label, true, {0.0}, {0.0})
-Unknown(label::String) = Unknown{DefaultUnknown}(gensym(), 0.0, label, true, {0.0}, {0.0})
-Unknown(s::Symbol, x) = Unknown{DefaultUnknown}(s, x, "", false, {}, {})
+Unknown() = Unknown{DefaultUnknown}(gensym(), 0.0, "", false, false, {}, {})
+Unknown(x) = Unknown{DefaultUnknown}(gensym(), x, "", false, false, {}, {})
+Unknown(s::Symbol, label::String) = Unknown{DefaultUnknown}(s, 0.0, label, false, true, {0.0}, {0.0})
+Unknown(x, label::String) = Unknown{DefaultUnknown}(gensym(), x, label, false, true, {0.0}, {0.0})
+Unknown(label::String) = Unknown{DefaultUnknown}(gensym(), 0.0, label, false, true, {0.0}, {0.0})
+Unknown(s::Symbol, x, fixed::Bool) = Unknown{DefaultUnknown}(s, x, "", fixed, false, {}, {})
+Unknown(s::Symbol, x) = Unknown{DefaultUnknown}(s, x, "", false, false, {}, {})
 
 
 is_unknown(x) = isa(x, UnknownVariable)
@@ -166,15 +167,16 @@ is_unknown(x) = isa(x, UnknownVariable)
 type DerUnknown <: UnknownVariable
     sym::Symbol
     value        # holds initial values
+    fixed::Bool
     parent::Unknown
     # label::String    # Do we want this? 
 end
-DerUnknown(u::Unknown) = DerUnknown(u.sym, 0.0, u)
-der(x::Unknown) = DerUnknown(x.sym, compatible_values(x), x)
-der(x::Unknown, val) = DerUnknown(x.sym, val, x)
+DerUnknown(u::Unknown) = DerUnknown(u.sym, 0.0, false, u)
+der(x::Unknown) = DerUnknown(x.sym, compatible_values(x), false, x)
+der(x::Unknown, val) = DerUnknown(x.sym, val, true, x)
 der(x) = 0.0
 
-# show(a::Unknown) = show(a.sym)
+show(io::IO, a::UnknownVariable) = print(io::IO, "<<", name(a), ",", value(a), ">>")
 
 type MExpr <: ModelType
     ex::Expr
@@ -222,7 +224,6 @@ binary_functions = [:(==), :(.==), :(!=), :(.!=), :isless,
                     :(&), :(|), :($),
                     :atan2,
                     :dot, :cor, :cov]
-                    ## :cor_spearman, :cov_spearman]
 
 _expr(x) = x
 _expr(x::MExpr) = x.ex
@@ -248,7 +249,7 @@ end
 for f in unary_functions
     ## @eval import Base.(f)
     eval(Expr(:toplevel, Expr(:import, :Base, f)))
-    @eval ($f)(x::ModelType, args...) = mexpr(:call, ($f), _expr(x), args...)
+    @eval ($f)(x::ModelType, args...) = mexpr(:call, ($f), _expr(x), map(_expr, args)...)
 end
 
 # Non-Base functions:
@@ -267,8 +268,8 @@ type RefUnknown{T<:UnknownCategory} <: UnknownVariable
     u::Unknown{T}
     idx
 end
-ref(x::Unknown, args...) = RefUnknown(x, args)
-ref(x::MExpr, args...) = mexpr(:call, :ref, args...)
+getindex(x::Unknown, args...) = RefUnknown(x, args)
+getindex(x::MExpr, args...) = mexpr(:call, :getindex, args...)
 length(u::UnknownVariable) = length(value(u))
 size(u::UnknownVariable, i) = size(value(u), i)
 hcat(x::ModelType...) = mexpr(:call, :hcat, x...)
@@ -280,7 +281,15 @@ value(x::UnknownVariable) = x.value
 value(x::RefUnknown) = x.u.value[x.idx...]
 value(a::MExpr) = value(a.ex)
 value(e::Expr) = eval(Expr(e.head, (isempty(e.args) ? e.args : map(value, e.args))...))
-                       
+
+function symname(s::Symbol)
+    s = string(s)
+    length(s) > 3 && s[1:2] == "##" ? "`" * s[3:end] * "`" : s
+end
+name(a::Unknown) = a.label != "" ? a.label : symname(a.sym)
+name(a::DerUnknown) = a.parent.label != "" ? a.parent.label : symname(a.parent.sym)
+name(a::RefUnknown) = a.u.label != "" ? a.u.label : symname(a.u.sym)
+
 # The following helper functions are to return the base value from an
 # unknown to use when creating other unknowns. An example would be:
 #   a = Unknown(45.0 + 10im)
@@ -321,6 +330,19 @@ end
 
 
 ########################################
+## Initial equations                  ##
+########################################
+
+type InitialEquation
+    eq
+end
+
+# TODO enhance this to support begin..end blocks
+macro init(eqs...)
+   Expr(:cell1d, [:(InitialEquation($eq)) for eq in eqs])
+end
+
+########################################
 ## delay                              ##
 ########################################
 
@@ -334,7 +356,7 @@ end
 function _interp(x, t)
     # assumes that tvec is sorted from low to high
     if length(x.t) == 0 || t < 0.0 return zero(x.value) end
-    idx = search_sorted_first(x.t, t)
+    idx = searchsortedfirst(x.t, t)
     if idx == 1
         return x.x[1]
     elseif idx > length(x.t) 
@@ -348,7 +370,7 @@ function _interp(x, t)
     res = zero(t)
     for i in 1:length(res)
         if t[i] < 0.0 continue end
-        idx = search_sorted_first(x.t, t[i])
+        idx = searchsortedfirst(x.t, t[i])
         if idx > length(res) continue end
         if idx == 1
             res[i] = x.x[1][i]
@@ -405,7 +427,7 @@ type RefDiscrete <: UnknownVariable
     u::Discrete
     idx
 end
-ref(x::Discrete, args...) = RefDiscrete(x, args)
+getindex(x::Discrete, args...) = RefDiscrete(x, args)
 
 ## DiscreteVar is used inside of the residual function.
 type DiscreteVar
@@ -416,12 +438,14 @@ end
 DiscreteVar(d::Discrete, funs::Vector{Function}) = DiscreteVar(d.value, d.value, funs)
 DiscreteVar(d::Discrete) = DiscreteVar(d.value, d.value, Function[])
 
-
 # Add hooks to a discrete variable.
 addhook!(d::Discrete, ex::ModelType) = push!(d.hookex, strip_mexpr(ex))
 
 value(x::RefDiscrete) = x.u.value[x.idx...]
 value(x::DiscreteVar) = x.value
+name(x::Discrete) = x.label != "" ? x.label : symname(x.sym)
+name(x::RefDiscrete) = x.u.label != "" ? x.u.label : symname(x.u.sym)
+name(x::DiscreteVar) = "D"
 pre(x::DiscreteVar) = x.pre
 
 #
@@ -473,7 +497,7 @@ reinit(x::Discrete, y) = reinit(LeftVar(x), y)
 reinit(x::RefDiscrete, y) = reinit(LeftVar(x), y)
 ## reinit(x::Discrete, y) = mexpr(:call, :reinit, x, y)
 ## reinit(x::RefDiscrete, y) = mexpr(:call, :reinit, x, y)
-assign(x::DiscreteVar, y, idx) = x.value = y
+setindex!(x::DiscreteVar, y, idx) = x.value = y
 
 #
 # BoolEvent is a helper for attaching an event to a boolean variable.
@@ -534,23 +558,6 @@ StructuralEvent(condition::MExpr, default, new_relation::Function) = StructuralE
 
 
 ########################################
-## Model checks                       ##
-########################################
-
-# Compare the number of variables and the number of unknowns
-function check(s::Sim)
-    Nvar = length(s.y0)
-    println("Number of floating point variables: ", Nvar)
-    Neq = length(s.F.resid_check(Nvar))
-    println("Number of equations: ", Neq)
-end
-check(e::EquationSet) = check(create_sim(e))
-check(m::Model) = check(create_sim(elaborate(m)))
-
-
-
-
-########################################
 ## Complex number support             ##
 ########################################
 
@@ -582,83 +589,4 @@ to_real(x::Array{Float64}) = x[:]
 to_real(x) = reinterpret(Float64, [x][:])
 
 
-
-
-########################################
-## Basic plotting with Gaston         ##
-########################################
-
-# Note: Gaston hasn't been "modularized", yet.
-function gplot(sm::SimResult)
-    N = length(sm.colnames)
-    figure()
-    c = CurveConf()
-    a = AxesConf()
-    a.title = ""
-    a.xlabel = "Time (s)"
-    a.ylabel = ""
-    addconf(a)
-    for plotnum = 1:N
-        c.legend = sm.colnames[plotnum]
-        addcoords(sm.y[:,1],sm.y[:, plotnum + 1],c)
-    end
-    llplot()
-end
-function gplot(sm::SimResult, filename::ASCIIString)
-    set_filename(filename)
-    plot(sm)
-    printfigure("pdf")
-end
-
-
-########################################
-## Basic plotting with Winston        ##
-########################################
-
-
-# the following is needed:
-# load("winston.jl")
-
-## function wplot( sm::SimResult, filename::String, args... )
-##     N = length( sm.colnames )
-##     a = FramedArray( N, 1, "", "" )
-##     setattr( a, "xlabel", "Time (s)" )
-##     setattr( a, "ylabel", " Y " )
-##     ## setattr(a, "tickdir", +1)
-##     ## setattr(a, "draw_spine", false)
-##     for plotnum = 1:N
-##         add( a[plotnum,1], Curve(sm.y[:,1],sm.y[:, plotnum + 1]) )
-##         setattr( a[plotnum,1], "ylabel", sm.colnames[plotnum] )
-##     end
-##     file( a, filename, args... )
-##     a
-## end
-
-function wplot( sm::SimResult, filename::String, args... )
-    N = length( sm.colnames )
-    a = Winston.Table( N, 1 )
-    for plotnum = 1:N
-        p = Winston.FramedPlot()
-        add( p, Winston.Curve(sm.y[:,1],sm.y[:, plotnum + 1]) )
-        Winston.setattr( p, "ylabel", sm.colnames[plotnum] )
-        a[plotnum,1] = p
-    end
-    Winston.file( a, filename, args... )
-    a
-end
-
-function wplot( sm::SimResult )
-    N = length( sm.colnames )
-    a = Winston.Table( N, 1 )
-    for plotnum = 1:N
-        p = Winston.FramedPlot()
-        add( p, Winston.Curve(sm.y[:,1],sm.y[:, plotnum + 1]) )
-        Winston.setattr( p, "ylabel", sm.colnames[plotnum] )
-        a[plotnum,1] = p
-    end
-    dev = Tk.TkRenderer("plot", w, h)
-    Winston.page_compose(self, dev, false)
-    dev.on_close()
-    Tk.tk( a, 800, 600 )
-end
 

@@ -2,33 +2,38 @@ using Winston
 
 module Sims
 
-import Base.assign,
-       Base.hcat,
+import Base.hcat,
        Base.length,
-       Base.ref, 
-       Base.size, 
+       Base.getindex, 
+       Base.setindex!,
+       Base.show,
+       Base.size,
+       Base.solve,
        Base.vcat
 
 import Winston
 
+## if isdir(julia_pkgdir() * "/Winston")
+##     include(find_in_path("Winston"))
+## end    
 ## if isdir(julia_pkgdir() * "/Tk")
 ##     load("Tk")
 ## end    
 
 ## Types
 export ModelType, UnknownCategory, Unknown, UnknownVariable, DefaultUnknown, DerUnknown, RefUnknown, RefBranch,
-       Model, MExpr, Discrete, RefDiscrete, DiscreteVar, Event, LeftVar, StructuralEvent,
+       InitialEquation, Model, MExpr, Discrete, RefDiscrete, DiscreteVar, Event, LeftVar, StructuralEvent,
        EquationSet, SimFunctions, Sim, SimResult
 
 ## Specials
-export MTime
+export MTime, @init, @unknown
 
 ## Methods
 export is_unknown, der, delay, mexpr, value, compatible_values, reinit, ifelse,
        basetypeof, from_real, to_real,
        gplot, wplot,
        check,
-       elaborate, create_sim, sim
+       elaborate, create_sim, sim, sunsim, dasslsim
 
 ## Model methods
 export Branch, BoolEvent
@@ -65,7 +70,15 @@ export Inertia, Disc, Spring, BranchHeatPort, Damper, SpringDamper,
        IdealGear, SpeedSensor, AccSensor, SignalTorque
            
 
-include("sim.jl")
+include("main.jl")
+include("elaboration.jl")
+include("simcreation.jl")
+include("utils.jl")
+# solvers
+include("dassl.jl")
+include("sundials.jl")
+sim = sunsim
+sim = dasslsim
 
 # load standard Sims libraries
 include("types.jl")
@@ -75,7 +88,6 @@ include("electrical.jl")
 include("powersystems.jl")
 include("heat_transfer.jl")
 include("rotational.jl")
-## include("examples.jl")
 
 end # module Sims
 

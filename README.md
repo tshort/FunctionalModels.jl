@@ -41,39 +41,30 @@ and [George Giorgidze](http://db.inf.uni-tuebingen.de/team/giorgidze)
 ([Hydra code](https://github.com/giorgidze/Hydra) and
 [thesis](http://db.inf.uni-tuebingen.de/files/giorgidze/phd_thesis.pdf))
 and [Henrik Nilsson](http://www.cs.nott.ac.uk/~nhn/) and their
-functional hybrid modeling . The DASKR solver is used to solve the
-implicit DAE's generated. DASKR is a derivative of DASSL with root
-finding.
+functional hybrid modeling. Two solvers are available to solve the
+implicit DAE's generated. The default is DASKR, a derivative of DASSL with root
+finding. A solver based on the
+[Sundials](https://github.com/tshort/Sundials.jl) package is also available.
     
 Installation
 ------------
 
-Sims is an installable package. If you have not initialized
-the package system before, you will need to do the following:
+Sims is an installable package. To install Sims, use the following:
 
 ```julia
-load("pkg")
-Pkg.init()
-```
-
-To install Sims, use the following:
-
-```julia
-load("pkg")   # if not done previously
 Pkg.add("Sims")
 ```
 
-Because the Julia package manager cannot automatically compile C or
-FORTRAN code, yet, Sims attempts to compile the DASKR solver (in
-Sims/lib) if the dynamic linked library is not found. If DASKR is
-updated, it may need to be recompiled (the function
-`Sims.compile_daskr` does this). Note: to compile DASKR, gfortran must
-be installed.
+Sims attempts to compile the DASKR solver (in Sims/lib) if the dynamic
+linked library is not found. If DASKR is updated, it may need to be
+recompiled (the function `Sims.compile_daskr` does this). Note: to
+compile DASKR, gfortran must be installed. To use the Sundials solver,
+you must have the Sundials C
+[library](https://computation.llnl.gov/casc/sundials/main.html)
+installed as well as the Julia Sundials package.
 
 Sims.jl has one main module named `Sims`. This module includes
-simulation code and a standard library of components. Another module
-named `SimsCore` only includes the core simulation code, not the
-standard library.
+simulation code and a standard library of components. 
 
 Basic example
 -------------
@@ -82,8 +73,8 @@ Sims defines a basic symbolic class used for unknown variables in
 the model. As unknown variables are evaluated, expressions (of
 type MExpr) are built up.
 
-``` .jl
-julia> load("Sims"); using Sims
+``` julia
+julia> using Sims
 
 julia> a = Unknown()
 ##1243
@@ -99,22 +90,22 @@ A device model is a function that returns a list of equations or
 other devices that also return lists of equations. The equations
 each are assumed equal to zero. So,
 
-``` .jl
+``` julia
 der(y) = x + 1
 ```
 
 Should be entered as:
 
-``` .jl
+``` julia
 der(y) - (x+1)
 ```
 
-der indicates a derivative.
+`der` indicates a derivative.
 
 The Van Der Pol oscillator is a simple problem with two equations
 and two unknowns:
 
-``` .jl
+``` julia
 function Vanderpol()
     y = Unknown(1.0, "y")   # The 1.0 is the initial value. "y" is for plotting.
     x = Unknown("x")        # The initial value is zero if not given.
@@ -164,7 +155,7 @@ unknowns. For these electrical examples, a node is simply an unknown
 voltage.
  
     
-``` .jl
+```julia
 function Resistor(n1, n2, R::Real) 
     i = Current()   # This is simply an Unknown. 
     v = Voltage()
@@ -191,7 +182,7 @@ assigned zero volts.
 All of the equations returned in the list of equations are other
 models with various parameters.
    
-``` .jl
+```julia
 function Circuit()
     n1 = Voltage("Source voltage")   # The string indicates labeling for plots
     n2 = Voltage("Output voltage")
@@ -213,6 +204,26 @@ gplot(ckt_y)
 Here are the results:
 
 ![plot results](https://github.com/tshort/Sims.jl/blob/master/examples/circuit.png?raw=true "Circuit results")
+
+Initialization and Solving Sets of Equations
+--------------------------------------------
+
+Sims initialization is still weak, but it is developed enough to be
+able to solve non-differential equations. Here is a small example
+where two Unknowns, `x` and `y`, are solved based on the following two
+equations:
+
+```julia
+function test()
+    @unknown x y
+    {
+     2*x - y - exp(-x)
+      -x + 2*y - exp(-y)
+     }
+end
+
+solution = solve(create_sim(test()))
+```
 
 Hybrid Modeling and Structural Variability
 ------------------------------------------
