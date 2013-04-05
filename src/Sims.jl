@@ -1,4 +1,4 @@
-using Winston
+## using Winston
 
 module Sims
 
@@ -11,7 +11,7 @@ import Base.hcat,
        Base.solve,
        Base.vcat
 
-import Winston
+## import Winston
 
 ## if isdir(julia_pkgdir() * "/Winston")
 ##     include(find_in_path("Winston"))

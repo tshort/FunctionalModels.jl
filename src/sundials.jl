@@ -21,7 +21,7 @@ end
 function rootfun(t::Float64, y::N_Vector, yp::N_Vector, g::Ptr{Sundials.realtype}, userdata)
     y = Sundials.asarray(y) 
     yp = Sundials.asarray(yp) 
-    g = Sundials.asarray(g, (length(__F.event_pos),))
+    g = Sundials.asarray(g, (length(__sm.F.event_pos),))
     __sm.F.event_at(t, y, yp, g)
     return int32(0)   # indicates normal return
 end

@@ -51,7 +51,11 @@ function Derivative(u::Signal, y::Signal,
      y - (zeroGain ? 0 : (k ./ T) .* (u - x))
     }
 end
-Derivative(u::Signal, y::Signal) = Derivative(u, y, Options())
+Derivative(u::Signal, y::Signal; 
+           T = 1.0,
+           k = 1.0,
+           x_start = 0.0,
+           y_start = 0.0) = Derivative(u, y, T, k, x_start, y_start)
 
 function FirstOrder(u::Signal, y::Signal,
                     T = 1.0,       # pole's time constant
@@ -62,7 +66,12 @@ function FirstOrder(u::Signal, y::Signal,
      y + T*der(y) - k*u
     }
 end
+FirstOrder(u::Signal, y::Signal;
+           T = 1.0,
+           k = 1.0,
+           y_start = 0.0) = FirstOrder(u, T, k, y_start)
 
+           
 function LimPID(u_s::Signal, u_m::Signal, y::Signal, 
                 controllerType = "PID",
                 k = 1.0,      # Gain of controller
@@ -77,11 +86,6 @@ function LimPID(u_s::Signal, u_m::Signal, y::Signal,
                 xi_start = 0.0, # initial value of state
                 xd_start = 0.0, # initial value of state
                 y_start = 0.0)  # output initial value
-    LimPID(u_s, u_m, y, controllerType, k, Ti, Td, yMax, yMin, wp, wd, Ni, Nd, xi_start, xd_start, y_start)
-end
-
-function LimPID(u_s::Signal, u_m::Signal, y::Signal,
-                controllerType, k, Ti, Td, yMax, yMin, wp, wd, Ni, Nd, xi_start, xd_start, y_start) 
     with_I = any(controllerType .== ["PI", "PID"])
     with_D = any(controllerType .== ["PD", "PID"])
     x = Unknown(xi_start)  # node just in front of the limiter
@@ -100,6 +104,24 @@ function LimPID(u_s::Signal, u_m::Signal, y::Signal,
      }
 end
 
+function LimPID(u_s::Signal, u_m::Signal, y::Signal; 
+                controllerType = "PID",
+                k = 1.0,      # Gain of controller
+                Ti = 1.0,     # Time constant fo the Integrator block, s 
+                Td = 1.0,     # Time constant fo the Derivative block, s 
+                yMax = 1.0,   # Upper limit of the output
+                yMin = -yMax, # Lower limit of the output
+                wp = 1.0,     # Set-point weight for the Proportional block [0..1]
+                wd = 0.0,     # Set-point weight for the Derivative block [0..1]
+                Ni = 0.9,     # Ni * Ti is the time constant of the anti-windup compensation
+                Nd = 10.0,    # The higher Nd, the more ideal the derivative block
+                xi_start = 0.0, # initial value of state
+                xd_start = 0.0, # initial value of state
+                y_start = 0.0)  # output initial value
+    LimPID(u_s, u_m, y, controllerType, k, Ti, Td, yMax, yMin, wp, wd, Ni, Nd, xi_start, xd_start, y_start)
+end
+
+
 # Warning: untested
 function StateSpace(u::Signal, y::Signal, 
                     A = [1.0],
@@ -112,8 +134,11 @@ function StateSpace(u::Signal, y::Signal,
      C * x + D * u - y
      }
 end
-StateSpace(u::Signal, y::Signal, A::Array, B::Array, C::Array, D::Array) =
-    StateSpace(u, y, A = A, b = B, C = C, D = D)
+StateSpace(u::Signal, y::Signal; 
+           A = [1.0],
+           B = [1.0],
+           C = [1.0],
+           D = [0.0]) = StateSpace(u, y, A, B, C, D)
 
 function TransferFunction(u::Signal, y::Signal, 
                           b = [1],  # Numerator; 2*s + 3 is specified as [2,3]
@@ -139,8 +164,9 @@ function TransferFunction(u::Signal, y::Signal,
        }
     end
 end
-TransferFunction(u::Signal, y::Signal, b::Vector, a::Vector) = TransferFunction(u, y, b = b, a = a)
-
+TransferFunction(u::Signal, y::Signal, 
+                 b = [1],
+                 a = [1]) = TransferFunction(u, y, b, a)
 
 
 ########################################
@@ -170,8 +196,9 @@ function Limiter(u::Signal, y::Signal,
                        u))
      }
 end
-Limiter(u::Signal, y::Signal, uMax::Signal) = Limiter(u, y, uMax = uMax)
-Limiter(u::Signal, y::Signal, uMax::Signal, uMin::Signal) = Limiter(u, y, uMax = uMax, uMin = uMin)
+Limiter(u::Signal, y::Signal; 
+        uMax = 1.0,
+        uMin = -uMax) = Limiter(u, y, uMax, uMin)
 VariableLimiter = Limiter
 
 function Step(y::Signal, 
@@ -186,7 +213,10 @@ function Step(y::Signal,
            {reinit(ymag, offset)})            # negative crossing
     }
 end
-Step(y::Signal, height::Float64) = Step(y, height = height)
+Step(y::Signal; 
+     height = 1.0,
+     offset = 0.0, 
+     startTime = 0.0) = Step(y, height, offset, startTime)
 
 function DeadZone(u::Signal, y::Signal, 
                   uMax = 1.0,
@@ -201,6 +231,7 @@ function DeadZone(u::Signal, y::Signal,
                        0.0))
      }
 end
-DeadZone(u::Signal, y::Signal, uMax::Signal) = DeadZone(u, y, uMax = uMax)
-DeadZone(u::Signal, y::Signal, uMax::Signal, uMin::Signal) = DeadZone(u, y, uMax = uMax, uMin = uMin)
+DeadZone(u::Signal, y::Signal; 
+         uMax = 1.0,
+         uMin = -uMax) = DeadZone(u, y, uMax, uMin)
 
