@@ -215,7 +215,7 @@ end
 # add_var add's a variable to the unknown_idx_map if it isn't already
 # there. 
 function add_var(v, sm) 
-    if !has(sm.unknown_idx_map, v.sym)
+    if !haskey(sm.unknown_idx_map, v.sym)
         # Account for the length and fundamental size of the object
         len = length(v.value) * int(sizeof([v.value][1]) / 8)  
         idx = len == 1 ? sm.varnum : (sm.varnum:(sm.varnum + len - 1))
@@ -281,7 +281,7 @@ function replace_unknowns(a::LeftVar, sm::Sim)
         :($(a.var.sym))
     else
         var = replace_unknowns(a.var, sm)
-        :(sub($(var.args[2]), $(var.args[3])))
+        :(sub($(var.args[2]), $(var.args[3]):$(var.args[3])))
     end
 end
 

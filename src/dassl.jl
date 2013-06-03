@@ -24,7 +24,7 @@ end
 const lib = dlopen(dllname)
 
 function dasslfun(t_in, y_in, yp_in, cj, delta_out, ires, rpar, ipar)
-    n = int(unsafe_ref(ipar))
+    n = int(unsafe_load(ipar))
     t = pointer_to_array(t_in, (1,))
     y = pointer_to_array(y_in, (n,))
     yp = pointer_to_array(yp_in, (n,))

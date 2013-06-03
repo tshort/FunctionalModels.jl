@@ -65,7 +65,7 @@ function FlexibleShaft(flangeA::Flange, flangeB::Flange, n::Int)
     r[end] = flangeB
     result = {}
     for i in 1:(n - 1)
-        push(result, ShaftElement(r[i], r[i + 1]))
+        push!(result, ShaftElement(r[i], r[i + 1]))
     end
     result
 end
