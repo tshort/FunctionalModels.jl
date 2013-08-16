@@ -99,36 +99,35 @@ function AIMSquirrelCage(n1::ElectricalNode, n2::ElectricalNode, flange::Flange,
     }
 end
 
-function AIMSquirrelCage(n1::ElectricalNode, n2::ElectricalNode, flange::Flange, support::Flange, T::HeatPort, opts::Options)
-    @defaults opts begin 
-        p = 2 # Number of pole pairs
-        fsNominal = 50.0 # Nominal frequency, Hz
-        Jr = 0.29 # Rotor's moment of inertia
-        Js = 0.29 # Stator's moment of inertia
-        TsOperational = 293.15 # Operational temperature of stator resistance
-        TrOperational = 293.15 # Operational temperature of rotor resistance
-        Rs = 0.03  # Stator resistance per phase at TRef
-        TsRef = 293.15  # Reference temperature of stator resistance
-        alpha20s = 0.0  # Temperature coefficient of stator resistance at 20 degC
-        Lssigma = 3 * (1 - sqrt(1 - 0.0667) / (2*pi*fsNominal)) # Stator stray inductance per phase
-        Lszero = Lssigma  # Stator zero-sequence inductance
-        Lm = 3*sqrt(1 - 0.0667)/(2*pi*fsNominal) # Main field inductance
-        Lrsigma = # Rotor stray inductance per phase translated to stator
-        Rr = # Rotor resitance per phase translated to stator at T_ref
-        TrRef = 293.15 # Reference temperature
-        alpha20r = 0.0 # Temperature coefficient of rotor resistance at 20 degC
-        frictionParameters = FrictionParameters()
-        statorCoreParameters = CoreParameters()
-        strayLoadParameters = StrayLoadParameters()
-    end
+function AIMSquirrelCage(n1::ElectricalNode, n2::ElectricalNode, flange::Flange, support::Flange, T::HeatPort;
+        p = 2, # Number of pole pairs
+        fsNominal = 50.0, # Nominal frequency, Hz
+        Jr = 0.29, # Rotor's moment of inertia
+        Js = 0.29, # Stator's moment of inertia
+        TsOperational = 293.15, # Operational temperature of stator resistance
+        TrOperational = 293.15, # Operational temperature of rotor resistance
+        Rs = 0.03,  # Stator resistance per phase at TRef
+        TsRef = 293.15,  # Reference temperature of stator resistance
+        alpha20s = 0.0,  # Temperature coefficient of stator resistance at 20 degC
+        Lssigma = 3 * (1 - sqrt(1 - 0.0667) / (2*pi*fsNominal)), # Stator stray inductance per phase
+        Lszero = Lssigma,  # Stator zero-sequence inductance
+        Lm = 3*sqrt(1 - 0.0667)/(2*pi*fsNominal), # Main field inductance
+        # following are wrong...
+        Lrsigma = 0.0, # Rotor stray inductance per phase translated to stator
+        Rr = 0.0, # Rotor resitance per phase translated to stator at T_ref
+        TrRef = 293.15, # Reference temperature
+        alpha20r = 0.0, # Temperature coefficient of rotor resistance at 20 degC
+        frictionParameters = FrictionParameters(),
+        statorCoreParameters = CoreParameters(),
+        strayLoadParameters = StrayLoadParameters())
     AIMSquirrelCage(n1, n2, flange, support, T, 
                     p, fsNominal, Jr, Js, 
                     TsOperational, TrOperational,
                     Rs, TsRef, alpha20s, Lszero, Lssigma, Lm, Lrsigma, Rr, TrRef, alpha20r,
                     frictionParameters, statorCoreParameters, strayLoadParameters)
 end
-AIMSquirrelCage(n1::ElectricalNode, n2::ElectricalNode, flange::Flange, opts::Options) =
-    AIMSquirrelCage(n1, n2, flange, 0.0, 293.15, opts::Options)
+AIMSquirrelCage(n1::ElectricalNode, n2::ElectricalNode, flange::Flange, ...) =
+    AIMSquirrelCage(n1, n2, flange, 0.0, 293.15, ...)
 
 
 function AirGapS(sp_s::ElectricalNode, sp_r::ElectricalNode, flange::Flange, support::Flange,
@@ -311,7 +310,7 @@ function AIMC_DOL()
     gnd = 0.0
     {
      SineVoltage(n1, gnd, VAC .* sqrt(2/3), fNominal, [0.0, -2pi/3, 2pi/3])
-     AIMSquirrelCage(n3, gnd, r1, Options())
+     AIMSquirrelCage(n3, gnd, r1)
      Inertia(r1, r2, JLoad)
      QuadraticSpeedDependentTorque(r2, gnd, -TLoad, false, wLoad)
      BoolEvent(control, MTime - tStart1)
