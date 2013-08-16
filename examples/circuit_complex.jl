@@ -58,6 +58,9 @@ end
 
 
 cckt = CmplxCkt()
-cckt_y = sim(cckt, 0.02)  
+cckt_f = elaborate(cckt)
+cckt_s = create_sim(cckt_f) 
+cckt_y = sim(cckt_s, 0.02)  
+## cckt_y = sunsim(cckt, 0.02)  
 
 end # module

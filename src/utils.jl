@@ -18,26 +18,30 @@ check(m::Model) = check(create_sim(elaborate(m)))
 ## Basic plotting with Gaston         ##
 ########################################
 
-# Note: Gaston hasn't been "modularized", yet.
+havegaston = !is(Pkg.installed("Gaston"), nothing)
+if havegaston
+    using Gaston
+end
+
 function gplot(sm::SimResult)
     N = length(sm.colnames)
     figure()
-    c = CurveConf()
-    a = AxesConf()
+    c = Gaston.CurveConf()
+    a = Gaston.AxesConf()
     a.title = ""
     a.xlabel = "Time (s)"
     a.ylabel = ""
-    addconf(a)
+    Gaston.addconf(a)
     for plotnum = 1:N
         c.legend = sm.colnames[plotnum]
-        addcoords(sm.y[:,1],sm.y[:, plotnum + 1],c)
+        Gaston.addcoords(sm.y[:,1],sm.y[:, plotnum + 1],c)
     end
-    llplot()
+    Gaston.llplot()
 end
 function gplot(sm::SimResult, filename::ASCIIString)
-    set_filename(filename)
-    plot(sm)
-    printfigure("pdf")
+    Gaston.set_filename(filename)
+    gplot(sm)
+    Gaston.printfigure("pdf")
 end
 
 
@@ -46,23 +50,11 @@ end
 ########################################
 
 
-# the following is needed:
-# load("winston.jl")
+havewinston = !is(Pkg.installed("Winston"), nothing)
+if havewinston
+    using Winston
+end
 
-## function wplot( sm::SimResult, filename::String, args... )
-##     N = length( sm.colnames )
-##     a = FramedArray( N, 1, "", "" )
-##     setattr( a, "xlabel", "Time (s)" )
-##     setattr( a, "ylabel", " Y " )
-##     ## setattr(a, "tickdir", +1)
-##     ## setattr(a, "draw_spine", false)
-##     for plotnum = 1:N
-##         add( a[plotnum,1], Curve(sm.y[:,1],sm.y[:, plotnum + 1]) )
-##         setattr( a[plotnum,1], "ylabel", sm.colnames[plotnum] )
-##     end
-##     file( a, filename, args... )
-##     a
-## end
 
 function wplot( sm::SimResult, filename::String, args... )
     N = length( sm.colnames )
@@ -86,11 +78,9 @@ function wplot( sm::SimResult )
         Winston.setattr( p, "ylabel", sm.colnames[plotnum] )
         a[plotnum,1] = p
     end
-    dev = Tk.TkRenderer("plot", w, h)
-    Winston.page_compose(self, dev, false)
-    dev.on_close()
-    Tk.tk( a, 800, 600 )
+    Winston.display(a)
 end
+
 
 
 

@@ -11,15 +11,6 @@ import Base.hcat,
        Base.solve,
        Base.vcat
 
-## import Winston
-
-## if isdir(julia_pkgdir() * "/Winston")
-##     include(find_in_path("Winston"))
-## end    
-## if isdir(julia_pkgdir() * "/Tk")
-##     load("Tk")
-## end    
-
 ## Types
 export ModelType, UnknownCategory, Unknown, UnknownVariable, DefaultUnknown, DerUnknown, RefUnknown, RefBranch,
        InitialEquation, Model, MExpr, Discrete, RefDiscrete, DiscreteVar, Event, LeftVar, StructuralEvent,
