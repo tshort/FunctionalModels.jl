@@ -18,8 +18,7 @@ check(m::Model) = check(create_sim(elaborate(m)))
 ## Basic plotting with Gaston         ##
 ########################################
 
-havegaston = !is(Pkg.installed("Gaston"), nothing)
-if havegaston
+if "Gaston" in keys(Pkg.installed())
     using Gaston
 end
 
@@ -49,12 +48,9 @@ end
 ## Basic plotting with Winston        ##
 ########################################
 
-
-havewinston = !is(Pkg.installed("Winston"), nothing)
-if havewinston
+if "Winston" in keys(Pkg.installed())
     using Winston
 end
-
 
 function wplot( sm::SimResult, filename::String, args... )
     N = length( sm.colnames )

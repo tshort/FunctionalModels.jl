@@ -65,11 +65,15 @@ include("main.jl")
 include("elaboration.jl")
 include("simcreation.jl")
 include("utils.jl")
+
 # solvers
-include("dassl.jl")
-include("sundials.jl")
-sim = sunsim
-sim = dasslsim
+if "Sundials" in keys(Pkg.installed())
+    include("sundials.jl")
+    sim = sunsim
+else
+    include("dassl.jl")
+    sim = dasslsim
+end
 
 # load standard Sims libraries
 include("types.jl")
@@ -81,5 +85,3 @@ include("heat_transfer.jl")
 include("rotational.jl")
 
 end # module Sims
-
-
