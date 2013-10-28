@@ -249,6 +249,10 @@ end
 for f in unary_functions
     ## @eval import Base.(f)
     eval(Expr(:toplevel, Expr(:import, :Base, f)))
+
+    # Define separate method to get rid of 'ambiguous definition' warnings in base/floatfuncs.jl
+    @eval ($f)(x::ModelType, arg::Integer) = mexpr(:call, ($f), _expr(x), arg)
+
     @eval ($f)(x::ModelType, args...) = mexpr(:call, ($f), _expr(x), map(_expr, args)...)
 end
 
