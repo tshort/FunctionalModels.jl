@@ -45,7 +45,6 @@ function elaborate(x::EquationSet)
         push!(eq.initialequations, nodeset)
     end
     # last fixups:
-    
     eq.initialequations = replace_fixed(remove_empties(strip_mexpr(eq.initialequations)))
     eq.equations = remove_empties(strip_mexpr(eq.equations))
     eq

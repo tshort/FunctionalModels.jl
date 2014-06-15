@@ -19,7 +19,7 @@ function test()
 end
 f = elaborate(test())
 sm = create_sim(f)
-res = solve(sm)
+res = inisolve(sm)
 
 function mkin()
     @unknown x(1.0) y(1.0)
@@ -30,7 +30,7 @@ function mkin()
 end
 
 sm = create_sim(mkin())
-res = solve(sm)
+res = inisolve(sm)
 
 
 ## BROKEN
@@ -44,4 +44,4 @@ function fun()
 end
 
 ## sm = create_sim(fun())
-## res = solve(sm)
+## res = inisolve(sm)

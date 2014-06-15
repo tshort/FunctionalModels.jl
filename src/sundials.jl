@@ -26,7 +26,7 @@ function rootfun(t::Float64, y::N_Vector, yp::N_Vector, g::Ptr{Sundials.realtype
     return int32(0)   # indicates normal return
 end
 
-function solve(sm::Sim) # initial conditions
+function inisolve(sm::Sim) # initial conditions
     global __sm = sm
     kmem = Sundials.KINCreate()
     u = [sm.y0, sm.yp0[sm.id .> 0]]
@@ -37,7 +37,7 @@ function solve(sm::Sim) # initial conditions
     flag = Sundials.KINSol(kmem, u, Sundials.KIN_NONE, scale, scale) 
     u
 end
-solve(m::Model)  = sunsim(create_sim(elaborate(m)))
+inisolve(m::Model)  = sunsim(create_sim(elaborate(m)))
 
 function sunsim(sm::Sim, tstop::Float64, Nsteps::Int)
     # tstop & Nsteps should be in options

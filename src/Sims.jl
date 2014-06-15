@@ -8,7 +8,6 @@ import Base.hcat,
        Base.setindex!,
        Base.show,
        Base.size,
-       Base.solve,
        Base.vcat
 
 ## Types
@@ -24,7 +23,7 @@ export is_unknown, der, delay, mexpr, value, compatible_values, reinit, ifelse,
        basetypeof, from_real, to_real,
        gplot, wplot,
        check,
-       elaborate, create_sim, sim, sunsim, dasslsim
+       elaborate, create_sim, sim, sunsim, dasslsim, inisolve
 
 ## Model methods
 export Branch, BoolEvent
@@ -67,13 +66,13 @@ include("simcreation.jl")
 include("utils.jl")
 
 # solvers
-if "Sundials" in keys(Pkg.installed())
+# if "Sundials" in keys(Pkg.installed())
     include("sundials.jl")
     sim = sunsim
-else
-    include("dassl.jl")
-    sim = dasslsim
-end
+# else
+#     include("dassl.jl")
+#     sim = dasslsim
+# end
 
 # load standard Sims libraries
 include("types.jl")

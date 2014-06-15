@@ -53,27 +53,33 @@ if "Winston" in keys(Pkg.installed())
 end
 
 function _wplot(sm::SimResult)
-    N = length(sm.colnames)
-    a = Winston.Table(N, 1)
-    for plotnum = 1:N
-        p = Winston.FramedPlot()
-        add(p, Winston.Curve(sm.y[:,1],sm.y[:, plotnum + 1]))
-        Winston.setattr(p, "ylabel", sm.colnames[plotnum])
-        a[plotnum,1] = p
+    try
+        N = length(sm.colnames)
+        a = Winston.Table(N, 1)
+        for plotnum = 1:N
+            p = Winston.FramedPlot()
+            add(p, Winston.Curve(sm.y[:,1],sm.y[:, plotnum + 1]))
+            Winston.setattr(p, "ylabel", sm.colnames[plotnum])
+            a[plotnum,1] = p
+        end
+        a
     end
-    a
 end
 
 function wplot(sm::SimResult, filename::String, args...)
-    a = _wplot(sm)
-    Winston.file(a, filename, args...)
-    a
+    try
+        a = _wplot(sm)
+        Winston.file(a, filename, args...)
+        a
+    end
 end
 
 function wplot(sm::SimResult)
-    a = _wplot(sm)
-    Winston.display(a)
-    a
+    try
+        a = _wplot(sm)
+        Winston.display(a)
+        a
+    end
 end
 
 
