@@ -95,13 +95,7 @@
 # even more difficult to interface. 
 # 
 
-########################################
-## Utilities                          ##
-########################################
 
-compile_daskr() = cd(Pkg.dir() * "/Sims/lib") do
-    run(`gfortran -fPIC -O2 -ggdb -shared -o daskr.so DASKR/ddaskr.f DASKR/dlinpk.f DASKR/daux.f`) 
-end
 
 ########################################
 ## Type definitions                   ##

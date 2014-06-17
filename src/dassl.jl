@@ -14,12 +14,11 @@
 # the main variables used in the residual function callback.
 #
 
-dllname = Pkg.dir() * "/Sims/lib/daskr.so"
+dllname = Pkg.dir() * "/Sims/deps/daskr.so"
 if !isfile(dllname)
     println("*********************************************")
-    println("Can't find daskr.so; attempting to compile...")
+    println("Can't find daskr.so                          ")
     println("*********************************************")
-    compile_daskr() 
 end    
 const lib = dlopen(dllname)
 

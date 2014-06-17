@@ -66,13 +66,28 @@ include("simcreation.jl")
 include("utils.jl")
 
 # solvers
-# if "Sundials" in keys(Pkg.installed())
+hasdassl = try
+    include("dassl.jl")
+    sim = dasslsim
+    true
+catch
+    false
+end
+hassundials = try
     include("sundials.jl")
     sim = sunsim
-# else
-#     include("dassl.jl")
-#     sim = dasslsim
-# end
+    true
+catch
+    false
+end
+if hassundials
+    sim = sunsim
+elseif hasdassl
+    sim = dasslsim
+else
+    error("Sims: no solver available (Sundials and DASSL are both unavailable)")
+end
+    
 
 # load standard Sims libraries
 include("types.jl")
