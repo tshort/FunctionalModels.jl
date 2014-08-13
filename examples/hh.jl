@@ -81,7 +81,9 @@ hh_s = create_sim(hh_f) # returns a "Sim" ready for simulation
 
 # runs the simulation and returns
 # the result as an array plus column headings
-hh_yout = sunsim(hh_s, 200.0) 
+tf = 500.0
+dt = 0.025
+hh_yout = sunsim(hh_s, tf, int(tf/dt))
 
 plot (hh_yout.y[:,1], hh_yout.y[:,2])
 
