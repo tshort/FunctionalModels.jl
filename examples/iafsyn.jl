@@ -72,11 +72,13 @@ end
 
 
 function Circuit()
-    V  = Voltage (-65.0, "V")
-    Isyn = Unknown("Isyn")
+    V     = Voltage (-65.0, "V")
+    Isyn  = Unknown ("Isyn")
+    Isyn1 = Unknown ()
    {
     LeakyIaF(V,Isyn)
-    Syn(V,Isyn,MTime - 1.25)
+    Syn(V,Isyn1,MTime - 1.25)
+    Isyn - Isyn1
    }
 end
 
