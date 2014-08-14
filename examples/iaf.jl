@@ -16,7 +16,6 @@ trefractory = 5.0
 function LeakyIaF()
 
     v   = Unknown(vreset, "v")   
-    s   = Unknown()
     
     # The following gives the return value which is a list of equations.
     # Expressions with Unknowns are kept as expressions. Regular
