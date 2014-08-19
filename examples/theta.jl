@@ -7,15 +7,19 @@ using Grid
 using Sims
 using Winston
 
-y  = rand (100)-0.5
-yi = InterpGrid(y, BCnil, InterpLinear)
+tend = 1000.0
+dt   = 0.1
 
-alpha = 1.0
-I = 0.01
+alpha = 0.012
+beta  = 0.001
 
-function Theta(theta)
+# y = sort (map (Poisson (100), Array(Float64, tend/dt)))
+# yi = InterpGrid(y, BCnil, InterpLinear)
+
+
+function Theta(theta,input)
     {
-     der(theta) - (1 - cos(theta) + alpha * (1 + cos(theta)) * I)
+     der(theta) - (1 - cos(theta) + alpha * (1 + cos(theta)) * input(value(MTime)))
      
      Event(theta-pi,
           {
@@ -26,10 +30,16 @@ function Theta(theta)
     }
 end
 
+
+function In(time)
+  return sin (beta * time)
+end
+
+
 function ThetaCircuit()
-    theta = Unknown(0.5, "theta")
+    theta = Unknown(0.0, "theta")
    {
-     Theta(theta)
+     Theta(theta, In)
    }
 end
 
@@ -40,7 +50,7 @@ theta_s = create_sim(theta_f) # returns a "Sim" ready for simulation
 
 # runs the simulation and returns
 # the result as an array plus column headings
-theta_yout = sunsim(theta_s, 50.0) 
+theta_yout = sunsim(theta_s, tend) 
 
 #plot (theta_yout.y[:,1], theta_yout.y)
 plot (theta_yout.y[:,1], theta_yout.y[:,2])
