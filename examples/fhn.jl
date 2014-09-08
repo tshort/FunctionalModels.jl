@@ -20,8 +20,6 @@ tau = 12.5
 # Should be entered as:
 #    der(y) - (x+1)
 #
-# The Van Der Pol oscillator is a simple problem with two equations
-# and two unknowns:
 
 function FitzHughNagumo(Iext)
     v = Unknown("v")   
