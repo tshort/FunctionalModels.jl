@@ -4,25 +4,25 @@
 using Sims
 using Winston
 
-C     = 200.0 
-gL    =  10.0 
-EL    = -58.0 
-VT    = -50.0 
-Delta = 2.0 
-theta = 0.0 
-trefractory = 0.25
+const C     = 200.0 
+const gL    =  10.0 
+const EL    = -58.0 
+const VT    = -50.0 
+const Delta = 2.0 
+const theta = 0.0 
+const trefractory = 0.25
 
-a     =   2.0 
-tau_w =  120.0 
-b     =  100.0 
-Vr    = -46.0 
+const a     =   2.0 
+const tau_w =  120.0 
+const b     =  100.0 
+const Vr    = -46.0 
 
-Isyn  =  210.0
+const Isyn  =  210.0
 
 function AdEx()
 
-    V   = Unknown(vreset, "V")   
-    W   = Unknown(vreset, "W")   
+    V   = Unknown(Vr, "V")   
+    W   = Unknown(Vr, "W")   
     
     # The following gives the return value which is a list of equations.
     # Expressions with Unknowns are kept as expressions. Regular
