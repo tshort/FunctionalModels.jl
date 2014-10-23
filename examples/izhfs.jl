@@ -50,9 +50,14 @@ izhfs   = IzhikevichFS()      # returns the hierarchical model
 izhfs_f = elaborate(izhfs)    # returns the flattened model
 izhfs_s = create_sim(izhfs_f) # returns a "Sim" ready for simulation
 
+tf = 800.0
+dt = 0.025
+
+izhfs_ptr = setup_sunsim (izhfs_s, 1e-6, 1e-6)
+
 # runs the simulation and returns
 # the result as an array plus column headings
-izhfs_yout = sunsim(izhfs_s, 80.0) 
+@time izhfs_yout = sunsim(izhfs_ptr, izhfs_s, 800.0, int(tf/dt))
 
 plot (izhfs_yout.y[:,1], izhfs_yout.y[:,2])
 
