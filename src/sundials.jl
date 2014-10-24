@@ -2,91 +2,121 @@ using Sundials
 
 import Sundials.N_Vector, Sundials.nvector
 
-function initfun(u::N_Vector, r::N_Vector, userdata)
-    n = length(__sm.y0)
+## Conventions:
+##
+## __ss is a global array of SimState structures
+##
+##
+
+__ss = {}
+
+function initfun(u::N_Vector, r::N_Vector, userdata_ptr::Ptr{Void})
+    userdata = unsafe_pointer_to_objref(userdata_ptr)
+    ss::SimState = __ss[userdata]
+    sm::Sim = ss.sm
+
+    n  = length(ss.y0)
     nu = int(Sundials.nvlength(u))
-    y = pointer_to_array(Sundials.N_VGetArrayPointer_Serial(u), (n,))
+    y  = pointer_to_array(Sundials.N_VGetArrayPointer_Serial(u), (n,))
     yp = nu - n > 0 ? pointer_to_array(Sundials.N_VGetArrayPointer_Serial(u) + n, (nu - n,)) : []
-    r = Sundials.asarray(r)
-    __sm.F.init(__sm.t[1], y, yp, r)
-    return int32(0)   # indicates normal return
-end
-function daefun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userdata)
-    y = Sundials.asarray(y) 
-    yp = Sundials.asarray(yp) 
-    r = Sundials.asarray(r)
-    __sm.F.resid(t, y, yp, r)
-    return int32(0)   # indicates normal return
-end
-function rootfun(t::Float64, y::N_Vector, yp::N_Vector, g::Ptr{Sundials.realtype}, userdata)
-    y = Sundials.asarray(y) 
-    yp = Sundials.asarray(yp) 
-    g = Sundials.asarray(g, (length(__sm.F.event_pos),))
-    __sm.F.event_at(t, y, yp, g)
+    r  = Sundials.asarray(r)
+    sm.F.init(ss.t[1], y, yp, r)
     return int32(0)   # indicates normal return
 end
 
-function inisolve(sm::Sim) # initial conditions
-    global __sm = sm
-    kmem = Sundials.KINCreate()
-    u = [sm.y0, sm.yp0[sm.id .> 0]]
-    neq = length(u)
-    flag = Sundials.KINInit(kmem, initfun, u)
-    flag = Sundials.KINDense(kmem, neq)
+function daefun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userdata_ptr::Ptr{Void})
+    userdata = unsafe_pointer_to_objref(userdata_ptr)
+    ss::SimState = __ss[userdata]
+    sm::Sim = ss.sm
+    
+    y  = Sundials.asarray(y) 
+    yp = Sundials.asarray(yp) 
+    r  = Sundials.asarray(r)
+    sm.F.resid(t, y, yp, r)
+    return int32(0)   # indicates normal return
+end
+
+function rootfun(t::Float64, y::N_Vector, yp::N_Vector, g::Ptr{Sundials.realtype}, userdata_ptr::Ptr{Void})
+    userdata = unsafe_pointer_to_objref(userdata_ptr)
+    ss::SimState = __ss[userdata]
+    sm::Sim = ss.sm
+
+    y  = Sundials.asarray(y) 
+    yp = Sundials.asarray(yp) 
+    g  = Sundials.asarray(g, (length(sm.F.event_pos),))
+    sm.F.event_at(t, y, yp, g)
+    return int32(0)   # indicates normal return
+end
+
+function solve(ss::SimState) # initial conditions
+    kmem  = Sundials.KINCreate()
+    sm    = ss.sm
+    u     = [ss.y0, ss.yp0[sm.id .> 0]]
+    neq   = length(u)
+    flag  = Sundials.KINInit(kmem, initfun, u)
+    flag  = Sundials.KINDense(kmem, neq)
     scale = ones(neq)
-    flag = Sundials.KINSol(kmem, u, Sundials.KIN_NONE, scale, scale) 
+    flag  = Sundials.KINSol(kmem, u, Sundials.KIN_NONE, scale, scale)
     u
 end
-inisolve(m::Model)  = sunsim(create_sim(elaborate(m)))
+solve(m::Model)  = sunsim(create_sim(elaborate(m)))
 
-function sunsim(sm::Sim, tstop::Float64, Nsteps::Int)
-    # tstop & Nsteps should be in options
-println("starting sunsim()")
 
-    tstep = tstop / Nsteps
-    function setup_sim(sm::Sim, tstart::Float64, tstop::Float64, Nsteps::Int)
-        global __sim_structural_change = false
-        neq = length(sm.y0)
-        mem = Sundials.IDACreate()
-        flag = Sundials.IDAInit(mem, daefun, tstart, sm.y0, sm.yp0)
-        global __sm = sm
-        reltol = 1e-4
-        abstol = 1e-3
-        flag = Sundials.IDASStolerances(mem, reltol, abstol)
-        flag = Sundials.IDADense(mem, neq)
-        flag = Sundials.IDARootInit(mem, int32(length(sm.F.event_pos)), rootfun)
-        id = float64(copy(sm.id))
-        id[id .< 0] = 0
-        flag = Sundials.IDASetId(mem, id)
-        rtest = zeros(neq)
-        sm.F.resid(tstart, sm.y0, sm.yp0, rtest)
-        if any(abs(rtest) .>= reltol)
-            flag = Sundials.IDACalcIC(mem, Sundials.IDA_YA_YDP_INIT, tstart + tstep)  # IDA_YA_YDP_INIT or IDA_Y_INIT
-        end
-        return mem
-    end
-    mem = setup_sim(sm, 0.0, tstop, Nsteps)
+function setup_sunsim(ss::SimState, reltol::Float64, abstol::Float64)
+    sm = ss.sm
+    tstart = ss.t[1]
+    index = convert(Cint,length(__ss)+1)
+    push!(__ss, ss)
+    neq   = length(ss.y0)
+    mem   = Sundials.IDACreate()
+    flag  = Sundials.IDASetUserData(mem, index)
+    flag  = Sundials.IDAInit(mem, daefun, tstart, ss.y0, ss.yp0)
+    flag  = Sundials.IDASStolerances(mem, reltol, abstol)
+    flag  = Sundials.IDADense(mem, neq)
+    flag  = Sundials.IDARootInit(mem, int32(length(sm.F.event_pos)), rootfun)
+    id    = float64(copy(sm.id))
+    id[id .< 0] = 0
+    flag  = Sundials.IDASetId(mem, id)
+    return mem
+end
+
+
+function sunsim(mem::Ptr, ss::SimState, tstop::Float64, Nsteps::Int)
+
+    println("starting sunsim()")
+
+    sm = ss.sm
+
+    tstart = ss.t[1]
+    tstep = (tstop - tstart) / Nsteps
     yidx = sm.outputs .!= ""
     Noutputs = sum(yidx)
     Ncol = Noutputs
-    
+
     yout = zeros(Nsteps, Ncol + 1)
     t = tstep
     tret = [0.0]
     nrt = int32(length(sm.F.event_pos))
     jroot = fill(int32(0), nrt)
 
+    neq   = length(ss.y0)
+    rtest = zeros(neq)
+    sm.F.resid(tstart, ss.y0, ss.yp0, rtest)
+    if any(abs(rtest) .>= 1e-6)
+        flag = Sundials.IDACalcIC(mem, Sundials.IDA_YA_YDP_INIT, tstart + tstep)  # IDA_YA_YDP_INIT or IDA_Y_INIT
+    end
+
     for idx in 1:Nsteps
 
-        flag = Sundials.IDASolve(mem, t, tret, sm.y0, sm.yp0, Sundials.IDA_NORMAL)
+        flag = Sundials.IDASolve(mem, t, tret, ss.y0, ss.yp0, Sundials.IDA_NORMAL)
         yout[idx, 1] = tret[1]
-        yout[idx, 2:(Noutputs + 1)] = sm.y0[yidx]
+        yout[idx, 2:(Noutputs + 1)] = ss.y0[yidx]
         t = tret[1] + tstep
         if flag == Sundials.IDA_SUCCESS
             for (k,v) in sm.y_map
                 if v.save_history
                     push!(v.t, tret[1])
-                    push!(v.x, sm.y0[k])
+                    push!(v.x, ss.y0[k])
                 end
             end
             continue
@@ -95,29 +125,31 @@ println("starting sunsim()")
             retvalr = Sundials.IDAGetRootInfo(mem, jroot)
             for ridx in 1:length(jroot)
                 if jroot[ridx] == 1
-                    sm.F.event_pos[ridx](tret[1], sm.y0, sm.yp0)
+                    sm.F.event_pos[ridx](tret[1], ss.y0, ss.yp0, ss.structural_change)
                 elseif jroot[ridx] == -1
-                    sm.F.event_neg[ridx](tret[1], sm.y0, sm.yp0)
+                    sm.F.event_neg[ridx](tret[1], ss.y0, ss.yp0, ss.structural_change)
                 end
-                flag = Sundials.IDAReInit(mem, tret[1], sm.y0, sm.yp0)
+                flag = Sundials.IDAReInit(mem, tret[1], ss.y0, ss.yp0)
                 flag = Sundials.IDACalcIC(mem, Sundials.IDA_YA_YDP_INIT, tret[1] + tstep/10)  # IDA_YA_YDP_INIT or IDA_Y_INIT
             end
-            if __sim_structural_change
+            if ss.structural_change
                 println("structural change event found at t = $(t[1]), restarting")
                 # put t, y, and yp values back into original equations:
                 for (k,v) in sm.y_map
-                    v.value = sm.y0[k]
+                    v.value = ss.y0[k]
                 end
                 for (k,v) in sm.yp_map
-                    v.value = sm.yp0[k]
+                    v.value = ss.yp0[k]
                 end
                 MTime.value = tret[1]
-                # reflatten equations
+                
+                ## TODO: avoid reflattening, if possible fetch sm from __sm global instead
+                ## reflatten equations
                 sm = create_sim(elaborate(sm.eq))
-                global __F = sm.F
-                global _sm = sm
+                
                 # restart the simulation:
-                mem = setup_sim(sm, tret[1]+tstep/50, tstop, int(Nsteps * (tstop - t[1]) / tstop))
+                ##mem = setup_sim(sm, tret[1]+tstep*abstol, tstop, int(Nsteps * (tstop - t[1]) / tstop))
+                flag = Sundials.IDAReInit(mem, tret[1]+tstep*abstol, ss.y0, ss.yp0)
                 nrt = int32(length(sm.F.event_pos))
                 jroot = fill(int32(0), nrt)
                 yidx = sm.outputs .!= ""

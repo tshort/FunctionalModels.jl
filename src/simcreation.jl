@@ -31,9 +31,6 @@ SimFunctions(resid::Function, event_at::Function, event_pos::Vector{None}, event
 type Sim
     eq::EquationSet           # the input
     F::SimFunctions
-    t::Array{Float64, 1}      # time
-    y0::Array{Float64, 1}     # initial values
-    yp0::Array{Float64, 1}    # initial values of derivatives
     id::Array{Int, 1}         # indicates whether a variable is algebraic or differential
     outputs::Array{ASCIIString, 1} # output labels
     unknown_idx_map::Dict     # symbol => index into y (or yp)
@@ -45,13 +42,19 @@ type Sim
     Sim(eq::EquationSet) = new(eq)
 end
 
+type SimState
+    t::Array{Float64, 1}      # time
+    y0::Array{Float64, 1}     # state vector
+    yp0::Array{Float64, 1}    # derivatives vector
+    structural_change::Bool
+    sm::Sim # reference to a Sim
+end
+
 #
 # This is the main function for creating Sim's.
 #
 function create_sim(eq::EquationSet)
     sm = Sim(eq)
-    global _sm = sm
-    sm.t = [0.0]
     sm.varnum = 1
     sm.unknown_idx_map = Dict()
     sm.discrete_map = Dict()
@@ -59,11 +62,16 @@ function create_sim(eq::EquationSet)
     sm.yp_map = Dict()
     sm.F = setup_functions(sm)  # Most of the work's done here.
     N_unknowns = sm.varnum - 1
-    sm.y0 = fill_from_map(0.0, N_unknowns, sm.y_map, x -> to_real(x.value))
-    sm.yp0 = fill_from_map(0.0, N_unknowns, sm.yp_map, x -> to_real(x.value))
-    sm.id = fill_from_map(-1, N_unknowns, sm.yp_map, x -> 1)
     sm.outputs = fill_from_map("", N_unknowns, sm.y_map, x -> x.label)
-    sm
+    sm.id = fill_from_map(-1, N_unknowns, sm.yp_map, x -> 1)
+    
+    t = [0.0]
+    y0 = fill_from_map(0.0, N_unknowns, sm.y_map, x -> to_real(x.value))
+    yp0 = fill_from_map(0.0, N_unknowns, sm.yp_map, x -> to_real(x.value))
+    structural_change = false
+    ss = SimState (t,y0,yp0,structural_change,sm)
+    
+    ss
 end
 create_sim(m::Model) = create_sim(elaborate(m))
 
@@ -124,12 +132,12 @@ function setup_functions(sm::Sim)
         ex = to_thunk(replace_unknowns(sm.eq.pos_responses[idx], sm))
         push!(ev_pos_array, 
              quote
-                 (t, y, yp) -> begin $ex; return; end
+                 (t, y, yp, structural_change) -> begin $ex; return; end
              end)
         ex = to_thunk(replace_unknowns(sm.eq.neg_responses[idx], sm))
         push!(ev_neg_array, 
              quote
-                 (t, y, yp) -> begin $ex; return; end
+                 (t, y, yp, structural_change) -> begin $ex; return; end
              end)
     end
     ev_pos_thunk = length(ev_pos_array) > 0 ? Expr(:call, :vcat, ev_pos_array...) : Function[]

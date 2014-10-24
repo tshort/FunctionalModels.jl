@@ -45,6 +45,7 @@ function elaborate(x::EquationSet)
         push!(eq.initialequations, nodeset)
     end
     # last fixups:
+    
     eq.initialequations = replace_fixed(remove_empties(strip_mexpr(eq.initialequations)))
     eq.equations = remove_empties(strip_mexpr(eq.equations))
     eq
@@ -125,9 +126,9 @@ function elaborate_unit(ev::StructuralEvent, eq::EquationSet)
     # Set up the event:
     push!(eq.events, strip_mexpr(elaborate_subunit(ev.condition)))
     # A positive zero crossing initiates a change:
-    push!(eq.pos_responses, (t,y,yp) -> begin global __sim_structural_change = true; ev.activated = true; end)
+    push!(eq.pos_responses, (t,y,yp,structural_change) -> begin structural_change = true; ev.activated = true; end)
     # Dummy negative zero crossing
-    push!(eq.neg_responses, (t,y,yp) -> return)
+    push!(eq.neg_responses, (t,y,yp,structural_change) -> return)
     elaborate_unit(ev.default, eq)
 end
 

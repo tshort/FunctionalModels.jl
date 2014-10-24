@@ -8,6 +8,7 @@ import Base.hcat,
        Base.setindex!,
        Base.show,
        Base.size,
+       Base.solve,
        Base.vcat
 
 ## Types
@@ -23,7 +24,7 @@ export is_unknown, der, delay, mexpr, value, compatible_values, reinit, ifelse,
        basetypeof, from_real, to_real,
        gplot, wplot,
        check,
-       elaborate, create_sim, sim, sunsim, dasslsim, inisolve
+       elaborate, create_sim, sim, sunsim, setup_sunsim, dasslsim
 
 ## Model methods
 export Branch, BoolEvent
@@ -64,30 +65,11 @@ include("main.jl")
 include("elaboration.jl")
 include("simcreation.jl")
 include("utils.jl")
-
 # solvers
-hasdassl = try
-    include("dassl.jl")
-    sim = dasslsim
-    true
-catch
-    false
-end
-hassundials = try
-    include("sundials.jl")
-    sim = sunsim
-    true
-catch
-    false
-end
-if hassundials
-    sim = sunsim
-elseif hasdassl
-    sim = dasslsim
-else
-    error("Sims: no solver available (Sundials and DASSL are both unavailable)")
-end
-    
+include("dassl.jl")
+include("sundials.jl")
+sim = sunsim
+sim = dasslsim
 
 # load standard Sims libraries
 include("types.jl")
@@ -99,3 +81,5 @@ include("heat_transfer.jl")
 include("rotational.jl")
 
 end # module Sims
+
+
