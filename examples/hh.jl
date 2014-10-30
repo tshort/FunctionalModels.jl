@@ -1,7 +1,7 @@
 
-#
-# An implementation of the Hodgkin-Huxley neuron model.
-#
+##
+## An implementation of the Hodgkin-Huxley neuron model.
+##
 
 using Sims
 using Winston
@@ -15,7 +15,7 @@ gbar_Na =  120.0
 gbar_K  =   36.0
 g_L     =    0.3
 
-## Model equations
+## Rate functions
 
 function amf (v)
     return (0.1 * (v + 40) / (1.0 - exp (- (v + 40) / 10)))
@@ -32,6 +32,8 @@ end
 function bhf (v)
     return (1.0 / (1.0 + (exp (- (v + 35.0) / 10.0))))
 end
+
+## Model equations
 
 function anf (v)
     return (0.01 * (v + 55) / (1 - (exp ((- (v + 55)) / 10))))

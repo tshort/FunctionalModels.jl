@@ -7,6 +7,7 @@ using Sims
 using Winston
 
 
+
 Istim =  50.0
 c   =   20.0
 vk  =  -70.0
@@ -27,6 +28,7 @@ vt    = 20.0
 vs    = 2.0
 alpha = 100.0
 beta  = 0.25
+f     = -25.0
 
 function minf (v)
     return (0.5 * (1.0 + tanh ((v - v1) / v2)))
@@ -85,9 +87,14 @@ ml   = MLCircuit()    # returns the hierarchical model
 ml_f = elaborate(ml)    # returns the flattened model
 ml_s = create_sim(ml_f) # returns a "Sim" ready for simulation
 
+tf = 1000.0
+dt = 0.025
+
+ml_ptr = setup_sunsim (ml_s, 1e-6, 1e-6)
+
 # runs the simulation and returns
 # the result as an array plus column headings
-ml_yout = sunsim(ml_s, 50.0) 
+@time ml_yout = sunsim(ml_ptr, ml_s, tf, int(tf/dt))
 
 #plot (ml_yout.y[:,1], ml_yout.y)
 plot (ml_yout.y[:,1], ml_yout.y[:,2])

@@ -3,13 +3,33 @@
 
 using Sims
 using Winston
+using Grid ## for interpolating input values
+using SIUnits
+using SIUnits.ShortUnits
 
-gL     = 0.2 
-vL     = -70.0 
-Isyn   = 20.0 
-C      = 1.0 
-theta  = 25.0 
-vreset = -65.0 
+
+include ("poisson_grid.jl")
+
+siemens = Ampere / Volt
+millisiemens = Milli * siemens
+mS = millisiemens
+microfarad = Micro * Farad
+uF = microfarad
+
+##gL     = 0.2 * mS
+##vL     = -70.0 * mV
+##Isyn   = 20.0 * nA
+##C      = 1.0 * uF
+##theta  = 25.0 * mV
+##vreset = -65.0 * mV
+##trefractory = 5.0 * ms
+
+gL     = 0.2
+vL     = -70.0
+Isyn   = 20.0
+C      = 1.0
+theta  = 25.0
+vreset = -65.0
 trefractory = 5.0
 
 
@@ -17,9 +37,15 @@ vsyn  = 80.0
 alpha = 1.0
 beta  = 0.25
 gsmax = 0.1
-taus  = 2.0
-f     = -25.0
+taus  = 2.5
+f     = -100.0
 s0    = 0.5
+
+
+##getindex(g::InterpGrid, x::Unknown) = mexpr(:quote,g[value(x)])
+
+grid_input(g::CoordInterpGrid) = mexpr(:call,getindex,g,MTime)
+
 
 function LeakyIaF(V,Isyn)
 
@@ -39,7 +65,7 @@ function LeakyIaF(V,Isyn)
     
 end
 
-function Syn(V,Isyn,spike)
+function Syn(V,Isyn,input)
 
     S  = Unknown ("S")
     SS = Unknown ("SS")
@@ -55,7 +81,7 @@ function Syn(V,Isyn,spike)
      Isyn - (gsyn * (V - vsyn))
      gsyn - (gsmax * S * SS)
 
-     Event(spike,
+     Event(grid_input(input),
           {
            reinit(SS, SS + f * (1 - SS))
           },
@@ -71,25 +97,34 @@ function Syn(V,Isyn,spike)
 end
 
 
-function Circuit()
-    V     = Voltage (-65.0, "V")
+function Circuit(y)
+    V     = Voltage (-35.0, "V")
     Isyn  = Unknown ("Isyn")
     Isyn1 = Unknown ()
    {
     LeakyIaF(V,Isyn)
-    Syn(V,Isyn1,MTime - 1.25)
+    Syn(V,Isyn1,y)
     Isyn - Isyn1
    }
 end
 
 
-iaf   = Circuit()      # returns the hierarchical model
+tf = 100.0 * ms
+dt = 0.025 * ms
+lambda = 50.0 * Hz
+
+input = poisson_grid(lambda,tf,dt,ms)
+
+iaf   = Circuit(input)
+
 iaf_f = elaborate(iaf)    # returns the flattened model
 iaf_s = create_sim(iaf_f) # returns a "Sim" ready for simulation
 
+iaf_ptr = setup_sunsim (iaf_s, 1e-7, 1e-7)
+
 # runs the simulation and returns
 # the result as an array plus column headings
-iaf_yout = sunsim(iaf_s, 80.0) 
+@time iaf_yout = sunsim(iaf_ptr, iaf_s, tf / ms, int(tf/dt))
 
 plot (iaf_yout.y[:,1], iaf_yout.y[:,2])
 

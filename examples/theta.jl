@@ -3,7 +3,6 @@
 # An implementation of the Ermentrout-Kopell neuron model.
 #
 
-using Grid
 using Sims
 using Winston
 
@@ -12,9 +11,6 @@ dt   = 0.1
 
 alpha = 0.012
 beta  = 0.001
-
-# y = sort (map (Poisson (100), Array(Float64, tend/dt)))
-# yi = InterpGrid(y, BCnil, InterpLinear)
 
 
 function Theta(theta,input)
