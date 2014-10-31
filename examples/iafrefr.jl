@@ -47,7 +47,7 @@ end
 
 function LeakyIaF()
 
-    v   = Unknown(vreset, "v")   
+   v = Unknown(vreset, "v")   
    {
      StructuralEvent(v-theta,
                      # when v crosses the threshold,
@@ -55,7 +55,6 @@ function LeakyIaF()
          Subthreshold(v),
          () -> begin
              trefr = value(MTime)+trefractory
-             println ("trefr = ", trefr)
              Refractory(v,trefr)
          end)
    }
@@ -66,14 +65,14 @@ iaf   = LeakyIaF()      # returns the hierarchical model
 iaf_f = elaborate(iaf)    # returns the flattened model
 iaf_s = create_sim(iaf_f) # returns a "Sim" ready for simulation
 
-tf = 800.0
+tf = 8000.0
 dt = 0.025
 
 iaf_ptr = setup_sunsim (iaf_s, 1e-6, 1e-6)
 
 # runs the simulation and returns
 # the result as an array plus column headings
-iaf_yout = sunsim(iaf_ptr, iaf_s, tf, int(tf/dt))
+@time iaf_yout = sunsim(iaf_ptr, iaf_s, tf, int(tf/dt))
 
 plot (iaf_yout.y[:,1], iaf_yout.y[:,2])
 

@@ -132,7 +132,7 @@ function setup_functions(sm::Sim)
         ex = to_thunk(replace_unknowns(sm.eq.pos_responses[idx], sm))
         push!(ev_pos_array, 
              quote
-                 (t, y, yp, structural_change) -> begin $ex; return; end
+                 (t, y, yp, structural_change) -> begin println ("ev_pos"); $ex; return; end
              end)
         ex = to_thunk(replace_unknowns(sm.eq.neg_responses[idx], sm))
         push!(ev_neg_array, 

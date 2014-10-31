@@ -24,11 +24,6 @@ function Theta(theta)
 end
 
 
-function In(time)
-  return sin (beta * time)
-end
-
-
 function ThetaCircuit()
     theta = Unknown(1.0, "theta")
    {

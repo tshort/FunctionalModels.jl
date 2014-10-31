@@ -123,6 +123,7 @@ function sunsim(mem::Ptr, ss::SimState, tstop::Float64, Nsteps::Int)
         end
         if flag == Sundials.IDA_ROOT_RETURN 
             retvalr = Sundials.IDAGetRootInfo(mem, jroot)
+            println ("root return = ", jroot)
             for ridx in 1:length(jroot)
                 if jroot[ridx] == 1
                     sm.F.event_pos[ridx](tret[1], ss.y0, ss.yp0, ss.structural_change)
