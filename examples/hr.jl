@@ -6,8 +6,6 @@ using Winston
 ## Hindmarsh-Rose neuron model        ##
 ########################################
 
-tend = 500.0
-
 a = 1.0
 b = 3.0
 c = 1.0
@@ -48,7 +46,10 @@ end
 v   = HindmarshRose(0.1)       # returns the hierarchical model
 v_f = elaborate(v)    # returns the flattened model
 v_s = create_sim(v_f) # returns a "Sim" ready for simulatio
+v_ptr = setup_sunsim (v_s, 1e-7, 1e-7)
 
-v_yout = sunsim(v_s, tend) 
+tf = 500.0
+dt = 0.025
+v_yout = sunsim(v_ptr, v_s, tend, int (tend/dt))
 
 plot (v_yout.y[:,1], v_yout.y[:,2])

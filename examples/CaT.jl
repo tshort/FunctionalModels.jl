@@ -22,7 +22,7 @@ gbar_Na  = 0.25
 gbar_K   = 0.36
 g_L      = 0.0001666 
 
-I = -1e-6
+I = 0.1
 
 function amf (v)
     return (0.1 * (v + 40) / (1.0 - exp (- (v + 40) / 10)))
@@ -132,12 +132,14 @@ end
 wrr   = WRR()  # returns the hierarchical model
 wrr_f = elaborate(wrr)    # returns the flattened model
 wrr_s = create_sim(wrr_f) # returns a "Sim" ready for simulation
+wrr_ptr = setup_sunsim (wrr_s, 1e-7, 1e-7)
 
 # runs the simulation and returns
 # the result as an array plus column headings
 tf = 500.0
 dt = 0.025
-wrr_yout = sunsim(wrr_s, tf, int(tf/dt))
+
+wrr_yout = sunsim(wrr_ptr, wrr_s, tf, int(tf/dt))
 
 plot (wrr_yout.y[:,1], wrr_yout.y[:,3])
 

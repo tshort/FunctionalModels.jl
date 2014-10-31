@@ -4,11 +4,11 @@
 using Sims
 using Winston
 
-gL     = 0.2 
+gL     = 0.1 
 vL     = -70.0 
-Isyn   = 20.0 
+Isyn   = 10.0 
 C      = 1.0 
-theta  = 25.0 
+theta  = 20.0 
 vreset = -65.0 
 trefractory = 5.0 
 
@@ -34,7 +34,6 @@ function Refractory(v,trefr)
     # The following gives the return value which is a list of equations.
     # Expressions with Unknowns are kept as expressions. Regular
     # variables are evaluated immediately (like normal).
-    println (trefr)
     {
      StructuralEvent(MTime - trefr,
                      # when the end of refractory period is reached,
@@ -56,6 +55,7 @@ function LeakyIaF()
          Subthreshold(v),
          () -> begin
              trefr = value(MTime)+trefractory
+             println ("trefr = ", trefr)
              Refractory(v,trefr)
          end)
    }

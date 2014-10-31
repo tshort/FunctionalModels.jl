@@ -143,11 +143,14 @@ pr   = PRCircuit()  # returns the hierarchical model
 pr_f = elaborate(pr)    # returns the flattened model
 pr_s = create_sim(pr_f) # returns a "Sim" ready for simulation
 
+tf = 200.0
+dt = 0.025
+
+pr_ptr = setup_sunsim (pr_s, 1e-7, 1e-7)
+
 # runs the simulation and returns
 # the result as an array plus column headings
-tf = 500.0
-dt = 0.025
-pr_yout = sunsim(pr_s, tf, int(tf/dt))
+@time pr_yout = sunsim(pr_ptr, pr_s, tf, int(tf/dt))
 
 plot (pr_yout.y[:,1], pr_yout.y[:,2])
 
