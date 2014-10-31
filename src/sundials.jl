@@ -2,6 +2,7 @@ using Sundials
 
 import Sundials.N_Vector, Sundials.nvector
 
+
 ## Conventions:
 ##
 ## __ss is a global array of SimState structures
@@ -64,6 +65,8 @@ solve(m::Model)  = sunsim(create_sim(elaborate(m)))
 
 function setup_sunsim(ss::SimState, reltol::Float64, abstol::Float64)
     sm = ss.sm
+    sm.reltol = reltol
+    sm.abstol = abstol
     tstart = ss.t[1]
     index = convert(Cint,length(__ss)+1)
     push!(__ss, ss)
@@ -78,6 +81,27 @@ function setup_sunsim(ss::SimState, reltol::Float64, abstol::Float64)
     id[id .< 0] = 0
     flag  = Sundials.IDASetId(mem, id)
     return mem
+end
+
+
+function reinit_sunsim(mem, ss::SimState, t)
+    sm = ss.sm
+
+    index = convert(Cint,length(__ss)+1)
+    push!(__ss, ss)
+    neq   = length(ss.y0)
+    
+    flag  = Sundials.IDASetUserData(mem, index)
+    flag  = Sundials.IDARootInit(mem, int32(length(sm.F.event_pos)), rootfun)
+    id    = float64(copy(sm.id))
+    id[id .< 0] = 0
+    flag  = Sundials.IDASetId(mem, id)
+
+    flag = Sundials.IDAReInit(mem, t, ss.y0, ss.yp0)
+    
+    if flag != Sundials.IDA_SUCCESS
+        error("IDAReInit error", flag)
+    end
 end
 
 
@@ -102,7 +126,7 @@ function sunsim(mem::Ptr, ss::SimState, tstop::Float64, Nsteps::Int)
     neq   = length(ss.y0)
     rtest = zeros(neq)
     sm.F.resid(tstart, ss.y0, ss.yp0, rtest)
-    if any(abs(rtest) .>= 1e-6)
+    if any(abs(rtest) .>= sm.reltol)
         flag = Sundials.IDACalcIC(mem, Sundials.IDA_YA_YDP_INIT, tstart + tstep)  # IDA_YA_YDP_INIT or IDA_Y_INIT
     end
 
@@ -123,37 +147,35 @@ function sunsim(mem::Ptr, ss::SimState, tstop::Float64, Nsteps::Int)
         end
         if flag == Sundials.IDA_ROOT_RETURN 
             retvalr = Sundials.IDAGetRootInfo(mem, jroot)
-            println ("root return = ", jroot)
             for ridx in 1:length(jroot)
                 if jroot[ridx] == 1
-                    sm.F.event_pos[ridx](tret[1], ss.y0, ss.yp0, ss.structural_change)
+                    sm.F.event_pos[ridx](tret[1], ss.y0, ss.yp0, ss)
                 elseif jroot[ridx] == -1
-                    sm.F.event_neg[ridx](tret[1], ss.y0, ss.yp0, ss.structural_change)
+                    sm.F.event_neg[ridx](tret[1], ss.y0, ss.yp0, ss)
                 end
                 flag = Sundials.IDAReInit(mem, tret[1], ss.y0, ss.yp0)
                 flag = Sundials.IDACalcIC(mem, Sundials.IDA_YA_YDP_INIT, tret[1] + tstep/10)  # IDA_YA_YDP_INIT or IDA_Y_INIT
             end
             if ss.structural_change
                 println("structural change event found at t = $(t[1]), restarting")
-                # put t, y, and yp values back into original equations:
-                for (k,v) in sm.y_map
-                    v.value = ss.y0[k]
-                end
-                for (k,v) in sm.yp_map
-                    v.value = ss.yp0[k]
-                end
+                
                 MTime.value = tret[1]
+
+                ## TODO: avoid reflattening, if possible precompute
+                ## all possible equations ahead of time
                 
-                ## TODO: avoid reflattening, if possible fetch sm from __sm global instead
                 ## reflatten equations
-                sm = create_sim(elaborate(sm.eq))
+                eq = sm.eq
+                ss = create_sim(elaborate(eq))
+                sm = ss.sm
                 
-                # restart the simulation:
-                ##mem = setup_sim(sm, tret[1]+tstep*abstol, tstop, int(Nsteps * (tstop - t[1]) / tstop))
-                flag = Sundials.IDAReInit(mem, tret[1]+tstep*abstol, ss.y0, ss.yp0)
+                ## restart the simulation:
+                reinit_sunsim (mem, ss, tret[1])
+                
                 nrt = int32(length(sm.F.event_pos))
                 jroot = fill(int32(0), nrt)
                 yidx = sm.outputs .!= ""
+                
             elseif any(jroot .!= 0)
                 println("event found at t = $(tret[1]), restarting")
             end

@@ -84,11 +84,7 @@ replace_fixed(u::Unknown) = u.fixed ? u.value : u
 handle_events(a::Model) = traverse_mod(handle_events, a)
 handle_events(a::InitialEquation) = a
 handle_events(x) = x
-handle_events(ev::StructuralEvent) =
-    begin
-        println ("handle_events: structural event")
-        ev.activated ? ev.new_relation() : ev
-    end
+handle_events(ev::StructuralEvent) = ev.activated ? ev.new_relation() : ev
 
 #
 # elaborate_unit flattens the set of equations while building up
@@ -127,15 +123,14 @@ function elaborate_unit(ev::Event, eq::EquationSet)
 end
 
 function elaborate_unit(ev::StructuralEvent, eq::EquationSet)
-    println ("structural event: ev.condition = ", strip_mexpr(elaborate_subunit(ev.condition)))
     # Set up the event:
     push!(eq.events, strip_mexpr(elaborate_subunit(ev.condition)))
     # A positive zero crossing initiates a change:
     push!(eq.pos_responses,
-          (t,y,yp,structural_change) ->
-          begin println "structural change"; structural_change = true; ev.activated = true; end)
+          (t,y,yp,ss) ->
+          begin ss.structural_change = true; ev.activated = true; end)
     # Dummy negative zero crossing
-    push!(eq.neg_responses, (t,y,yp,structural_change) -> return)
+    push!(eq.neg_responses, (t,y,yp,ss) -> return)
     elaborate_unit(ev.default, eq)
 end
 

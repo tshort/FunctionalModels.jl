@@ -38,7 +38,8 @@ type Sim
     y_map::Dict               # sym => Unknown variable 
     yp_map::Dict              # sym => DerUnknown variable 
     varnum::Int               # variable indicator position that's incremented
-    
+    abstol::Float64           # absolute error tolerance
+    reltol::Float64           # relative error tolerance
     Sim(eq::EquationSet) = new(eq)
 end
 
@@ -54,6 +55,7 @@ end
 # This is the main function for creating Sim's.
 #
 function create_sim(eq::EquationSet)
+    
     sm = Sim(eq)
     sm.varnum = 1
     sm.unknown_idx_map = Dict()
@@ -64,6 +66,9 @@ function create_sim(eq::EquationSet)
     N_unknowns = sm.varnum - 1
     sm.outputs = fill_from_map("", N_unknowns, sm.y_map, x -> x.label)
     sm.id = fill_from_map(-1, N_unknowns, sm.yp_map, x -> 1)
+    sm.abstol = 1e-4
+    sm.reltol = 1e-4
+
     
     t = [0.0]
     y0 = fill_from_map(0.0, N_unknowns, sm.y_map, x -> to_real(x.value))
@@ -100,11 +105,12 @@ cmb(x, args...) = Expr(x, args...)
 # replacing unknowns, several of the Dicts in sm are populated.
 #
 function setup_functions(sm::Sim)
+
     # eq_block should be just expressions suitable for eval'ing.
     eq_block = replace_unknowns(sm.eq.equations, sm)
     in_block = replace_unknowns(sm.eq.initialequations, sm)
     ev_block = replace_unknowns(sm.eq.events, sm)
-    
+
     # Set up a master function with variable declarations and 
     # functions that have access to those variables.
     #
@@ -132,12 +138,12 @@ function setup_functions(sm::Sim)
         ex = to_thunk(replace_unknowns(sm.eq.pos_responses[idx], sm))
         push!(ev_pos_array, 
              quote
-                 (t, y, yp, structural_change) -> begin println ("ev_pos"); $ex; return; end
+                 (t, y, yp, ss) -> begin $ex; return; end
              end)
         ex = to_thunk(replace_unknowns(sm.eq.neg_responses[idx], sm))
         push!(ev_neg_array, 
              quote
-                 (t, y, yp, structural_change) -> begin $ex; return; end
+                 (t, y, yp, ss) -> begin $ex; return; end
              end)
     end
     ev_pos_thunk = length(ev_pos_array) > 0 ? Expr(:call, :vcat, ev_pos_array...) : Function[]
@@ -204,7 +210,7 @@ function setup_functions(sm::Sim)
             Sims.SimFunctions(_sim_resid, _sim_init, _sim_event_at, _sim_event_pos_array, _sim_event_neg_array, _sim_get_discretes)
         end
     end
-    global _ex = expr
+
     F = eval(expr)()
 
     # For event responses that were actual functions, insert those into
