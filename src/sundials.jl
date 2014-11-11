@@ -137,12 +137,12 @@ function sunsim(mem::Ptr, ss::SimState, tstop::Float64, Nsteps::Int)
         yout[idx, 2:(Noutputs + 1)] = ss.y0[yidx]
         t = tret[1] + tstep
         if flag == Sundials.IDA_SUCCESS
-##            for (k,v) in sm.y_map
-##                if v.save_history
-##                    push!(v.t, tret[1])
-##                    push!(v.x, ss.y0[k])
-##                end
-##            end
+            for (k,v) in sm.y_map
+                if v.save_history
+                    push!(ss.history.t[k], tret[1])
+                    push!(ss.history.x[k], ss.y0[k])
+                end
+            end
             continue
         end
         if flag == Sundials.IDA_ROOT_RETURN 

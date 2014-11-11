@@ -43,11 +43,17 @@ type Sim
     Sim(eq::EquationSet) = new(eq)
 end
 
+type SimStateHistory
+    t::Array{Any, 1}     # time
+    x::Array{Any, 1}     # vector of variable values
+end
+
 type SimState
     t::Array{Float64, 1}      # time
     y0::Array{Float64, 1}     # state vector
     yp0::Array{Float64, 1}    # derivatives vector
     structural_change::Bool
+    history::SimStateHistory
     sm::Sim # reference to a Sim
 end
 
@@ -74,7 +80,8 @@ function create_sim(eq::EquationSet)
     y0 = fill_from_map(0.0, N_unknowns, sm.y_map, x -> to_real(x.value))
     yp0 = fill_from_map(0.0, N_unknowns, sm.yp_map, x -> to_real(x.value))
     structural_change = false
-    ss = SimState (t,y0,yp0,structural_change,sm)
+    history = SimStateHistory ({}, {})
+    ss = SimState (t,y0,yp0,structural_change,history,sm)
     
     ss
 end

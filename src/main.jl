@@ -349,7 +349,7 @@ type PassedUnknown <: UnknownVariable
     ref
 end
 
-
+## TODO: refactor for SimStateHistory interface
 function _interp(x, t)
     # assumes that tvec is sorted from low to high
     if length(x.t) == 0 || t < 0.0 return zero(x.value) end
@@ -383,8 +383,6 @@ end
 
 function delay(x::Unknown, val)
     x.save_history = true
-    x.t = {0.0}
-    x.x = {x.value}
     MExpr(:(Sims._interp($(PassedUnknown(x)), t[1] - $(val))))
 end
 
