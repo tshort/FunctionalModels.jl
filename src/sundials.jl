@@ -129,7 +129,7 @@ function sunsim(mem::Ptr, ss::SimState, tstop::Float64, Nsteps::Int)
     if any(abs(rtest) .>= sm.reltol)
         flag = Sundials.IDACalcIC(mem, Sundials.IDA_YA_YDP_INIT, tstart + tstep)  # IDA_YA_YDP_INIT or IDA_Y_INIT
     end
-
+    
     for idx in 1:Nsteps
 
         flag = Sundials.IDASolve(mem, t, tret, ss.y0, ss.yp0, Sundials.IDA_NORMAL)
@@ -137,12 +137,12 @@ function sunsim(mem::Ptr, ss::SimState, tstop::Float64, Nsteps::Int)
         yout[idx, 2:(Noutputs + 1)] = ss.y0[yidx]
         t = tret[1] + tstep
         if flag == Sundials.IDA_SUCCESS
-            for (k,v) in sm.y_map
-                if v.save_history
-                    push!(v.t, tret[1])
-                    push!(v.x, ss.y0[k])
-                end
-            end
+##            for (k,v) in sm.y_map
+##                if v.save_history
+##                    push!(v.t, tret[1])
+##                    push!(v.x, ss.y0[k])
+##                end
+##            end
             continue
         end
         if flag == Sundials.IDA_ROOT_RETURN 
@@ -182,7 +182,7 @@ function sunsim(mem::Ptr, ss::SimState, tstop::Float64, Nsteps::Int)
         ## elseif flag == Sundials.IDA_??
         ##     println("restarting")
         else
-            println("SUNDIALS failed prematurely")
+            println("SUNDIALS failed prematurely (flag = ", flag, ")")
             break
         end
     end
