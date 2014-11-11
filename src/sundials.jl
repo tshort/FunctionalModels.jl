@@ -136,6 +136,15 @@ function sunsim(mem::Ptr, ss::SimState, tstop::Float64, Nsteps::Int)
         yout[idx, 1] = tret[1]
         yout[idx, 2:(Noutputs + 1)] = ss.y0[yidx]
         t = tret[1] + tstep
+        if flag == Sundials.IDA_SUCCESS
+#            for (k,v) in sm.y_map
+#                if v.save_history
+#                    push!(v.t, tret[1])
+#                    push!(v.x, ss.y0[k])
+#                end
+#            end
+            continue
+        end
         if flag == Sundials.IDA_ROOT_RETURN 
             retvalr = Sundials.IDAGetRootInfo(mem, jroot)
             for ridx in 1:length(jroot)
@@ -170,7 +179,8 @@ function sunsim(mem::Ptr, ss::SimState, tstop::Float64, Nsteps::Int)
             elseif any(jroot .!= 0)
                 println("event found at t = $(tret[1]), restarting")
             end
-
+        ## elseif flag == Sundials.IDA_??
+        ##     println("restarting")
         else
             println("SUNDIALS failed prematurely")
             break
