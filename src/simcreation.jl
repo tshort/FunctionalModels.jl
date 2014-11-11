@@ -169,6 +169,14 @@ function setup_functions(sm::Sim)
         discrete_defs = :($discrete_defs; $ex)
         global _dis = discrete_defs
     end
+
+    _sim_resid_name = gensym ("_sim_resid")
+    _sim_init_name = gensym ("_sim_init")
+    _sim_event_at_name = gensym ("_sim_event_at")
+    _sim_event_pos_array_name = gensym ("_sim_event_pos_array")
+    _sim_event_neg_array_name = gensym ("_sim_event_neg_array")
+    _sim_get_discretes_name = gensym ("_sim_get_discretes")
+
     
     #
     # The framework for the master function defined. Each "thunk" gets
@@ -180,7 +188,7 @@ function setup_functions(sm::Sim)
             # cfunction could be used to set up Julia callbacks. This does
             # mean that the _sim_* functions are seen globally.
             $discrete_defs
-            function _sim_resid(t, y, yp, r)
+            function $_sim_resid_name (t, y, yp, r)
                  ## @show y
                  ## @show length(y)
                  a = $resid_thunk
@@ -189,25 +197,27 @@ function setup_functions(sm::Sim)
                  r[1:end] = a
                  nothing
             end
-            function _sim_init(t, y, yp, r)
+            function $_sim_init_name (t, y, yp, r)
                  a = $init_thunk
                  ## @show a
                  ## dump(a)
                  r[1:end] = a
                  nothing
             end
-            function _sim_event_at(t, y, yp, r)
+            function $_sim_event_at_name (t, y, yp, r)
                  r[1:end] = $event_thunk
                  nothing
             end
-            _sim_event_pos_array = $ev_pos_thunk
-            _sim_event_neg_array = $ev_neg_thunk
-            function _sim_get_discretes()
+            $_sim_event_pos_array_name = $ev_pos_thunk
+            $_sim_event_neg_array_name = $ev_neg_thunk
+            function $_sim_get_discretes_name ()
                  $get_discretes_thunk
                  nothing
             end
         () -> begin
-            Sims.SimFunctions(_sim_resid, _sim_init, _sim_event_at, _sim_event_pos_array, _sim_event_neg_array, _sim_get_discretes)
+            Sims.SimFunctions($_sim_resid_name, $_sim_init_name, $_sim_event_at_name,
+                              $_sim_event_pos_array_name, $_sim_event_neg_array_name,
+                              $_sim_get_discretes_name)
         end
     end
 
