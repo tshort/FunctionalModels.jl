@@ -136,10 +136,10 @@ wrr_ptr = setup_sunsim (wrr_s, 1e-7, 1e-7)
 
 # runs the simulation and returns
 # the result as an array plus column headings
-tf = 500.0
+tf = 50.0
 dt = 0.025
 
-wrr_yout = sunsim(wrr_ptr, wrr_s, tf, int(tf/dt))
+@time wrr_yout = sunsim(wrr_ptr, wrr_s, tf, int(tf/dt))
 
 plot (wrr_yout.y[:,1], wrr_yout.y[:,3])
 
