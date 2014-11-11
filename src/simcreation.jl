@@ -44,8 +44,8 @@ type Sim
 end
 
 type SimStateHistory
-    t::Array{Any, 1}     # time
-    x::Array{Any, 1}     # vector of variable values
+    t::Dict # time
+    x::Dict # variable values
 end
 
 type SimState
@@ -80,7 +80,13 @@ function create_sim(eq::EquationSet)
     y0 = fill_from_map(0.0, N_unknowns, sm.y_map, x -> to_real(x.value))
     yp0 = fill_from_map(0.0, N_unknowns, sm.yp_map, x -> to_real(x.value))
     structural_change = false
-    history = SimStateHistory ({}, {})
+    history = SimStateHistory (Dict(),Dict())
+    for (k,v) in sm.y_map
+        if v.save_history
+            history.t[k] = {}
+            history.x[k] = {}
+        end
+    end
     ss = SimState (t,y0,yp0,structural_change,history,sm)
     
     ss

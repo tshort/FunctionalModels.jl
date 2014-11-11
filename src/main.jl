@@ -136,8 +136,6 @@ type Unknown{T<:UnknownCategory} <: UnknownVariable
     label::String
     fixed::Bool
     save_history::Bool
-##    t::Array{Any,1}
-##    x::Array{Any,1}
     Unknown() = new(gensym(), 0.0, "", false, false)
     Unknown(sym::Symbol, label::String) = new(sym, 0.0, label, false, true)
     Unknown(sym::Symbol, value) = new(sym, value, "", false, false)
