@@ -34,6 +34,13 @@ v   = FitzHughNagumo(0.5)       # returns the hierarchical model
 v_f = elaborate(v)    # returns the flattened model
 v_s = create_sim(v_f) # returns a "Sim" ready for simulatio
 
-v_yout = sunsim(v_s, tend) 
+tf = 200.0
+dt = 0.025
+
+v_ptr = setup_sunsim (v_s, 1e-7, 1e-7)
+
+# runs the simulation and returns
+# the result as an array plus column headings
+@time v_yout = sunsim(v_ptr, v_s, tf, int(tf/dt))
 
 plot (v_yout.y[:,1], v_yout.y[:,2])
