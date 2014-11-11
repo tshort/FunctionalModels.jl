@@ -143,7 +143,7 @@ pr   = PRCircuit()  # returns the hierarchical model
 pr_f = elaborate(pr)    # returns the flattened model
 pr_s = create_sim(pr_f) # returns a "Sim" ready for simulation
 
-tf = 200.0
+tf = 5000.0
 dt = 0.025
 
 pr_ptr = setup_sunsim (pr_s, 1e-7, 1e-7)
