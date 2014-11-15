@@ -176,11 +176,9 @@ function setup_functions(sm::Sim)
         else
             funs = map(x -> :(() -> $(replace_unknowns(x, sm))), v.hookex)
             funs = cmb(:vcat, funs...)
-            global _funs = funs
             ex = :($k = Sims.DiscreteVar($v, $funs))
         end
         discrete_defs = :($discrete_defs; $ex)
-        global _dis = discrete_defs
     end
 
     _sim_resid_name = gensym ("_sim_resid")
