@@ -55,7 +55,7 @@ function HodgkinHuxley()
     I_L  = Unknown ()
 
     gbar_Na = Parameter (120.0)
-    gbar_K  = Parameter (1.0)
+    gbar_K  = Parameter (36.0)
     g_L     = Parameter (0.3)
     
     # The following gives the return value which is a list of equations.
