@@ -21,7 +21,8 @@ function initfun(u::N_Vector, r::N_Vector, userdata_ptr::Ptr{Void})
     y  = pointer_to_array(Sundials.N_VGetArrayPointer_Serial(u), (n,))
     yp = nu - n > 0 ? pointer_to_array(Sundials.N_VGetArrayPointer_Serial(u) + n, (nu - n,)) : []
     r  = Sundials.asarray(r)
-    sm.F.init(ss.t[1], y, yp, r)
+    p  = ss.p
+    sm.F.init(ss.t[1], y, yp, p, r)
     return int32(0)   # indicates normal return
 end
 
@@ -33,7 +34,8 @@ function daefun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userdata_ptr
     y  = Sundials.asarray(y) 
     yp = Sundials.asarray(yp) 
     r  = Sundials.asarray(r)
-    sm.F.resid(t, y, yp, r)
+    p  = ss.p
+    sm.F.resid(t, y, yp, p, r)
     return int32(0)   # indicates normal return
 end
 
@@ -45,7 +47,8 @@ function rootfun(t::Float64, y::N_Vector, yp::N_Vector, g::Ptr{Sundials.realtype
     y  = Sundials.asarray(y) 
     yp = Sundials.asarray(yp) 
     g  = Sundials.asarray(g, (length(sm.F.event_pos),))
-    sm.F.event_at(t, y, yp, g)
+    p  = ss.p
+    sm.F.event_at(t, y, yp, p, g)
     return int32(0)   # indicates normal return
 end
 
@@ -125,7 +128,7 @@ function sunsim(mem::Ptr, ss::SimState, tstop::Float64, Nsteps::Int)
 
     neq   = length(ss.y0)
     rtest = zeros(neq)
-    sm.F.resid(tstart, ss.y0, ss.yp0, rtest)
+    sm.F.resid(tstart, ss.y0, ss.yp0, ss.p, rtest)
     if any(abs(rtest) .>= sm.reltol)
         flag = Sundials.IDACalcIC(mem, Sundials.IDA_YA_YDP_INIT, tstart + tstep)  # IDA_YA_YDP_INIT or IDA_Y_INIT
     end

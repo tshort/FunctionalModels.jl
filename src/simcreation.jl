@@ -35,9 +35,12 @@ type Sim
     outputs::Array{ASCIIString, 1} # output labels
     unknown_idx_map::Dict     # symbol => index into y (or yp)
     discrete_map::Dict        # sym => Discrete variable 
+    parameter_idx_map::Dict   # symbol => index into parameters
     y_map::Dict               # sym => Unknown variable 
     yp_map::Dict              # sym => DerUnknown variable 
+    parameter_map::Dict       # sym => Parameter
     varnum::Int               # variable indicator position that's incremented
+    paramnum::Int             # parameter indicator position that's incremented
     abstol::Float64           # absolute error tolerance
     reltol::Float64           # relative error tolerance
     Sim(eq::EquationSet) = new(eq)
@@ -52,6 +55,7 @@ type SimState
     t::Array{Float64, 1}      # time
     y0::Array{Float64, 1}     # state vector
     yp0::Array{Float64, 1}    # derivatives vector
+    p::Array{Float64, 1}      # parameters vector
     structural_change::Bool
     history::SimStateHistory
     sm::Sim # reference to a Sim
@@ -64,21 +68,26 @@ function create_sim(eq::EquationSet)
     
     sm = Sim(eq)
     sm.varnum = 1
+    sm.paramnum = 1
+    sm.parameter_idx_map = Dict()
     sm.unknown_idx_map = Dict()
     sm.discrete_map = Dict()
     sm.y_map = Dict()
     sm.yp_map = Dict()
+    sm.parameter_map = Dict()
     sm.F = setup_functions(sm)  # Most of the work's done here.
     N_unknowns = sm.varnum - 1
+    N_params = sm.paramnum - 1
+    
     sm.outputs = fill_from_map("", N_unknowns, sm.y_map, x -> x.label)
     sm.id = fill_from_map(-1, N_unknowns, sm.yp_map, x -> 1)
     sm.abstol = 1e-4
     sm.reltol = 1e-4
-
     
     t = [0.0]
     y0 = fill_from_map(0.0, N_unknowns, sm.y_map, x -> to_real(x.value))
     yp0 = fill_from_map(0.0, N_unknowns, sm.yp_map, x -> to_real(x.value))
+    p = fill_from_map(0.0, N_params, sm.parameter_map, x -> to_real(x.value))
     structural_change = false
     history = SimStateHistory (Dict(),Dict())
     for (k,v) in sm.y_map
@@ -87,7 +96,7 @@ function create_sim(eq::EquationSet)
             history.x[k] = {}
         end
     end
-    ss = SimState (t,y0,yp0,structural_change,history,sm)
+    ss = SimState (t,y0,yp0,p,structural_change,history,sm)
     
     ss
 end
@@ -151,12 +160,12 @@ function setup_functions(sm::Sim)
         ex = to_thunk(replace_unknowns(sm.eq.pos_responses[idx], sm))
         push!(ev_pos_array, 
              quote
-                 (t, y, yp, ss) -> begin $ex; return; end
+                 (t, y, yp, p, ss) -> begin $ex; return; end
              end)
         ex = to_thunk(replace_unknowns(sm.eq.neg_responses[idx], sm))
         push!(ev_neg_array, 
              quote
-                 (t, y, yp, ss) -> begin $ex; return; end
+                 (t, y, yp, p, ss) -> begin $ex; return; end
              end)
     end
     ev_pos_thunk = length(ev_pos_array) > 0 ? Expr(:call, :vcat, ev_pos_array...) : Function[]
@@ -199,7 +208,7 @@ function setup_functions(sm::Sim)
             # cfunction could be used to set up Julia callbacks. This does
             # mean that the _sim_* functions are seen globally.
             $discrete_defs
-            function $_sim_resid_name (t, y, yp, r)
+            function $_sim_resid_name (t, y, yp, p, r)
                  ## @show y
                  ## @show length(y)
                  a = $resid_thunk
@@ -208,14 +217,14 @@ function setup_functions(sm::Sim)
                  r[1:end] = a
                  nothing
             end
-            function $_sim_init_name (t, y, yp, r)
+            function $_sim_init_name (t, y, yp, p, r)
                  a = $init_thunk
                  ## @show a
                  ## dump(a)
                  r[1:end] = a
                  nothing
             end
-            function $_sim_event_at_name (t, y, yp, r)
+            function $_sim_event_at_name (t, y, yp, p, r)
                  r[1:end] = $event_thunk
                  nothing
             end
@@ -247,7 +256,7 @@ function setup_functions(sm::Sim)
     F
 end
 
-# add_var add's a variable to the unknown_idx_map if it isn't already
+# adds a variable to the unknown_idx_map if it isn't already
 # there. 
 function add_var(v, sm) 
     if !haskey(sm.unknown_idx_map, v.sym)
@@ -256,6 +265,18 @@ function add_var(v, sm)
         idx = len == 1 ? sm.varnum : (sm.varnum:(sm.varnum + len - 1))
         sm.unknown_idx_map[v.sym] = idx
         sm.varnum = sm.varnum + len
+    end
+end
+
+# adds a parameter to the parameter_idx_map if it isn't already
+# there. 
+function add_param(v, sm) 
+    if !haskey(sm.parameter_idx_map, v.sym)
+        # Account for the length and fundamental size of the object
+        len = length(v.value) * int(sizeof([v.value][1]) / 8)  
+        idx = len == 1 ? sm.paramnum : (sm.paramnum:(sm.paramnum + len - 1))
+        sm.parameter_idx_map[v.sym] = idx
+        sm.paramnum = sm.paramnum + len
     end
 end
 
@@ -317,6 +338,15 @@ function replace_unknowns(a::LeftVar, sm::Sim)
     else
         var = replace_unknowns(a.var, sm)
         :(sub($(var.args[2]), $(var.args[3]):$(var.args[3])))
+    end
+end
+function replace_unknowns(a::Parameter, sm::Sim) 
+    add_param(a, sm)
+    sm.parameter_map[sm.parameter_idx_map[a.sym]] = a
+    if isreal(a.value) && ndims(a.value) < 2
+        :(getindex(p, ($(sm.parameter_idx_map[a.sym]))))
+    else
+        :(from_real(getindex(p, ($(sm.parameter_idx_map[a.sym]))), $(basetypeof(a.value)), $(size(a.value))))
     end
 end
 

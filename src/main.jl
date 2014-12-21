@@ -130,6 +130,7 @@ abstract UnknownVariable <: ModelType
 
 type DefaultUnknown <: UnknownCategory
 end
+
 type Unknown{T<:UnknownCategory} <: UnknownVariable
     sym::Symbol
     value         # holds initial values (and type info)
@@ -175,6 +176,19 @@ type MExpr <: ModelType
     ex::Expr
 end
 mexpr(hd::Symbol, args::ANY...) = MExpr(Expr(hd, args...))
+
+
+type Parameter{T<:UnknownCategory} <: UnknownVariable
+    sym::Symbol
+    value         # holds parameter value (and type info)
+    label::String
+    Parameter(sym::Symbol, value) = new(sym, value, "")
+    Parameter(value) = new(gensym(), value, "")
+    Parameter(sym::Symbol, label::String) = new(sym, 0.0, label)
+    Parameter(value, label::String) = new(gensym(), value, label)
+end
+Parameter(v) = Parameter{DefaultUnknown}(gensym(), v)
+
 
 # Set up defaults for operations on ModelType's for many common
 # methods.
@@ -276,6 +290,7 @@ value(x::UnknownVariable) = x.value
 value(x::RefUnknown) = x.u.value[x.idx...]
 value(a::MExpr) = value(a.ex)
 value(e::Expr) = eval(Expr(e.head, (isempty(e.args) ? e.args : map(value, e.args))...))
+value(x::Parameter) = x.value
 
 function symname(s::Symbol)
     s = string(s)
@@ -284,6 +299,7 @@ end
 name(a::Unknown) = a.label != "" ? a.label : symname(a.sym)
 name(a::DerUnknown) = a.parent.label != "" ? a.parent.label : symname(a.parent.sym)
 name(a::RefUnknown) = a.u.label != "" ? a.u.label : symname(a.u.sym)
+name(a::Parameter) = a.label != "" ? a.label : symname(a.sym)
 
 # The following helper functions are to return the base value from an
 # unknown to use when creating other unknowns. An example would be:

@@ -11,9 +11,6 @@ C_m     =    1.0
 E_Na    =   50.0
 E_K     =  -77.0
 E_L     =  -54.4
-gbar_Na =  120.0
-gbar_K  =   36.0
-g_L     =    0.3
 
 ## Rate functions
 
@@ -56,6 +53,10 @@ function HodgkinHuxley()
     I_Na = Unknown ()
     I_K  = Unknown ()
     I_L  = Unknown ()
+
+    gbar_Na = Parameter (120.0)
+    gbar_K  = Parameter (1.0)
+    g_L     = Parameter (0.3)
     
     # The following gives the return value which is a list of equations.
     # Expressions with Unknowns are kept as expressions. Regular
