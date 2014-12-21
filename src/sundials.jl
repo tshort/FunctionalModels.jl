@@ -112,6 +112,7 @@ function sunsim(mem::Ptr, ss::SimState, tstop::Float64, Nsteps::Int)
 
     println("starting sunsim()")
 
+    
     sm = ss.sm
 
     tstart = ss.t[1]
@@ -129,6 +130,9 @@ function sunsim(mem::Ptr, ss::SimState, tstop::Float64, Nsteps::Int)
     neq   = length(ss.y0)
     rtest = zeros(neq)
     sm.F.resid(tstart, ss.y0, ss.yp0, ss.p, rtest)
+
+    flag = Sundials.IDAReInit(mem, tstart, ss.y0, ss.yp0)
+
     if any(abs(rtest) .>= sm.reltol)
         flag = Sundials.IDACalcIC(mem, Sundials.IDA_YA_YDP_INIT, tstart + tstep)  # IDA_YA_YDP_INIT or IDA_Y_INIT
     end
