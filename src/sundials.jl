@@ -11,6 +11,11 @@ import Sundials.N_Vector, Sundials.nvector
 
 __ss = {}
 
+type SimSundials
+    mem::Ptr # ptr to sundials memory
+    index::Int # user data index
+end
+
 function initfun(u::N_Vector, r::N_Vector, userdata_ptr::Ptr{Void})
     userdata = unsafe_pointer_to_objref(userdata_ptr)
     ss::SimState = __ss[userdata]
@@ -83,15 +88,20 @@ function setup_sunsim(ss::SimState, reltol::Float64, abstol::Float64)
     id    = float64(copy(sm.id))
     id[id .< 0] = 0
     flag  = Sundials.IDASetId(mem, id)
-    return mem
+    return SimSundials (mem, index)
 end
 
 
-function reinit_sunsim(mem, ss::SimState, t)
+function reinit_sunsim(smem::SimSundials, ss::SimState, t)
+
+    mem = smem.mem
     sm = ss.sm
 
     index = convert(Cint,length(__ss)+1)
     push!(__ss, ss)
+    __ss[smem.index] = 0
+    smem.index = index
+    
     neq   = length(ss.y0)
     
     flag  = Sundials.IDASetUserData(mem, index)
@@ -108,10 +118,9 @@ function reinit_sunsim(mem, ss::SimState, t)
 end
 
 
-function sunsim(mem::Ptr, ss::SimState, tstop::Float64, Nsteps::Int)
+function sunsim(smem::SimSundials, ss::SimState, tstop::Float64, Nsteps::Int)
 
     println("starting sunsim()")
-
     
     sm = ss.sm
 
@@ -131,6 +140,8 @@ function sunsim(mem::Ptr, ss::SimState, tstop::Float64, Nsteps::Int)
     rtest = zeros(neq)
     sm.F.resid(tstart, ss.y0, ss.yp0, ss.p, rtest)
 
+    mem = smem.mem
+    
     flag = Sundials.IDAReInit(mem, tstart, ss.y0, ss.yp0)
 
     if any(abs(rtest) .>= sm.reltol)
@@ -177,7 +188,7 @@ function sunsim(mem::Ptr, ss::SimState, tstop::Float64, Nsteps::Int)
                 sm = ss.sm
                 
                 ## restart the simulation:
-                reinit_sunsim (mem, ss, tret[1])
+                reinit_sunsim (smem, ss, tret[1])
                 
                 nrt = int32(length(sm.F.event_pos))
                 jroot = fill(int32(0), nrt)
