@@ -168,9 +168,9 @@ function sunsim(smem::SimSundials, ss::SimState, tstop::Float64, Nsteps::Int)
             retvalr = Sundials.IDAGetRootInfo(mem, jroot)
             for ridx in 1:length(jroot)
                 if jroot[ridx] == 1
-                    sm.F.event_pos[ridx](tret[1], ss.y0, ss.yp0, ss)
+                    sm.F.event_pos[ridx](tret[1], ss.y0, ss.yp0, ss.p, ss)
                 elseif jroot[ridx] == -1
-                    sm.F.event_neg[ridx](tret[1], ss.y0, ss.yp0, ss)
+                    sm.F.event_neg[ridx](tret[1], ss.y0, ss.yp0, ss.p, ss)
                 end
                 flag = Sundials.IDAReInit(mem, tret[1], ss.y0, ss.yp0)
                 flag = Sundials.IDACalcIC(mem, Sundials.IDA_YA_YDP_INIT, tret[1] + tstep/10)  # IDA_YA_YDP_INIT or IDA_Y_INIT
