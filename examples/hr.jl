@@ -15,7 +15,7 @@ r = 1e-3
 s = 4.0
 xr = -8/5
 
-function phi(x)
+function phi_(x)
     return -a * x ^ 3 + b * x ^ 2
 end
 
@@ -37,7 +37,7 @@ function HindmarshRose(I)
     y = Unknown("y")        
     z = Unknown("z")        
     {
-     der(x) - (y + phi(x) - z + I )
+     der(x) - (y + phi_(x) - z + I )
      der(y) - (psi(x) - y)
      der(z) - (r * (s * (x - xr) - z))
      }
@@ -50,6 +50,6 @@ v_ptr = setup_sunsim (v_s, 1e-7, 1e-7)
 
 tf = 500.0
 dt = 0.025
-v_yout = sunsim(v_ptr, v_s, tend, int (tend/dt))
+v_yout = sunsim(v_ptr, v_s, tf, int (tf/dt))
 
 plot (v_yout.y[:,1], v_yout.y[:,2])

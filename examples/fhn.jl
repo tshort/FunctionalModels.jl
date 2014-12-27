@@ -32,7 +32,7 @@ end
 
 v   = FitzHughNagumo(0.5)       # returns the hierarchical model
 v_f = elaborate(v)    # returns the flattened model
-v_s = create_sim(v_f) # returns a "Sim" ready for simulatio
+v_s = create_sim(v_f) # returns a "Sim" ready for simulation
 
 tf = 200.0
 dt = 0.025

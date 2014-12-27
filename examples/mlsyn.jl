@@ -61,14 +61,14 @@ function MorrisLecar(v)
 end
 
 
-function k(v)
+function k_(v)
     return 1.0 / (1.0 + exp(-(v - vt) / vs))
 end
 
 
 function Syn(v,s)
     {
-     der(s) = alpha * k(v) * (1-s) - beta * s
+     der(s) = alpha * k_(v) * (1-s) - beta * s
     }
 end    
 
