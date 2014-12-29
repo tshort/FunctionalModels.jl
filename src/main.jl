@@ -599,3 +599,33 @@ to_real(x) = reinterpret(Float64, [x][:])
 
 
 
+########################################
+## @equations macro                   ##
+########################################
+
+macro equations(args)
+    esc(equations_helper(args))
+end
+
+function parse_args(a::Expr)
+    if a.head == :line
+        nothing
+    elseif a.head == :(=)
+        Expr(:call, :-, parse_args(a.args[1]), parse_args(a.args[2]))
+    else
+        Expr(a.head, [parse_args(x) for x in a.args]...)
+    end
+end
+
+parse_args(a::Array) = [parse_args(x) for x in a]
+parse_args(x) = x
+
+function equations_helper(arg)
+    if arg.head == :block
+        Expr(:ref, :Equation, parse_args(arg.args)...)
+    else
+        error("Argument to @equations is not a begin..end block")
+    end
+end
+
+Equation = Any

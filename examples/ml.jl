@@ -46,12 +46,12 @@ function MorrisLecar()
     # The following gives the return value which is a list of equations.
     # Expressions with Unknowns are kept as expressions. Regular
     # variables are evaluated immediately (like normal).
-    {
+    @equations begin
      der(v) - ((Istim + (gl * (vl - v)) + ica + ik) / c)   # == 0 is assumed
      der(w) - (lamw (v) * (winf(v) - w))
      ica - (gca * (minf (v) * (vca - v)))
      ik  - (gk * (w * (vk - v)))
-    }
+    end
 end
 
 
