@@ -68,18 +68,18 @@ tf = 0.1
 dt = 0.025
 
 function init (i)
-    println (i)
+    println ("init: ", i)
     iaf_s = create_sim(iaf_f) # returns a "Sim" ready for simulation
     iaf_ptr = setup_sunsim (iaf_s, 1e-6, 1e-6)
 
     return (i,iaf_s,iaf_ptr)
 end
 
-function mysim (x::(Int64,Sims.SimState,Sims.SimSundials))
+function iafsim (x::(Int64,Sims.SimState,Sims.SimSundials))
     i = x[1]
     iaf_s = x[2]
     iaf_ptr = x[3]
-    println (i)
+    println ("iafsim: ", i)
 
     # runs the simulation and returns
     # the result as an array plus column headings
@@ -90,7 +90,7 @@ end
 
     
 @time inits = map(init, 1:12500)
-@time map(mysim, inits)
+#@time map(mysim, inits)
 
 
 ## plot (iaf_yout.y[:,1], iaf_yout.y[:,2])
