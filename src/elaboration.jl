@@ -127,10 +127,10 @@ function elaborate_unit(ev::StructuralEvent, eq::EquationSet)
     push!(eq.events, strip_mexpr(elaborate_subunit(ev.condition)))
     # A positive zero crossing initiates a change:
     push!(eq.pos_responses,
-          (t,y,yp,ss) ->
+          (t,y,yp,p,ss) ->
           begin ss.structural_change = true; ev.activated = true; end)
     # Dummy negative zero crossing
-    push!(eq.neg_responses, (t,y,yp,ss) -> return)
+    push!(eq.neg_responses, (t,y,yp,p,ss) -> return)
     elaborate_unit(ev.default, eq)
 end
 
