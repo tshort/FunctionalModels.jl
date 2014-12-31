@@ -1,6 +1,11 @@
 
 ##
-## An implementation of the Hodgkin-Huxley neuron model.
+## This model is used to calculate the membrane potential of a
+## neuron. The calculation is based on sodium ion flow, potassium ion
+## flow and leakage ion flow. (Hodgkin, A. L. and Huxley, A. F. (1952)
+## "A Quantitative Description of Membrane Current and its Application
+## to Conduction and Excitation in Nerve" Journal of Physiology 117:
+## 500-544)
 ##
 
 using Sims

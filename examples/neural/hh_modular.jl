@@ -17,7 +17,7 @@ g_L     =    0.3
 
 ## Na current
 
-function Nafun(v,I_Na)
+function Na_model(v,I_Na)
 
     function amf (v)
         return (0.1 * (v + 40) / (1.0 - exp (- (v + 40) / 10)))
@@ -56,7 +56,7 @@ end
 
 ## K current
 
-function Kfun(v,I_K)
+function K_model(v,I_K)
 
     function anf (v)
         return (0.01 * (v + 55) / (1 - (exp ((- (v + 55)) / 10))))
@@ -80,7 +80,7 @@ end
 
 ## Leak current
 
-function Leakfun(v,I_L)
+function Leak_model(v,I_L)
    {
      I_L  - (g_L  * (v - E_L))
    }
@@ -99,9 +99,9 @@ function HodgkinHuxley()
     # variables are evaluated immediately (like normal).
     {
 
-     Nafun(v,I_Na)
-     Kfun(v,I_K)
-     Leakfun(v,I_L)
+     Na_model(v,I_Na)
+     K_model(v,I_K)
+     Leak_model(v,I_L)
      
      der(v) - ((I - (I_Na + I_K + I_L)) / C_m)
 
