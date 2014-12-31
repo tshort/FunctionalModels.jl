@@ -175,6 +175,7 @@ println("starting sim()")
 end
 dasslsim(ss::SimState) = dasslsim(ss, 1.0, 500)
 dasslsim(ss::SimState, tstop::Float64) = dasslsim(ss, tstop, 500)
+dasslsim(sm::Sim, tstop::Float64) = dasslsim(create_simstate(sm), tstop, 500)
 dasslsim(m::Model, tstop::Float64, Nsteps::Int)  = dasslsim(create_sim(elaborate(m)), tstop, Nsteps)
 dasslsim(m::Model) = dasslsim(m, 1.0, 500)
 dasslsim(m::Model, tstop::Float64) = dasslsim(m, tstop, 500)
