@@ -3,22 +3,13 @@ using Sundials
 import Sundials.N_Vector, Sundials.nvector
 
 
-## Conventions:
-##
-## __ss is a global array of SimState structures
-##
-##
-
-global __ss = {}
-
 type SimSundials
     mem::Ptr # ptr to sundials memory
-    index::Int # user data index
+    ss::SimState # SimState structure
 end
 
 function initfun(u::N_Vector, r::N_Vector, userdata_ptr::Ptr{Void})
-    index = convert(Cint, userdata_ptr)
-    ss::SimState = __ss[index]
+    ss::SimState = unsafe_pointer_to_objref(userdata_ptr)
     sm::Sim = ss.sm
 
     n  = length(ss.y0)
@@ -32,8 +23,7 @@ function initfun(u::N_Vector, r::N_Vector, userdata_ptr::Ptr{Void})
 end
 
 function daefun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userdata_ptr::Ptr{Void})
-    index = convert(Cint,userdata_ptr)
-    ss::SimState = __ss[index]
+    ss::SimState = unsafe_pointer_to_objref(userdata_ptr)
     sm::Sim = ss.sm
     
     y  = Sundials.asarray(y) 
@@ -45,8 +35,7 @@ function daefun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userdata_ptr
 end
 
 function rootfun(t::Float64, y::N_Vector, yp::N_Vector, g::Ptr{Sundials.realtype}, userdata_ptr::Ptr{Void})
-    index = convert(Cint, userdata_ptr)
-    ss::SimState = __ss[index]
+    ss::SimState = unsafe_pointer_to_objref(userdata_ptr)
     sm::Sim = ss.sm
 
     y  = Sundials.asarray(y) 
@@ -70,18 +59,15 @@ function solve(ss::SimState) # initial conditions
 end
 solve(m::Model)  = sunsim(create_sim(elaborate(m)))
 
-@Sundials.c Int32 IDASetUserData (Ptr{:None},Int32) libsundials_ida
 
 function setup_sunsim(ss::SimState, reltol::Float64, abstol::Float64)
     sm = ss.sm
     sm.reltol = reltol
     sm.abstol = abstol
     tstart = ss.t[1]
-    index = convert(Cint,length(__ss)+1)
-    push!(__ss, ss)
     neq   = length(ss.y0)
     mem   = Sundials.IDACreate()
-    flag  = IDASetUserData(mem, index)
+    flag  = Sundials.IDASetUserData(mem, ss)
     flag  = Sundials.IDAInit(mem, daefun, tstart, ss.y0, ss.yp0)
     flag  = Sundials.IDASStolerances(mem, reltol, abstol)
     flag  = Sundials.IDADense(mem, neq)
@@ -89,7 +75,7 @@ function setup_sunsim(ss::SimState, reltol::Float64, abstol::Float64)
     id    = float64(copy(sm.id))
     id[id .< 0] = 0
     flag  = Sundials.IDASetId(mem, id)
-    return SimSundials (mem, index)
+    return SimSundials (mem, ss)
 end
 
 
@@ -98,14 +84,11 @@ function reinit_sunsim(smem::SimSundials, ss::SimState, t)
     mem = smem.mem
     sm = ss.sm
 
-    index = convert(Cint,length(__ss)+1)
-    push!(__ss, ss)
-    __ss[smem.index] = 0
-    smem.index = index
+    smem.ss = ss
     
     neq   = length(ss.y0)
     
-    flag  = IDASetUserData(mem, index)
+    flag  = Sundials.IDASetUserData(mem, ss)
     flag  = Sundials.IDARootInit(mem, int32(length(sm.F.event_pos)), rootfun)
     id    = float64(copy(sm.id))
     id[id .< 0] = 0
@@ -119,10 +102,11 @@ function reinit_sunsim(smem::SimSundials, ss::SimState, t)
 end
 
 
-function sunsim(smem::SimSundials, ss::SimState, tstop::Float64, Nsteps::Int)
+function sunsim(smem::SimSundials, tstop::Float64, Nsteps::Int)
 
     println("starting sunsim()")
-    
+
+    ss = smem.ss
     sm = ss.sm
 
     tstart = ss.t[1]
@@ -207,6 +191,8 @@ function sunsim(smem::SimSundials, ss::SimState, tstop::Float64, Nsteps::Int)
     end
     SimResult(yout, [sm.outputs[yidx]])
 end
+sunsim(ss::SimState, tstop::Float64, Nsteps::Int) = sunsim(setup_sunsim(ss,1e-4,1e-4), tstop, Nsteps)
+sunsim(sm::Sim, tstop::Float64, Nsteps::Int) = sunsim(create_sim(sm), tstop, Nsteps)
 sunsim(sm::Sim) = sunsim(sm, 1.0, 500)
 sunsim(sm::Sim, tstop::Float64) = sunsim(sm, tstop, 500)
 sunsim(m::Model, tstop::Float64, nsteps::Int)  = sunsim(create_sim(elaborate(m)), tstop, nsteps)

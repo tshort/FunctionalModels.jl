@@ -43,12 +43,10 @@ v = Vanderpol()       # returns the hierarchical model
 v_f = elaborate(v)    # returns the flattened model
 v_s = create_sim(v_f) # returns a "Sim" ready for simulatio
 
-v_ptr = setup_sunsim (v_s, 1e-6, 1e-6)
-
 tf = 50.0
 dt = 0.025
 
-@time v_yout = sunsim(v_ptr, v_s, tf, int(tf/dt))
+@time v_yout = sunsim(v_s, tf, int(tf/dt))
 
 figure()
 p1 = plot(v_yout.y[:,1], v_yout.y[:,2])
