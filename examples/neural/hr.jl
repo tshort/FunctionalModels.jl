@@ -50,6 +50,6 @@ v_ptr = setup_sunsim (v_s, 1e-7, 1e-7)
 
 tf = 500.0
 dt = 0.025
-v_yout = sunsim(v_ptr, v_s, tf, int (tf/dt))
+v_yout = sunsim(v_ptr, tf, int (tf/dt))
 
 plot (v_yout.y[:,1], v_yout.y[:,2])

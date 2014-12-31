@@ -94,7 +94,7 @@ ml_ptr = setup_sunsim (ml_s, 1e-6, 1e-6)
 
 # runs the simulation and returns
 # the result as an array plus column headings
-@time ml_yout = sunsim(ml_ptr, ml_s, tf, int(tf/dt))
+@time ml_yout = sunsim(ml_ptr, tf, int(tf/dt))
 
 #plot (ml_yout.y[:,1], ml_yout.y)
 plot (ml_yout.y[:,1], ml_yout.y[:,2])

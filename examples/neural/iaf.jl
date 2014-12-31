@@ -44,7 +44,7 @@ iaf_ptr = setup_sunsim (iaf_s, 1e-7, 1e-7)
 
 # runs the simulation and returns
 # the result as an array plus column headings
-iaf_yout = sunsim(iaf_ptr, iaf_s, tf, int(tf/dt))
+iaf_yout = sunsim(iaf_ptr, tf, int(tf/dt))
 
 plot (iaf_yout.y[:,1], iaf_yout.y[:,2])
 

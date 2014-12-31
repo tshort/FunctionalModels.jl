@@ -83,7 +83,16 @@ function create_sim(eq::EquationSet)
     sm.id = fill_from_map(-1, N_unknowns, sm.yp_map, x -> 1)
     sm.abstol = 1e-4
     sm.reltol = 1e-4
-    
+
+    sm
+end
+create_sim(m::Model) = create_sim(elaborate(m))
+
+function create_simstate (sm::Sim)
+
+    N_unknowns = sm.varnum - 1
+    N_params = sm.paramnum - 1
+
     t = [0.0]
     y0 = fill_from_map(0.0, N_unknowns, sm.y_map, x -> to_real(x.value))
     yp0 = fill_from_map(0.0, N_unknowns, sm.yp_map, x -> to_real(x.value))
@@ -100,7 +109,6 @@ function create_sim(eq::EquationSet)
     
     ss
 end
-create_sim(m::Model) = create_sim(elaborate(m))
 
 # Utility to vectors based on values in Dict's. The key in the Dict
 # gives the indexes in the vector.

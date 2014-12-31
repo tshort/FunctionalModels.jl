@@ -153,7 +153,7 @@ pr_ptr = setup_sunsim (pr_s, 1e-7, 1e-7)
 
 # runs the simulation and returns
 # the result as an array plus column headings
-@time pr_yout = sunsim(pr_ptr, pr_s, tf, int(tf/dt))
+@time pr_yout = sunsim(pr_ptr, tf, int(tf/dt))
 
 plot (pr_yout.y[:,1], pr_yout.y[:,2])
 

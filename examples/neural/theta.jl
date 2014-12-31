@@ -43,7 +43,7 @@ theta_ptr = setup_sunsim (theta_s, 1e-7, 1e-7)
 
 # runs the simulation and returns
 # the result as an array plus column headings
-@time theta_yout = sunsim(theta_ptr, theta_s, tf, int(tf/dt))
+@time theta_yout = sunsim(theta_ptr, tf, int(tf/dt))
 
 #plot (theta_yout.y[:,1], theta_yout.y)
 plot (theta_yout.y[:,1], theta_yout.y[:,2])

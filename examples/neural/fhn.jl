@@ -41,6 +41,6 @@ v_ptr = setup_sunsim (v_s, 1e-7, 1e-7)
 
 # runs the simulation and returns
 # the result as an array plus column headings
-@time v_yout = sunsim(v_ptr, v_s, tf, int(tf/dt))
+@time v_yout = sunsim(v_ptr, tf, int(tf/dt))
 
 plot (v_yout.y[:,1], v_yout.y[:,2])

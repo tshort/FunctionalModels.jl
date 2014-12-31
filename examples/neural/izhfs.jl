@@ -57,7 +57,7 @@ izhfs_ptr = setup_sunsim (izhfs_s, 1e-6, 1e-6)
 
 # runs the simulation and returns
 # the result as an array plus column headings
-@time izhfs_yout = sunsim(izhfs_ptr, izhfs_s, tf, int(tf/dt))
+@time izhfs_yout = sunsim(izhfs_ptr, tf, int(tf/dt))
 
 plot (izhfs_yout.y[:,1], izhfs_yout.y[:,2])
 

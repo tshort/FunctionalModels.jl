@@ -110,7 +110,7 @@ function simrun (sim, tf, dt)
 
     ptr = setup_sunsim (s, 1e-6, 1e-6)
 
-    yout = sunsim(ptr, s, tf, int(tf/dt))
+    yout = sunsim(ptr, tf, int(tf/dt))
 
     return yout
 end

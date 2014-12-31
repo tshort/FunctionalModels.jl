@@ -119,7 +119,7 @@ dt = 0.001
 
 hh_ptr = setup_sunsim (hh_s, 1e-6, 1e-6)
 
-@time hh_yout = sunsim(hh_ptr, hh_s, tf, int(tf/dt))
+@time hh_yout = sunsim(hh_ptr, tf, int(tf/dt))
 
 plot (hh_yout.y[:,1], hh_yout.y[:,3])
 

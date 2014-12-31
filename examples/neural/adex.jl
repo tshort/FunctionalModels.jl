@@ -53,7 +53,7 @@ dt = 0.025
 
 # runs the simulation and returns
 # the result as an array plus column headings
-adex_yout = sunsim(adex_ptr, adex_s, tf, int(tf/dt))
+adex_yout = sunsim(adex_ptr, tf, int(tf/dt))
 
 plot (adex_yout.y[:,1], adex_yout.y[:,2])
 

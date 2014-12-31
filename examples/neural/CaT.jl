@@ -139,7 +139,7 @@ wrr_ptr = setup_sunsim (wrr_s, 1e-7, 1e-7)
 tf = 50.0
 dt = 0.025
 
-@time wrr_yout = sunsim(wrr_ptr, wrr_s, tf, int(tf/dt))
+@time wrr_yout = sunsim(wrr_ptr, tf, int(tf/dt))
 
 plot (wrr_yout.y[:,1], wrr_yout.y[:,3])
 

@@ -24,7 +24,7 @@ export Equation, @equations, is_unknown, der, delay, mexpr, value, compatible_va
        basetypeof, from_real, to_real,
        gplot, wplot,
        check,
-       elaborate, create_sim, sim, sunsim, setup_sunsim, dasslsim
+       elaborate, create_sim, create_simstate, sim, sunsim, setup_sunsim, dasslsim
 
 ## Model methods
 export Branch, BoolEvent
