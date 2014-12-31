@@ -149,7 +149,7 @@ println("starting sim()")
                     # Put t, y, and yp values back into original equations:
                     MTime.value = t[1]
                     # Reflatten equations
-                    ss = create_sim(elaborate(sm.eq))
+                    ss = create_simstate(create_sim(elaborate(sm.eq)))
                     sm = ss.sm
                     
                     # Restart the simulation:
