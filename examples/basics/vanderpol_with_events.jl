@@ -40,7 +40,7 @@ v_ptr = setup_sunsim (v_s, 1e-6, 1e-6)
 tf = 10.0
 dt = 0.025
 
-@time v_yout = sunsim(v_ptr, v_s, tf, int(tf/dt))
+@time v_yout = sunsim(v_ptr, tf, int(tf/dt))
 
 figure()
 p1 = plot(v_yout.y[:,1], v_yout.y[:,2])
