@@ -169,7 +169,7 @@ function sunsim(smem::SimSundials, tstop::Float64, Nsteps::Int)
                 
                 ## reflatten equations
                 eq = sm.eq
-                ss = create_sim(elaborate(eq))
+                ss = create_simstate(create_sim(elaborate(eq)))
                 sm = ss.sm
                 
                 ## restart the simulation:
