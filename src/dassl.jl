@@ -51,7 +51,7 @@ end
 
 function dasslsim(ss::SimState, tstop::Float64, Nsteps::Int)
     # tstop & Nsteps should be in options
-println("starting sim()")
+    sim_info("starting sim()")
 
     sm = ss.sm
     yidx = sm.outputs .!= ""
@@ -145,7 +145,7 @@ println("starting sim()")
                     end
                 end
                 if ss.structural_change
-                    println("Structural change event found at t = $(t[1]), restarting")
+                    sim_info("Structural change event found at t = $(t[1]), restarting")
                     # Put t, y, and yp values back into original equations:
                     MTime.value = t[1]
                     ## preserve any modifications to parameters
@@ -161,16 +161,16 @@ println("starting sim()")
                     simulate = setup_sim(ss, t[1], tstop, int(Nsteps * (tstop - t[1]) / tstop))
                     yidx = sm.outputs .!= ""
                 elseif any(jroot .!= 0)
-                    println("event found at t = $(t[1]), restarting")
+                    sim_info("event found at t = $(t[1]), restarting")
                     info[1] = 0
                     info[11] = 1    # do/don't calc initial conditions
                 end
             end
         elseif idid[1] < 0 && idid[1] > -11
-            println("RESTARTING")
+            sim_info("RESTARTING")
             info[1] = 0
         else
-            println("DASKR failed prematurely")
+            error("DASKR failed prematurely")
             break
         end
     end

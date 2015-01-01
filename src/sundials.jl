@@ -104,7 +104,7 @@ end
 
 function sunsim(smem::SimSundials, tstop::Float64, Nsteps::Int)
 
-    println("starting sunsim()")
+    sim_info("starting sunsim()")
 
     ss = smem.ss
     sm = ss.sm
@@ -160,7 +160,7 @@ function sunsim(smem::SimSundials, tstop::Float64, Nsteps::Int)
                 flag = Sundials.IDACalcIC(mem, Sundials.IDA_YA_YDP_INIT, tret[1] + tstep/10)  # IDA_YA_YDP_INIT or IDA_Y_INIT
             end
             if ss.structural_change
-                println("structural change event found at t = $(t[1]), restarting")
+                sim_info("structural change event found at t = $(t[1]), restarting")
                 
                 MTime.value = tret[1]
 
@@ -183,12 +183,12 @@ function sunsim(smem::SimSundials, tstop::Float64, Nsteps::Int)
                 yidx = sm.outputs .!= ""
                 
             elseif any(jroot .!= 0)
-                println("event found at t = $(tret[1]), restarting")
+                sim_info("event found at t = $(tret[1]), restarting")
             end
         ## elseif flag == Sundials.IDA_??
         ##     println("restarting")
         else
-            println("SUNDIALS failed prematurely (flag = ", flag, ")")
+            error("SUNDIALS failed prematurely (flag = ", flag, ")")
             break
         end
     end

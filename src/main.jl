@@ -95,7 +95,12 @@
 # even more difficult to interface. 
 # 
 
-
+sim_verbose = 1
+function sim_info(msgs...)
+    if sim_verbose > 0
+        apply(println,msgs)
+    end
+end
 
 ########################################
 ## Type definitions                   ##
@@ -486,11 +491,11 @@ type LeftVar <: ModelType
     var
 end
 function reinit(x, y)
-    println("reinit: ", x[], " to ", y)
+    sim_info("reinit: ", x[], " to ", y)
     x[:] = y
 end
 function reinit(x::DiscreteVar, y)
-    println("reinit discrete: ", x.value, " to ", y)
+    sim_info("reinit discrete: ", x.value, " to ", y)
     x.pre = x.value
     x.value = y
     for fun in x.hooks
@@ -559,8 +564,12 @@ type StructuralEvent <: ModelType
     default
     new_relation::Function
     activated::Bool       # Indicates whether the event condition has fired
+    response::Union(Function,Nothing) # if given, the response function will be called with the model state and parameters
 end
-StructuralEvent(condition::MExpr, default, new_relation::Function) = StructuralEvent(condition, default, new_relation, false)
+StructuralEvent(condition::MExpr, default, new_relation::Function) =
+    StructuralEvent(condition, default, new_relation, false, nothing)
+StructuralEvent(condition::MExpr, default, new_relation::Function, response::Function) =
+    StructuralEvent(condition, default, new_relation, false, response)
 
 
 
