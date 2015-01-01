@@ -204,8 +204,8 @@ unary_functions = [:(+), :(-), :(!),
                    :asinh, :atan, :atanh, :sin, :sinh,
                    :cos, :cosh, :tan, :tanh, :ceil, :floor,
                    :round, :trunc, :exp, :exp2, :expm1, :log, :log10, :log1p,
-                   :log2, :logb, :sqrt, :gamma, :lgamma, :digamma,
-                   :erf, :erfc, :square,
+                   :log2, :sqrt, :gamma, :lgamma, :digamma,
+                   :erf, :erfc, 
                    :min, :max, :prod, :sum, :mean, :median, :std,
                    :var, :norm,
                    :diff, 
@@ -479,6 +479,7 @@ end
 Event(condition::ModelType, p::MExpr, n::MExpr) = Event(condition, {p}, {n})
 Event(condition::ModelType, p::Model, n::MExpr) = Event(condition, p, {n})
 Event(condition::ModelType, p::MExpr, n::Model) = Event(condition, {p}, n)
+Event(condition::ModelType, p::Model) = Event(condition, p, {})
 Event(condition::ModelType, p::MExpr) = Event(condition, {p}, {})
 Event(condition::ModelType, p::Expr) = Event(condition, p, {})
 
@@ -627,6 +628,7 @@ function parse_args(a::Expr)
 end
 
 parse_args(a::Array) = [parse_args(x) for x in a]
+parse_args(e::Expr) = [parse_args(e)]
 parse_args(x) = x
 
 function equations_helper(arg)

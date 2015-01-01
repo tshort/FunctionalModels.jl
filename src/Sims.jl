@@ -8,7 +8,6 @@ import Base.hcat,
        Base.setindex!,
        Base.show,
        Base.size,
-       Base.solve,
        Base.vcat
 
 ## Types
