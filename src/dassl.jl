@@ -148,8 +148,11 @@ println("starting sim()")
                     println("Structural change event found at t = $(t[1]), restarting")
                     # Put t, y, and yp values back into original equations:
                     MTime.value = t[1]
+                    ## preserve any modifications to parameters
+                    p = copy(ss.p)
                     # Reflatten equations
                     ss = create_simstate(create_sim(elaborate(sm.eq)))
+                    ss.p = p
                     sm = ss.sm
                     
                     # Restart the simulation:

@@ -166,10 +166,13 @@ function sunsim(smem::SimSundials, tstop::Float64, Nsteps::Int)
 
                 ## TODO: avoid reflattening, if possible precompute
                 ## all possible equations ahead of time
-                
+
+                ## preserve any modifications to parameters
+                p = copy(ss.p)
                 ## reflatten equations
                 eq = sm.eq
                 ss = create_simstate(create_sim(elaborate(eq)))
+                ss.p = p
                 sm = ss.sm
                 
                 ## restart the simulation:
