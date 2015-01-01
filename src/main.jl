@@ -628,7 +628,6 @@ function parse_args(a::Expr)
 end
 
 parse_args(a::Array) = [parse_args(x) for x in a]
-parse_args(e::Expr) = [parse_args(e)]
 parse_args(x) = x
 
 function equations_helper(arg)
