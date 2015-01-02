@@ -157,7 +157,7 @@ strip_mexpr(a::MExpr) = strip_mexpr(a.ex)
 strip_mexpr(e::Expr) = Expr(e.head, (isempty(e.args) ? e.args : map(strip_mexpr, e.args))...)
 
 # Other utilities:
-remove_empties(l::Vector{Any}) = filter(x -> !isequal(x, {}), l)
+remove_empties(l::Vector{Any}) = filter(x -> !isequal(x, Any[]), l)
 eval_all(x) = eval(x)
 eval_all{T}(x::Array{T,1}) = map(eval_all, x)
 
