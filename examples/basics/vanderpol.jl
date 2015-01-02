@@ -33,9 +33,9 @@ function Vanderpol()
     # Expressions with Unknowns are kept as expressions. Expressions of
     # regular variables are evaluated immediately (like normal).
     @equations begin
-     # The -1.0 in der(x, -1.0) is the initial value for the derivative 
-     der(x, -1.0) - ((1 - y^2) * x - y) # == 0 is assumed
-     der(y) - x
+        # The -1.0 in der(x, -1.0) is the initial value for the derivative 
+        der(x, -1.0) = (1 - y^2) * x - y 
+        der(y) = x
     end
 end
 

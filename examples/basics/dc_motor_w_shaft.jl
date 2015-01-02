@@ -24,13 +24,13 @@ function EMF(n1::ElectricalNode, n2::ElectricalNode, flange::Flange, k::Real)
     i = Current()
     v = Voltage()
     w = AngularVelocity()
-    {
-     Branch(n1, n2, i, v)
-     RefBranch(flange, tau)
-     w - der(flange)
-     v - k * w
-     tau - k * i
-     }
+    Equation[
+        Branch(n1, n2, i, v)
+        RefBranch(flange, tau)
+        w - der(flange)
+        v - k * w
+        tau - k * i
+    ]
 end
 
 function DCMotor(flange::Flange)
@@ -38,21 +38,21 @@ function DCMotor(flange::Flange)
     n2 = Voltage()
     n3 = Voltage()
     g = 0.0
-    {
-     SignalVoltage(n1, g, 60.0)
-     Resistor(n1, n2, 100.0)
-     Inductor(n2, n3, 0.2)
-     EMF(n3, g, flange, 1.0)
-     }
+    Equation[
+        SignalVoltage(n1, g, 60.0)
+        Resistor(n1, n2, 100.0)
+        Inductor(n2, n3, 0.2)
+        EMF(n3, g, flange, 1.0)
+    ]
 end
 
 function ShaftElement(flangeA::Flange, flangeB::Flange)
     r1 = Angle()
-    {
-     Spring(flangeA, r1, 8.0) 
-     Damper(flangeA, r1, 1.5) 
-     Inertia(r1, flangeB, 0.5) 
-     }
+    Equation[
+        Spring(flangeA, r1, 8.0) 
+        Damper(flangeA, r1, 1.5) 
+        Inertia(r1, flangeB, 0.5) 
+    ]
 end
 
 function FlexibleShaft(flangeA::Flange, flangeB::Flange, n::Int)
@@ -63,7 +63,7 @@ function FlexibleShaft(flangeA::Flange, flangeB::Flange, n::Int)
     end
     r[1] = flangeA
     r[end] = flangeB
-    result = {}
+    result = Equation[]
     for i in 1:(n - 1)
         push!(result, ShaftElement(r[i], r[i + 1]))
     end
@@ -74,14 +74,15 @@ function MechSys()
     r1 = Angle("Source angle") 
     r2 = Angle()
     r3 = Angle("End-of-shaft angle")
-    {
-     DCMotor(r1)
-     Inertia(r1, r2, 0.02)
-     FlexibleShaft(r2, r3, 5)
-     }
+    Equation[
+        DCMotor(r1)
+        Inertia(r1, r2, 0.02)
+        FlexibleShaft(r2, r3, 5)
+    ]
 end
 
     
-m = MechSys()
+m = MechSys()         # returns the hierarchical model
+m_f = elaborate(m)    # returns the flattened model
 m_yout = sim(m, 4.0)
 wplot(m_yout, "DcMotorWShaft.pdf")

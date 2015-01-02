@@ -6,12 +6,12 @@ using Sims
 ########################################
 
 function FreeFall(x,y,vx,vy)
-    {
-     vx - der(x)
-     vy - der(y)
-     der(vx)
-     der(vy) + 9.81
-    }
+    @equations begin
+        der(x) = vx
+        der(y) = vy
+        der(vx) = 0.0
+        der(vy) = -9.81
+    end
 end
 
 function Pendulum(x,y,vx,vy)
@@ -19,14 +19,14 @@ function Pendulum(x,y,vx,vy)
     phi0 = atan2(x.value, -y.value) 
     phi = Unknown(phi0)
     phid = Unknown()
-    {
-     phid - der(phi)
-     vx - der(x)
-     vy - der(y)
-     x - len * sin(phi)
-     y + len * cos(phi)
-     der(phid) + 9.81 / len * sin(phi)
-    }
+    @equations begin
+        der(phi) = phid
+        der(x) = vx
+        der(y) = vy
+        x = len * sin(phi)
+        y = -len * cos(phi)
+        der(phid) = -9.81 / len * sin(phi)
+    end
 end
 
 function BreakingPendulum()
@@ -34,11 +34,11 @@ function BreakingPendulum()
     y = Unknown(-cos(pi/4), "y")
     vx = Unknown()
     vy = Unknown()
-    {
-     StructuralEvent(MTime - 5.0,     # when time hits 5 sec, switch to FreeFall
-         Pendulum(x,y,vx,vy),
-         () -> FreeFall(x,y,vx,vy))
-    }
+    Equation[
+        StructuralEvent(MTime - 5.0,     # when time hits 5 sec, switch to FreeFall
+            Pendulum(x,y,vx,vy),
+            () -> FreeFall(x,y,vx,vy))
+    ]
 end
 
 p = BreakingPendulum()

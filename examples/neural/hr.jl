@@ -36,11 +36,11 @@ function HindmarshRose(I)
     x = Unknown(-1.0,"x")   
     y = Unknown("y")        
     z = Unknown("z")        
-    {
-     der(x) - (y + phi_(x) - z + I )
-     der(y) - (psi(x) - y)
-     der(z) - (r * (s * (x - xr) - z))
-     }
+    @equations begin
+        der(x) = y + phi_(x) - z + I 
+        der(y) = psi(x) - y
+        der(z) = r * (s * (x - xr) - z)
+    end
 end
 
 v   = HindmarshRose(0.1)       # returns the hierarchical model

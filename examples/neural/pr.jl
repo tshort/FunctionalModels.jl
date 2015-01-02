@@ -86,11 +86,11 @@ function Soma(V,I)
    h = Unknown ("h")
    n = Unknown ("n")
 
-   {
-     der(V) - ((-gLs * (V - VL) - gNa * (Minfs(V)^2) * h * (V - VNa) - gKdr * n * (V - VK) + I + J/As) / Cm)
-     der(h) - (alphahs(V) - (alphahs(V) + betahs(V)) * h)
-     der(n) - (alphans(V) - (alphans(V) + betans(V)) * n)
-   }
+   @equations begin
+       der(V) = (-gLs * (V - VL) - gNa * (Minfs(V)^2) * h * (V - VNa) - gKdr * n * (V - VK) + I + J/As) / Cm
+       der(h) = alphahs(V) - (alphahs(V) + betahs(V)) * h
+       der(n) = alphans(V) - (alphans(V) + betans(V)) * n
+   end
 end
 
 
@@ -105,26 +105,26 @@ function Dendrite(V,I)
     chid  = Unknown ("chid")
     alphaqd = Unknown ("alphaqd")
 
-    {
-     der(V)  - ((-gLd * (V - VL) - ICad - IKahp - IK + I) / Cm)
-     der(s)  - (alphasd(V) - (alphasd(V) + betasd(V))*s)
-     der(c)  - (alphacd(V) - (alphacd(V) + betacd(V))*c)
-     der(q)  - (alphaqd - (alphaqd + betaqd) * q)
-     der(Cad) - (-0.13 * ICad - 0.075 * Cad)
-     ICad     - (gCa * s * s * (V - VCa))
-     IKahp    - (gKahp * q * (V - VK))
-     IK       - (gKC * c * chid * (V - VK))
-     alphaqd  - (min(0.00002 * Cad, 0.01))
-     chid     - (min(Cad / 250.0,1.0))
-    }
+    @equations begin
+        der(V)  = (-gLd * (V - VL) - ICad - IKahp - IK + I) / Cm
+        der(s)  = alphasd(V) - (alphasd(V) + betasd(V))*s
+        der(c)  = alphacd(V) - (alphacd(V) + betacd(V))*c
+        der(q)  = alphaqd - (alphaqd + betaqd) * q
+        der(Cad) = -0.13 * ICad - 0.075 * Cad
+        ICad     = gCa * s * s * (V - VCa)
+        IKahp    = gKahp * q * (V - VK)
+        IK       = gKC * c * chid * (V - VK)
+        alphaqd  = min(0.00002 * Cad, 0.01)
+        chid     = min(Cad / 250.0,1.0)
+    end
 
 end
 
 
 function Connect(I,g,n1,n2)
-   {
-      g * I - (n2 - n1)
-   }
+   @equations begin
+       g * I = n2 - n1
+   end
 end
 
 
@@ -134,12 +134,12 @@ function PRCircuit()
     Vs  = Voltage(-60.0,"Vs")
     Vd  = Voltage(-60.0,"Vd")
     V
-    {
-     Soma(Vs,Is)
-     Dendrite(Vd,Id)
-     Connect(Is,(As/gc),Vs,Vd)
-     Connect(Id,(Ad/gc),Vd,Vs)
-    }
+    @equations begin
+        Soma(Vs,Is)
+        Dendrite(Vd,Id)
+        Connect(Is,(As/gc),Vs,Vd)
+        Connect(Id,(Ad/gc),Vd,Vs)
+    end
 end
 
 pr   = PRCircuit()  # returns the hierarchical model

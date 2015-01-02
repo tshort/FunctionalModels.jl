@@ -11,24 +11,22 @@ beta  = 0.01
 
 
 function Theta(theta)
-    {
-     der(theta) - (1 - cos(theta) + alpha * (1 + cos(theta)) * sin(beta * MTime))
-     
-     Event(theta-pi,
-          {
-           reinit(theta, theta-2*pi)
-           },    # positive crossing
-          {})
+    @equations begin
+        der(theta) = 1 - cos(theta) + alpha * (1 + cos(theta)) * sin(beta * MTime)
+        
+        Event(theta-pi,
+             Equation[
+                 reinit(theta, theta-2*pi)
+             ],    # positive crossing
+             Equation[])
 
-    }
+    end
 end
 
 
 function ThetaCircuit()
     theta = Unknown(1.0, "theta")
-   {
-     Theta(theta)
-   }
+    Theta(theta)
 end
 
 

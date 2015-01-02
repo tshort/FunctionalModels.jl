@@ -12,10 +12,10 @@ using Sims
 
 function test()
     @unknown x y
-    {
-     2*x - y - exp(-x)
-      -x + 2*y - exp(-y)
-     }
+    @equations begin
+        2*x - y = exp(-x)
+         -x + 2*y = exp(-y)
+     end
 end
 f = elaborate(test())
 sm = create_sim(f)
@@ -23,10 +23,10 @@ res = inisolve(sm)
 
 function mkin()
     @unknown x(1.0) y(1.0)
-    {
-     x^2 + y^2 - 1.0
-     y - x^2
-     }
+    @equations begin
+        x^2 + y^2 = 1.0
+        y = x^2
+    end
 end
 
 sm = create_sim(mkin())
@@ -37,10 +37,10 @@ res = inisolve(sm)
 function fun()
     @unknown x
     y = Unknown(:y, 1.0, true)
-    {
-     x^2 + y^2 - 1.0
-     der(y, 0.0) - x
-     }
+    @equations begin
+        x^2 + y^2 = 1.0
+        der(y, 0.0) = x
+    end
 end
 
 ## sm = create_sim(fun())

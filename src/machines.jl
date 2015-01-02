@@ -72,31 +72,31 @@ function AIMSquirrelCage(n1::ElectricalNode, n2::ElectricalNode, flange::Flange,
     gap_flange = Angle(compatible_values(flange))
     m = 3
     gnd = 0.0
-    {
-     SpacePhasorConvertor(n4, n2, sp_in, zero, 1.0)
-     SquirrelCage(sp_gap2,
-                  T,
-                  Lrsigma, # Rotor stray inductance (equivalent three-phase winding)
-                  Rr, # Rotor resistance (equivalent three-phase winding)
-                  TrRef, # Reference temperature of rotor resistance
-                  convertAlpha(alpha20r, TrRef))
-     AirGapS(sp_gap1, sp_gap2, gap_flange, support,
-             Lm, m, p)
-     Inertia(gap_flange, gnd, Jr) # inertiaRotor
-     if isa(support, Angle)
-         Inertia(support, gnd, Js) # inertiaStator
-     end
-     Resistor(n3, n4, 
-              fill(Rs, m),
-              T,
-              fill(TsRef, m), 
-              fill(convertAlpha(alpha20s, TsRef), m))
-     Inductor(sp_in, sp_gap1, fill(Lssigma, 2))
-     Inductor(zero, gnd, Lszero)
-     Core(sp_in, T, statorCoreParameters)
-     Friction(flange, gnd, T, frictionParameters)
-     StrayLoad(n1, n3, flange, gnd, T, strayLoadParameters)
-    }
+    @equations begin
+        SpacePhasorConvertor(n4, n2, sp_in, zero, 1.0)
+        SquirrelCage(sp_gap2,
+                     T,
+                     Lrsigma, # Rotor stray inductance (equivalent three-phase winding)
+                     Rr, # Rotor resistance (equivalent three-phase winding)
+                     TrRef, # Reference temperature of rotor resistance
+                     convertAlpha(alpha20r, TrRef))
+        AirGapS(sp_gap1, sp_gap2, gap_flange, support,
+                Lm, m, p)
+        Inertia(gap_flange, gnd, Jr) # inertiaRotor
+        if isa(support, Angle)
+            Inertia(support, gnd, Js) # inertiaStator
+        end
+        Resistor(n3, n4, 
+                 fill(Rs, m),
+                 T,
+                 fill(TsRef, m), 
+                 fill(convertAlpha(alpha20s, TsRef), m))
+        Inductor(sp_in, sp_gap1, fill(Lssigma, 2))
+        Inductor(zero, gnd, Lszero)
+        Core(sp_in, T, statorCoreParameters)
+        Friction(flange, gnd, T, frictionParameters)
+        StrayLoad(n1, n3, flange, gnd, T, strayLoadParameters)
+    end
 end
 
 function AIMSquirrelCage(n1::ElectricalNode, n2::ElectricalNode, flange::Flange, support::Flange, T::HeatPort;
@@ -147,31 +147,31 @@ function AirGapS(sp_s::ElectricalNode, sp_r::ElectricalNode, flange::Flange, sup
     tauElectrical = Torque(compatible_values(flange, support))
     RotationMatrix = Unknown(zeros(2,2))
     L = [Lm 0;0 Lm]
-    {
-     # mechanical angle of the rotor of an equivalent 2-pole machine
-     gamma - p*(flange-support)
-     RotationMatrix - [+cos(gamma) -sin(gamma); +sin(gamma) +cos(gamma)]
-     RefBranch(sp_s, i_ss)
-     i_ss - RotationMatrix * i_sr
-     RefBranch(sp_r, i_rr)
-     i_rs - RotationMatrix * i_rr
-     RefBranch(flange, flange_tau)
-     RefBranch(support, support_tau)
-     # Magnetizing current with respect to the stator reference frame
-     i_ms - i_ss - i_rs
-     # Magnetizing flux linkage with respect to the stator reference frame
-     psi_ms - L*i_ms;
-     # Magnetizing flux linkage with respect to the rotor reference frame
-     psi_mr - RotationMatrix' * psi_ms
-     # Stator voltage induction
-     sp_s - der(psi_ms)
-     # Rotor voltage induction
-     sp_r - der(psi_mr)
-     # Electromechanical torque (cross product of current and flux space phasor)
-     tauElectrical - m/2*p*(i_ss[2]*psi_ms[1] - i_ss[1]*psi_ms[2])
-     flange_tau + tauElectrical
-     support_tau - tauElectrical
-    }
+    @equations begin
+        # mechanical angle of the rotor of an equivalent 2-pole machine
+        gamma - p*(flange-support)
+        RotationMatrix - [+cos(gamma) -sin(gamma); +sin(gamma) +cos(gamma)]
+        RefBranch(sp_s, i_ss)
+        i_ss - RotationMatrix * i_sr
+        RefBranch(sp_r, i_rr)
+        i_rs - RotationMatrix * i_rr
+        RefBranch(flange, flange_tau)
+        RefBranch(support, support_tau)
+        # Magnetizing current with respect to the stator reference frame
+        i_ms - i_ss - i_rs
+        # Magnetizing flux linkage with respect to the stator reference frame
+        psi_ms - L*i_ms;
+        # Magnetizing flux linkage with respect to the rotor reference frame
+        psi_mr - RotationMatrix' * psi_ms
+        # Stator voltage induction
+        sp_s - der(psi_ms)
+        # Rotor voltage induction
+        sp_r - der(psi_mr)
+        # Electromechanical torque (cross product of current and flux space phasor)
+        tauElectrical - m/2*p*(i_ss[2]*psi_ms[1] - i_ss[1]*psi_ms[2])
+        flange_tau + tauElectrical
+        support_tau - tauElectrical
+    end
 end
 
 function quasiRMS(x)   # Calculate quasi-RMS value of input
@@ -193,21 +193,21 @@ function StrayLoad(n1::ElectricalNode, n2::ElectricalNode, flange::Flange, suppo
     w = AngularVelocity(compatible_values(flange, support))
     tau = Torque(compatible_values(flange, support))
     m = length(n1)
-    {
-     Branch(n1, n2, v, i) 
-     Branch(flange, support, phi, tau)
-     RefBranch(T, -powerLoss)
-     v
-     if isa(T, Temperature)
-         powerLoss - tau .* w
-     end
-     tau - ifelse(strayLoadParameters.PRef <= 0.0,
-                  0.0,
-                  -strayLoadParameters.tauRef * (quasiRMS(i) / strayLoadParameters.IRef) ^ 2 *
-                  ifelse(w >= 0.0,
-                         +(w/strayLoadParameters.wRef)^strayLoadParameters.power_w,
-                         -(-w/strayLoadParameters.wRef)^strayLoadParameters.power_w))
-    }
+    @equations begin
+        Branch(n1, n2, v, i) 
+        Branch(flange, support, phi, tau)
+        RefBranch(T, -powerLoss)
+        v
+        if isa(T, Temperature)
+            powerLoss - tau .* w
+        end
+        tau - ifelse(strayLoadParameters.PRef <= 0.0,
+                     0.0,
+                     -strayLoadParameters.tauRef * (quasiRMS(i) / strayLoadParameters.IRef) ^ 2 *
+                     ifelse(w >= 0.0,
+                            +(w/strayLoadParameters.wRef)^strayLoadParameters.power_w,
+                            -(-w/strayLoadParameters.wRef)^strayLoadParameters.power_w))
+    end
 end
 
 function Core(sp::ElectricalNode, T::HeatPort, coreParameters::CoreParameters)
@@ -215,17 +215,17 @@ function Core(sp::ElectricalNode, T::HeatPort, coreParameters::CoreParameters)
     sp_i = Current(vals)
     powerLoss = HeatFlow(compatible_values(T))
     Gc = Unknown(vals)
-    {
-     RefBranch(sp, sp_i)
-     RefBranch(T, -powerLoss)
-     Gc - ifelse(coreParameters.PRef <= 0.0,
-                 0.0,
-                 coreParameters.GcRef)
-     sp_i - Gc .* sp
-     if isa(T, Temperature)
-         powerLoss + 3/2 * (sp[1]*sp_i[1] + sp[2]*sp_i[2])
-     end
-    }
+    @equations begin
+        RefBranch(sp, sp_i)
+        RefBranch(T, -powerLoss)
+        Gc - ifelse(coreParameters.PRef <= 0.0,
+                    0.0,
+                    coreParameters.GcRef)
+        sp_i - Gc .* sp
+        if isa(T, Temperature)
+            powerLoss + 3/2 * (sp[1]*sp_i[1] + sp[2]*sp_i[2])
+        end
+    end
 end
 
 function Friction(flange::Flange, support::Flange, T::HeatPort, frictionParameters::FrictionParameters)
@@ -233,21 +233,21 @@ function Friction(flange::Flange, support::Flange, T::HeatPort, frictionParamete
     w = AngularVelocity(compatible_values(flange, support))
     phi = Angle(compatible_values(flange, support))
     tau = Torque(compatible_values(flange, support))
-    {
-     Branch(flange, support, phi, tau)
-     RefBranch(T, -powerLoss)
-     w - der(phi)
-     if isa(T, Temperature)
-         powerLoss - tau .* w
-     end
-     tau - ifelse(frictionParameters.PRef <= 0.0,
-                  0.0,
-           ifelse(w >= frictionParameters.wLinear,
-                  frictionParameters.tauRef*(+w/frictionParameters.wRef)^frictionParameters.power_w,
-           ifelse(w <= -frictionParameters.wLinear,
-                  -frictionParameters.tauRef*(-w/frictionParameters.wRef)^frictionParameters.power_w,
-                   frictionParameters.tauLinear*(w/frictionParameters.wLinear)))) 
-    }
+    @equations begin
+        Branch(flange, support, phi, tau)
+        RefBranch(T, -powerLoss)
+        w - der(phi)
+        if isa(T, Temperature)
+            powerLoss - tau .* w
+        end
+        tau - ifelse(frictionParameters.PRef <= 0.0,
+                     0.0,
+              ifelse(w >= frictionParameters.wLinear,
+                     frictionParameters.tauRef*(+w/frictionParameters.wRef)^frictionParameters.power_w,
+              ifelse(w <= -frictionParameters.wLinear,
+                     -frictionParameters.tauRef*(-w/frictionParameters.wRef)^frictionParameters.power_w,
+                      frictionParameters.tauLinear*(w/frictionParameters.wLinear)))) 
+    end
 end
 
 function SquirrelCage(spacePhasor_r::ElectricalNode, T::HeatPort, Lrsigma, Rr, T_ref, alpha)
@@ -255,15 +255,15 @@ function SquirrelCage(spacePhasor_r::ElectricalNode, T::HeatPort, Lrsigma, Rr, T
     spacePhasor_i = Current(vals)
     powerLoss = HeatFlow(compatible_values(T))
     Rr_actual = Unknown(compatible_values(Rr))
-    {
-     RefBranch(spacePhasor_r, spacePhasor_i)
-     RefBranch(T, -powerLoss)
-     Rr_actual - Rr .* (1 + alpha .* (T - T_ref))
-     spacePhasor_r - Rr_actual .* spacePhasor_i - Lrsigma .* der(spacePhasor_i)
-     if isa(T, Temperature)
-         2/3*powerLoss - Rr_actual .* (spacePhasor_i[1]*spacePhasor_i[1] + spacePhasor_i[2]*spacePhasor_i[2])
-     end
-     }
+    @equations begin
+        RefBranch(spacePhasor_r, spacePhasor_i)
+        RefBranch(T, -powerLoss)
+        Rr_actual - Rr .* (1 + alpha .* (T - T_ref))
+        spacePhasor_r - Rr_actual .* spacePhasor_i - Lrsigma .* der(spacePhasor_i)
+        if isa(T, Temperature)
+            2/3*powerLoss - Rr_actual .* (spacePhasor_i[1]*spacePhasor_i[1] + spacePhasor_i[2]*spacePhasor_i[2])
+        end
+    end
 end
 
 function SpacePhasorConvertor(n1::ElectricalNode, n2::ElectricalNode,
@@ -279,19 +279,19 @@ function SpacePhasorConvertor(n1::ElectricalNode, n2::ElectricalNode,
     const m = 3
     TransformationMatrix = 2/m * [[cos(+(k - 1)/m*2*pi) for k in 1:m]  [+sin(+(k - 1)/m*2*pi) for k in 1:m]]'
     ## InverseTransformation = [[cos(-(k - 1)/m*2*pi), -sin(-(k - 1)/m*2*pi)]' for k in 1:m]
-    {
-     RefBranch(n1, i1)
-     RefBranch(n2, i2)
-     RefBranch(zero_v, zero_i)
-     RefBranch(spacePhasor, spacePhasor_i)
-     v / turnsRatio - n1 + n2
-     i*turnsRatio - i1
-     i*turnsRatio + i2
-     m*zero_v - sum(v)
-     spacePhasor - TransformationMatrix * v
-     -m*zero_i - sum(i)
-     -spacePhasor_i - TransformationMatrix * i
-    }
+    @equations begin
+        RefBranch(n1, i1)
+        RefBranch(n2, i2)
+        RefBranch(zero_v, zero_i)
+        RefBranch(spacePhasor, spacePhasor_i)
+        v / turnsRatio - n1 + n2
+        i*turnsRatio - i1
+        i*turnsRatio + i2
+        m*zero_v - sum(v)
+        spacePhasor - TransformationMatrix * v
+        -m*zero_i - sum(i)
+        -spacePhasor_i - TransformationMatrix * i
+    end
 end
 
 function AIMC_DOL()
@@ -308,14 +308,14 @@ function AIMC_DOL()
     r2 = Angle(0.0, "LoadAngle")
     control = Discrete(false)
     gnd = 0.0
-    {
-     SineVoltage(n1, gnd, VAC .* sqrt(2/3), fNominal, [0.0, -2pi/3, 2pi/3])
-     AIMSquirrelCage(n3, gnd, r1)
-     Inertia(r1, r2, JLoad)
-     QuadraticSpeedDependentTorque(r2, gnd, -TLoad, false, wLoad)
-     BoolEvent(control, MTime - tStart1)
-     IdealClosingSwitch(n1, n2, control)
-    }
+    @equations begin
+        SineVoltage(n1, gnd, VAC .* sqrt(2/3), fNominal, [0.0, -2pi/3, 2pi/3])
+        AIMSquirrelCage(n3, gnd, r1)
+        Inertia(r1, r2, JLoad)
+        QuadraticSpeedDependentTorque(r2, gnd, -TLoad, false, wLoad)
+        BoolEvent(control, MTime - tStart1)
+        IdealClosingSwitch(n1, n2, control)
+    end
 end
 
 function sim_AIMC_DOL()

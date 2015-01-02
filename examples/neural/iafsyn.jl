@@ -52,16 +52,16 @@ function LeakyIaF(V,Isyn)
     # The following gives the return value which is a list of equations.
     # Expressions with Unknowns are kept as expressions. Regular
     # variables are evaluated immediately (like normal).
-    {
-     der(V) - (( ((- gL) * (V - vL)) + Isyn) / C)
+    @equations begin
+        der(V) = ( ((- gL) * (V - vL)) + Isyn) / C
+   
+        Event(V-theta,
+             Equation[
+                 reinit(V, vreset)
+             ],    # positive crossing
+             Equation[])
 
-     Event(V-theta,
-          {
-           reinit(V, vreset)
-           },    # positive crossing
-          {})
-
-     }
+    end
     
 end
 
@@ -74,25 +74,25 @@ function Syn(V,Isyn,input)
     # The following gives the return value which is a list of equations.
     # Expressions with Unknowns are kept as expressions. Regular
     # variables are evaluated immediately (like normal).
-    {
-     der(S)  - (alpha * (1 - S) - beta * S)
-     der(SS) - ((s0 - SS) / taus)
-     
-     Isyn - (gsyn * (V - vsyn))
-     gsyn - (gsmax * S * SS)
+    @equations begin
+        der(S)  = (alpha * (1 - S) - beta * S)
+        der(SS) = ((s0 - SS) / taus)
+        
+        Isyn = (gsyn * (V - vsyn))
+        gsyn = (gsmax * S * SS)
 
-     Event(grid_input(input),
-          {
-           reinit(SS, SS + f * (1 - SS))
-          },
-          {})
-     Event(V-theta,
-          {
-           reinit(S, 0.0)
-           reinit(SS, 0.0)
-          },
-          {})
-     }
+        Event(grid_input(input),
+             Equation[
+                 reinit(SS, SS + f * (1 - SS))
+             ],
+             Equation[])
+        Event(V-theta,
+             Equation[
+                 reinit(S, 0.0)
+                 reinit(SS, 0.0)
+             ],
+             Equation[])
+    end
     
 end
 
@@ -101,11 +101,11 @@ function Circuit(y)
     V     = Voltage (-35.0, "V")
     Isyn  = Unknown ("Isyn")
     Isyn1 = Unknown ()
-   {
-    LeakyIaF(V,Isyn)
-    Syn(V,Isyn1,y)
-    Isyn - Isyn1
-   }
+    @equations begin
+       LeakyIaF(V,Isyn)
+       Syn(V,Isyn1,y)
+       Isyn = Isyn1
+    end
 end
 
 

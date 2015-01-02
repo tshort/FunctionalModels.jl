@@ -30,18 +30,18 @@ function IzhikevichFS()
     # The following gives the return value which is a list of equations.
     # Expressions with Unknowns are kept as expressions. Regular
     # variables are evaluated immediately (like normal).
-    {
-     der(v) - (((k * (v - Vr) * (v - Vt)) + (- u) + Iext) / Cm)
-     der(u) - (FS_a * (s - u))
-     s - (FS_b * (v - Vb) ^ 3)
+    @equations begin
+        der(v) = ((k * (v - Vr) * (v - Vt)) + (- u) + Iext) / Cm
+        der(u) = FS_a * (s - u)
+        s = FS_b * (v - Vb) ^ 3
+   
+        Event(v-Vpeak,
+             Equation[
+                 reinit(v, FS_c)
+             ],    # positive crossing
+             Equation[])
 
-     Event(v-Vpeak,
-          {
-           reinit(v, FS_c)
-           },    # positive crossing
-          {})
-
-     }
+     end
     
 end
 

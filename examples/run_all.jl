@@ -15,7 +15,7 @@ include(path * "basics/breaking_pendulum_in_box.jl")
 
 include(path * "basics/breaking_pendulum.jl")
 
-## include(path * "circuit_complex.jl")
+## include(path * "basics/circuit_complex.jl")
 
 include(path * "basics/dc_motor_w_shaft.jl")
 

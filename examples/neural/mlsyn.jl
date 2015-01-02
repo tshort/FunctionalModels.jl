@@ -52,12 +52,12 @@ function MorrisLecar(v)
     # The following gives the return value which is a list of equations.
     # Expressions with Unknowns are kept as expressions. Regular
     # variables are evaluated immediately (like normal).
-    {
-     der(v) - ((Istim + (gl * (vl - v)) + ica + ik) / c)   # == 0 is assumed
-     der(w) - (lamw (v) * (winf(v) - w))
-     ica - (gca * (minf (v) * (vca - v)))
-     ik  - (gk * (w * (vk - v)))
-    }
+    @equations begin
+        der(v) = (Istim + (gl * (vl - v)) + ica + ik) / c
+        der(w) = lamw (v) * (winf(v) - w)
+        ica = gca * (minf (v) * (vca - v))
+        ik  = gk * (w * (vk - v))
+    end
 end
 
 
@@ -67,19 +67,19 @@ end
 
 
 function Syn(v,s)
-    {
-     der(s) = alpha * k_(v) * (1-s) - beta * s
-    }
+    @equations begin
+        der(s) = alpha * k_(v) * (1-s) - beta * s
+    end
 end    
 
 
 function MLCircuit()
     s = Unknown(0.056, "s")
     v = Voltage(-24.22, "v")
-   {
-     Syn(v,s)
-     MorrisLecar(v)
-   }
+    @equations begin
+        Syn(v,s)
+        MorrisLecar(v)
+    end
 end
 
 

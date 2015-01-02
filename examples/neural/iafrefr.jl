@@ -17,9 +17,9 @@ function Subthreshold(v)
     # The following gives the return value which is a list of equations.
     # Expressions with Unknowns are kept as expressions. Regular
     # variables are evaluated immediately (like normal).
-    {
-     der(v) - (( ((- gL) * (v - vL)) + Isyn) / C)
-    }
+    @equations begin
+        der(v) = ( ((- gL) * (v - vL)) + Isyn) / C
+    end
     
 end
 
@@ -34,13 +34,13 @@ function Refractory(v,trefr)
     # The following gives the return value which is a list of equations.
     # Expressions with Unknowns are kept as expressions. Regular
     # variables are evaluated immediately (like normal).
-    {
-     StructuralEvent(MTime - trefr,
-                     # when the end of refractory period is reached,
-                     # switch back to subthreshold mode
-         RefractoryEq(v),
-         () -> LeakyIaF())
-    }
+    @equations begin
+        StructuralEvent(MTime - trefr,
+                        # when the end of refractory period is reached,
+                        # switch back to subthreshold mode
+            RefractoryEq(v),
+            () -> LeakyIaF())
+    end
     
 end
 
@@ -48,16 +48,16 @@ end
 function LeakyIaF()
 
    v = Unknown(vreset, "v")   
-   {
-     StructuralEvent(v-theta,
-                     # when v crosses the threshold,
-                     # switch to refractory mode
-         Subthreshold(v),
-         () -> begin
-             trefr = value(MTime)+trefractory
-             Refractory(v,trefr)
-         end)
-   }
+   @equations begin
+        StructuralEvent(v-theta,
+                        # when v crosses the threshold,
+                        # switch to refractory mode
+            Subthreshold(v),
+            () -> begin
+                trefr = value(MTime)+trefractory
+                Refractory(v,trefr)
+            end)
+   end
 end
 
 
