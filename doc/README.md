@@ -88,10 +88,10 @@ function Vanderpol()
     # The following gives the return value which is a list of equations.
     # Expressions with Unknowns are kept as expressions. Regular
     # variables are evaluated immediately (like normal).
-    {
-     der(x, -1.0) - ((1 - y^2) * x - y)   # == 0 is assumed
-     der(y) - x
-     }
+    Equation[
+        der(x, -1.0) - ((1 - y^2) * x - y)   # == 0 is assumed
+        der(y) - x
+    ]
 end
 ```
 
@@ -108,10 +108,10 @@ unknowns and equations as shown below:
 function Capacitor(n1, n2, C::Real) 
     i = Current()              # Unknown #1
     v = Voltage()              # Unknown #2
-    {
-     Branch(n1, n2, v, i)      # Equation #1 - this returns n1 - n2 - v
-     C * der(v) - i            # Equation #2
-     }
+    Equation[
+        Branch(n1, n2, v, i)      # Equation #1 - this returns n1 - n2 - v
+        C * der(v) - i            # Equation #2
+    ]
 end
 ```
 
@@ -127,13 +127,13 @@ function Circuit()
     n2 = ElectricalNode("Output voltage")
     n3 = ElectricalNode()
     g = 0.0  # a ground has zero volts; it's not an Unknown.
-    {
-     VSource(n1, g, 10.0, 60.0)
-     Resistor(n1, n2, 10.0)
-     Resistor(n2, g, 5.0)
-     SeriesProbe(n2, n3, "Capacitor current")
-     Capacitor(n3, g, 5.0e-3)
-     }
+    Equation[
+        VSource(n1, g, 10.0, 60.0)
+        Resistor(n1, n2, 10.0)
+        Resistor(n2, g, 5.0)
+        SeriesProbe(n2, n3, "Capacitor current")
+        Capacitor(n3, g, 5.0e-3)
+    ]
 end
 ```
 
@@ -212,13 +212,13 @@ function VSquare(n1, n2, V::Real, f::Real)
     i = Current()
     v = Voltage()
     v_mag = Discrete(V)
-    {
-     Branch(n1, n2, v, i)
-     v - v_mag
-     Event(sin(2 * pi * f * MTime),
-           {reinit(v_mag, V)},    # positive crossing
-           {reinit(v_mag, -V)})   # negative crossing
-     }
+    Equation[
+        Branch(n1, n2, v, i)
+        v - v_mag
+        Event(sin(2 * pi * f * MTime),
+              Equation[reinit(v_mag, V)],    # positive crossing
+              Equation[reinit(v_mag, -V)])   # negative crossing
+    ]
 end
 ```
 
@@ -238,12 +238,12 @@ function IdealDiode(n1, n2)
     v = Voltage()
     s = Unknown()  # dummy variable
     openswitch = Discrete(false)  # on/off state of diode
-    {
-     Branch(n1, n2, v, i)
-     BoolEvent(openswitch, -s)  # openswitch becomes true when s goes negative
-     v - ifelse(openswitch, s, 0.0) 
-     i - ifelse(openswitch, 0.0, s) 
-     }
+    Equation[
+        Branch(n1, n2, v, i)
+        BoolEvent(openswitch, -s)  # openswitch becomes true when s goes negative
+        v - ifelse(openswitch, s, 0.0) 
+        i - ifelse(openswitch, 0.0, s) 
+    ]
 end
 ```
 
@@ -274,11 +274,11 @@ function BreakingPendulum()
     y = Unknown(-cos(pi/4), "y")
     vx = Unknown()
     vy = Unknown()
-    {
-     StructuralEvent(MTime - 5.0,     # when time hits 5 sec, switch to FreeFall
-         Pendulum(x,y,vx,vy),
-         () -> FreeFall(x,y,vx,vy))
-    }
+    Equation[
+        StructuralEvent(MTime - 5.0,     # when time hits 5 sec, switch to FreeFall
+            Pendulum(x,y,vx,vy),
+            () -> FreeFall(x,y,vx,vy))
+    ]
 end
 ```
 

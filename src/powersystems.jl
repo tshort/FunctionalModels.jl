@@ -20,10 +20,10 @@ function RLLine(n1::ElectricalNode, n2::ElectricalNode, Z::SeriesImpedance, len:
     v = Voltage(vals)
     R = real(Z) * len
     L = imag(Z) * len / (2pi * freq)
-    {
-     Branch(n1, n2, v, i)
-     L * der(i) + R * i - v
-     }
+    @equations begin
+        Branch(n1, n2, v, i)
+        v = L * der(i) + R * i
+     end
 end
 
 
@@ -37,12 +37,12 @@ function PiLine(n1::ElectricalNode, n2::ElectricalNode, Z::SeriesImpedance, Y::S
     L = imag(Z) / ne * len / (2pi * freq)
     G = real(Z) * ne / len
     C = imag(Z) * ne / len / (2pi * freq)
-    {
-     RefBranch(n1, i[:, 1])
-     RefBranch(n2, -i[:, ne1])
-     C * der(v) + G * v - (i[:, 1:ne] - i[:, 2:ne1])
-     L * der(i) + R * i - [[2 * (n1 - v[:, 1])] v[:, 1:ne - 1] - v[:, 2:ne] [2 * (v[:, ne] - n2)]]
-     }
+    @equations begin
+        RefBranch(n1, i[:, 1])
+        RefBranch(n2, -i[:, ne1])
+        C * der(v) + G * v = i[:, 1:ne] - i[:, 2:ne1]
+        L * der(i) + R * i = [[2 * (n1 - v[:, 1])] v[:, 1:ne - 1] - v[:, 2:ne] [2 * (v[:, ne] - n2)]]
+    end
 end
 
 function ModalLine(v1::ElectricalNode, v2::ElectricalNode, Z::SeriesImpedance, Y::ShuntAdmittance, len::Real, freq::Real)
@@ -72,26 +72,26 @@ function ModalLine(v1::ElectricalNode, v2::ElectricalNode, Z::SeriesImpedance, Y
     Tv = real(Tv)
 
     # equations
-    {
-     RefBranch(v1,  i1)
-     RefBranch(v2, -i2)
-     Imode1 - Tv.' * i1
-     Imode2 - Tv.' * i2
-     Vmode1 - Ti.' * v1
-     Vmode2 - Ti.' * v2
-     ## i1 - Ti * Imode1
-     ## i2 - Ti * Imode2
-     ## v1 - Tv * Vmode1 
-     ## v2 - Tv * Vmode2 
-     Imode1 - Iout1 + delay(Iout2, delays)
-     Imode2 - Iout2 + delay(Iout1, delays)
-     Vmode1 ./ Zsurge - Iout1 - delay(Iout2, delays)
-     Vmode2 ./ Zsurge - Iout2 - delay(Iout1, delays)
-     ## Imode1 ->   <- delay(Iout2)       delay(Iout1) ->  <- Imode2
-     ##           |                                      |
-     ##           \/                                     \/
-     ##          Iout1                                 Iout2
-    }
+    @equations begin
+        RefBranch(v1,  i1)
+        RefBranch(v2, -i2)
+        Imode1 = Tv.' * i1
+        Imode2 = Tv.' * i2
+        Vmode1 = Ti.' * v1
+        Vmode2 = Ti.' * v2
+        ## i1 = Ti * Imode1
+        ## i2 = Ti * Imode2
+        ## v1 = Tv * Vmode1 
+        ## v2 = Tv * Vmode2 
+        Imode1 = Iout1 + delay(Iout2, delays)
+        Imode2 = Iout2 + delay(Iout1, delays)
+        Vmode1 ./ Zsurge = Iout1 + delay(Iout2, delays)
+        Vmode2 ./ Zsurge = Iout2 + delay(Iout1, delays)
+        ## Imode1 ->   <- delay(Iout2)       delay(Iout1) ->  <- Imode2
+        ##           |                                      |
+        ##           \/                                     \/
+        ##          Iout1                                 Iout2
+    end
 end
 
 
@@ -208,10 +208,10 @@ function ConstZParallelLoad(n1::ElectricalNode, n2::ElectricalNode,
     if load_pf < 1.0
         L = baseZ / sqrt(1 - load_pf .^ 2) / (2pi .* freq)
     end
-    {
-     Resistor(n1, n2, R)
-     load_pf < 1.0 ? Inductor(n1, n2, L) : {}
-     }
+    @equations begin
+        Resistor(n1, n2, R)
+        load_pf < 1.0 ? Inductor(n1, n2, L) : Equation[]
+    end
      ## This seems broken when used in the example below.
      ## With pf=1, it takes a long time (stiff?). With
      ## pf = 0.85, there's a large offset.
@@ -225,8 +225,8 @@ function ConstZSeriesLoad(n1::ElectricalNode, n2::ElectricalNode,
     baseZ =  (Vln .^ 2) / load_VA
     R = baseZ * load_pf
     L = baseZ * sqrt(1 - load_pf .^ 2) / (2pi .* freq)
-    {
-     Branch(n1, n2, v, i)
-     L .* der(i) + R .* i - v
-     }
+    @equations begin
+        Branch(n1, n2, v, i)
+        v = L .* der(i) + R .* i
+    end
 end

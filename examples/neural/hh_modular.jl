@@ -43,15 +43,15 @@ function Na_model(v,I_Na)
     # The following gives the return value which is a list of equations.
     # Expressions with Unknowns are kept as expressions. Regular
     # variables are evaluated immediately (like normal).
-    {
-     der(m) - ((amf(v) * (1-m)) - (bmf(v) * m))
-     der(h) - ((ahf(v) * (1-h)) - (bhf(v) * h))
+    @equations begin
+        der(m) = (amf(v) * (1-m)) - (bmf(v) * m)
+        der(h) = (ahf(v) * (1-h)) - (bhf(v) * h)
+   
+        g_Na = m^3 * h * gbar_Na
+       
+        I_Na = g_Na * (v - E_Na)
 
-     g_Na - (m^3 * h * gbar_Na)
-    
-     I_Na - (g_Na * (v - E_Na))
-
-    }
+    end
 end
 
 ## K current
@@ -69,21 +69,21 @@ function K_model(v,I_K)
     n   = Unknown(0.317, "n")
     g_K = Unknown ()
 
-   {
-     der(n) - ((anf(v) * (1 - n)) - (bnf(v) * n))
+    @equations begin
+        der(n) = (anf(v) * (1 - n)) - (bnf(v) * n)
 
-     g_K  - (n^4 * gbar_K)
+        g_K  = n^4 * gbar_K
 
-     I_K  - (g_K  * (v - E_K))
-   }
+        I_K  = g_K  * (v - E_K)
+    end
 end
 
 ## Leak current
 
 function Leak_model(v,I_L)
-   {
-     I_L  - (g_L  * (v - E_L))
-   }
+   @equations begin
+       I_L  = g_L  * (v - E_L)
+   end
 end
     
 function HodgkinHuxley()
@@ -97,15 +97,15 @@ function HodgkinHuxley()
     # The following gives the return value which is a list of equations.
     # Expressions with Unknowns are kept as expressions. Regular
     # variables are evaluated immediately (like normal).
-    {
+    @equations begin
 
-     Na_model(v,I_Na)
-     K_model(v,I_K)
-     Leak_model(v,I_L)
-     
-     der(v) - ((I - (I_Na + I_K + I_L)) / C_m)
+        Na_model(v,I_Na)
+        K_model(v,I_K)
+        Leak_model(v,I_L)
+        
+        der(v) = (I - (I_Na + I_K + I_L)) / C_m
 
-    }
+    end
 end
 
 hh   = HodgkinHuxley()  # returns the hierarchical model

@@ -86,7 +86,7 @@ MExpr(*(##1243,+(##1243,1)))
 In a simulation, the unknowns are to be solved based on a set of
 equations. Equations are built from device models. 
 
-A device model is a function that returns a list of equations or
+A device model is a function that returns a vector of equations or
 other devices that also return lists of equations. The equations
 each are assumed equal to zero. So,
 
@@ -112,11 +112,11 @@ function Vanderpol()
     # The following gives the return value which is a list of equations.
     # Expressions with Unknowns are kept as expressions. Expressions of
     # regular variables are evaluated immediately.
-    {
-     # The -1.0 in der(x, -1.0) is the initial value for the derivative 
-     der(x, -1.0) - ((1 - y^2) * x - y)      # == 0 is assumed
-     der(y) - x
-     }
+    Equation[
+        # The -1.0 in der(x, -1.0) is the initial value for the derivative 
+        der(x, -1.0) - ((1 - y^2) * x - y)      # == 0 is assumed
+        der(y) - x
+    ]
 end
 
 y = sim(Vanderpol(), 10.0) # Run the simulation to 10 seconds and return
@@ -127,8 +127,26 @@ gplot(y)
 
 Here are the results:
 
-![plot results](https://github.com/tshort/Sims.jl/blob/master/examples/vanderpol.png?raw=true "Van Der Pol results")
+![plot results](https://github.com/tshort/Sims.jl/blob/master/examples/basics/vanderpol.png?raw=true "Van Der Pol results")
 
+An `@equations` macro is provided to return `Equation[]` allowing for
+the use of equals in equations, so the example above can be:
+
+``` julia
+function Vanderpol()
+    y = Unknown(1.0, "y") 
+    x = Unknown("x")     
+    @equations begin
+        der(x, -1.0) = (1 - y^2) * x - y
+        der(y) = x
+    end
+end
+
+y = sim(Vanderpol(), 10.0) # Run the simulation to 10 seconds and return
+                           # the result as an array.
+# plot the results with Gaston
+gplot(y)
+``` 
 
 Electrical example
 ------------------
@@ -159,19 +177,19 @@ voltage.
 function Resistor(n1, n2, R::Real) 
     i = Current()   # This is simply an Unknown. 
     v = Voltage()
-    {
-     Branch(n1, n2, v, i)
-     R * i - v   # == 0 is implied
-     }
+    @equations begin
+        Branch(n1, n2, v, i)
+        R * i = v
+    end
 end
 
 function Capacitor(n1, n2, C::Real) 
     i = Current()
     v = Voltage()
-    {
-     Branch(n1, n2, v, i)
-     C * der(v) - i     
-     }
+    @equations begin
+        Branch(n1, n2, v, i)
+        C * der(v) = i
+    end
 end
 ```
 
@@ -188,13 +206,13 @@ function Circuit()
     n2 = Voltage("Output voltage")
     n3 = Voltage()
     g = 0.0  # A ground has zero volts; it's not an unknown.
-    {
-     SineVoltage(n1, g, 10.0, 60.0)
-     Resistor(n1, n2, 10.0)
-     Resistor(n2, g, 5.0)
-     SeriesProbe(n2, n3, "Capacitor current")
-     Capacitor(n3, g, 5.0e-3)
-     }
+    Equation[
+        SineVoltage(n1, g, 10.0, 60.0)
+        Resistor(n1, n2, 10.0)
+        Resistor(n2, g, 5.0)
+        SeriesProbe(n2, n3, "Capacitor current")
+        Capacitor(n3, g, 5.0e-3)
+    ]
 end
 
 ckt = Circuit()
@@ -203,7 +221,7 @@ gplot(ckt_y)
 ```
 Here are the results:
 
-![plot results](https://github.com/tshort/Sims.jl/blob/master/examples/circuit.png?raw=true "Circuit results")
+![plot results](https://github.com/tshort/Sims.jl/blob/master/examples/basics/circuit.png?raw=true "Circuit results")
 
 Initialization and Solving Sets of Equations
 --------------------------------------------
@@ -216,10 +234,10 @@ equations:
 ```julia
 function test()
     @unknown x y
-    {
-     2*x - y - exp(-x)
-      -x + 2*y - exp(-y)
-     }
+    @equations begin
+        2*x - y   = exp(-x)
+         -x + 2*y = exp(-y)
+    end
 end
 
 solution = solve(create_sim(test()))
@@ -231,7 +249,7 @@ Hybrid Modeling and Structural Variability
 Sims supports basic hybrid modeling, including the ability to handle
 structural model changes. Consider the following example:
 
-[Breaking pendulum](https://github.com/tshort/Sims.jl/blob/master/examples/breaking_pendulum_in_box.jl)
+[Breaking pendulum](https://github.com/tshort/Sims.jl/blob/master/examples/basics/breaking_pendulum_in_box.jl)
 
 This model starts as a pendulum, then the wire breaks, and the ball
 goes into free fall. Sims handles this much like
@@ -245,7 +263,7 @@ adjusted for the "bounce".
 Here is an animation of the results. Note that the actual animation
 was done in R, not Julia.
 
-![plot results](https://github.com/tshort/Sims.jl/blob/master/examples/pendulum.gif?raw=true "Pendulum")
+![plot results](https://github.com/tshort/Sims.jl/blob/master/examples/basics/pendulum.gif?raw=true "Pendulum")
 
 To Look Deeper
 --------------

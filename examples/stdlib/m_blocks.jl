@@ -20,30 +20,30 @@ function ex_PID_Controller()
     s3 = Unknown("s3")
     s4 = Unknown("s4")
     s5 = Unknown("s5")
-    {
-     ## KinematicPTP(s1, 0.5, driveAngle, 1.0, 1.0)
-     ## Integrator(s1, s2, 1.0)
-     s1 - ifelse((MTime < 0.5) | (MTime >= 3.2), 0.0,
-                 ifelse(MTime < 1.5, MTime - 0.5,
-                        ifelse(MTime < 2.2, 1.0, 3.2 - MTime)))
-     SpeedSensor(n2, s3)
-     SpeedSensor(n3, s4)
-     LimPID(s2, s3, s4, 
-            controllerType = "PI",
-            k  = 100.0,
-            Ti = 0.1,
-            Td = 0.1,
-            yMax = 12.0,
-            Ni = 0.1)
-     SignalTorque(n1, 0.0, s4)
-     s5 - (s4 - s2)
-     InitialEquation(der(s5) - 0.0)  # force a constant initial spin of the shaft to tame initial conditions
-     SignalTorque(n1, 0.0, s3)
-     Inertia(n1, n2, 1.0)
-     SpringDamper(n2, n3, 1e4, 100)
-     Inertia(n3, n4, 2.0)
-     SignalTorque(n4, 0.0, 10.0)
-     }
+    @equations begin
+        ## KinematicPTP(s1, 0.5, driveAngle, 1.0, 1.0)
+        ## Integrator(s1, s2, 1.0)
+        s1 = ifelse((MTime < 0.5) | (MTime >= 3.2), 0.0,
+                    ifelse(MTime < 1.5, MTime - 0.5,
+                           ifelse(MTime < 2.2, 1.0, 3.2 - MTime)))
+        SpeedSensor(n2, s3)
+        SpeedSensor(n3, s4)
+        LimPID(s2, s3, s4, 
+               controllerType = "PI",
+               k  = 100.0,
+               Ti = 0.1,
+               Td = 0.1,
+               yMax = 12.0,
+               Ni = 0.1)
+        SignalTorque(n1, 0.0, s4)
+        s5 = s4 - s2
+        InitialEquation(der(s5) - 0.0)  # force a constant initial spin of the shaft to tame initial conditions
+        SignalTorque(n1, 0.0, s3)
+        Inertia(n1, n2, 1.0)
+        SpringDamper(n2, n3, 1e4, 100)
+        Inertia(n3, n4, 2.0)
+        SignalTorque(n4, 0.0, 10.0)
+    end
 end
 # Results of this example match Dymola with the exception of
 # starting transients. This example only solves if info[11] = 0

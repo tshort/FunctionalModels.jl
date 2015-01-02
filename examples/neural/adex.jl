@@ -27,19 +27,19 @@ function AdEx()
     # The following gives the return value which is a list of equations.
     # Expressions with Unknowns are kept as expressions. Regular
     # variables are evaluated immediately (like normal).
-    {
-     der(V) - (( ((- gL) * (V - EL)) +
-                (gL * Delta * (exp ((V - VT) / Delta))) +
-                (- W) + Isyn) / C)
-     der(W) - (((a * (V - EL)) - W) / tau_w)
+    @equations begin
+        der(V) = (( ((- gL) * (V - EL)) +
+                   (gL * Delta * (exp ((V - VT) / Delta))) +
+                   (- W) + Isyn) / C)
+        der(W) = (((a * (V - EL)) - W) / tau_w)
+   
+        Event(V-theta,
+             Equation[
+                 reinit(V, Vr)
+             ],    # positive crossing
+             Equation[])
 
-     Event(V-theta,
-          {
-           reinit(V, Vr)
-           },    # positive crossing
-          {})
-
-     }
+     end
     
 end
 

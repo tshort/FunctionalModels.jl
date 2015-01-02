@@ -631,11 +631,7 @@ parse_args(a::Array) = [parse_args(x) for x in a]
 parse_args(x) = x
 
 function equations_helper(arg)
-    if arg.head == :block
-        Expr(:ref, :Equation, parse_args(arg.args)...)
-    else
-        error("Argument to @equations is not a begin..end block")
-    end
+    Expr(:ref, :Equation, parse_args(arg.args)...)
 end
 
-Equation = Any
+typealias Equation Any

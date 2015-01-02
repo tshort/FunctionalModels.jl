@@ -22,15 +22,15 @@ function ex_First()
     Jload = 2.0
     ratio = 10.0
     damping = 10.0
-    {
-     SignalTorque(n1, g, amplitude * sin(2pi * freqHz * MTime))
-     Inertia(n1, n2, Jmotor)
-     IdealGear(n2, n3, ratio)
-     Inertia(n3, n4, 2.0)
-     Damper(n4, g, damping)
-     Spring(n4, n5, 1e4)
-     Inertia(n5, n6, Jload)
-    }
+    Equation[
+        SignalTorque(n1, g, amplitude * sin(2pi * freqHz * MTime))
+        Inertia(n1, n2, Jmotor)
+        IdealGear(n2, n3, ratio)
+        Inertia(n3, n4, 2.0)
+        Damper(n4, g, damping)
+        Spring(n4, n5, 1e4)
+        Inertia(n5, n6, Jload)
+    ]
 end
 
 function sim_First()

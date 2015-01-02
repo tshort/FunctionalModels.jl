@@ -23,13 +23,13 @@ function ex_RLModel()
             ConductorLocation(-1.0, 10.0, Conductors["AAC 500 kcmil"]),
             ConductorLocation( 0.0, 10.0, Conductors["AAC 500 kcmil"]),
             ConductorLocation( 1.0, 10.0, Conductors["AAC 500 kcmil"])))
-    {
-     SineVoltage(ns, g, Vln, freq, [0, -2/3*pi, 2/3*pi])
-     SeriesProbe(ns, np, "I")
-     RLLine(np, nl, Z, len, freq)
-     ConstZSeriesLoad(nl, g, load_VA, load_pf, Vln, freq)
-     ## ConstZParallelLoad(nl, g, load_VA, load_pf, Vln, freq)
-     }
+    Equation[
+        SineVoltage(ns, g, Vln, freq, [0, -2/3*pi, 2/3*pi])
+        SeriesProbe(ns, np, "I")
+        RLLine(np, nl, Z, len, freq)
+        ConstZSeriesLoad(nl, g, load_VA, load_pf, Vln, freq)
+        ## ConstZParallelLoad(nl, g, load_VA, load_pf, Vln, freq)
+    ]
 end
 
 function sim_RLModel()
@@ -64,15 +64,15 @@ function ex_PiModel()
             ConductorLocation(-1.0, 10.0, Conductors["AAC 500 kcmil"]),
             ConductorLocation( 0.0, 10.0, Conductors["AAC 500 kcmil"]),
             ConductorLocation( 1.0, 10.0, Conductors["AAC 500 kcmil"])))
-    {
-     SineVoltage(ns, g, Vln, 60.0, [0, -2/3*pi, 2/3*pi])
-     SeriesProbe(ns, np, "I")
-     PiLine(np, nl, Z, Y, len, freq, ne)
-     ## ConstZSeriesLoad(nl, g, load_VA, load_pf, Vln, freq)
-     ConstZSeriesLoad(nl, g, load_VA, load_pf, Vln, 60.0)
-     ## ConstZParallelLoad(nl, g, load_VA, load_pf, Vln, freq)
-     }
-end
+    Equation[
+        SineVoltage(ns, g, Vln, 60.0, [0, -2/3*pi, 2/3*pi])
+        SeriesProbe(ns, np, "I")
+        PiLine(np, nl, Z, Y, len, freq, ne)
+        ## ConstZSeriesLoad(nl, g, load_VA, load_pf, Vln, freq)
+        ConstZSeriesLoad(nl, g, load_VA, load_pf, Vln, 60.0)
+        ## ConstZParallelLoad(nl, g, load_VA, load_pf, Vln, freq)
+    ]
+end     
 
      
 ## m = ex_PiModel()
@@ -102,12 +102,12 @@ function ex_Modal()
             ConductorLocation(-1.0, 10.0, Conductors["AAC 500 kcmil"]),
             ConductorLocation( 0.0, 10.0, Conductors["AAC 500 kcmil"]),
             ConductorLocation( 1.0, 10.0, Conductors["AAC 500 kcmil"])))
-    {
-     SineVoltage(ns, g, Vln, 60.0, [0, -2/3*pi, 2/3*pi])
-     SeriesProbe(ns, np, "I")
-     ModalLine(np, nl, Z, Y, len, freq)
-     ConstZSeriesLoad(nl, g, load_VA, load_pf, Vln, 60.0)
-     }
+    Equation[
+        SineVoltage(ns, g, Vln, 60.0, [0, -2/3*pi, 2/3*pi])
+        SeriesProbe(ns, np, "I")
+        ModalLine(np, nl, Z, Y, len, freq)
+        ConstZSeriesLoad(nl, g, load_VA, load_pf, Vln, 60.0)
+    ]
 end
 
      

@@ -20,16 +20,16 @@ function LeakyIaF()
     # The following gives the return value which is a list of equations.
     # Expressions with Unknowns are kept as expressions. Regular
     # variables are evaluated immediately (like normal).
-    {
-     der(v) - (( ((- gL) * (v - vL)) + Isyn) / C)
+    @equations begin
+        der(v) = ( ((- gL) * (v - vL)) + Isyn) / C
 
-     Event(v-theta,
-          {
-           reinit(v, vreset)
-           },    # positive crossing
-          {})
+        Event(v-theta,
+             Equation[
+              reinit(v, vreset)
+              ],    # positive crossing
+             Equation[])
 
-     }
+     end
     
 end
 

@@ -24,10 +24,10 @@ tau = 12.5
 function FitzHughNagumo(Iext)
     v = Unknown("v")   
     w = Unknown("w")        
-    {
-     der(v) - (v - (v^3 / 3)  - w + Iext) # == 0 is assumed
-     der(w) - (v + a - b * w) / tau
-     }
+    @equations begin
+        der(v) = v - (v^3 / 3)  - w + Iext
+        der(w) = (v + a - b * w) / tau
+    end
 end
 
 v   = FitzHughNagumo(0.5)       # returns the hierarchical model

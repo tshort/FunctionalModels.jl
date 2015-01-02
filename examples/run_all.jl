@@ -8,21 +8,21 @@
 module ex
 
 using Sims
-
+sim = sunsim
 path = Pkg.dir() * "/Sims/examples/"
 
 include(path * "basics/breaking_pendulum_in_box.jl")
 
 include(path * "basics/breaking_pendulum.jl")
 
-## include(path * "circuit_complex.jl")
+## include(path * "basics/circuit_complex.jl")
 
 include(path * "basics/dc_motor_w_shaft.jl")
 
 include(path * "basics/half_wave_rectifiers.jl")
 
 include(path * "stdlib/m_blocks.jl")
-sim_PID_Controller()
+#sim_PID_Controller()
 
 include(path * "stdlib/m_electrical.jl")
 run_electrical_examples()
