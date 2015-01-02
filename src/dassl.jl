@@ -15,7 +15,7 @@
 # the main variables used in the residual function callback.
 #
 
-global __DF = {}
+global __DF = Any[]
 
 dllname = Pkg.dir() * "/Sims/deps/daskr.so"
 if !isfile(dllname)

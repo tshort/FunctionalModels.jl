@@ -336,11 +336,11 @@ type RefBranch <: ModelType
 end
 
 function Branch(n1, n2, v, i)
-    {
-     RefBranch(n1, i)
-     RefBranch(n2, -i)
-     n1 - n2 - v
-     }
+    Equation[
+        RefBranch(n1, i)
+        RefBranch(n2, -i)
+        n1 - n2 - v
+    ]
 end
 
 
@@ -476,12 +476,12 @@ type Event <: ModelType
                            # the condition crosses zero in the
                            # negative direction.
 end
-Event(condition::ModelType, p::MExpr, n::MExpr) = Event(condition, {p}, {n})
-Event(condition::ModelType, p::Model, n::MExpr) = Event(condition, p, {n})
-Event(condition::ModelType, p::MExpr, n::Model) = Event(condition, {p}, n)
-Event(condition::ModelType, p::Model) = Event(condition, p, {})
-Event(condition::ModelType, p::MExpr) = Event(condition, {p}, {})
-Event(condition::ModelType, p::Expr) = Event(condition, p, {})
+Event(condition::ModelType, p::MExpr, n::MExpr) = Event(condition, Equation[p], Equation[n])
+Event(condition::ModelType, p::Model, n::MExpr) = Event(condition, p, Equation[n])
+Event(condition::ModelType, p::MExpr, n::Model) = Event(condition, Equation[p], n)
+Event(condition::ModelType, p::Model) = Event(condition, p, Equation[])
+Event(condition::ModelType, p::MExpr) = Event(condition, Equation[p], Equation[])
+Event(condition::ModelType, p::Expr) = Event(condition, p, Equation[])
 
 #
 # reinit is used in Event responses to redefine variables. LeftVar is
@@ -527,8 +527,8 @@ function BoolEvent(d::Union(Discrete, RefDiscrete), condition::ModelType)
                 map((idx) -> BoolEvent(d[idx], condition[idx]), [1:lend]))
     elseif lend == 1 && lencond == 1
         Event(condition,       
-              {reinit(d, true)},
-              {reinit(d, false)})
+              Equation[reinit(d, true)],
+              Equation[reinit(d, false)])
     else
         error("Mismatched lengths for BoolEvent")
     end

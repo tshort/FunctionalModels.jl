@@ -32,10 +32,10 @@ end
 # processing (sorting, index reduction, or any of the other stuff a
 # fancy modeling tool would do).
 # 
-elaborate(a::Model) = elaborate(EquationSet(a, {}, {}, {}, {}, {}, Dict()))
+elaborate(a::Model) = elaborate(EquationSet(a, Equation[], Equation[], Equation[], Equation[], Equation[], Dict()))
 
 function elaborate(x::EquationSet)
-    eq = EquationSet({}, {}, {}, {}, {}, {}, Dict())
+    eq = EquationSet(Equation[], Equation[], Equation[], Equation[], Equation[], Equation[], Dict())
     eq.model = handle_events(x.model)
     elaborate_unit(eq.model, eq) # This will modify eq.
 
@@ -54,7 +54,7 @@ end
 # Generic model traversing helper.
 # Applies a function to each element of the model tree.
 function traverse_mod(f::Function, a::Model)
-    emodel = {}
+    emodel = Equation[]
     for el in a
         el1 = f(el)
         if isa(el1, Array)
