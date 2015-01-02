@@ -11,19 +11,19 @@ import Base.hcat,
        Base.vcat
 
 ## Types
-export ModelType, UnknownCategory, Unknown, UnknownVariable, DefaultUnknown, DerUnknown, RefUnknown, RefBranch,
-       InitialEquation, Model, MExpr, Discrete, RefDiscrete, DiscreteVar, Event, LeftVar, StructuralEvent,
+export ModelType, UnknownCategory, Unknown, UnknownVariable, DefaultUnknown, DerUnknown, RefUnknown, Parameter,
+       RefBranch, InitialEquation, Model, MExpr, Discrete, RefDiscrete, DiscreteVar, Event, LeftVar, StructuralEvent,
        EquationSet, SimFunctions, Sim, SimResult
 
 ## Specials
 export MTime, @init, @unknown
 
 ## Methods
-export is_unknown, der, delay, mexpr, value, compatible_values, reinit, ifelse,
+export Equation, @equations, is_unknown, der, delay, mexpr, value, compatible_values, reinit, ifelse,
        basetypeof, from_real, to_real,
        gplot, wplot,
-       check,
-       elaborate, create_sim, sim, sunsim, dasslsim, inisolve
+       check, sim_verbose, 
+       elaborate, create_sim, create_simstate, sim, sunsim, setup_sunsim, dasslsim
 
 ## Model methods
 export Branch, BoolEvent
@@ -64,30 +64,11 @@ include("main.jl")
 include("elaboration.jl")
 include("simcreation.jl")
 include("utils.jl")
-
 # solvers
-hasdassl = try
-    include("dassl.jl")
-    sim = dasslsim
-    true
-catch
-    false
-end
-hassundials = try
-    include("sundials.jl")
-    sim = sunsim
-    true
-catch
-    false
-end
-if hassundials
-    sim = sunsim
-elseif hasdassl
-    sim = dasslsim
-else
-    error("Sims: no solver available (Sundials and DASSL are both unavailable)")
-end
-    
+include("dassl.jl")
+include("sundials.jl")
+sim = sunsim
+sim = dasslsim
 
 # load standard Sims libraries
 include("types.jl")
@@ -99,3 +80,5 @@ include("heat_transfer.jl")
 include("rotational.jl")
 
 end # module Sims
+
+

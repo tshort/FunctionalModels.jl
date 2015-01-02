@@ -95,7 +95,12 @@
 # even more difficult to interface. 
 # 
 
-
+sim_verbose = 1
+function sim_info(msgs...)
+    if sim_verbose > 0
+        apply(println,msgs)
+    end
+end
 
 ########################################
 ## Type definitions                   ##
@@ -130,30 +135,30 @@ abstract UnknownVariable <: ModelType
 
 type DefaultUnknown <: UnknownCategory
 end
+
 type Unknown{T<:UnknownCategory} <: UnknownVariable
     sym::Symbol
     value         # holds initial values (and type info)
     label::String
     fixed::Bool
     save_history::Bool
-    t::Array{Any,1}
-    x::Array{Any,1}
-    Unknown() = new(gensym(), 0.0, "", false, false, {}, {})
-    Unknown(sym::Symbol, label::String) = new(sym, 0.0, label, false, true, {0.0}, {0.0})
-    Unknown(sym::Symbol, value) = new(sym, value, "", false, false, {}, {})
-    Unknown(value) = new(gensym(), value, "", false, false, {}, {})
-    Unknown(label::String) = new(gensym(), 0.0, label, false, true, {0.0}, {0.0})
-    Unknown(value, label::String) = new(gensym(), value, label, false, true, {0.0}, {0.0})
-    Unknown(sym::Symbol, value, label::String) = new(sym, value, label, false, true, {0.0}, {value})
-    Unknown(sym::Symbol, value, label::String, fixed::Bool, save_history::Bool, t::Array{Any,1}, x::Array{Any,1}) = new(sym, value, label, fixed, save_history, t, x)
+    Unknown() = new(gensym(), 0.0, "", false, false)
+    Unknown(sym::Symbol, label::String) = new(sym, 0.0, label, false, true)
+    Unknown(sym::Symbol, value) = new(sym, value, "", false, false)
+    Unknown(value) = new(gensym(), value, "", false, false)
+    Unknown(label::String) = new(gensym(), 0.0, label, false, true)
+    Unknown(value, label::String) = new(gensym(), value, label, false, true)
+    Unknown(sym::Symbol, value, label::String) = new(sym, value, label, false, true)
+    Unknown(sym::Symbol, value, label::String, fixed::Bool, save_history::Bool) =
+        new(sym, value, label, fixed, save_history)
 end
-Unknown() = Unknown{DefaultUnknown}(gensym(), 0.0, "", false, false, {}, {})
-Unknown(x) = Unknown{DefaultUnknown}(gensym(), x, "", false, false, {}, {})
-Unknown(s::Symbol, label::String) = Unknown{DefaultUnknown}(s, 0.0, label, false, true, {0.0}, {0.0})
-Unknown(x, label::String) = Unknown{DefaultUnknown}(gensym(), x, label, false, true, {0.0}, {0.0})
-Unknown(label::String) = Unknown{DefaultUnknown}(gensym(), 0.0, label, false, true, {0.0}, {0.0})
-Unknown(s::Symbol, x, fixed::Bool) = Unknown{DefaultUnknown}(s, x, "", fixed, false, {}, {})
-Unknown(s::Symbol, x) = Unknown{DefaultUnknown}(s, x, "", false, false, {}, {})
+Unknown() = Unknown{DefaultUnknown}(gensym(), 0.0, "", false, false)
+Unknown(x) = Unknown{DefaultUnknown}(gensym(), x, "", false, false)
+Unknown(s::Symbol, label::String) = Unknown{DefaultUnknown}(s, 0.0, label, false, true)
+Unknown(x, label::String) = Unknown{DefaultUnknown}(gensym(), x, label, false, true)
+Unknown(label::String) = Unknown{DefaultUnknown}(gensym(), 0.0, label, false, true)
+Unknown(s::Symbol, x, fixed::Bool) = Unknown{DefaultUnknown}(s, x, "", fixed, false)
+Unknown(s::Symbol, x) = Unknown{DefaultUnknown}(s, x, "", false, false)
 
 
 is_unknown(x) = isa(x, UnknownVariable)
@@ -177,6 +182,19 @@ type MExpr <: ModelType
 end
 mexpr(hd::Symbol, args::ANY...) = MExpr(Expr(hd, args...))
 
+
+type Parameter{T<:UnknownCategory} <: UnknownVariable
+    sym::Symbol
+    value         # holds parameter value (and type info)
+    label::String
+    Parameter(sym::Symbol, value) = new(sym, value, "")
+    Parameter(value) = new(gensym(), value, "")
+    Parameter(sym::Symbol, label::String) = new(sym, 0.0, label)
+    Parameter(value, label::String) = new(gensym(), value, label)
+end
+Parameter(v) = Parameter{DefaultUnknown}(gensym(), v)
+
+
 # Set up defaults for operations on ModelType's for many common
 # methods.
 
@@ -186,8 +204,8 @@ unary_functions = [:(+), :(-), :(!),
                    :asinh, :atan, :atanh, :sin, :sinh,
                    :cos, :cosh, :tan, :tanh, :ceil, :floor,
                    :round, :trunc, :exp, :exp2, :expm1, :log, :log10, :log1p,
-                   :log2, :logb, :sqrt, :gamma, :lgamma, :digamma,
-                   :erf, :erfc, :square,
+                   :log2, :sqrt, :gamma, :lgamma, :digamma,
+                   :erf, :erfc, 
                    :min, :max, :prod, :sum, :mean, :median, :std,
                    :var, :norm,
                    :diff, 
@@ -277,6 +295,7 @@ value(x::UnknownVariable) = x.value
 value(x::RefUnknown) = x.u.value[x.idx...]
 value(a::MExpr) = value(a.ex)
 value(e::Expr) = eval(Expr(e.head, (isempty(e.args) ? e.args : map(value, e.args))...))
+value(x::Parameter) = x.value
 
 function symname(s::Symbol)
     s = string(s)
@@ -285,6 +304,7 @@ end
 name(a::Unknown) = a.label != "" ? a.label : symname(a.sym)
 name(a::DerUnknown) = a.parent.label != "" ? a.parent.label : symname(a.parent.sym)
 name(a::RefUnknown) = a.u.label != "" ? a.u.label : symname(a.u.sym)
+name(a::Parameter) = a.label != "" ? a.label : symname(a.sym)
 
 # The following helper functions are to return the base value from an
 # unknown to use when creating other unknowns. An example would be:
@@ -348,7 +368,7 @@ type PassedUnknown <: UnknownVariable
     ref
 end
 
-
+## TODO: refactor for SimStateHistory interface
 function _interp(x, t)
     # assumes that tvec is sorted from low to high
     if length(x.t) == 0 || t < 0.0 return zero(x.value) end
@@ -382,8 +402,6 @@ end
 
 function delay(x::Unknown, val)
     x.save_history = true
-    x.t = {0.0}
-    x.x = {x.value}
     MExpr(:(Sims._interp($(PassedUnknown(x)), t[1] - $(val))))
 end
 
@@ -461,6 +479,7 @@ end
 Event(condition::ModelType, p::MExpr, n::MExpr) = Event(condition, {p}, {n})
 Event(condition::ModelType, p::Model, n::MExpr) = Event(condition, p, {n})
 Event(condition::ModelType, p::MExpr, n::Model) = Event(condition, {p}, n)
+Event(condition::ModelType, p::Model) = Event(condition, p, {})
 Event(condition::ModelType, p::MExpr) = Event(condition, {p}, {})
 Event(condition::ModelType, p::Expr) = Event(condition, p, {})
 
@@ -473,11 +492,11 @@ type LeftVar <: ModelType
     var
 end
 function reinit(x, y)
-    println("reinit: ", x[], " to ", y)
+    sim_info("reinit: ", x[], " to ", y)
     x[:] = y
 end
 function reinit(x::DiscreteVar, y)
-    println("reinit discrete: ", x.value, " to ", y)
+    sim_info("reinit discrete: ", x.value, " to ", y)
     x.pre = x.value
     x.value = y
     for fun in x.hooks
@@ -546,8 +565,12 @@ type StructuralEvent <: ModelType
     default
     new_relation::Function
     activated::Bool       # Indicates whether the event condition has fired
+    response::Union(Function,Nothing) # if given, the response function will be called with the model state and parameters
 end
-StructuralEvent(condition::MExpr, default, new_relation::Function) = StructuralEvent(condition, default, new_relation, false)
+StructuralEvent(condition::MExpr, default, new_relation::Function) =
+    StructuralEvent(condition, default, new_relation, false, nothing)
+StructuralEvent(condition::MExpr, default, new_relation::Function, response::Function) =
+    StructuralEvent(condition, default, new_relation, false, response)
 
 
 
@@ -586,3 +609,33 @@ to_real(x) = reinterpret(Float64, [x][:])
 
 
 
+########################################
+## @equations macro                   ##
+########################################
+
+macro equations(args)
+    esc(equations_helper(args))
+end
+
+function parse_args(a::Expr)
+    if a.head == :line
+        nothing
+    elseif a.head == :(=)
+        Expr(:call, :-, parse_args(a.args[1]), parse_args(a.args[2]))
+    else
+        Expr(a.head, [parse_args(x) for x in a.args]...)
+    end
+end
+
+parse_args(a::Array) = [parse_args(x) for x in a]
+parse_args(x) = x
+
+function equations_helper(arg)
+    if arg.head == :block
+        Expr(:ref, :Equation, parse_args(arg.args)...)
+    else
+        error("Argument to @equations is not a begin..end block")
+    end
+end
+
+Equation = Any
