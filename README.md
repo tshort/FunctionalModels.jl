@@ -36,7 +36,7 @@ powerful language with an extensive standard library of components.
 This implementation follows the work of
 [David Broman](http://web.ict.kth.se/~dbro/)
 ([thesis](http://www.bromans.com/david/publ/thesis-2010-david-broman.pdf)
-and [code](http://www.bromans.com/software/mkl/mkl-source-1.0.0.zip)
+and [code](http://www.bromans.com/software/mkl/mkl-source-1.0.0.zip))
 and [George Giorgidze](http://db.inf.uni-tuebingen.de/team/giorgidze)
 ([Hydra code](https://github.com/giorgidze/Hydra) and
 [thesis](http://db.inf.uni-tuebingen.de/files/giorgidze/phd_thesis.pdf))
