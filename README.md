@@ -34,17 +34,21 @@ open language with multiple implementations. It is a large, complex,
 powerful language with an extensive standard library of components.
 
 This implementation follows the work of
-[David Broman](http://www.ida.liu.se/~davbr/)
+[David Broman](http://web.ict.kth.se/~dbro/)
 ([thesis](http://www.bromans.com/david/publ/thesis-2010-david-broman.pdf)
 and [code](http://www.bromans.com/software/mkl/mkl-source-1.0.0.zip)
 and [George Giorgidze](http://db.inf.uni-tuebingen.de/team/giorgidze)
 ([Hydra code](https://github.com/giorgidze/Hydra) and
 [thesis](http://db.inf.uni-tuebingen.de/files/giorgidze/phd_thesis.pdf))
 and [Henrik Nilsson](http://www.cs.nott.ac.uk/~nhn/) and their
-functional hybrid modeling. Two solvers are available to solve the
-implicit DAE's generated. The default is DASKR, a derivative of DASSL with root
-finding. A solver based on the
-[Sundials](https://github.com/tshort/Sundials.jl) package is also available.
+functional hybrid modeling. Sims is most similar to
+[Modelyze](https://github.com/david-broman/modelyze) by David Broman
+([report](http://www.eecs.berkeley.edu/Pubs/TechRpts/2012/EECS-2012-173.pdf)).
+
+Two solvers are available to solve the implicit DAE's generated. The
+default is DASKR, a derivative of DASSL with root finding. A solver
+based on the [Sundials](https://github.com/tshort/Sundials.jl) package
+is also available.
     
 Installation
 ------------
@@ -135,7 +139,7 @@ the use of equals in equations, so the example above can be:
 ``` julia
 function Vanderpol()
     y = Unknown(1.0, "y") 
-    x = Unknown("x")     
+    x = Unknown("x")
     @equations begin
         der(x, -1.0) = (1 - y^2) * x - y
         der(y) = x
