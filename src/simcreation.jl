@@ -101,8 +101,8 @@ function create_simstate (sm::Sim)
     history = SimStateHistory (Dict(),Dict())
     for (k,v) in sm.y_map
         if v.save_history
-            history.t[k] = {}
-            history.x[k] = {}
+            history.t[k] = Any[]
+            history.x[k] = Any[]
         end
     end
     ss = SimState (t,y0,yp0,p,structural_change,history,sm)
