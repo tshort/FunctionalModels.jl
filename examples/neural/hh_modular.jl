@@ -117,7 +117,7 @@ hh_s = create_sim(hh_f) # returns a "Sim" ready for simulation
 tf = 500.0
 dt = 0.001
 
-hh_ptr = setup_sunsim (hh_s, 1e-6, 1e-6)
+hh_ptr = setup_sunsim (hh_s, reltol=1e-6, abstol=1e-6)
 
 @time hh_yout = sunsim(hh_ptr, tf, int(tf/dt))
 

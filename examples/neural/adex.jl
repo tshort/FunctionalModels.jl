@@ -46,7 +46,7 @@ end
 adex   = AdEx()      # returns the hierarchical model
 adex_f = elaborate(adex)    # returns the flattened model
 adex_s = create_sim(adex_f) # returns a "Sim" ready for simulation
-adex_ptr = setup_sunsim (adex_s, 1e-7, 1e-7)
+adex_ptr = setup_sunsim (adex_s, reltol=1e-7, abstol=1e-7)
 
 tf = 80.0
 dt = 0.025

@@ -108,7 +108,7 @@ function simrun (sim, tf, dt)
     f = elaborate(sim) # returns the flattened model
     s = create_sim(f) # returns a "Sim" ready for simulation
 
-    ptr = setup_sunsim (s, 1e-6, 1e-6)
+    ptr = setup_sunsim (s, reltol=1e-6, abstol=1e-6)
 
     yout = sunsim(ptr, tf, int(tf/dt))
 

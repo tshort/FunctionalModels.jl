@@ -35,7 +35,6 @@ function bhf (v)
     return (1.0 / (1.0 + (exp (- (v + 35.0) / 10.0))))
 end
 
-## Model equations
 
 function anf (v)
     return (0.01 * (v + 55) / (1 - (exp ((- (v + 55)) / 10))))
@@ -45,23 +44,25 @@ function bnf (v)
     return (0.125 * (exp ((- (v + 65)) / 80)))
 end  	                   
 
+## Model equations
+
 function HodgkinHuxley()
 
-    v   = Unknown(-65.0, "v")   
+    v   = Voltage(-65.0, "v")   
     m   = Unknown(0.052, "m")
     h   = Unknown(0.596, "h")
     n   = Unknown(0.317, "n")
 
-    g_Na = Unknown ()
-    g_K  = Unknown ()
+    g_Na = Unknown()
+    g_K  = Unknown()
 
-    I_Na = Unknown ()
-    I_K  = Unknown ()
-    I_L  = Unknown ()
+    I_Na = Current()
+    I_K  = Current()
+    I_L  = Current()
 
-    gbar_Na = Parameter (120.0)
-    gbar_K  = Parameter (36.0)
-    g_L     = Parameter (0.3)
+    gbar_Na = Parameter(120.0)
+    gbar_K  = Parameter(36.0)
+    g_L     = Parameter(0.3)
     
     # The following gives the return value which is a list of equations.
     # Expressions with Unknowns are kept as expressions. Regular
@@ -92,7 +93,7 @@ hh_s = create_sim(hh_f) # returns a "Sim" ready for simulation
 tf = 500.0
 dt = 0.025
 
-hh_ptr = setup_sunsim (hh_s, 1e-6, 1e-6)
+hh_ptr = setup_sunsim (hh_s, reltol=1e-6, abstol=1e-6)
 
 @time hh_yout = sunsim(hh_ptr, tf, int(tf/dt))
 
