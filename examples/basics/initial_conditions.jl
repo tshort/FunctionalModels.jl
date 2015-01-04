@@ -1,4 +1,3 @@
-using Sims
 
 ## Examples of initial conditions
 
@@ -10,38 +9,30 @@ using Sims
 # common underdetermined case.
 #
 
-function test()
+
+export InitialCondition, MkinInitialCondition
+
+
+@doc* """
+A basic test of solving for initial conditions for two simultaineous
+equations.
+""" ->
+function InitialCondition()
     @unknown x y
     @equations begin
         2*x - y = exp(-x)
          -x + 2*y = exp(-y)
      end
 end
-f = elaborate(test())
-sm = create_sim(f)
-res = inisolve(sm)
 
-function mkin()
+@doc* """
+A basic test of solving for initial conditions for two simultaineous
+equations.
+""" ->
+function MkinInitialCondition()
     @unknown x(1.0) y(1.0)
     @equations begin
         x^2 + y^2 = 1.0
         y = x^2
     end
 end
-
-sm = create_sim(mkin())
-res = inisolve(sm)
-
-
-## BROKEN
-function fun()
-    @unknown x
-    y = Unknown(:y, 1.0, true)
-    @equations begin
-        x^2 + y^2 = 1.0
-        der(y, 0.0) = x
-    end
-end
-
-## sm = create_sim(fun())
-## res = inisolve(sm)
