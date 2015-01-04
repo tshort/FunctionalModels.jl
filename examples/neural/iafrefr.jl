@@ -1,6 +1,7 @@
 
 ## Integrate-and-fire example with refractory period.
 
+
 using Sims
 using Winston
 
@@ -25,9 +26,9 @@ end
 
 
 function RefractoryEq(v)
-    {
-     v - vreset
-    }
+    @equations begin
+        v = vreset
+    end
 end    
 
 function Refractory(v,trefr)
@@ -46,9 +47,8 @@ end
 
 
 function LeakyIaF()
-
-   v = Unknown(vreset, "v")   
-   @equations begin
+    v = Unknown(vreset, "v")
+    @equations begin   
         StructuralEvent(v-theta,
                         # when v crosses the threshold,
                         # switch to refractory mode
@@ -57,7 +57,7 @@ function LeakyIaF()
                 trefr = value(MTime)+trefractory
                 Refractory(v,trefr)
             end)
-   end
+    end
 end
 
 

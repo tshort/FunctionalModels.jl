@@ -622,6 +622,8 @@ function parse_args(a::Expr)
         nothing
     elseif a.head == :(=)
         Expr(:call, :-, parse_args(a.args[1]), parse_args(a.args[2]))
+    elseif a.head == :(->)
+        a     # don't traverse into anonymous functions
     else
         Expr(a.head, [parse_args(x) for x in a.args]...)
     end

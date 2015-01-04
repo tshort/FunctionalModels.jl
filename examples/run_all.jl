@@ -8,7 +8,10 @@
 module ex
 
 using Sims
+
 sim = sunsim
+sim = dasslsim
+
 path = Pkg.dir() * "/Sims/examples/"
 
 include(path * "basics/breaking_pendulum_in_box.jl")
