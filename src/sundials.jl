@@ -194,11 +194,19 @@ function sunsim(smem::SimSundials, tstop::Float64, Nsteps::Int)
     end
     SimResult(yout, [sm.outputs[yidx]])
 end
-sunsim(ss::SimState, tstop::Float64, Nsteps::Int) = sunsim(setup_sunsim(ss,reltol=1e-4,abstol=1e-4), tstop, Nsteps)
-sunsim(sm::Sim, tstop::Float64, Nsteps::Int) = sunsim(create_simstate(sm), tstop, Nsteps)
-sunsim(sm::Sim) = sunsim(sm, 1.0, 500)
-sunsim(sm::Sim, tstop::Float64) = sunsim(sm, tstop, 500)
-sunsim(m::Model, tstop::Float64, nsteps::Int)  = sunsim(create_sim(elaborate(m)), tstop, nsteps)
-sunsim(m::Model) = sunsim(m, 1.0, 500)
-sunsim(m::Model, tstop::Float64) = sunsim(m, tstop, 500)
+sunsim(ss::SimState, tstop::Float64, Nsteps::Int; reltol::Float64=1e-4, abstol::Float64=1e-4) =
+    sunsim(setup_sunsim(ss,reltol=reltol,abstol=abstol), tstop, Nsteps)
+sunsim(sm::Sim, tstop::Float64, Nsteps::Int; reltol::Float64=1e-4, abstol::Float64=1e-4) =
+    sunsim(create_simstate(sm), tstop, Nsteps, reltol=reltol, abstol=abstol)
+sunsim(sm::Sim; reltol::Float64=1e-4, abstol::Float64=1e-4) =
+    sunsim(sm, 1.0, 500, reltol=reltol, abstol=abstol)
+sunsim(sm::Sim, tstop::Float64; reltol::Float64=1e-4, abstol::Float64=1e-4) =
+    sunsim(sm, tstop, 500, reltol=reltol, abstol=abstol)
+sunsim(m::Model, tstop::Float64, nsteps::Int; reltol::Float64=1e-4, abstol::Float64=1e-4)  =
+    sunsim(create_sim(elaborate(m)), tstop, nsteps, reltol=reltol, abstol=abstol)
+sunsim(m::Model; reltol::Float64=1e-4, abstol::Float64=1e-4) =
+    sunsim(m, 1.0, 500, reltol=reltol, abstol=abstol)
+sunsim(m::Model, tstop::Float64; reltol::Float64=1e-4, abstol::Float64=1e-4) =
+    sunsim(m, tstop, 500, reltol=reltol, abstol=abstol)
+
 

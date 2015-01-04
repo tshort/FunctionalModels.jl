@@ -49,7 +49,7 @@ function dasslrootfun(neq, t_in, y_in, yp_in, nrt, rval_out, rpar, ipar)
 end
 
 
-function dasslsim(ss::SimState, tstop::Float64, Nsteps::Int)
+function dasslsim(ss::SimState, tstop::Float64, Nsteps::Int; reltol::Float64=1e-4, abstol::Float64=1e-4)
     # tstop & Nsteps should be in options
     sim_info("starting sim()")
 
@@ -65,7 +65,7 @@ function dasslsim(ss::SimState, tstop::Float64, Nsteps::Int)
     info[11] = 1    # calc initial conditions (1 or 2) / don't calc (0)
     info[18] = 2    # more initialization info
     
-    function setup_sim(ss::SimState, tstart::Float64, tstop::Float64, Nsteps::Int)
+    function setup_sim(ss::SimState, tstart::Float64, tstop::Float64, Nsteps::Int; reltol::Float64=1e-5, abstol::Float64=1e-3)
         N = [int32(length(ss.y0))]
         t = [tstart]
         y = copy(ss.y0)
@@ -73,8 +73,8 @@ function dasslsim(ss::SimState, tstop::Float64, Nsteps::Int)
         sm = ss.sm
         nrt = [int32(length(sm.F.event_pos))]
         rpar = copy(ss.p)
-        rtol = [1e-5]
-        atol = [1e-3]
+        rtol = [reltol]
+        atol = [abstol]
         lrw = [int32(N[1]^2 + 9 * N[1] + 60 + 3 * nrt[1])] 
         rwork = fill(0.0, lrw[1])
         liw = [int32(2*N[1] + 40)] 
@@ -112,7 +112,7 @@ function dasslsim(ss::SimState, tstop::Float64, Nsteps::Int)
          end
     end
 
-    simulate = setup_sim(ss, 0.0, tstop, Nsteps)
+    simulate = setup_sim(ss, 0.0, tstop, Nsteps, reltol=reltol, abstol=abstol)
     yout = zeros(Nsteps, Ncol + 1)
 
     for idx in 1:Nsteps
@@ -158,7 +158,7 @@ function dasslsim(ss::SimState, tstop::Float64, Nsteps::Int)
                     # Restart the simulation:
                     info[1] = 0
                     info[11] = 1    # do/don't calc initial conditions
-                    simulate = setup_sim(ss, t[1], tstop, int(Nsteps * (tstop - t[1]) / tstop))
+                    simulate = setup_sim(ss, t[1], tstop, int(Nsteps * (tstop - t[1]) / tstop), reltol=reltol, abstol=abstol)
                     yidx = sm.outputs .!= ""
                 elseif any(jroot .!= 0)
                     sim_info("event found at t = $(t[1]), restarting")
@@ -176,10 +176,17 @@ function dasslsim(ss::SimState, tstop::Float64, Nsteps::Int)
     end
     SimResult(yout, [sm.outputs[yidx]])
 end
-dasslsim(ss::SimState) = dasslsim(ss, 1.0, 500)
-dasslsim(ss::SimState, tstop::Float64) = dasslsim(ss, tstop, 500)
-dasslsim(sm::Sim, tstop::Float64, Nsteps::Int) = dasslsim(create_simstate(sm), tstop, Nsteps)
-dasslsim(sm::Sim, tstop::Float64) = dasslsim(create_simstate(sm), tstop, 500)
-dasslsim(m::Model, tstop::Float64, Nsteps::Int)  = dasslsim(create_sim(elaborate(m)), tstop, Nsteps)
-dasslsim(m::Model) = dasslsim(m, 1.0, 500)
-dasslsim(m::Model, tstop::Float64) = dasslsim(m, tstop, 500)
+dasslsim(ss::SimState; reltol::Float64=1e-5, abstol::Float64=1e-3) =
+    dasslsim(ss, 1.0, 500, reltol=reltol, abstol=abstol)
+dasslsim(ss::SimState, tstop::Float64; reltol::Float64=1e-5, abstol::Float64=1e-3) =
+    dasslsim(ss, tstop, 500, reltol=reltol, abstol=abstol)
+dasslsim(sm::Sim, tstop::Float64, Nsteps::Int; reltol::Float64=1e-5, abstol::Float64=1e-3) =
+    dasslsim(create_simstate(sm), tstop, Nsteps, reltol=reltol, abstol=abstol)
+dasslsim(sm::Sim, tstop::Float64; reltol::Float64=1e-5, abstol::Float64=1e-3) =
+    dasslsim(create_simstate(sm), tstop, 500, reltol=reltol, abstol=abstol)
+dasslsim(m::Model, tstop::Float64, Nsteps::Int; reltol::Float64=1e-5, abstol::Float64=1e-3)  =
+    dasslsim(create_sim(elaborate(m)), tstop, Nsteps, reltol=reltol, abstol=abstol)
+dasslsim(m::Model; reltol::Float64=1e-5, abstol::Float64=1e-3) =
+    dasslsim(m, 1.0, 500, reltol=reltol, abstol=abstol)
+dasslsim(m::Model, tstop::Float64; reltol::Float64=1e-5, abstol::Float64=1e-3) =
+    dasslsim(m, tstop, 500, reltol=reltol, abstol=abstol)
