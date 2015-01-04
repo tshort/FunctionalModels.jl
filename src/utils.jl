@@ -1,4 +1,6 @@
 
+using Requires
+
 ########################################
 ## Model checks                       ##
 ########################################
@@ -18,29 +20,29 @@ check(m::Model) = check(create_sim(elaborate(m)))
 ## Basic plotting with Gaston         ##
 ########################################
 
-if "Gaston" in keys(Pkg.installed())
-    using Gaston
-end
+@require Gaston begin
 
-function gplot(sm::SimResult)
-    N = length(sm.colnames)
-    figure()
-    c = Gaston.CurveConf()
-    a = Gaston.AxesConf()
-    a.title = ""
-    a.xlabel = "Time (s)"
-    a.ylabel = ""
-    Gaston.addconf(a)
-    for plotnum = 1:N
-        c.legend = sm.colnames[plotnum]
-        Gaston.addcoords(sm.y[:,1],sm.y[:, plotnum + 1],c)
+    function gplot(sm::SimResult)
+        N = length(sm.colnames)
+        figure()
+        c = Gaston.CurveConf()
+        a = Gaston.AxesConf()
+        a.title = ""
+        a.xlabel = "Time (s)"
+        a.ylabel = ""
+        Gaston.addconf(a)
+        for plotnum = 1:N
+            c.legend = sm.colnames[plotnum]
+            Gaston.addcoords(sm.y[:,1],sm.y[:, plotnum + 1],c)
+        end
+        Gaston.llplot()
     end
-    Gaston.llplot()
-end
-function gplot(sm::SimResult, filename::ASCIIString)
-    Gaston.set_filename(filename)
-    gplot(sm)
-    Gaston.printfigure("pdf")
+    function gplot(sm::SimResult, filename::ASCIIString)
+        Gaston.set_filename(filename)
+        gplot(sm)
+        Gaston.printfigure("pdf")
+    end
+
 end
 
 
@@ -48,40 +50,60 @@ end
 ## Basic plotting with Winston        ##
 ########################################
 
-if "Winston" in keys(Pkg.installed())
-    using Winston
-end
-
-function _wplot(sm::SimResult)
-    try
-        N = length(sm.colnames)
-        a = Winston.Table(N, 1)
-        for plotnum = 1:N
-            p = Winston.FramedPlot()
-            add(p, Winston.Curve(sm.y[:,1],sm.y[:, plotnum + 1]))
-            Winston.setattr(p, "ylabel", sm.colnames[plotnum])
-            a[plotnum,1] = p
+@require Winston begin
+    
+    function _wplot(sm::SimResult)
+        try
+            N = length(sm.colnames)
+            a = Winston.Table(N, 1)
+            for plotnum = 1:N
+                p = Winston.FramedPlot()
+                add(p, Winston.Curve(sm.y[:,1],sm.y[:, plotnum + 1]))
+                Winston.setattr(p, "ylabel", sm.colnames[plotnum])
+                a[plotnum,1] = p
+            end
+            a
         end
-        a
+    end
+    
+    function wplot(sm::SimResult, filename::String, args...)
+        try
+            a = _wplot(sm)
+            Winston.file(a, filename, args...)
+            a
+        end
+    end
+    
+    function wplot(sm::SimResult)
+        try
+            a = _wplot(sm)
+            Winston.display(a)
+            a
+        end
     end
 end
 
-function wplot(sm::SimResult, filename::String, args...)
-    try
-        a = _wplot(sm)
-        Winston.file(a, filename, args...)
-        a
+########################################
+## DataFrames / Gadfly integration    ##
+########################################
+
+@require DataFrames begin
+
+    function Base.convert(::Type{DataFrames.DataFrame}, x::SimResult)
+        df = convert(DataFrames.DataFrame, x.y)
+        DataFrames.names!(df, [:time, map(symbol, x.colnames)])
+        df
     end
+
 end
 
-function wplot(sm::SimResult)
-    try
-        a = _wplot(sm)
-        Winston.display(a)
-        a
-    end
-end
+@require Gadfly begin
 
+    function Gadfly.plot(x::SimResult, args...)
+        Gadfly.plot(convert(DataFrames.DataFrame, x), args...)
+    end
+
+end
 
 #
 # @unknown
