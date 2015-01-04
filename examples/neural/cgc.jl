@@ -12,9 +12,9 @@ using Sims
 using Winston
 
 
-## Disable history recording by default
+## Disable history recording for currents by default
 Sims.Unknown(label::String) = Sims.Unknown{Sims.DefaultUnknown}(gensym(), 0.0, label, false, false)
-
+Sims.Current(label::String) = Sims.Unknown{Sims.UCurrent}(gensym(), 0.0, label, false, false)
 
 function sigm (x, y)
     return 1.0 / (exp (x / y) + 1)
@@ -527,7 +527,7 @@ end
 
 function CGC(I)
 
-    v   = Voltage (-65.0, "v")   
+    v   = Voltage (-70.0, "v")   
 
     cai = Unknown (cai0, "cai")
 
@@ -543,7 +543,7 @@ function CGC(I)
     I_KM   = Current ("I_KM")
     I_Kir  = Current ("I_Kir")
 
-    I_Na = Current ("I_Na")
+    I_Na   = Current ("I_Na")
     I_NaR  = Current ("I_NaR")
     I_pNa  = Current ("I_pNa")
 
@@ -593,5 +593,7 @@ dt = 0.025
 cgc_ptr = setup_sunsim (cgc_s, 1e-7, 1e-7)
 
 @time cgc_yout = sunsim(cgc_ptr, tf, int(tf/dt))
+
+##@time cgc_yout = sim(cgc_s, tf, int(tf/dt))
 
 plot (cgc_yout.y[:,1], cgc_yout.y[:,5])
