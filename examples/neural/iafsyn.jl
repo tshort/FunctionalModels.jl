@@ -120,7 +120,7 @@ iaf   = Circuit(input)
 iaf_f = elaborate(iaf)    # returns the flattened model
 iaf_s = create_sim(iaf_f) # returns a "Sim" ready for simulation
 
-iaf_ptr = setup_sunsim (iaf_s, 1e-7, 1e-7)
+iaf_ptr = setup_sunsim (iaf_s, reltol=1e-7, abstol=1e-7)
 
 # runs the simulation and returns
 # the result as an array plus column headings

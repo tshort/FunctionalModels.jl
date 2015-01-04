@@ -40,7 +40,7 @@ iaf_s = create_sim(iaf_f) # returns a "Sim" ready for simulation
 tf = 100.0
 dt = 0.025
 
-iaf_ptr = setup_sunsim (iaf_s, 1e-7, 1e-7)
+iaf_ptr = setup_sunsim (iaf_s, reltol=1e-7, abstol=1e-7)
 
 # runs the simulation and returns
 # the result as an array plus column headings

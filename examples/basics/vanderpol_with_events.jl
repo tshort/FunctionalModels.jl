@@ -35,7 +35,7 @@ v = SVanderpol()      # returns the hierarchical model
 v_f = elaborate(v)    # returns the flattened model
 v_s = create_sim(v_f) # returns a "Sim" ready for simulation
 
-v_ptr = setup_sunsim (v_s, 1e-6, 1e-6)
+v_ptr = setup_sunsim (v_s, reltol=1e-6, abstol=1e-6)
 
 tf = 10.0
 dt = 0.025

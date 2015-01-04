@@ -590,7 +590,7 @@ cgc_s = create_sim(cgc_f) # returns a "Sim" ready for simulation
 tf = 500.0
 dt = 0.025
 
-cgc_ptr = setup_sunsim (cgc_s, 1e-7, 1e-7)
+cgc_ptr = setup_sunsim (cgc_s, reltol=1e-7, abstol=1e-7)
 
 @time cgc_yout = sunsim(cgc_ptr, tf, int(tf/dt))
 

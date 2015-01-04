@@ -60,7 +60,7 @@ end
 solve(m::Model)  = sunsim(create_sim(elaborate(m)))
 
 
-function setup_sunsim(ss::SimState, reltol::Float64, abstol::Float64)
+function setup_sunsim(ss::SimState; reltol::Float64=1e-4, abstol::Float64=1e-4)
     sm = ss.sm
     sm.reltol = reltol
     sm.abstol = abstol
@@ -77,7 +77,7 @@ function setup_sunsim(ss::SimState, reltol::Float64, abstol::Float64)
     flag  = Sundials.IDASetId(mem, id)
     return SimSundials (mem, ss)
 end
-setup_sunsim(sm::Sim, reltol::Float64, abstol::Float64) = setup_sunsim(create_simstate(sm), reltol, abstol)
+setup_sunsim(sm::Sim; reltol::Float64=1e-4, abstol::Float64=1e-4) = setup_sunsim(create_simstate(sm), reltol=reltol, abstol=abstol)
 
 function reinit_sunsim(smem::SimSundials, ss::SimState, t)
 
@@ -194,7 +194,7 @@ function sunsim(smem::SimSundials, tstop::Float64, Nsteps::Int)
     end
     SimResult(yout, [sm.outputs[yidx]])
 end
-sunsim(ss::SimState, tstop::Float64, Nsteps::Int) = sunsim(setup_sunsim(ss,1e-4,1e-4), tstop, Nsteps)
+sunsim(ss::SimState, tstop::Float64, Nsteps::Int) = sunsim(setup_sunsim(ss,reltol=1e-4,abstol=1e-4), tstop, Nsteps)
 sunsim(sm::Sim, tstop::Float64, Nsteps::Int) = sunsim(create_simstate(sm), tstop, Nsteps)
 sunsim(sm::Sim) = sunsim(sm, 1.0, 500)
 sunsim(sm::Sim, tstop::Float64) = sunsim(sm, tstop, 500)

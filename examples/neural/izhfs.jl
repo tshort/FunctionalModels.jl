@@ -53,7 +53,7 @@ izhfs_s = create_sim(izhfs_f) # returns a "Sim" ready for simulation
 tf = 800.0
 dt = 0.025
 
-izhfs_ptr = setup_sunsim (izhfs_s, 1e-6, 1e-6)
+izhfs_ptr = setup_sunsim (izhfs_s, reltol=1e-6, abstol=1e-6)
 
 # runs the simulation and returns
 # the result as an array plus column headings
