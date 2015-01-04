@@ -7,7 +7,7 @@ function K2Syn(tauA,tauB,g,w,input)
     tau1 = ((tauA / tauB) > .9999) ? (0.9999 * tauB) : tauA
     tau2 = tauB
 
-    tp = ((tau1 * tau2) / (tau2 - tau1) * ln (tau2 / tau1))
+    tp = ((tau1 * tau2) / (tau2 - tau1) * log (tau2 / tau1))
     scale_factor = (1 / (- (exp(- (tp) / tau1)) + exp (- (tp) / tau2)))
 
     A = Unknown("A")
