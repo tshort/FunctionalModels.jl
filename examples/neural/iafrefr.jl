@@ -40,16 +40,15 @@ function Refractory(v,trefr)
                         # when the end of refractory period is reached,
                         # switch back to subthreshold mode
             RefractoryEq(v),
-            () -> LeakyIaF(trefr))
+            () -> LeakyIaF())
     end
     
 end
 
 
-function LeakyIaF(trefr)
-
-    v = Unknown(vreset, "v")   
-    Equation[                     # BUG: This doesn't work right with @equations
+function LeakyIaF()
+    v = Unknown(vreset, "v")
+    @equations begin   
         StructuralEvent(v-theta,
                         # when v crosses the threshold,
                         # switch to refractory mode
@@ -58,11 +57,11 @@ function LeakyIaF(trefr)
                 trefr = value(MTime)+trefractory
                 Refractory(v,trefr)
             end)
-    ]
+    end
 end
 
 
-iaf   = LeakyIaF(0.0)      # returns the hierarchical model
+iaf   = LeakyIaF()      # returns the hierarchical model
 iaf_f = elaborate(iaf)    # returns the flattened model
 
 tf = 1200.0
