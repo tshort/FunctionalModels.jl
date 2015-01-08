@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+
+        <title>Design considerations - Sims.jl</title>
+
+        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../css/font-awesome-4.0.3.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="../css/highlight.css">
+        <link href="../css/github.css" rel="stylesheet">
+
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+
+        
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            
+
+            <!-- Main title -->
+            <a class="navbar-brand" href="..">Sims.jl</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            
+                <!-- Main navigation -->
+                <ul class="nav navbar-nav">
+                
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">User guide <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            <li >
+                                <a href="../basics">Basics</a>
+                            </li>
+                        
+                            <li >
+                                <a href="../plotting">Plotting results</a>
+                            </li>
+                        
+                            <li >
+                                <a href="../api">API</a>
+                            </li>
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li class="dropdown active">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Details <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            <li class="active">
+                                <a href=".">Design considerations</a>
+                            </li>
+                        
+                            <li >
+                                <a href="../future">Development options</a>
+                            </li>
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../lib">Standard library</a>
+                    </li>
+                
+                
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Examples <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            <li >
+                                <a href="../examples/basics">Basics</a>
+                            </li>
+                        
+                            <li >
+                                <a href="../examples/lib">Standard library</a>
+                            </li>
+                        
+                            <li >
+                                <a href="../examples/neural">Neural</a>
+                            </li>
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../license">License</a>
+                    </li>
+                
+                
+                </ul>
+            
+
+            
+            <!-- Search, Navigation and Repo links -->
+            <ul class="nav navbar-nav navbar-right">
+                
+                
+                <li >
+                    <a rel="next" href="../api">
+                        <i class="fa fa-arrow-left"></i> Previous
+                    </a>
+                </li>
+                <li >
+                    <a rel="prev" href="../future">
+                        Next <i class="fa fa-arrow-right"></i>
+                    </a>
+                </li>
+                
+                
+                <li>
+                    <a href="https://github.com/tshort/Sims.jl/">
+                        
+                            <i class="fa fa-github"></i>
+                        
+                        GitHub
+                    </a>
+                </li>
+                
+            </ul>
+            
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+            
+                <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="main active"><a href="#design-documentation">Design Documentation</a></li>
+        
+            <li><a href="#overview">Overview</a></li>
+        
+            <li><a href="#unknowns-and-mexprs">Unknowns and MExpr's</a></li>
+        
+            <li><a href="#models">Models</a></li>
+        
+            <li><a href="#special-model-features">Special Model Features</a></li>
+        
+            <li><a href="#connections-nodal-models">Connections / Nodal Models</a></li>
+        
+            <li><a href="#model-flattening">Model Flattening</a></li>
+        
+            <li><a href="#model-instantiation">Model Instantiation</a></li>
+        
+            <li><a href="#initial-equations">Initial Equations</a></li>
+        
+            <li><a href="#hybrid-modeling">Hybrid Modeling</a></li>
+        
+            <li><a href="#structural-events">Structural Events</a></li>
+        
+    
+    </ul>
+</div></div>
+                <div class="col-md-9" role="main">
+
+<h1 id="design-documentation">Design Documentation</h1>
+<p>This documentation is an overview of the design of Sims, particularly
+the input specification. Some of the internals are also discussed.</p>
+<h2 id="overview">Overview</h2>
+<p>This implementation follows the work of David Broman and his MKL and
+Modelyze simulators and the work of George Giorgidze and Henrik
+Nilsson and their functional hybrid modeling.</p>
+<p>A nodal formulation is used based on David's work. His thesis
+documents this nicely:</p>
+<ul>
+<li>David Broman. Meta-Languages and Semantics for Equation-Based
+  Modeling and Simulation. PhD thesis, Thesis No 1333. Department of
+  Computer and Information Science, Linköping University,
+  Sweden, 2010.
+  http://www.bromans.com/david/publ/thesis-2010-david-broman.pdf</li>
+</ul>
+<p>Here is David's code and home page:</p>
+<ul>
+<li>http://web.ict.kth.se/~dbro/</li>
+<li>http://www.eecs.berkeley.edu/Pubs/TechRpts/2012/EECS-2012-173.pdf</li>
+<li>http://www.bromans.com/software/mkl/mkl-source-1.0.0.zip</li>
+<li>https://github.com/david-broman/modelyze</li>
+</ul>
+<p>Sims implements something like David's approach in MKL and
+Modelyze. Modelyze models in particular look quite similar to Sims
+models. A model constructor returns a list of equations. Models are
+made of models, so this builds up a hierarchical structure of
+equations that then needs to be flattened. Like David's approach, Sims
+is nodal; nodes are passed in as parameters to models to perform
+connections between devices. </p>
+<p>Modeling of dynamically varying systems is handled similarly to
+functional hybrid modelling (FHM), specifically the Hydra
+implementation by George. See here for links:</p>
+<ul>
+<li>https://github.com/giorgidze/Hydra</li>
+<li>http://www.cs.nott.ac.uk/~nhn/</li>
+</ul>
+<p>FHM is also a functional approach. Hydra is implemented as a domain
+specific language embedded in Haskell. Their implementation handles
+dynamically changing systems with JIT-compiled code from an amazingly
+small amount of code.</p>
+<h2 id="unknowns-and-mexprs">Unknowns and MExpr's</h2>
+<p>An <code>Unknown</code> is a symbolic type. When used in Julia expressions,
+Unknowns combine into <code>MExpr</code>s which are symbolic representations of
+equations.</p>
+<p>Expressions (of type MExpr) are built up based on Unknown's. Unknown
+is a symbol with a uniquely generated symbol name. If you have</p>
+<div class="codehilite"><pre>  <span class="n">a</span> <span class="o">=</span> <span class="mi">1</span>
+  <span class="n">b</span> <span class="o">=</span> <span class="n">Unknown</span><span class="p">()</span>
+  <span class="n">a</span> <span class="o">*</span> <span class="n">b</span> <span class="o">+</span> <span class="n">b</span><span class="o">^</span><span class="mi">2</span>
+</pre></div>
+
+
+<p>evaluation produces the following:</p>
+<div class="codehilite"><pre>  <span class="n">MExpr</span><span class="p">(</span><span class="o">+</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="c">##1029),*(##1029,##1029)))</span>
+</pre></div>
+
+
+<p>This is an expression tree where <code>##1029</code> is the symbol name for <code>b</code>.</p>
+<p>The idea is that you can set up a set of hierarchical equations that
+will be later flattened.</p>
+<p>Other types or method definitions can be used to assign behavior
+during flattening (like the Branch type) or during instantiation
+(like the der method).</p>
+<p>Unknowns can contain Float64, Complex, and Array{Float64}
+values. Additionally, Unknowns can contain values for any types with
+<code>from_real</code> and <code>to_real</code> defined. These methods define conversions
+from and to Float64 arrays. This allows Unknowns to be extended to
+cover additional types.</p>
+<p>In addition to a value, Unknowns can carry additional metadata,
+including an identification symbol and a label. In the future, unit
+information may be added.</p>
+<p>Unknowns can also have type parameters. For example, <code>Voltage</code> is
+defined as <code>Unknown{UVoltage}</code>. The <code>UVoltage</code> type parameter is a
+marker to distinguish those Unknown from others. Users can add their
+own Unknown types. Different Unknown types makes it easier to dispatch
+on model arguments.</p>
+<p>In addition to standard Unknowns, additional variations are Unknowns
+are provided:</p>
+<ul>
+<li><code>DerUnknown</code> -- Derivative of an Unknown (not normally used by a
+  user).</li>
+<li><code>Discrete</code> -- Discrete is a type for discrete variables. These are
+  only changed during events. They are not used by the integrator.</li>
+<li><code>Parameter</code> -- Fixed model parameters.</li>
+<li><code>RefUnknown</code> and <code>RefDiscrete</code> -- Used for supporting arrays.</li>
+<li><code>PassedUnknown</code> -- Identity unknown: don't replace with a ref to the
+  y array. I don't remember what this is for:)</li>
+</ul>
+<h2 id="models">Models</h2>
+<p>A model is a function definition that returns an Equation or array of
+Equations. Models can contain Models. Here is an example of two models:</p>
+<div class="codehilite"><pre><span class="k">function</span><span class="nf"> EMF</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">flange</span><span class="p">::</span><span class="n">Flange</span><span class="p">,</span> <span class="n">k</span><span class="p">::</span><span class="n">Real</span><span class="p">)</span>
+    <span class="n">tau</span> <span class="o">=</span> <span class="n">Angle</span><span class="p">()</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="n">Current</span><span class="p">()</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">Voltage</span><span class="p">()</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="n">AngularVelocity</span><span class="p">()</span>
+    <span class="n">Equation</span><span class="p">[</span>
+        <span class="n">Branch</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+        <span class="n">RefBranch</span><span class="p">(</span><span class="n">flange</span><span class="p">,</span> <span class="n">tau</span><span class="p">)</span>
+        <span class="n">w</span> <span class="o">-</span> <span class="n">der</span><span class="p">(</span><span class="n">flange</span><span class="p">)</span>
+        <span class="n">v</span> <span class="o">-</span> <span class="n">k</span> <span class="o">*</span> <span class="n">w</span>
+        <span class="n">tau</span> <span class="o">-</span> <span class="n">k</span> <span class="o">*</span> <span class="n">i</span>
+    <span class="p">]</span>
+<span class="k">end</span>
+
+<span class="k">function</span><span class="nf"> DCMotor</span><span class="p">(</span><span class="n">flange</span><span class="p">::</span><span class="n">Flange</span><span class="p">)</span>
+    <span class="n">n1</span> <span class="o">=</span> <span class="n">Voltage</span><span class="p">()</span>
+    <span class="n">n2</span> <span class="o">=</span> <span class="n">Voltage</span><span class="p">()</span>
+    <span class="n">n3</span> <span class="o">=</span> <span class="n">Voltage</span><span class="p">()</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">Equation</span><span class="p">[</span>
+        <span class="n">SignalVoltage</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">)</span>
+        <span class="n">Resistor</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">)</span>
+        <span class="n">Inductor</span><span class="p">(</span><span class="n">n2</span><span class="p">,</span> <span class="n">n3</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
+        <span class="n">EMF</span><span class="p">(</span><span class="n">n3</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">flange</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="p">]</span>
+<span class="k">end</span>
+</pre></div>
+
+
+<p>The normal rules for function returns and array creation apply.</p>
+<p>An <code>@equations</code> macro can also be used to specify the model
+equations. The main difference is that <code>=</code> can be used in models. Like
+<code>Equation[]</code>, the result is of type Array{Equation}. Here is an
+example of one of the models above:</p>
+<div class="codehilite"><pre><span class="k">function</span><span class="nf"> EMF</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">flange</span><span class="p">::</span><span class="n">Flange</span><span class="p">,</span> <span class="n">k</span><span class="p">::</span><span class="n">Real</span><span class="p">)</span>
+    <span class="n">tau</span> <span class="o">=</span> <span class="n">Angle</span><span class="p">()</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="n">Current</span><span class="p">()</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">Voltage</span><span class="p">()</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="n">AngularVelocity</span><span class="p">()</span>
+    <span class="p">@</span><span class="n">equations</span> <span class="k">begin</span>
+        <span class="n">Branch</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+        <span class="n">RefBranch</span><span class="p">(</span><span class="n">flange</span><span class="p">,</span> <span class="n">tau</span><span class="p">)</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">der</span><span class="p">(</span><span class="n">flange</span><span class="p">)</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">k</span> <span class="o">*</span> <span class="n">w</span>
+        <span class="n">tau</span> <span class="o">=</span> <span class="n">k</span> <span class="o">*</span> <span class="n">i</span>
+    <span class="k">end</span>
+<span class="k">end</span>
+</pre></div>
+
+
+<p>Equation definitions normally consist of other Models, MExpr's, or
+special types for other features like
+<code>InitialEquation(equations)</code>. Right now, <code>Equation == Any</code>, but that
+could change in the future.</p>
+<p>Any valid Julia is allowed in models and Equation definitions. Some
+limitations include:</p>
+<ul>
+<li>
+<p><code>if-then-else</code> constructs evaluate immediately, so you cannot use
+  them for dynamic decision actions in a model. Use the <code>ifelse</code> function
+  instead. You can use <code>if-then-else</code> to pick between Equations to
+  include based on static inputs.</p>
+</li>
+<li>
+<p>Some functions may not automatically combine to MExpr's. Most
+  user-defined functions will work if functions are defined in terms
+  of the basic functions supported in Sims. For functions that are not
+  automatically converted, there are ways to extend Sims to support
+  them. TODO: document this / make it a little easier.</p>
+</li>
+</ul>
+<p>Julia's multiple dispatch works well with a functional model
+specification. Variations of models or entirely different models can
+be defined with the same model name with different inputs. For example
+a <code>Capacitor(n1::Voltage, n2::Voltage, C::Signal = 1.0)</code>
+can specify an electrical model, and <code>Capacitor(hp::Temperature,
+C::Signal)</code> can specify a thermal capacitor.</p>
+<p>Models can have positional function arguments and/or keyword function
+arguments. Arguments may also have defaults. By convention in the
+standard library, all models are defined with positional function
+arguments. Often, especially for long argument lists, versions with
+keyword arguments are also provided. As with any Julia functions, use
+<code>methods(Resistor)</code> to see all of the method definitions for
+<code>Resistor</code>. Variable-length arguments (<code>args...</code>) can also be used in
+models.  Model arguments can be typed or untyped. In the examples
+above, model arguments are typed.  The electrical nodes have type
+<code>ElectricalNode</code> from the standard library defined as</p>
+<div class="codehilite"><pre><span class="k">typealias</span><span class="nc"> NumberOrUnknown</span><span class="p">{</span><span class="n">T</span><span class="p">}</span> <span class="n">Union</span><span class="p">(</span><span class="n">AbstractArray</span><span class="p">,</span> <span class="n">Number</span><span class="p">,</span> <span class="n">MExpr</span><span class="p">,</span>
+                                   <span class="n">RefUnknown</span><span class="p">{</span><span class="n">T</span><span class="p">},</span> <span class="n">Unknown</span><span class="p">{</span><span class="n">T</span><span class="p">})</span>
+<span class="k">typealias</span><span class="nc"> ElectricalNode</span> <span class="n">NumberOrUnknown</span><span class="p">{</span><span class="n">UVoltage</span><span class="p">}</span>
+</pre></div>
+
+
+<p>This allows the user to pass in a fixed value or an Unknown. A fixed
+value can be used to fix voltage (zero for a ground reference). Arrays
+can also be passed.</p>
+<p>As with most functional approaches, arguments to models can be model
+types. This "functional composition" allows for easier replacement of
+internal model subcomponents. For example, the <code>BranchHeatPort</code> in the
+standard electrical library has the following signature:</p>
+<div class="codehilite"><pre><span class="k">function</span><span class="nf"> BranchHeatPort</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">hp</span><span class="p">::</span><span class="n">HeatPort</span><span class="p">,</span>
+                        <span class="n">model</span><span class="p">::</span><span class="n">Function</span><span class="p">,</span> <span class="n">args</span><span class="o">...</span><span class="p">)</span>
+</pre></div>
+
+
+<p>This can be used to add heat ports to any electrical branch passed in
+with <code>model</code>. Here's an example of a definition defining a Resistor
+that uses a heat port (a Temperature) in terms of another model:</p>
+<div class="codehilite"><pre><span class="k">function</span><span class="nf"> Resistor</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">R</span><span class="p">::</span><span class="n">Signal</span><span class="p">,</span> <span class="n">hp</span><span class="p">::</span><span class="n">Temperature</span><span class="p">,</span> <span class="n">T_ref</span><span class="p">::</span><span class="n">Signal</span><span class="p">,</span> <span class="n">alpha</span><span class="p">::</span><span class="n">Signal</span><span class="p">)</span> 
+    <span class="n">BranchHeatPort</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">,</span> <span class="n">hp</span><span class="p">,</span> <span class="n">Resistor</span><span class="p">,</span> <span class="n">R</span> <span class="o">.*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">alpha</span> <span class="o">.*</span> <span class="p">(</span><span class="n">hp</span> <span class="o">-</span> <span class="n">T_ref</span><span class="p">)))</span>
+<span class="k">end</span>
+</pre></div>
+
+
+<p>By convention in the standard library, the first model arguments are
+generally nodes.</p>
+<p>Right now, there are no substantial model checks.</p>
+<h2 id="special-model-features">Special Model Features</h2>
+<p>The following are special model types, functions, or models that are handled
+specially when flattening or during instantiation:</p>
+<ul>
+<li><code>der(x)</code> -- The time derivative of <code>x</code>.</li>
+<li><code>MTime</code> -- The model time, secs.</li>
+<li><code>RefBranch(node, flowvariable)</code> -- The type RefBranch is used to
+  indicate the potential <code>node</code> and the flow
+  (<code>flowvariable</code>) into the node from a branch connected to it.</li>
+<li><code>InitialEquation(equations)</code> -- Specifies an array of initial
+  equations.</li>
+<li><code>delay(x, val)</code> -- <code>x</code> delayed by <code>val</code>.</li>
+<li><code>pre(x)</code> -- The value of a Discrete variable <code>x</code> prior to an event.</li>
+<li><code>ifelse(condition, trueresult, falseresult)</code> -- Like an if-then-else
+  block, but for ModelTypes.</li>
+<li><code>Event(condition, pos_response, neg_response)</code> -- The main type for
+  hybrid modeling; specifies a condition for root finding and model
+  expressions to process after positive and negative root crossings
+  are detected.</li>
+<li><code>StructuralEvent(condition, default_model, new_relation)</code> -- A type
+  for elements that change the structure of the model. An event is
+  created (condition is the zero crossing). When the event is
+  triggered, the model is re-flattened after replacing default with
+  new_relation in the model.</li>
+</ul>
+<h2 id="connections-nodal-models">Connections / Nodal Models</h2>
+<h2 id="model-flattening">Model Flattening</h2>
+<p><code>elaborate</code> is the main flattening function. There is no real symbolic
+processing (sorting, index reduction, or any of the other stuff a
+fancy modeling tool would do). This returns an <code>EquationSet</code> object
+containing the hierarchical equations, flattened equations, flattened
+initial equations, events, event response functions, and a map of
+Unknown nodes.</p>
+<div class="codehilite"><pre><span class="k">type</span><span class="nc"> EquationSet</span>
+    <span class="n">model</span>             <span class="c"># The active model, a hierachichal set of equations.</span>
+    <span class="n">equations</span>         <span class="c"># A flat list of equations.</span>
+    <span class="n">initialequations</span>  <span class="c"># A flat list of initial equations.</span>
+    <span class="n">events</span>
+    <span class="n">pos_responses</span>
+    <span class="n">neg_responses</span>
+    <span class="n">nodeMap</span><span class="p">::</span><span class="n">Dict</span>
+<span class="k">end</span>
+</pre></div>
+
+
+<p>Here is an example of a flattened version of the example
+<code>breaking_pendulum_in_box.jl</code>. This model contains standard Events and
+a StructuralEvent.</p>
+<div class="codehilite"><pre><span class="n">julia</span><span class="o">&gt;</span> <span class="n">dump</span><span class="p">(</span><span class="n">p_f</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+<span class="n">EquationSet</span> 
+  <span class="n">model</span><span class="p">:</span> <span class="n">Array</span><span class="p">(</span><span class="kt">Any</span><span class="p">,(</span><span class="mi">1</span><span class="p">,))</span>
+    <span class="o">...</span>
+  <span class="n">equations</span><span class="p">:</span> <span class="n">Array</span><span class="p">(</span><span class="kt">Any</span><span class="p">,(</span><span class="mi">6</span><span class="p">,))</span>
+    <span class="mi">1</span><span class="p">:</span> <span class="n">Expr</span> 
+      <span class="n">head</span><span class="p">:</span> <span class="n">Symbol</span> <span class="n">call</span>
+      <span class="n">args</span><span class="p">:</span> <span class="n">Array</span><span class="p">(</span><span class="kt">Any</span><span class="p">,(</span><span class="mi">3</span><span class="p">,))</span>
+        <span class="mi">1</span><span class="p">:</span> <span class="o">-</span>
+        <span class="mi">2</span><span class="p">:</span> <span class="n">DerUnknown</span> 
+          <span class="n">sym</span><span class="p">:</span> <span class="n">Symbol</span> <span class="c">##8244</span>
+          <span class="n">value</span><span class="p">:</span> <span class="kt">Float64</span> <span class="mf">0.0</span>
+          <span class="n">fixed</span><span class="p">:</span> <span class="kt">Bool</span> <span class="n">false</span>
+          <span class="n">parent</span><span class="p">:</span> <span class="n">Unknown</span><span class="p">{</span><span class="n">DefaultUnknown</span><span class="p">}</span> 
+            <span class="n">sym</span><span class="p">:</span> <span class="n">Symbol</span> <span class="c">##8244</span>
+            <span class="n">value</span><span class="p">:</span> <span class="kt">Float64</span> <span class="mf">0.7853981633974483</span>
+            <span class="n">label</span><span class="p">:</span> <span class="n">ASCIIString</span> <span class="s">&quot;&quot;</span>
+            <span class="n">fixed</span><span class="p">:</span> <span class="kt">Bool</span> <span class="n">false</span>
+            <span class="n">save_history</span><span class="p">:</span> <span class="kt">Bool</span> <span class="n">false</span>
+        <span class="mi">3</span><span class="p">:</span> <span class="n">Unknown</span><span class="p">{</span><span class="n">DefaultUnknown</span><span class="p">}</span> 
+          <span class="n">sym</span><span class="p">:</span> <span class="n">Symbol</span> <span class="c">##8245</span>
+          <span class="n">value</span><span class="p">:</span> <span class="kt">Float64</span> <span class="mf">0.0</span>
+          <span class="n">label</span><span class="p">:</span> <span class="n">ASCIIString</span> <span class="s">&quot;&quot;</span>
+          <span class="n">fixed</span><span class="p">:</span> <span class="kt">Bool</span> <span class="n">false</span>
+          <span class="n">save_history</span><span class="p">:</span> <span class="kt">Bool</span> <span class="n">false</span>
+      <span class="n">typ</span><span class="p">:</span> <span class="kt">Any</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="n">Expr</span> 
+      <span class="n">head</span><span class="p">:</span> <span class="n">Symbol</span> <span class="n">call</span>
+      <span class="n">args</span><span class="p">:</span> <span class="n">Array</span><span class="p">(</span><span class="kt">Any</span><span class="p">,(</span><span class="mi">3</span><span class="p">,))</span>
+        <span class="mi">1</span><span class="p">:</span> <span class="o">-</span>
+        <span class="mi">2</span><span class="p">:</span> <span class="n">DerUnknown</span> 
+          <span class="n">sym</span><span class="p">:</span> <span class="n">Symbol</span> <span class="c">##8240</span>
+          <span class="n">value</span><span class="p">:</span> <span class="kt">Float64</span> <span class="mf">0.0</span>
+          <span class="n">fixed</span><span class="p">:</span> <span class="kt">Bool</span> <span class="n">false</span>
+          <span class="n">parent</span><span class="p">:</span> <span class="n">Unknown</span><span class="p">{</span><span class="n">DefaultUnknown</span><span class="p">}</span> 
+            <span class="n">sym</span><span class="p">:</span> <span class="n">Symbol</span> <span class="c">##8240</span>
+            <span class="n">value</span><span class="p">:</span> <span class="kt">Float64</span> <span class="mf">0.7071067811865476</span>
+            <span class="n">label</span><span class="p">:</span> <span class="n">ASCIIString</span> <span class="s">&quot;x&quot;</span>
+            <span class="n">fixed</span><span class="p">:</span> <span class="kt">Bool</span> <span class="n">false</span>
+            <span class="n">save_history</span><span class="p">:</span> <span class="kt">Bool</span> <span class="n">true</span>
+        <span class="mi">3</span><span class="p">:</span> <span class="n">Unknown</span><span class="p">{</span><span class="n">DefaultUnknown</span><span class="p">}</span> 
+          <span class="n">sym</span><span class="p">:</span> <span class="n">Symbol</span> <span class="c">##8242</span>
+          <span class="n">value</span><span class="p">:</span> <span class="kt">Float64</span> <span class="mf">0.0</span>
+          <span class="n">label</span><span class="p">:</span> <span class="n">ASCIIString</span> <span class="s">&quot;&quot;</span>
+          <span class="n">fixed</span><span class="p">:</span> <span class="kt">Bool</span> <span class="n">false</span>
+          <span class="n">save_history</span><span class="p">:</span> <span class="kt">Bool</span> <span class="n">false</span>
+      <span class="n">typ</span><span class="p">:</span> <span class="kt">Any</span>
+      <span class="o">...</span>
+    <span class="mi">6</span><span class="p">:</span> <span class="n">Expr</span> 
+      <span class="n">head</span><span class="p">:</span> <span class="n">Symbol</span> <span class="n">call</span>
+      <span class="n">args</span><span class="p">:</span> <span class="n">Array</span><span class="p">(</span><span class="kt">Any</span><span class="p">,(</span><span class="mi">3</span><span class="p">,))</span>
+        <span class="mi">1</span><span class="p">:</span> <span class="o">-</span>
+        <span class="mi">2</span><span class="p">:</span> <span class="n">DerUnknown</span> 
+          <span class="n">sym</span><span class="p">:</span> <span class="n">Symbol</span> <span class="c">##8245</span>
+          <span class="n">value</span><span class="p">:</span> <span class="kt">Float64</span> <span class="mf">0.0</span>
+          <span class="n">fixed</span><span class="p">:</span> <span class="kt">Bool</span> <span class="n">false</span>
+          <span class="n">parent</span><span class="p">:</span> <span class="n">Unknown</span><span class="p">{</span><span class="n">DefaultUnknown</span><span class="p">}</span> 
+            <span class="n">sym</span><span class="p">:</span> <span class="n">Symbol</span> <span class="c">##8245</span>
+            <span class="n">value</span><span class="p">:</span> <span class="kt">Float64</span> <span class="mf">0.0</span>
+            <span class="n">label</span><span class="p">:</span> <span class="n">ASCIIString</span> <span class="s">&quot;&quot;</span>
+            <span class="n">fixed</span><span class="p">:</span> <span class="kt">Bool</span> <span class="n">false</span>
+            <span class="n">save_history</span><span class="p">:</span> <span class="kt">Bool</span> <span class="n">false</span>
+        <span class="mi">3</span><span class="p">:</span> <span class="n">Expr</span> 
+          <span class="n">head</span><span class="p">:</span> <span class="n">Symbol</span> <span class="n">call</span>
+          <span class="n">args</span><span class="p">:</span> <span class="n">Array</span><span class="p">(</span><span class="kt">Any</span><span class="p">,(</span><span class="mi">3</span><span class="p">,))</span>
+            <span class="mi">1</span><span class="p">:</span> <span class="o">*</span>
+            <span class="mi">2</span><span class="p">:</span> <span class="kt">Float64</span> <span class="o">-</span><span class="mf">9.81</span>
+            <span class="mi">3</span><span class="p">:</span> <span class="n">Expr</span> 
+              <span class="n">head</span><span class="p">:</span> <span class="n">Symbol</span> <span class="n">call</span>
+              <span class="n">args</span><span class="p">:</span> <span class="n">Array</span><span class="p">(</span><span class="kt">Any</span><span class="p">,(</span><span class="mi">2</span><span class="p">,))</span>
+                <span class="mi">1</span><span class="p">:</span> <span class="n">sin</span>
+                <span class="mi">2</span><span class="p">:</span> <span class="n">Unknown</span><span class="p">{</span><span class="n">DefaultUnknown</span><span class="p">}</span> 
+                  <span class="n">sym</span><span class="p">:</span> <span class="n">Symbol</span> <span class="c">##8244</span>
+                  <span class="n">value</span><span class="p">:</span> <span class="kt">Float64</span> <span class="mf">0.7853981633974483</span>
+                  <span class="n">label</span><span class="p">:</span> <span class="n">ASCIIString</span> <span class="s">&quot;&quot;</span>
+                  <span class="n">fixed</span><span class="p">:</span> <span class="kt">Bool</span> <span class="n">false</span>
+                  <span class="n">save_history</span><span class="p">:</span> <span class="kt">Bool</span> <span class="n">false</span>
+              <span class="n">typ</span><span class="p">:</span> <span class="kt">Any</span>
+          <span class="n">typ</span><span class="p">:</span> <span class="kt">Any</span>
+      <span class="n">typ</span><span class="p">:</span> <span class="kt">Any</span>
+  <span class="n">initialequations</span><span class="p">:</span> <span class="n">Array</span><span class="p">(</span><span class="kt">Any</span><span class="p">,(</span><span class="mi">6</span><span class="p">,))</span>
+    <span class="mi">1</span><span class="p">:</span> <span class="n">Expr</span> 
+      <span class="n">head</span><span class="p">:</span> <span class="n">Symbol</span> <span class="n">call</span>
+      <span class="n">args</span><span class="p">:</span> <span class="n">Array</span><span class="p">(</span><span class="kt">Any</span><span class="p">,(</span><span class="mi">3</span><span class="p">,))</span>
+        <span class="mi">1</span><span class="p">:</span> <span class="o">-</span>
+        <span class="mi">2</span><span class="p">:</span> <span class="n">DerUnknown</span> 
+          <span class="n">sym</span><span class="p">:</span> <span class="n">Symbol</span> <span class="c">##8244</span>
+          <span class="n">value</span><span class="p">:</span> <span class="kt">Float64</span> <span class="mf">0.0</span>
+          <span class="n">fixed</span><span class="p">:</span> <span class="kt">Bool</span> <span class="n">false</span>
+          <span class="n">parent</span><span class="p">:</span> <span class="n">Unknown</span><span class="p">{</span><span class="n">DefaultUnknown</span><span class="p">}</span> 
+            <span class="n">sym</span><span class="p">:</span> <span class="n">Symbol</span> <span class="c">##8244</span>
+            <span class="n">value</span><span class="p">:</span> <span class="kt">Float64</span> <span class="mf">0.7853981633974483</span>
+            <span class="n">label</span><span class="p">:</span> <span class="n">ASCIIString</span> <span class="s">&quot;&quot;</span>
+            <span class="n">fixed</span><span class="p">:</span> <span class="kt">Bool</span> <span class="n">false</span>
+            <span class="n">save_history</span><span class="p">:</span> <span class="kt">Bool</span> <span class="n">false</span>
+        <span class="mi">3</span><span class="p">:</span> <span class="n">Unknown</span><span class="p">{</span><span class="n">DefaultUnknown</span><span class="p">}</span> 
+          <span class="n">sym</span><span class="p">:</span> <span class="n">Symbol</span> <span class="c">##8245</span>
+          <span class="n">value</span><span class="p">:</span> <span class="kt">Float64</span> <span class="mf">0.0</span>
+          <span class="n">label</span><span class="p">:</span> <span class="n">ASCIIString</span> <span class="s">&quot;&quot;</span>
+          <span class="n">fixed</span><span class="p">:</span> <span class="kt">Bool</span> <span class="n">false</span>
+          <span class="n">save_history</span><span class="p">:</span> <span class="kt">Bool</span> <span class="n">false</span>
+      <span class="n">typ</span><span class="p">:</span> <span class="kt">Any</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="n">Expr</span> 
+      <span class="n">head</span><span class="p">:</span> <span class="n">Symbol</span> <span class="n">call</span>
+      <span class="n">args</span><span class="p">:</span> <span class="n">Array</span><span class="p">(</span><span class="kt">Any</span><span class="p">,(</span><span class="mi">3</span><span class="p">,))</span>
+        <span class="mi">1</span><span class="p">:</span> <span class="o">-</span>
+        <span class="mi">2</span><span class="p">:</span> <span class="n">DerUnknown</span> 
+          <span class="n">sym</span><span class="p">:</span> <span class="n">Symbol</span> <span class="c">##8240</span>
+          <span class="n">value</span><span class="p">:</span> <span class="kt">Float64</span> <span class="mf">0.0</span>
+          <span class="n">fixed</span><span class="p">:</span> <span class="kt">Bool</span> <span class="n">false</span>
+          <span class="n">parent</span><span class="p">:</span> <span class="n">Unknown</span><span class="p">{</span><span class="n">DefaultUnknown</span><span class="p">}</span> 
+            <span class="n">sym</span><span class="p">:</span> <span class="n">Symbol</span> <span class="c">##8240</span>
+            <span class="n">value</span><span class="p">:</span> <span class="kt">Float64</span> <span class="mf">0.7071067811865476</span>
+            <span class="n">label</span><span class="p">:</span> <span class="n">ASCIIString</span> <span class="s">&quot;x&quot;</span>
+            <span class="n">fixed</span><span class="p">:</span> <span class="kt">Bool</span> <span class="n">false</span>
+            <span class="n">save_history</span><span class="p">:</span> <span class="kt">Bool</span> <span class="n">true</span>
+        <span class="mi">3</span><span class="p">:</span> <span class="n">Unknown</span><span class="p">{</span><span class="n">DefaultUnknown</span><span class="p">}</span> 
+          <span class="n">sym</span><span class="p">:</span> <span class="n">Symbol</span> <span class="c">##8242</span>
+          <span class="n">value</span><span class="p">:</span> <span class="kt">Float64</span> <span class="mf">0.0</span>
+          <span class="n">label</span><span class="p">:</span> <span class="n">ASCIIString</span> <span class="s">&quot;&quot;</span>
+          <span class="n">fixed</span><span class="p">:</span> <span class="kt">Bool</span> <span class="n">false</span>
+          <span class="n">save_history</span><span class="p">:</span> <span class="kt">Bool</span> <span class="n">false</span>
+      <span class="n">typ</span><span class="p">:</span> <span class="kt">Any</span>
+      <span class="o">...</span>
+    <span class="mi">6</span><span class="p">:</span> <span class="n">Expr</span> 
+      <span class="n">head</span><span class="p">:</span> <span class="n">Symbol</span> <span class="n">call</span>
+      <span class="n">args</span><span class="p">:</span> <span class="n">Array</span><span class="p">(</span><span class="kt">Any</span><span class="p">,(</span><span class="mi">3</span><span class="p">,))</span>
+        <span class="mi">1</span><span class="p">:</span> <span class="o">-</span>
+        <span class="mi">2</span><span class="p">:</span> <span class="n">DerUnknown</span> 
+          <span class="n">sym</span><span class="p">:</span> <span class="n">Symbol</span> <span class="c">##8245</span>
+          <span class="n">value</span><span class="p">:</span> <span class="kt">Float64</span> <span class="mf">0.0</span>
+          <span class="n">fixed</span><span class="p">:</span> <span class="kt">Bool</span> <span class="n">false</span>
+          <span class="n">parent</span><span class="p">:</span> <span class="n">Unknown</span><span class="p">{</span><span class="n">DefaultUnknown</span><span class="p">}</span> 
+            <span class="n">sym</span><span class="p">:</span> <span class="n">Symbol</span> <span class="c">##8245</span>
+            <span class="n">value</span><span class="p">:</span> <span class="kt">Float64</span> <span class="mf">0.0</span>
+            <span class="n">label</span><span class="p">:</span> <span class="n">ASCIIString</span> <span class="s">&quot;&quot;</span>
+            <span class="n">fixed</span><span class="p">:</span> <span class="kt">Bool</span> <span class="n">false</span>
+            <span class="n">save_history</span><span class="p">:</span> <span class="kt">Bool</span> <span class="n">false</span>
+        <span class="mi">3</span><span class="p">:</span> <span class="n">Expr</span> 
+          <span class="n">head</span><span class="p">:</span> <span class="n">Symbol</span> <span class="n">call</span>
+          <span class="n">args</span><span class="p">:</span> <span class="n">Array</span><span class="p">(</span><span class="kt">Any</span><span class="p">,(</span><span class="mi">3</span><span class="p">,))</span>
+            <span class="mi">1</span><span class="p">:</span> <span class="o">*</span>
+            <span class="mi">2</span><span class="p">:</span> <span class="kt">Float64</span> <span class="o">-</span><span class="mf">9.81</span>
+            <span class="mi">3</span><span class="p">:</span> <span class="n">Expr</span> 
+              <span class="n">head</span><span class="p">:</span> <span class="n">Symbol</span> <span class="n">call</span>
+              <span class="n">args</span><span class="p">:</span> <span class="n">Array</span><span class="p">(</span><span class="kt">Any</span><span class="p">,(</span><span class="mi">2</span><span class="p">,))</span>
+                <span class="mi">1</span><span class="p">:</span> <span class="n">sin</span>
+                <span class="mi">2</span><span class="p">:</span> <span class="n">Unknown</span><span class="p">{</span><span class="n">DefaultUnknown</span><span class="p">}</span> 
+                  <span class="n">sym</span><span class="p">:</span> <span class="n">Symbol</span> <span class="c">##8244</span>
+                  <span class="n">value</span><span class="p">:</span> <span class="kt">Float64</span> <span class="mf">0.7853981633974483</span>
+                  <span class="n">label</span><span class="p">:</span> <span class="n">ASCIIString</span> <span class="s">&quot;&quot;</span>
+                  <span class="n">fixed</span><span class="p">:</span> <span class="kt">Bool</span> <span class="n">false</span>
+                  <span class="n">save_history</span><span class="p">:</span> <span class="kt">Bool</span> <span class="n">false</span>
+              <span class="n">typ</span><span class="p">:</span> <span class="kt">Any</span>
+          <span class="n">typ</span><span class="p">:</span> <span class="kt">Any</span>
+      <span class="n">typ</span><span class="p">:</span> <span class="kt">Any</span>
+  <span class="n">events</span><span class="p">:</span> <span class="n">Array</span><span class="p">(</span><span class="kt">Any</span><span class="p">,(</span><span class="mi">1</span><span class="p">,))</span>
+    <span class="mi">1</span><span class="p">:</span> <span class="n">Expr</span> 
+      <span class="n">head</span><span class="p">:</span> <span class="n">Symbol</span> <span class="n">call</span>
+      <span class="n">args</span><span class="p">:</span> <span class="n">Array</span><span class="p">(</span><span class="kt">Any</span><span class="p">,(</span><span class="mi">3</span><span class="p">,))</span>
+        <span class="mi">1</span><span class="p">:</span> <span class="o">-</span>
+        <span class="mi">2</span><span class="p">:</span> <span class="n">Unknown</span><span class="p">{</span><span class="n">DefaultUnknown</span><span class="p">}</span> 
+          <span class="n">sym</span><span class="p">:</span> <span class="n">Symbol</span> <span class="n">time</span>
+          <span class="n">value</span><span class="p">:</span> <span class="kt">Float64</span> <span class="mf">0.0</span>
+          <span class="n">label</span><span class="p">:</span> <span class="n">ASCIIString</span> <span class="s">&quot;&quot;</span>
+          <span class="n">fixed</span><span class="p">:</span> <span class="kt">Bool</span> <span class="n">false</span>
+          <span class="n">save_history</span><span class="p">:</span> <span class="kt">Bool</span> <span class="n">false</span>
+        <span class="mi">3</span><span class="p">:</span> <span class="kt">Float64</span> <span class="mf">1.8</span>
+      <span class="n">typ</span><span class="p">:</span> <span class="kt">Any</span>
+  <span class="n">pos_responses</span><span class="p">:</span> <span class="n">Array</span><span class="p">(</span><span class="kt">Any</span><span class="p">,(</span><span class="mi">1</span><span class="p">,))</span>
+    <span class="mi">1</span><span class="p">:</span> <span class="p">(</span><span class="n">anonymous</span> <span class="n">function</span><span class="p">)</span>
+  <span class="n">neg_responses</span><span class="p">:</span> <span class="n">Array</span><span class="p">(</span><span class="kt">Any</span><span class="p">,(</span><span class="mi">1</span><span class="p">,))</span>
+    <span class="mi">1</span><span class="p">:</span> <span class="p">(</span><span class="n">anonymous</span> <span class="n">function</span><span class="p">)</span>
+  <span class="n">nodeMap</span><span class="p">:</span> <span class="n">Dict</span><span class="p">{</span><span class="kt">Any</span><span class="p">,</span><span class="kt">Any</span><span class="p">}</span> <span class="n">len</span> <span class="mi">0</span>
+</pre></div>
+
+
+<p>The main steps in flattening are:</p>
+<ul>
+<li>Replace fixed initial values.</li>
+<li>Flatten models and populate <code>eq.equations</code>.</li>
+<li>Pull out InitialEquations and populate <code>eq.initialequations</code>.</li>
+<li>Pull out Events and populate <code>eq.events</code>.</li>
+<li>Handle StructuralEvents.</li>
+<li>Collect nodes and populate <code>eq.nodeMap</code>.</li>
+<li>Strip out MExpr's from expressions.</li>
+<li>Remove empty equations.</li>
+</ul>
+<p>In EquationSet, <code>model</code> contains equations and StructuralEvents. When
+a StructuralEvent triggers, the entire model is elaborated again.
+The first step is to replace StructuralEvents that have activated
+with their new_relation in model. Then, the rest of the EquationSet
+is reflattened using <code>model</code> as the starting point.</p>
+<h2 id="model-instantiation">Model Instantiation</h2>
+<div class="codehilite"><pre><span class="n">From</span> <span class="n">the</span> <span class="n">flattened</span> <span class="n">equations</span>, `<span class="n">create_sim</span>` <span class="n">generates</span> <span class="n">a</span> <span class="n">set</span> <span class="k">of</span> <span class="n">functions</span>
+<span class="k">for</span> <span class="k">use</span> <span class="nb">by</span> <span class="n">the</span> <span class="n">simulation</span>. <span class="n">The</span> <span class="n">residual</span> <span class="n">function</span> <span class="k">has</span> <span class="n">arguments</span>
+(<span class="n">t</span>,<span class="n">y</span>,<span class="n">yp</span>) <span class="n">that</span> <span class="k">returns</span> <span class="n">the</span> <span class="n">residual</span> <span class="k">of</span> <span class="n">type</span> <span class="n">Float64</span> <span class="k">of</span> <span class="n">length</span> <span class="n">N</span>, <span class="n">the</span>
+<span class="n">number</span> <span class="k">of</span> <span class="n">equations</span> <span class="n">in</span> <span class="n">the</span> <span class="n">system</span>. <span class="n">The</span> <span class="n">vectors</span> <span class="n">y</span> <span class="o">and</span> <span class="n">yp</span> <span class="n">are</span> <span class="o">also</span> <span class="k">of</span>
+<span class="n">length</span> <span class="n">N</span> <span class="o">and</span> <span class="n">type</span> <span class="n">Float64</span>. <span class="n">As</span> <span class="n">part</span> <span class="k">of</span> <span class="n">finding</span> <span class="n">the</span> <span class="n">residual</span> <span class="n">function</span>,
+<span class="n">we</span> <span class="k">use</span> <span class="n">several</span> <span class="n">Dicts</span> <span class="nb">to</span> <span class="nb">map</span> <span class="n">unknown</span> <span class="n">variables</span> <span class="nb">to</span> <span class="n">indexes</span> <span class="n">into</span> <span class="n">y</span> <span class="o">and</span>
+<span class="n">yp</span>.
+
+<span class="n">SimFunctions</span> <span class="k">is</span> <span class="n">the</span> <span class="n">set</span> <span class="k">of</span> <span class="n">functions</span> <span class="n">used</span> <span class="n">during</span> <span class="n">simulation</span>. <span class="n">All</span>
+<span class="n">functions</span> <span class="k">take</span> (<span class="n">t</span>,<span class="n">y</span>,<span class="n">yp</span>) <span class="k">as</span> <span class="n">arguments</span>.
+</pre></div>
+
+
+<h2 id="initial-equations">Initial Equations</h2>
+<h2 id="hybrid-modeling">Hybrid Modeling</h2>
+<h2 id="structural-events">Structural Events</h2>
+</div>
+            
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            
+            <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+
+        
+
+        <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+        <script src="../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../js/prettify-1.0.min.js"></script>
+        <script src="../js/highlight.pack.js"></script>
+        <script src="../js/base.js"></script>
+    </body>
+</html>

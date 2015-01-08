@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+
+        <title>Standard library - Sims.jl</title>
+
+        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../css/font-awesome-4.0.3.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="../css/highlight.css">
+        <link href="../css/github.css" rel="stylesheet">
+
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+
+        
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            
+
+            <!-- Main title -->
+            <a class="navbar-brand" href="..">Sims.jl</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            
+                <!-- Main navigation -->
+                <ul class="nav navbar-nav">
+                
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">User guide <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            <li >
+                                <a href="../basics">Basics</a>
+                            </li>
+                        
+                            <li >
+                                <a href="../plotting">Plotting results</a>
+                            </li>
+                        
+                            <li >
+                                <a href="../api">API</a>
+                            </li>
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Details <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            <li >
+                                <a href="../design">Design considerations</a>
+                            </li>
+                        
+                            <li >
+                                <a href="../future">Development options</a>
+                            </li>
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li class="active">
+                        <a href=".">Standard library</a>
+                    </li>
+                
+                
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Examples <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            <li >
+                                <a href="../examples/basics">Basics</a>
+                            </li>
+                        
+                            <li >
+                                <a href="../examples/lib">Standard library</a>
+                            </li>
+                        
+                            <li >
+                                <a href="../examples/neural">Neural</a>
+                            </li>
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../license">License</a>
+                    </li>
+                
+                
+                </ul>
+            
+
+            
+            <!-- Search, Navigation and Repo links -->
+            <ul class="nav navbar-nav navbar-right">
+                
+                
+                <li >
+                    <a rel="next" href="../future">
+                        <i class="fa fa-arrow-left"></i> Previous
+                    </a>
+                </li>
+                <li >
+                    <a rel="prev" href="../examples/basics">
+                        Next <i class="fa fa-arrow-right"></i>
+                    </a>
+                </li>
+                
+                
+                <li>
+                    <a href="https://github.com/tshort/Sims.jl/">
+                        
+                            <i class="fa fa-github"></i>
+                        
+                        GitHub
+                    </a>
+                </li>
+                
+            </ul>
+            
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+            
+                <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="main active"><a href="#simslib">Sims.Lib</a></li>
+        
+            <li><a href="#branchheatport">BranchHeatPort</a></li>
+        
+            <li><a href="#capacitor">Capacitor</a></li>
+        
+            <li><a href="#controlledcloserwitharc">ControlledCloserWithArc</a></li>
+        
+            <li><a href="#controlledidealclosingswitch">ControlledIdealClosingSwitch</a></li>
+        
+            <li><a href="#controlledidealopeningswitch">ControlledIdealOpeningSwitch</a></li>
+        
+            <li><a href="#controlledopenerwitharc">ControlledOpenerWithArc</a></li>
+        
+            <li><a href="#diode">Diode</a></li>
+        
+            <li><a href="#emf">EMF</a></li>
+        
+            <li><a href="#heatingdiode">HeatingDiode</a></li>
+        
+            <li><a href="#idealclosingswitch">IdealClosingSwitch</a></li>
+        
+            <li><a href="#idealdiode">IdealDiode</a></li>
+        
+            <li><a href="#idealgtothyristor">IdealGTOThyristor</a></li>
+        
+            <li><a href="#idealopamp">IdealOpAmp</a></li>
+        
+            <li><a href="#idealopeningswitch">IdealOpeningSwitch</a></li>
+        
+            <li><a href="#idealthyristor">IdealThyristor</a></li>
+        
+            <li><a href="#inductor">Inductor</a></li>
+        
+            <li><a href="#resistor">Resistor</a></li>
+        
+            <li><a href="#saturatinginductor">SaturatingInductor</a></li>
+        
+            <li><a href="#seriesprobe">SeriesProbe</a></li>
+        
+            <li><a href="#signalcurrent">SignalCurrent</a></li>
+        
+            <li><a href="#signalvoltage">SignalVoltage</a></li>
+        
+            <li><a href="#sinevoltage">SineVoltage</a></li>
+        
+            <li><a href="#stepvoltage">StepVoltage</a></li>
+        
+            <li><a href="#transformer">Transformer</a></li>
+        
+            <li><a href="#zdiode">ZDiode</a></li>
+        
+            <li><a href="#uangle">UAngle</a></li>
+        
+            <li><a href="#uangularacceleration">UAngularAcceleration</a></li>
+        
+            <li><a href="#uangularvelocity">UAngularVelocity</a></li>
+        
+            <li><a href="#ucurrent">UCurrent</a></li>
+        
+            <li><a href="#uheatflow">UHeatFlow</a></li>
+        
+            <li><a href="#uheatport">UHeatPort</a></li>
+        
+            <li><a href="#utemperature">UTemperature</a></li>
+        
+            <li><a href="#utorque">UTorque</a></li>
+        
+            <li><a href="#uvoltage">UVoltage</a></li>
+        
+            <li><a href="#unionabstractarraytnnumberrefunknowndefaultunknownunknowndefaultunknownmexpr">Union(AbstractArray{T,N},Number,RefUnknown{DefaultUnknown},Unknown{DefaultUnknown},MExpr)</a></li>
+        
+            <li><a href="#unionabstractarraytnnumberunknownuanglemexprrefunknownuangle">Union(AbstractArray{T,N},Number,Unknown{UAngle},MExpr,RefUnknown{UAngle})</a></li>
+        
+            <li><a href="#unionabstractarraytnnumberunknownuheatportmexprrefunknownuheatport">Union(AbstractArray{T,N},Number,Unknown{UHeatPort},MExpr,RefUnknown{UHeatPort})</a></li>
+        
+            <li><a href="#unionabstractarraytnrefunknownuvoltagenumberunknownuvoltagemexpr">Union(AbstractArray{T,N},RefUnknown{UVoltage},Number,Unknown{UVoltage},MExpr)</a></li>
+        
+            <li><a href="#unionabstractarraytnunknowntnumberrefunknowntmexpr">Union(AbstractArray{T,N},Unknown{T},Number,RefUnknown{T},MExpr)</a></li>
+        
+            <li><a href="#unknownuangle">Unknown{UAngle}</a></li>
+        
+            <li><a href="#unknownuangularacceleration">Unknown{UAngularAcceleration}</a></li>
+        
+            <li><a href="#unknownuangularvelocity">Unknown{UAngularVelocity}</a></li>
+        
+            <li><a href="#unknownucurrent">Unknown{UCurrent}</a></li>
+        
+            <li><a href="#unknownuheatflow">Unknown{UHeatFlow}</a></li>
+        
+            <li><a href="#unknownuheatport">Unknown{UHeatPort}</a></li>
+        
+            <li><a href="#unknownutorque">Unknown{UTorque}</a></li>
+        
+            <li><a href="#unknownuvoltage">Unknown{UVoltage}</a></li>
+        
+            <li><a href="#standardelectricallibrary">StandardElectricalLibrary</a></li>
+        
+            <li><a href="#analog-electrical-library">Analog electrical library</a></li>
+        
+    
+    </ul>
+</div></div>
+                <div class="col-md-9" role="main">
+
+<h1 id="simslib">Sims.Lib</h1>
+<h2 id="branchheatport">BranchHeatPort</h2>
+<p>Wrap argument <code>model</code> with a heat port that captures the power
+generated by the electrical device. This is vectorizable.</p>
+<div class="codehilite"><pre><span class="n">BranchHeatPort</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">hp</span><span class="p">::</span><span class="n">HeatPort</span><span class="p">,</span>
+               <span class="n">model</span><span class="p">::</span><span class="n">Function</span><span class="p">,</span> <span class="n">args</span><span class="o">...</span><span class="p">)</span>
+</pre></div>
+
+
+<h3 id="arguments">Arguments</h3>
+<ul>
+<li><code>n1::ElectricalNode</code> : Positive electrical node [V]</li>
+<li><code>n2::ElectricalNode</code> : Negative electrical node [V]</li>
+<li><code>hp::HeatPort</code> : Heat port [K]                </li>
+<li><code>model::Function</code> : Model to wrap</li>
+<li><code>args...</code> : Arguments passed to <code>model</code>  </li>
+</ul>
+<h3 id="examples">Examples</h3>
+<p>Here's an example of a definition defining a Resistor that uses a heat
+port (a Temperature) in terms of another model:</p>
+<div class="codehilite"><pre><span class="k">function</span><span class="nf"> Resistor</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">R</span><span class="p">::</span><span class="n">Signal</span><span class="p">,</span> <span class="n">hp</span><span class="p">::</span><span class="n">Temperature</span><span class="p">,</span> <span class="n">T_ref</span><span class="p">::</span><span class="n">Signal</span><span class="p">,</span> <span class="n">alpha</span><span class="p">::</span><span class="n">Signal</span><span class="p">)</span> 
+    <span class="n">BranchHeatPort</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">,</span> <span class="n">hp</span><span class="p">,</span> <span class="n">Resistor</span><span class="p">,</span> <span class="n">R</span> <span class="o">.*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">alpha</span> <span class="o">.*</span> <span class="p">(</span><span class="n">hp</span> <span class="o">-</span> <span class="n">T_ref</span><span class="p">)))</span>
+<span class="k">end</span>
+</pre></div>
+
+
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/electrical.jl#L158">Sims/src/../lib/electrical.jl:158</a></p>
+<h2 id="capacitor">Capacitor</h2>
+<p>The linear capacitor connects the branch voltage <code>v</code> with the branch
+current <code>i</code> by <code>i = C * dv/dt</code>. </p>
+<div class="codehilite"><pre><span class="n">Capacitor</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">C</span><span class="p">::</span><span class="n">Signal</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span> 
+<span class="n">Capacitor</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">;</span> <span class="n">C</span><span class="p">::</span><span class="n">Signal</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span> 
+</pre></div>
+
+
+<h3 id="arguments_1">Arguments</h3>
+<ul>
+<li><code>n1::ElectricalNode</code> : Positive electrical node [V]</li>
+<li><code>n2::ElectricalNode</code> : Negative electrical node [V]</li>
+</ul>
+<h3 id="keywordoptional-arguments">Keyword/Optional Arguments</h3>
+<ul>
+<li><code>C::Signal</code> : Capacitance [F], default = 1.0 F</li>
+</ul>
+<h3 id="details">Details</h3>
+<p><code>C</code> can be a constant numeric value or an Unknown, meaning it can vary
+with time. If <code>C</code> is a constant, it may be positive, zero, or
+negative. If <code>C</code> is a signal, it should be greater than zero.</p>
+<p>This device is vectorizable using array inputs for one or both of <code>n1</code>
+and <code>n2</code>.</p>
+<h3 id="example">Example</h3>
+<div class="codehilite"><pre><span class="k">function</span><span class="nf"> model</span><span class="p">()</span>
+    <span class="n">n1</span> <span class="o">=</span> <span class="n">Voltage</span><span class="p">(</span><span class="s">&quot;n1&quot;</span><span class="p">)</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">Equation</span><span class="p">[</span>
+        <span class="n">SineVoltage</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">)</span>
+        <span class="n">Resistor</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">)</span>
+        <span class="n">Capacitor</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="p">]</span>
+<span class="k">end</span>
+</pre></div>
+
+
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/electrical.jl#L312">Sims/src/../lib/electrical.jl:312</a></p>
+<h2 id="controlledcloserwitharc">ControlledCloserWithArc</h2>
+<p>This model is the same as ControlledOpenerWithArc, but the switch
+is closed when <code>control &gt; level</code>. </p>
+<div class="codehilite"><pre><span class="n">ControlledCloserWithArc</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">control</span><span class="p">::</span><span class="n">Signal</span><span class="p">,</span>
+                        <span class="n">level</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>  <span class="n">Ron</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">,</span>  <span class="n">Goff</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">,</span>  <span class="n">V0</span> <span class="o">=</span> <span class="mf">30.0</span><span class="p">,</span>  <span class="n">dVdt</span> <span class="o">=</span> <span class="mf">10e3</span><span class="p">,</span>  <span class="n">Vmax</span> <span class="o">=</span> <span class="mf">60.0</span><span class="p">)</span>
+<span class="n">ControlledCloserWithArc</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">control</span><span class="p">::</span><span class="n">Signal</span><span class="p">;</span>
+                        <span class="n">level</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>  <span class="n">Ron</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">,</span>  <span class="n">Goff</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">,</span>  <span class="n">V0</span> <span class="o">=</span> <span class="mf">30.0</span><span class="p">,</span>  <span class="n">dVdt</span> <span class="o">=</span> <span class="mf">10e3</span><span class="p">,</span>  <span class="n">Vmax</span> <span class="o">=</span> <span class="mf">60.0</span><span class="p">)</span>
+</pre></div>
+
+
+<h3 id="arguments_2">Arguments</h3>
+<ul>
+<li><code>n1::ElectricalNode</code> : Positive electrical node [V]</li>
+<li><code>n2::ElectricalNode</code> : Negative electrical node [V]</li>
+<li><code>control::Signal</code> : <code>control &gt; level</code> the switch is closed, otherwise open</li>
+</ul>
+<h3 id="keywordoptional-arguments_1">Keyword/Optional Arguments</h3>
+<ul>
+<li><code>level</code> : Switch level [V], default = 0.5</li>
+<li><code>Ron</code> : Closed switch resistance [Ohm], default = 1.E-5</li>
+<li><code>Goff</code> : Opened switch conductance [S], default = 1.E-5</li>
+<li><code>V0</code> : Initial arc voltage [V], default = 30.0</li>
+<li><code>dVdt</code> : Arc voltage slope [V/s], default = 10e3</li>
+<li><code>Vmax</code> : Max. arc voltage [V], default = 60.0</li>
+</ul>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/electrical.jl#L1018">Sims/src/../lib/electrical.jl:1018</a></p>
+<h2 id="controlledidealclosingswitch">ControlledIdealClosingSwitch</h2>
+<p>TBD</p>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/electrical.jl#L879">Sims/src/../lib/electrical.jl:879</a></p>
+<h2 id="controlledidealopeningswitch">ControlledIdealOpeningSwitch</h2>
+<p>TBD</p>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/electrical.jl#L856">Sims/src/../lib/electrical.jl:856</a></p>
+<h2 id="controlledopenerwitharc">ControlledOpenerWithArc</h2>
+<p>This model is an extension to the <code>IdealOpeningSwitch</code>.</p>
+<p>The basic model interupts the current through the switch in an
+infinitesimal time span. If an inductive circuit is connected, the
+voltage across the switch is limited only by numerics. In order to give
+a better idea for the voltage across the switch, a simple arc model is
+added:</p>
+<p>When the Boolean input <code>control</code> signals to open the switch, a voltage
+across the opened switch is impressed. This voltage starts with <code>V0</code>
+(simulating the voltage drop of the arc roots), then rising with slope
+<code>dVdt</code> (simulating the rising voltage of an extending arc) until a
+maximum voltage <code>Vmax</code> is reached.</p>
+<div class="codehilite"><pre>     | voltage
+Vmax |      +-----
+     |     /
+     |    /
+V0   |   +
+     |   |
+     +---+-------- time
+</pre></div>
+
+
+<p>This arc voltage tends to lower the current following through the
+switch; it depends on the connected circuit, when the arc is quenched.
+Once the arc is quenched, i.e., the current flowing through the switch
+gets zero, the equation for the off-state is activated <code>i=Goff*v</code>.</p>
+<p>When the Boolean input <code>control</code> signals to close the switch again,
+the switch is closed immediately, i.e., the equation for the on-state is
+activated <code>v=Ron*i</code>.</p>
+<p>Please note: In an AC circuit, at least the arc quenches when the next
+natural zero-crossing of the current occurs. In a DC circuit, the arc
+will not quench if the arc voltage is not sufficient that a
+zero-crossing of the current occurs.</p>
+<p>This model is the same as ControlledOpenerWithArc, but the switch
+is closed when <code>control &gt; level</code>. </p>
+<div class="codehilite"><pre><span class="n">ControlledOpenerWithArc</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">control</span><span class="p">::</span><span class="n">Signal</span><span class="p">,</span>
+                        <span class="n">level</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>  <span class="n">Ron</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">,</span>  <span class="n">Goff</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">,</span>  <span class="n">V0</span> <span class="o">=</span> <span class="mf">30.0</span><span class="p">,</span>  <span class="n">dVdt</span> <span class="o">=</span> <span class="mf">10e3</span><span class="p">,</span>  <span class="n">Vmax</span> <span class="o">=</span> <span class="mf">60.0</span><span class="p">)</span>
+<span class="n">ControlledOpenerWithArc</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">control</span><span class="p">::</span><span class="n">Signal</span><span class="p">;</span>
+                        <span class="n">level</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>  <span class="n">Ron</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">,</span>  <span class="n">Goff</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">,</span>  <span class="n">V0</span> <span class="o">=</span> <span class="mf">30.0</span><span class="p">,</span>  <span class="n">dVdt</span> <span class="o">=</span> <span class="mf">10e3</span><span class="p">,</span>  <span class="n">Vmax</span> <span class="o">=</span> <span class="mf">60.0</span><span class="p">)</span>
+</pre></div>
+
+
+<h3 id="arguments_3">Arguments</h3>
+<ul>
+<li><code>n1::ElectricalNode</code> : Positive electrical node [V]</li>
+<li><code>n2::ElectricalNode</code> : Negative electrical node [V]</li>
+<li><code>control::Signal</code> : <code>control &gt; level</code> the switch is opened, otherwise closed</li>
+</ul>
+<h3 id="keywordoptional-arguments_2">Keyword/Optional Arguments</h3>
+<ul>
+<li><code>level</code> : Switch level [V], default = 0.5</li>
+<li><code>Ron</code> : Closed switch resistance [Ohm], default = 1.E-5</li>
+<li><code>Goff</code> : Opened switch conductance [S], default = 1.E-5</li>
+<li><code>V0</code> : Initial arc voltage [V], default = 30.0</li>
+<li><code>dVdt</code> : Arc voltage slope [V/s], default = 10e3</li>
+<li><code>Vmax</code> : Max. arc voltage [V], default = 60.0</li>
+</ul>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/electrical.jl#L952">Sims/src/../lib/electrical.jl:952</a></p>
+<h2 id="diode">Diode</h2>
+<p>The simple diode is a one port. It consists of the diode itself and an
+parallel ohmic resistance <code>R</code>. The diode formula is:</p>
+<div class="codehilite"><pre>i  =  ids * ( e^(v/vt) - 1 )
+</pre></div>
+
+
+<p>If the exponent <code>v/vt</code> reaches the limit <code>maxex</code>, the diode
+characterisic is linearly continued to avoid overflow.</p>
+<div class="codehilite"><pre><span class="n">Diode</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> 
+      <span class="n">Ids</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span>  <span class="n">Vt</span> <span class="o">=</span> <span class="mf">0.04</span><span class="p">,</span>  <span class="n">Maxexp</span> <span class="o">=</span> <span class="mi">15</span><span class="p">,</span>  <span class="n">R</span> <span class="o">=</span> <span class="mf">1e8</span><span class="p">)</span>
+<span class="n">Diode</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">;</span> 
+      <span class="n">Ids</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span>  <span class="n">Vt</span> <span class="o">=</span> <span class="mf">0.04</span><span class="p">,</span>  <span class="n">Maxexp</span> <span class="o">=</span> <span class="mi">15</span><span class="p">,</span>  <span class="n">R</span> <span class="o">=</span> <span class="mf">1e8</span><span class="p">)</span>
+<span class="n">Diode</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">hp</span><span class="p">::</span><span class="n">HeatPort</span><span class="p">,</span>
+      <span class="n">Ids</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span>  <span class="n">Vt</span> <span class="o">=</span> <span class="mf">0.04</span><span class="p">,</span>  <span class="n">Maxexp</span> <span class="o">=</span> <span class="mi">15</span><span class="p">,</span>  <span class="n">R</span> <span class="o">=</span> <span class="mf">1e8</span><span class="p">)</span>
+<span class="n">Diode</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">;</span> <span class="n">hp</span><span class="p">::</span><span class="n">HeatPort</span><span class="p">;</span>
+      <span class="n">Ids</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span>  <span class="n">Vt</span> <span class="o">=</span> <span class="mf">0.04</span><span class="p">,</span>  <span class="n">Maxexp</span> <span class="o">=</span> <span class="mi">15</span><span class="p">,</span>  <span class="n">R</span> <span class="o">=</span> <span class="mf">1e8</span><span class="p">)</span>
+</pre></div>
+
+
+<h3 id="arguments_4">Arguments</h3>
+<ul>
+<li><code>n1::ElectricalNode</code> : Positive electrical node [V]</li>
+<li><code>n2::ElectricalNode</code> : Negative electrical node [V]</li>
+<li><code>hp::HeatPort</code> : Heat port [K]                </li>
+</ul>
+<h3 id="keywordoptional-arguments_3">Keyword/Optional Arguments</h3>
+<ul>
+<li><code>Ids</code> : Saturation current [A], default = 1.e-6</li>
+<li><code>Vt</code> : Voltage equivalent of temperature (kT/qn) [V], default = 0.04</li>
+<li><code>Maxexp</code> : Max. exponent for linear continuation, default = 15.0</li>
+<li><code>R</code> : Parallel ohmic resistance [Ohm], default = 1.e8</li>
+</ul>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/electrical.jl#L1067">Sims/src/../lib/electrical.jl:1067</a></p>
+<h2 id="emf">EMF</h2>
+<p>EMF transforms electrical energy into rotational mechanical energy. It
+is used as basic building block of an electrical motor. The mechanical
+connector <code>flange</code> can be connected to elements of the rotational
+library. </p>
+<div class="codehilite"><pre><span class="n">EMF</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">flange</span><span class="p">::</span><span class="n">Flange</span><span class="p">,</span>
+    <span class="n">support_flange</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span>
+<span class="n">EMF</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">flange</span><span class="p">::</span><span class="n">Flange</span><span class="p">;</span>
+    <span class="n">support_flange</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span>
+</pre></div>
+
+
+<h3 id="arguments_5">Arguments</h3>
+<ul>
+<li><code>n1::ElectricalNode</code> : Positive electrical node [V]</li>
+<li><code>n2::ElectricalNode</code> : Negative electrical node [V]</li>
+<li><code>flange::Flange</code> : Rotational shaft</li>
+</ul>
+<h3 id="keywordoptional-arguments_4">Keyword/Optional Arguments</h3>
+<ul>
+<li><code>support_flange</code> : Support/housing of the EMF shaft </li>
+<li><code>k</code> : Transformation coefficient [N.m/A] </li>
+</ul>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/electrical.jl#L527">Sims/src/../lib/electrical.jl:527</a></p>
+<h2 id="heatingdiode">HeatingDiode</h2>
+<p>The simple diode is an electrical one port, where a heat port is added,
+which is defined in the Thermal library. It consists of the
+diode itself and an parallel ohmic resistance <code>R</code>. The diode formula is:</p>
+<div class="codehilite"><pre>i  =  ids * ( e^(v/vt_t) - 1 )
+</pre></div>
+
+
+<p>where <code>vt_t</code> depends on the temperature of the heat port:</p>
+<div class="codehilite"><pre>vt_t = k*temp/q
+</pre></div>
+
+
+<p>If the exponent <code>v/vt_t</code> reaches the limit <code>maxex</code>, the diode
+characterisic is linearly continued to avoid overflow. The thermal
+power is calculated by <code>i*v</code>.</p>
+<div class="codehilite"><pre><span class="n">HeatingDiode</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> 
+             <span class="n">T</span> <span class="o">=</span> <span class="mf">293.15</span><span class="p">,</span>  <span class="n">Ids</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span>  <span class="n">Maxexp</span> <span class="o">=</span> <span class="mi">15</span><span class="p">,</span>  <span class="n">R</span> <span class="o">=</span> <span class="mf">1e8</span><span class="p">,</span>  <span class="n">EG</span> <span class="o">=</span> <span class="mf">1.11</span><span class="p">,</span>  <span class="n">N</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>  <span class="n">TNOM</span> <span class="o">=</span> <span class="mf">300.15</span><span class="p">,</span>  <span class="n">XTI</span> <span class="o">=</span> <span class="mf">3.0</span><span class="p">)</span>
+<span class="n">HeatingDiode</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">;</span> 
+             <span class="n">T</span> <span class="o">=</span> <span class="mf">293.15</span><span class="p">,</span>  <span class="n">Ids</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span>  <span class="n">Maxexp</span> <span class="o">=</span> <span class="mi">15</span><span class="p">,</span>  <span class="n">R</span> <span class="o">=</span> <span class="mf">1e8</span><span class="p">,</span>  <span class="n">EG</span> <span class="o">=</span> <span class="mf">1.11</span><span class="p">,</span>  <span class="n">N</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>  <span class="n">TNOM</span> <span class="o">=</span> <span class="mf">300.15</span><span class="p">,</span>  <span class="n">XTI</span> <span class="o">=</span> <span class="mf">3.0</span><span class="p">)</span>
+</pre></div>
+
+
+<h3 id="arguments_6">Arguments</h3>
+<ul>
+<li><code>n1::ElectricalNode</code> : Positive electrical node [V]</li>
+<li><code>n2::ElectricalNode</code> : Negative electrical node [V]</li>
+</ul>
+<h3 id="keywordoptional-arguments_5">Keyword/Optional Arguments</h3>
+<ul>
+<li><code>T</code> : Heat port [K], default = 293.15</li>
+<li><code>Ids</code> : Saturation current [A], default = 1.e-6</li>
+<li><code>Maxexp</code> : Max. exponent for linear continuation, default = 15.0</li>
+<li><code>R</code> : Parallel ohmic resistance [Ohm], default = 1.e8</li>
+<li><code>EG</code> : Activation energy, default = 1.11</li>
+<li><code>N</code> : Emmission coefficient, default = 1.0</li>
+<li><code>TNOM</code> : Parameter measurement temperature [K], default = 300.15</li>
+<li><code>XTI</code> : Temperature exponent of saturation current, default = 3.0</li>
+</ul>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/electrical.jl#L1155">Sims/src/../lib/electrical.jl:1155</a></p>
+<h2 id="idealclosingswitch">IdealClosingSwitch</h2>
+<p>The ideal closing switch has a positive pin <code>p</code> and a negative pin <code>n</code>. The
+switching behaviour is controlled by input signal <code>control</code>. If control is
+true, pin p is connected with negative pin n. Otherwise, pin p is not
+connected with negative pin n.</p>
+<p>In order to prevent singularities during switching, the opened switch
+has a (very low) conductance <code>Goff</code> and the closed switch has a (very low)
+resistance <code>Ron</code>. The limiting case is also allowed, i.e., the resistance
+Ron of the closed switch could be exactly zero and the conductance Goff
+of the open switch could be also exactly zero. Note, there are circuits,
+where a description with zero Ron or zero Goff is not possible.</p>
+<div class="codehilite"><pre><span class="n">IdealClosingSwitch</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">control</span><span class="p">::</span><span class="n">Discrete</span><span class="p">,</span>
+                   <span class="n">Ron</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="n">Goff</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">)</span>
+<span class="n">IdealClosingSwitch</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">control</span><span class="p">::</span><span class="n">Discrete</span><span class="p">;</span>
+                   <span class="n">Ron</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="n">Goff</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">)</span>
+</pre></div>
+
+
+<h3 id="arguments_7">Arguments</h3>
+<ul>
+<li><code>n1::ElectricalNode</code> : Positive electrical node [V]</li>
+<li><code>n2::ElectricalNode</code> : Negative electrical node [V]</li>
+<li><code>control::Discrete</code> : true =&gt; n1-n2 connected, false =&gt; switch open</li>
+</ul>
+<h3 id="keywordoptional-arguments_6">Keyword/Optional Arguments</h3>
+<ul>
+<li><code>Ron</code> : Closed switch resistance [Ohm], default = 1.E-5</li>
+<li><code>Goff</code> : Opened switch conductance [S], default = 1.E-5</li>
+</ul>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/electrical.jl#L836">Sims/src/../lib/electrical.jl:836</a></p>
+<h2 id="idealdiode">IdealDiode</h2>
+<p>This is an ideal switch which is <strong>open</strong> (off), if it is reversed
+biased (voltage drop less than 0) <strong>closed</strong> (on), if it is conducting
+(<code>current &gt; 0</code>). This is the behaviour if all parameters are exactly
+zero. Note, there are circuits, where this ideal description with zero
+resistance and zero cinductance is not possible. In order to prevent
+singularities during switching, the opened diode has a small
+conductance <code>Gon</code> and the closed diode has a low resistance <code>Roff</code>
+which is default.</p>
+<p>The parameter <code>Vknee</code> which is the forward threshold voltage, allows
+to displace the knee point along the <code>Gon</code>-characteristic until <code>v =
+Vknee</code>. </p>
+<div class="codehilite"><pre><span class="n">IdealDiode</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> 
+           <span class="n">Vknee</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">Ron</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="n">Goff</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">)</span>
+<span class="n">IdealDiode</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">;</span> 
+           <span class="n">Vknee</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">Ron</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="n">Goff</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">)</span>
+</pre></div>
+
+
+<h3 id="arguments_8">Arguments</h3>
+<ul>
+<li><code>n1::ElectricalNode</code> : Positive electrical node [V]</li>
+<li><code>n2::ElectricalNode</code> : Negative electrical node [V]</li>
+</ul>
+<h3 id="keywordoptional-arguments_7">Keyword/Optional Arguments</h3>
+<ul>
+<li><code>Vknee</code> : Forward threshold voltage [V], default = 0.0</li>
+<li><code>Ron</code> : Closed diode resistance [Ohm], default = 1.E-5</li>
+<li><code>Goff</code> : Opened diode conductance [S], default = 1.E-5</li>
+</ul>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/electrical.jl#L589">Sims/src/../lib/electrical.jl:589</a></p>
+<h2 id="idealgtothyristor">IdealGTOThyristor</h2>
+<p>This is an ideal GTO thyristor model which is <strong>open</strong> (off), if the
+voltage drop is less than 0 or <code>fire</code> is false <strong>closed</strong> (on), if the
+voltage drop is greater or equal 0 and <code>fire</code> is true.</p>
+<p>This is the behaviour if all parameters are exactly zero.  Note, there
+are circuits, where this ideal description with zero resistance and
+zero cinductance is not possible. In order to prevent singularities
+during switching, the opened thyristor has a small conductance <code>Goff</code>
+and the closed thyristor has a low resistance <code>Ron</code> which is default.</p>
+<p>The parameter <code>Vknee</code> which is the forward threshold voltage, allows
+to displace the knee point along the <code>Goff</code>-characteristic until <code>v =
+Vknee</code>.</p>
+<div class="codehilite"><pre><span class="n">IdealGTOThyristor</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">fire</span><span class="p">::</span><span class="n">Discrete</span><span class="p">,</span> 
+                  <span class="n">Vknee</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">Ron</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="n">Goff</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">)</span>
+<span class="n">IdealGTOThyristor</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">fire</span><span class="p">::</span><span class="n">Discrete</span><span class="p">;</span> 
+                  <span class="n">Vknee</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">Ron</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="n">Goff</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">)</span>
+</pre></div>
+
+
+<h3 id="arguments_9">Arguments</h3>
+<ul>
+<li><code>n1::ElectricalNode</code> : Positive electrical node [V]</li>
+<li><code>n2::ElectricalNode</code> : Negative electrical node [V]</li>
+<li><code>fire::Discrete</code> : Discrete bool variable indicating firing of the thyristor</li>
+</ul>
+<h3 id="keywordoptional-arguments_8">Keyword/Optional Arguments</h3>
+<ul>
+<li><code>Vknee</code> : Forward threshold voltage [V], default = 0.0</li>
+<li><code>Ron</code> : Closed thyristor resistance [Ohm], default = 1.E-5</li>
+<li><code>Goff</code> : Opened thyristor conductance [S], default = 1.E-5</li>
+</ul>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/electrical.jl#L698">Sims/src/../lib/electrical.jl:698</a></p>
+<h2 id="idealopamp">IdealOpAmp</h2>
+<p>The ideal OpAmp is a two-port device. The left port is fixed to <code>v1=0</code> and
+<code>i1=0</code> (nullator). At the right port, both any voltage <code>v2</code> and any
+current <code>i2</code> are possible (norator).</p>
+<p>The ideal OpAmp with three pins is of exactly the same behaviour as the
+ideal OpAmp with four pins. Only the negative output pin is left out.
+Both the input voltage and current are fixed to zero (nullator). At the
+output pin both any voltage <code>v2</code> and any current <code>i2</code> are possible.</p>
+<div class="codehilite"><pre><span class="n">IdealOpAmp</span><span class="p">(</span><span class="n">p1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">p2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">)</span>
+<span class="n">IdealOpAmp</span><span class="p">(</span><span class="n">p1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">p2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">)</span>
+</pre></div>
+
+
+<h3 id="arguments_10">Arguments</h3>
+<ul>
+<li><code>p1::ElectricalNode</code> : Positive electrical node of the left port (potential <code>p1 &gt; n1</code> for positive voltage drop v1) [V]</li>
+<li><code>n1::ElectricalNode</code> : Negative electrical node of the left port [V]</li>
+<li><code>p2::ElectricalNode</code> : Positive electrical node of the right port (potential <code>p2 &gt; n2</code> for positive voltage drop v2) [V]</li>
+<li><code>n2::ElectricalNode</code> : Negative electrical node of the right port [V], defaults to 0.0 V</li>
+</ul>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/electrical.jl#L740">Sims/src/../lib/electrical.jl:740</a></p>
+<h2 id="idealopeningswitch">IdealOpeningSwitch</h2>
+<p>The ideal opening switch has a positive pin <code>p</code> and a negative pin <code>n</code>. The
+switching behaviour is controlled by the input signal <code>control</code>. If
+control is true, pin p is not connected with negative pin n. Otherwise,
+pin p is connected with negative pin n.</p>
+<p>In order to prevent singularities during switching, the opened switch
+has a (very low) conductance <code>Goff</code> and the closed switch has a (very low)
+resistance <code>Ron</code>. The limiting case is also allowed, i.e., the resistance
+Ron of the closed switch could be exactly zero and the conductance Goff
+of the open switch could be also exactly zero. Note, there are circuits,
+where a description with zero Ron or zero Goff is not possible.</p>
+<div class="codehilite"><pre><span class="n">IdealOpeningSwitch</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">control</span><span class="p">::</span><span class="n">Discrete</span><span class="p">,</span>
+                   <span class="n">Ron</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="n">Goff</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">)</span>
+<span class="n">IdealOpeningSwitch</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">control</span><span class="p">::</span><span class="n">Discrete</span><span class="p">;</span>
+                   <span class="n">Ron</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="n">Goff</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">)</span>
+</pre></div>
+
+
+<h3 id="arguments_11">Arguments</h3>
+<ul>
+<li><code>n1::ElectricalNode</code> : Positive electrical node [V]</li>
+<li><code>n2::ElectricalNode</code> : Negative electrical node [V]</li>
+<li><code>control::Discrete</code> : true =&gt; switch open, false =&gt; n1-n2 connected</li>
+</ul>
+<h3 id="keywordoptional-arguments_9">Keyword/Optional Arguments</h3>
+<ul>
+<li><code>Ron</code> : Closed switch resistance [Ohm], default = 1.E-5</li>
+<li><code>Goff</code> : Opened switch conductance [S], default = 1.E-5</li>
+</ul>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/electrical.jl#L788">Sims/src/../lib/electrical.jl:788</a></p>
+<h2 id="idealthyristor">IdealThyristor</h2>
+<p>This is an ideal thyristor model which is <strong>open</strong> (off), if the
+voltage drop is less than 0 or <code>fire</code> is false <strong>closed</strong> (on), if the
+voltage drop is greater or equal 0 and <code>fire</code> is true.</p>
+<p>This is the behaviour if all parameters are exactly zero. Note, there
+are circuits, where this ideal description with zero resistance and
+zero cinductance is not possible. In order to prevent singularities
+during switching, the opened thyristor has a small conductance <code>Goff</code>
+and the closed thyristor has a low resistance <code>Ron</code> which is default.</p>
+<p>The parameter <code>Vknee</code> which is the forward threshold voltage, allows to
+displace the knee point along the <code>Goff</code>-characteristic until <code>v =
+Vknee</code>. </p>
+<div class="codehilite"><pre><span class="n">IdealThyristor</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">fire</span><span class="p">::</span><span class="n">Discrete</span><span class="p">,</span> 
+               <span class="n">Vknee</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">Ron</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="n">Goff</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">)</span>
+<span class="n">IdealThyristor</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">fire</span><span class="p">::</span><span class="n">Discrete</span><span class="p">;</span> 
+               <span class="n">Vknee</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">Ron</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="n">Goff</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">)</span>
+</pre></div>
+
+
+<h3 id="arguments_12">Arguments</h3>
+<ul>
+<li><code>n1::ElectricalNode</code> : Positive electrical node [V]</li>
+<li><code>n2::ElectricalNode</code> : Negative electrical node [V]</li>
+<li><code>fire::Discrete</code> : Discrete bool variable indicating firing of the thyristor</li>
+</ul>
+<h3 id="keywordoptional-arguments_10">Keyword/Optional Arguments</h3>
+<ul>
+<li><code>Vknee</code> : Forward threshold voltage [V], default = 0.0</li>
+<li><code>Ron</code> : Closed thyristor resistance [Ohm], default = 1.E-5</li>
+<li><code>Goff</code> : Opened thyristor conductance [S], default = 1.E-5</li>
+</ul>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/electrical.jl#L642">Sims/src/../lib/electrical.jl:642</a></p>
+<h2 id="inductor">Inductor</h2>
+<p>The linear inductor connects the branch voltage <code>v</code> with the branch
+current <code>i</code> by <code>v = L * di/dt</code>. </p>
+<div class="codehilite"><pre><span class="n">Inductor</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">L</span><span class="p">::</span><span class="n">Signal</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span> 
+<span class="n">Inductor</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">;</span> <span class="n">L</span><span class="p">::</span><span class="n">Signal</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span>
+</pre></div>
+
+
+<h3 id="arguments_13">Arguments</h3>
+<ul>
+<li><code>n1::ElectricalNode</code> : Positive electrical node [V]</li>
+<li><code>n2::ElectricalNode</code> : Negative electrical node [V]</li>
+</ul>
+<h3 id="keywordoptional-arguments_11">Keyword/Optional Arguments</h3>
+<ul>
+<li><code>L::Signal</code> : Inductance [H], default = 1.0 H</li>
+</ul>
+<h3 id="details_1">Details</h3>
+<p><code>L</code> can be a constant numeric value or an Unknown,
+meaning it can vary with time. If <code>L</code> is a constant, it may be
+positive, zero, or negative. If <code>L</code> is a signal, it should be
+greater than zero.</p>
+<p>This device is vectorizable using array inputs for one or both of
+<code>n1</code> and <code>n2</code></p>
+<h3 id="example_1">Example</h3>
+<div class="codehilite"><pre><span class="k">function</span><span class="nf"> model</span><span class="p">()</span>
+    <span class="n">n1</span> <span class="o">=</span> <span class="n">Voltage</span><span class="p">(</span><span class="s">&quot;n1&quot;</span><span class="p">)</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">Equation</span><span class="p">[</span>
+        <span class="n">SineVoltage</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">)</span>
+        <span class="n">Resistor</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">)</span>
+        <span class="n">Inductor</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">)</span>
+    <span class="p">]</span>
+<span class="k">end</span>
+</pre></div>
+
+
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/electrical.jl#L367">Sims/src/../lib/electrical.jl:367</a></p>
+<h2 id="resistor">Resistor</h2>
+<p>The linear resistor connects the branch voltage <code>v</code> with the branch
+current <code>i</code> by <code>i*R = v</code>. The Resistance <code>R</code> is allowed to be positive,
+zero, or negative. </p>
+<div class="codehilite"><pre><span class="n">Resistor</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">R</span><span class="p">::</span><span class="n">Signal</span><span class="p">)</span>
+<span class="n">Resistor</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> 
+         <span class="n">R</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">T</span> <span class="o">=</span> <span class="mf">293.15</span><span class="p">,</span> <span class="n">T_ref</span> <span class="o">=</span> <span class="mf">300.15</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span>
+<span class="n">Resistor</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">;</span>             <span class="c"># keyword-arg version</span>
+         <span class="n">R</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">T</span> <span class="o">=</span> <span class="mf">293.15</span><span class="p">,</span> <span class="n">T_ref</span> <span class="o">=</span> <span class="mf">300.15</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span>
+<span class="n">Resistor</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span>
+         <span class="n">R</span><span class="p">::</span><span class="n">Signal</span><span class="p">,</span> <span class="n">hp</span><span class="p">::</span><span class="n">Temperature</span><span class="p">,</span> <span class="n">T_ref</span><span class="p">::</span><span class="n">Signal</span><span class="p">,</span> <span class="n">alpha</span><span class="p">::</span><span class="n">Signal</span><span class="p">)</span> 
+</pre></div>
+
+
+<h3 id="arguments_14">Arguments</h3>
+<ul>
+<li><code>n1::ElectricalNode</code> : Positive electrical node [V]</li>
+<li><code>n2::ElectricalNode</code> : Negative electrical node [V]</li>
+</ul>
+<h3 id="keywordoptional-arguments_12">Keyword/Optional Arguments</h3>
+<ul>
+<li><code>R::Signal</code> : Resistance at temperature <code>T_ref</code> [ohms], default = 1.0 ohms</li>
+<li><code>hp::HeatPort</code> : Heat port [K], optional                </li>
+<li><code>T::HeatPort</code> : Fixed device temperature or HeatPort [K], default = <code>T_ref</code></li>
+<li><code>T_ref::Signal</code> : Reference temperature [K], default = 300.15K</li>
+<li><code>alpha::Signal</code> : Temperature coefficient of resistance (<code>R_actual = R*(1 + alpha*(T_heatPort - T_ref))</code>) [1/K], default = 0.0</li>
+</ul>
+<h3 id="details_2">Details</h3>
+<p>The resistance <code>R</code> is optionally temperature dependent according to
+the following equation:</p>
+<div class="codehilite"><pre>R = R_ref*(1 + alpha*(heatPort.T - T_ref))
+</pre></div>
+
+
+<p>With the optional <code>hp</code> HeatPort argument, the power will be dissipated
+into this HeatPort.</p>
+<p>The resistance <code>R</code> can be a constant numeric value or an Unknown,
+meaning it can vary with time. <em>Note</em>: it is recommended that the R
+signal should not cross the zero value. Otherwise, depending on the
+surrounding circuit, the probability of singularities is high.</p>
+<p>This device is vectorizable using array inputs for one or both of
+<code>n1</code> and <code>n2</code>.</p>
+<h3 id="example_2">Example</h3>
+<div class="codehilite"><pre><span class="k">function</span><span class="nf"> model</span><span class="p">()</span>
+    <span class="n">n1</span> <span class="o">=</span> <span class="n">Voltage</span><span class="p">(</span><span class="s">&quot;n1&quot;</span><span class="p">)</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">Equation</span><span class="p">[</span>
+        <span class="n">SineVoltage</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">)</span>
+        <span class="n">Resistor</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">R</span> <span class="o">=</span> <span class="mf">3.0</span><span class="p">,</span> <span class="n">T</span> <span class="o">=</span> <span class="mf">330.0</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="p">]</span>
+<span class="k">end</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">sim</span><span class="p">(</span><span class="n">model</span><span class="p">())</span>
+</pre></div>
+
+
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/electrical.jl#L244">Sims/src/../lib/electrical.jl:244</a></p>
+<h2 id="saturatinginductor">SaturatingInductor</h2>
+<p>TBD</p>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/electrical.jl#L382">Sims/src/../lib/electrical.jl:382</a></p>
+<h2 id="seriesprobe">SeriesProbe</h2>
+<p>Connect a series current probe between two nodes. This is
+vectorizable.</p>
+<div class="codehilite"><pre><span class="n">SeriesProbe</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">,</span> <span class="n">name</span><span class="p">::</span><span class="n">String</span><span class="p">)</span>
+</pre></div>
+
+
+<h3 id="arguments_15">Arguments</h3>
+<ul>
+<li><code>n1</code> : Positive node</li>
+<li><code>n2</code> : Negative node</li>
+<li><code>name::String</code> : The name of the probe</li>
+</ul>
+<h3 id="example_3">Example</h3>
+<div class="codehilite"><pre><span class="k">function</span><span class="nf"> model</span><span class="p">()</span>
+    <span class="n">n1</span> <span class="o">=</span> <span class="n">Voltage</span><span class="p">(</span><span class="s">&quot;n1&quot;</span><span class="p">)</span>
+    <span class="n">n2</span> <span class="o">=</span> <span class="n">Voltage</span><span class="p">()</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">Equation</span><span class="p">[</span>
+        <span class="n">SineVoltage</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">)</span>
+        <span class="n">SeriesProbe</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">,</span> <span class="s">&quot;current&quot;</span><span class="p">)</span>
+        <span class="n">Resistor</span><span class="p">(</span><span class="n">n2</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">)</span>
+    <span class="p">]</span>
+<span class="k">end</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">sim</span><span class="p">(</span><span class="n">model</span><span class="p">())</span>
+</pre></div>
+
+
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/electrical.jl#L119">Sims/src/../lib/electrical.jl:119</a></p>
+<h2 id="signalcurrent">SignalCurrent</h2>
+<p>The signal current source is a parameterless converter of real valued
+signals into a current voltage.</p>
+<p>This current source may be vectorized.</p>
+<div class="codehilite"><pre><span class="n">SignalCurrent</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">I</span><span class="p">::</span><span class="n">Signal</span><span class="p">)</span>  
+</pre></div>
+
+
+<h3 id="arguments_16">Arguments</h3>
+<ul>
+<li><code>n1::ElectricalNode</code> : Positive electrical node [V]</li>
+<li><code>n2::ElectricalNode</code> : Negative electrical node [V]</li>
+<li><code>I::Signal</code> : Current flowing from n1 to n2 as an input signal</li>
+</ul>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/electrical.jl#L1301">Sims/src/../lib/electrical.jl:1301</a></p>
+<h2 id="signalvoltage">SignalVoltage</h2>
+<p>The signal voltage source is a parameterless converter of real valued
+signals into a source voltage.</p>
+<p>This voltage source may be vectorized.</p>
+<div class="codehilite"><pre><span class="n">SignalVoltage</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">V</span><span class="p">::</span><span class="n">Signal</span><span class="p">)</span>  
+</pre></div>
+
+
+<h3 id="arguments_17">Arguments</h3>
+<ul>
+<li><code>n1::ElectricalNode</code> : Positive electrical node [V]</li>
+<li><code>n2::ElectricalNode</code> : Negative electrical node [V]</li>
+<li><code>V::Signal</code> : Voltage between n1 and n2 (= n1 - n2) as an input signal</li>
+</ul>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/electrical.jl#L1197">Sims/src/../lib/electrical.jl:1197</a></p>
+<h2 id="sinevoltage">SineVoltage</h2>
+<p>A sinusoidal voltage source. An offset parameter is introduced,
+which is added to the value calculated by the blocks source. The
+startTime parameter allows to shift the blocks source behavior on the
+time axis.</p>
+<p>This voltage source may be vectorized.</p>
+<div class="codehilite"><pre><span class="n">SineVoltage</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> 
+            <span class="n">V</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>  <span class="n">f</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>  <span class="n">ang</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>  <span class="n">offset</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span>
+<span class="n">SineVoltage</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">;</span> 
+            <span class="n">V</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>  <span class="n">f</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>  <span class="n">ang</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>  <span class="n">offset</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span>
+</pre></div>
+
+
+<h3 id="arguments_18">Arguments</h3>
+<ul>
+<li><code>n1::ElectricalNode</code> : Positive electrical node [V]</li>
+<li><code>n2::ElectricalNode</code> : Negative electrical node [V]</li>
+</ul>
+<h3 id="keywordoptional-arguments_13">Keyword/Optional Arguments</h3>
+<ul>
+<li><code>V</code> : Amplitude of sine wave [V], default = 1.0</li>
+<li><code>phase</code> : Phase of sine wave [rad], default = 0.0</li>
+<li><code>freqHz</code> : Frequency of sine wave [Hz], default = 1.0</li>
+<li><code>offset</code> : Voltage offset [V], default = 0.0</li>
+<li><code>startTime</code> : Time offset [s], default = 0.0</li>
+</ul>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/electrical.jl#L1234">Sims/src/../lib/electrical.jl:1234</a></p>
+<h2 id="stepvoltage">StepVoltage</h2>
+<p>A step voltage source. An event is introduced at the transition.
+Probably cannot be vectorized.</p>
+<div class="codehilite"><pre><span class="n">StepVoltage</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> 
+            <span class="n">V</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>  <span class="n">start</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>  <span class="n">offset</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span>
+<span class="n">StepVoltage</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">;</span> 
+            <span class="n">V</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>  <span class="n">start</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>  <span class="n">offset</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span>
+</pre></div>
+
+
+<h3 id="arguments_19">Arguments</h3>
+<ul>
+<li><code>n1::ElectricalNode</code> : Positive electrical node [V]</li>
+<li><code>n2::ElectricalNode</code> : Negative electrical node [V]</li>
+</ul>
+<h3 id="keywordoptional-arguments_14">Keyword/Optional Arguments</h3>
+<ul>
+<li><code>V</code> : Height of step [V], default = 1.0</li>
+<li><code>offset</code> : Voltage offset [V], default = 0.0</li>
+<li><code>startTime</code> : Time offset [s], default = 0.0</li>
+</ul>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/electrical.jl#L1266">Sims/src/../lib/electrical.jl:1266</a></p>
+<h2 id="transformer">Transformer</h2>
+<p>The transformer is a two port. The left port voltage <code>v1</code>, left port
+current <code>i1</code>, right port voltage <code>v2</code> and right port current <code>i2</code> are
+connected by the following relation:</p>
+<div class="codehilite"><pre>| v1 |         | L1   M  |  | i1&#39; |
+|    |    =    |         |  |     |
+| v2 |         | M    L2 |  | i2&#39; |
+</pre></div>
+
+
+<p><code>L1</code>, <code>L2</code>, and <code>M</code> are the primary, secondary, and coupling inductances
+respectively.</p>
+<div class="codehilite"><pre><span class="n">Transformer</span><span class="p">(</span><span class="n">p1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">p2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> 
+            <span class="n">L1</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">L2</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">M</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span>
+<span class="n">Transformer</span><span class="p">(</span><span class="n">p1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">p2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">;</span> 
+            <span class="n">L1</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">L2</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">M</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span>
+</pre></div>
+
+
+<h3 id="arguments_20">Arguments</h3>
+<ul>
+<li><code>p1::ElectricalNode</code> : Positive electrical node of the left port (potential <code>p1 &gt; n1</code> for positive voltage drop v1) [V]</li>
+<li><code>n1::ElectricalNode</code> : Negative electrical node of the left port [V]</li>
+<li><code>p2::ElectricalNode</code> : Positive electrical node of the right port (potential <code>p2 &gt; n2</code> for positive voltage drop v2) [V]</li>
+<li><code>n2::ElectricalNode</code> : Negative electrical node of the right port [V]</li>
+</ul>
+<h3 id="keywordoptional-arguments_15">Keyword/Optional Arguments</h3>
+<ul>
+<li><code>L1::Signal</code> : Primary inductance [H], default = 1.0 H</li>
+<li><code>L2::Signal</code> : Secondary inductance [H], default = 1.0 H</li>
+<li><code>M::Signal</code>  : Coupling inductance [H], default = 1.0 H</li>
+</ul>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/electrical.jl#L483">Sims/src/../lib/electrical.jl:483</a></p>
+<h2 id="zdiode">ZDiode</h2>
+<p>TBD</p>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/electrical.jl#L1092">Sims/src/../lib/electrical.jl:1092</a></p>
+<h2 id="uangle">UAngle</h2>
+<p>An UnknownCategory for rotational angle in radians.</p>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/types.jl#L142">Sims/src/../lib/types.jl:142</a></p>
+<h2 id="uangularacceleration">UAngularAcceleration</h2>
+<p>An UnknownCategory for angular acceleration in radians/sec^2.</p>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/types.jl#L184">Sims/src/../lib/types.jl:184</a></p>
+<h2 id="uangularvelocity">UAngularVelocity</h2>
+<p>An UnknownCategory for angular velocity in radians/sec.</p>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/types.jl#L170">Sims/src/../lib/types.jl:170</a></p>
+<h2 id="ucurrent">UCurrent</h2>
+<p>An UnknownCategory for electrical current in amperes.</p>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/types.jl#L43">Sims/src/../lib/types.jl:43</a></p>
+<h2 id="uheatflow">UHeatFlow</h2>
+<p>An UnknownCategory for heat flow rate in watts.</p>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/types.jl#L100">Sims/src/../lib/types.jl:100</a></p>
+<h2 id="uheatport">UHeatPort</h2>
+<p>An UnknownCategory for temperature in kelvin.</p>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/types.jl#L88">Sims/src/../lib/types.jl:88</a></p>
+<h2 id="utemperature">UTemperature</h2>
+<p>An UnknownCategory for temperature in kelvin.</p>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/types.jl#L94">Sims/src/../lib/types.jl:94</a></p>
+<h2 id="utorque">UTorque</h2>
+<p>An UnknownCategory for torque in newton-meters.</p>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/types.jl#L147">Sims/src/../lib/types.jl:147</a></p>
+<h2 id="uvoltage">UVoltage</h2>
+<p>An UnknownCategory for electrical potential in volts.</p>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/types.jl#L38">Sims/src/../lib/types.jl:38</a></p>
+<h2 id="unionabstractarraytnnumberrefunknowndefaultunknownunknowndefaultunknownmexpr">Union(AbstractArray{T,N},Number,RefUnknown{DefaultUnknown},Unknown{DefaultUnknown},MExpr)</h2>
+<p><strong>Signal</strong></p>
+<p><code>Signal</code> is a typealias for <code>NumberOrUnknown{DefaultUnknown}</code>.</p>
+<p>Can be an Unknown, an AbstractArray, a Number, or an MExpr.</p>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/types.jl#L28">Sims/src/../lib/types.jl:28</a></p>
+<h2 id="unionabstractarraytnnumberunknownuanglemexprrefunknownuangle">Union(AbstractArray{T,N},Number,Unknown{UAngle},MExpr,RefUnknown{UAngle})</h2>
+<p><strong>Flange</strong></p>
+<p><code>Flange</code> is a typealias for <code>NumberOrUnknown{UAngle}</code>.</p>
+<p>A rotational node, either an Angle (an Unknown) or a real value in
+radians. Can include arrays. Used commonly as a model arguments for
+nodes. This allows nodes to be Unknowns or fixed values.  </p>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/types.jl#L206">Sims/src/../lib/types.jl:206</a></p>
+<h2 id="unionabstractarraytnnumberunknownuheatportmexprrefunknownuheatport">Union(AbstractArray{T,N},Number,Unknown{UHeatPort},MExpr,RefUnknown{UHeatPort})</h2>
+<p><strong>HeatPort</strong></p>
+<p><code>HeatPort</code> is a typealias for <code>NumberOrUnknown{UHeatPort}</code>.</p>
+<p>A thermal node, either a Temperature (an Unknown) or a real value. Can
+include arrays. Used commonly as a model arguments for nodes. This
+allows nodes to be Unknowns or fixed values.</p>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/types.jl#L112">Sims/src/../lib/types.jl:112</a></p>
+<h2 id="unionabstractarraytnrefunknownuvoltagenumberunknownuvoltagemexpr">Union(AbstractArray{T,N},RefUnknown{UVoltage},Number,Unknown{UVoltage},MExpr)</h2>
+<p><strong>ElectricalNode</strong></p>
+<p><code>ElectricalNode</code> is a typealias for <code>NumberOrUnknown{UVoltage}</code>.</p>
+<p>An electrical node, either a Voltage (an Unknown) or a real value. Can
+include arrays or complex values. Used commonly as a model arguments
+for nodes. This allows nodes to be Unknowns or fixed values (like a
+ground that's zero volts).</p>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/types.jl#L56">Sims/src/../lib/types.jl:56</a></p>
+<h2 id="unionabstractarraytnunknowntnumberrefunknowntmexpr">Union(AbstractArray{T,N},Unknown{T},Number,RefUnknown{T},MExpr)</h2>
+<p><strong>NumberOrUnknown{T}</strong></p>
+<p><code>NumberOrUnknown{T}</code> is a typealias for
+<code>Union(AbstractArray, Number, MExpr, RefUnknown{T}, Unknown{T})</code>.</p>
+<p>Can be an Unknown, an AbstractArray, a Number, or an MExpr. Useful
+where an object can be either an Unknown of a particular type or a
+real value, especially for use as a type in a model argument. It may
+be parameterized by an UnknownCategory, like NumberOrUnknown{UVoltage}
+(the definition of an ElectricalNode).</p>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/types.jl#L18">Sims/src/../lib/types.jl:18</a></p>
+<h2 id="unknownuangle">Unknown{UAngle}</h2>
+<p><strong>Angle</strong></p>
+<p><code>Angle</code> is a typealias for <code>Unknown{UAngle}</code>.</p>
+<p>The angle in radians.</p>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/types.jl#L156">Sims/src/../lib/types.jl:156</a></p>
+<h2 id="unknownuangularacceleration">Unknown{UAngularAcceleration}</h2>
+<p><strong>AngularAcceleration</strong></p>
+<p><code>AngularAcceleration</code> is a typealias for <code>Unknown{UAngularAcceleration}</code>.</p>
+<p>The angular acceleration in radians/sec^2.</p>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/types.jl#L194">Sims/src/../lib/types.jl:194</a></p>
+<h2 id="unknownuangularvelocity">Unknown{UAngularVelocity}</h2>
+<p><strong>AngularVelocity</strong></p>
+<p><code>AngularVelocity</code> is a typealias for <code>Unknown{UAngularVelocity}</code>.</p>
+<p>The angular velocity in radians/sec.</p>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/types.jl#L179">Sims/src/../lib/types.jl:179</a></p>
+<h2 id="unknownucurrent">Unknown{UCurrent}</h2>
+<p><strong>Current</strong></p>
+<p><code>Current</code> is a typealias for <code>Unknown{UCurrent}</code>.</p>
+<p>Electrical current with units of amperes. A flow variable.</p>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/types.jl#L77">Sims/src/../lib/types.jl:77</a></p>
+<h2 id="unknownuheatflow">Unknown{UHeatFlow}</h2>
+<p><strong>HeatFlow</strong></p>
+<p><code>HeatFlow</code> is a typealias for <code>Unknown{UHeatFlow}</code>.</p>
+<p>Heat flow rate in units of watts.</p>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/types.jl#L121">Sims/src/../lib/types.jl:121</a></p>
+<h2 id="unknownuheatport">Unknown{UHeatPort}</h2>
+<p><strong>HeatPort</strong></p>
+<p><code>HeatPort</code> is a typealias for <code>Unknown{UHeatPort}</code>.</p>
+<p>A thermal potential, a Temperature (an Unknown) in units of kelvin.</p>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/types.jl#L130">Sims/src/../lib/types.jl:130</a></p>
+<h2 id="unknownutorque">Unknown{UTorque}</h2>
+<p><strong>Torque</strong></p>
+<p><code>Torque</code> is a typealias for <code>Unknown{UTorque}</code>.</p>
+<p>The torque in newton-meters.</p>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/types.jl#L165">Sims/src/../lib/types.jl:165</a></p>
+<h2 id="unknownuvoltage">Unknown{UVoltage}</h2>
+<p><strong>Voltage</strong></p>
+<p><code>Voltage</code> is a typealias for <code>Unknown{UVoltage}</code>.</p>
+<p>Electrical potential with units of volts. Used as nodes and potential
+differences between nodes.</p>
+<p>Often used with <code>ElectricalNode</code> as a model argument.</p>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/types.jl#L68">Sims/src/../lib/types.jl:68</a></p>
+<h2 id="standardelectricallibrary">StandardElectricalLibrary</h2>
+<h2 id="analog-electrical-library">Analog electrical library</h2>
+<p>This library of components is modeled after the
+Modelica.Electrical.Analog library.</p>
+<p>Voltage nodes with type <code>Voltage</code> are the main Unknown type used in
+electrical circuits. <code>voltage</code> nodes can be single floating point
+unknowns representing a single voltage node. A <code>Voltage</code> can also be
+an array representing multiphase circuits or multiple node positions.
+Lastly, <code>Voltage</code> unknowns can also be complex for use with
+quasiphasor-type solutions.</p>
+<p>The type <code>ElectricalNode</code> is a Union type that can be an Array, a
+number, an expression, or an Unknown. This is used in model functions
+to allow passing a <code>Voltage</code> node or a real value (like 0.0 for
+ground).</p>
+<h3 id="example_4">Example</h3>
+<div class="codehilite"><pre><span class="k">function</span><span class="nf"> ex_ChuaCircuit</span><span class="p">()</span>
+    <span class="n">n1</span> <span class="o">=</span> <span class="n">Voltage</span><span class="p">(</span><span class="s">&quot;n1&quot;</span><span class="p">)</span>
+    <span class="n">n2</span> <span class="o">=</span> <span class="n">Voltage</span><span class="p">(</span><span class="s">&quot;n2&quot;</span><span class="p">)</span>
+    <span class="n">n3</span> <span class="o">=</span> <span class="n">Voltage</span><span class="p">(</span><span class="mf">4.0</span><span class="p">,</span> <span class="s">&quot;n3&quot;</span><span class="p">)</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">function</span><span class="nf"> NonlinearResistor</span><span class="p">(</span><span class="n">n1</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">n2</span><span class="p">::</span><span class="n">ElectricalNode</span><span class="p">,</span> <span class="n">Ga</span><span class="p">,</span> <span class="n">Gb</span><span class="p">,</span> <span class="n">Ve</span><span class="p">)</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">Current</span><span class="p">(</span><span class="n">compatible_values</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">))</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">Voltage</span><span class="p">(</span><span class="n">compatible_values</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">))</span>
+        <span class="p">@</span><span class="n">equations</span> <span class="k">begin</span>
+            <span class="n">Branch</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">ifelse</span><span class="p">(</span><span class="n">v</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">Ve</span><span class="p">,</span> <span class="n">Gb</span> <span class="o">.*</span> <span class="p">(</span><span class="n">v</span> <span class="o">+</span> <span class="n">Ve</span><span class="p">)</span> <span class="o">-</span> <span class="n">Ga</span> <span class="o">.*</span> <span class="n">Ve</span><span class="p">,</span>
+                       <span class="n">ifelse</span><span class="p">(</span><span class="n">v</span> <span class="o">&gt;</span> <span class="n">Ve</span><span class="p">,</span> <span class="n">Gb</span> <span class="o">.*</span> <span class="p">(</span><span class="n">v</span> <span class="o">-</span> <span class="n">Ve</span><span class="p">)</span> <span class="o">+</span> <span class="n">Ga</span><span class="o">*</span><span class="n">Ve</span><span class="p">,</span> <span class="n">Ga</span><span class="o">*</span><span class="n">v</span><span class="p">))</span>
+        <span class="k">end</span>
+    <span class="k">end</span>
+    <span class="p">@</span><span class="n">equations</span> <span class="k">begin</span>
+        <span class="n">Resistor</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="mf">12.5e-3</span><span class="p">)</span> 
+        <span class="n">Inductor</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">,</span> <span class="mf">18.0</span><span class="p">)</span>
+        <span class="n">Resistor</span><span class="p">(</span><span class="n">n2</span><span class="p">,</span> <span class="n">n3</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mf">0.565</span><span class="p">)</span> 
+        <span class="n">Capacitor</span><span class="p">(</span><span class="n">n2</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">)</span>
+        <span class="n">Capacitor</span><span class="p">(</span><span class="n">n3</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">)</span>
+        <span class="n">NonlinearResistor</span><span class="p">(</span><span class="n">n3</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.757576</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.409091</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="n">y</span> <span class="o">=</span> <span class="n">sim</span><span class="p">(</span><span class="n">ex_ChuaCircuit</span><span class="p">(),</span> <span class="mf">200.0</span><span class="p">)</span>
+<span class="n">wplot</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+</pre></div>
+
+
+<h3 id="components">Components</h3>
+<p>Help is available for each of the following components</p>
+<ul>
+<li>SeriesProbe </li>
+<li>BranchHeatPort</li>
+<li>Resistor</li>
+<li>Capacitor</li>
+<li>Inductor</li>
+<li>Transformer</li>
+<li>EMF       </li>
+<li>IdealDiode</li>
+<li>IdealThyristor   </li>
+<li>IdealGTOTyristor</li>
+<li>IdealOpAmp     </li>
+<li>ControlledIdealOpeningSwitch </li>
+<li>ControlledIdealClosingSwitch</li>
+<li>ControlledOpenerWithArc    </li>
+<li>ControlledCloserWithArc   </li>
+<li>Diode         </li>
+<li>HeatingDiode  </li>
+<li>SignalVoltage </li>
+<li>SineVoltage   </li>
+<li>StepVoltage   </li>
+<li>SignalCurrent </li>
+</ul>
+<p><strong>source:</strong>
+<a href="https://github.com/tshort/Sims.jl/tree/a32ed949249b27b3c69338f1cccc8f4d41604598/src/../lib/electrical.jl#L80">Sims/src/../lib/electrical.jl:80</a></p>
+</div>
+            
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            
+            <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+
+        
+
+        <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+        <script src="../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../js/prettify-1.0.min.js"></script>
+        <script src="../js/highlight.pack.js"></script>
+        <script src="../js/base.js"></script>
+    </body>
+</html>
