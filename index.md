@@ -1,9 +1,26 @@
 
 
-# Basic Documentation
+# Documentation
 
-Documentation is limited as Sims is in its early stages (like Julia).
-The basics are described here.
+This document provides a general introduction to Sims.
+
+For API documentation, see here:
+
+* [Sims](https://tshort.github.io/Sims.jl/api/)
+* [Sims.Lib](https://tshort.github.io/Sims.jl/lib/)
+
+For documentation of examples, see here:
+
+* [Sims.Examples.Basics](https://tshort.github.io/Sims.jl/examples/basics/)
+* [Sims.Examples.Lib](https://tshort.github.io/Sims.jl/examples/lib/)
+* [Sims.Examples.Neural](https://tshort.github.io/Sims.jl/examples/neural/)
+
+For general documentation, see here:
+
+* [General introduction](https://tshort.github.io/Sims.jl/)
+* [Plotting Sims results](https://tshort.github.io/Sims.jl/plotting/)
+* [Sims design documentation](https://tshort.github.io/Sims.jl/design/)
+* [Possible future work](https://tshort.github.io/Sims.jl/future/)
 
 ## Unknowns
 
