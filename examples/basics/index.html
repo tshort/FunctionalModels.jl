@@ -1,0 +1,201 @@
+<!doctype html>
+
+<meta charset="utf-8">
+
+<title>Sims.Examples.Basics</title>
+
+<link rel="stylesheet" type="text/css"
+      href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/4.5.0/codemirror.min.css">
+
+<link rel="stylesheet" type="text/css" href="static/custom.css">
+
+<h1 class='package-header'>Sims.Examples.Basics</h1>
+
+<h1 id='module-reference'>Reference</h1>
+<ul class='index'>
+<li >
+<strong>methods:</strong>
+</li>
+<li >
+<ul >
+<li >
+<a href='#BreakingPendulum()'>BreakingPendulum()</a></li>
+<li >
+<a href='#BreakingPendulumInBox()'>BreakingPendulumInBox()</a></li>
+<li >
+<a href='#DcMotorWithShaft()'>DcMotorWithShaft()</a></li>
+<li >
+<a href='#HalfWaveRectifier()'>HalfWaveRectifier()</a></li>
+<li >
+<a href='#InitialCondition()'>InitialCondition()</a></li>
+<li >
+<a href='#MkinInitialCondition()'>MkinInitialCondition()</a></li>
+<li >
+<a href='#StructuralHalfWaveRectifier()'>StructuralHalfWaveRectifier()</a></li>
+<li >
+<a href='#Vanderpol()'>Vanderpol()</a></li>
+<li >
+<a href='#VanderpolWithEvents()'>VanderpolWithEvents()</a></li>
+</ul>
+</li>
+</ul>
+<div class='entries'>
+<div class='entry'>
+<div id='BreakingPendulum()' class='entry-name category-method'>
+<div class='category'>[method] &mdash; </div> BreakingPendulum()
+</div>
+<div class='entry-body'>
+<p>Models a pendulum that breaks at 5 secs. This model uses a StructuralEvent to switch between <code>Pendulum</code> mode and <code>FreeFall</code> mode.</p>
+<p>Based on an example by George Giorgidze's thesis](http://eprints.nottingham.ac.uk/12554/1/main.pdf) that's in <a href="https://github.com/giorgidze/Hydra/blob/master/examples/BreakingPendulum.hs">Hydra</a>. </p><div class='entry-meta'>
+<strong>Details:</strong>
+<table class='meta-table'>
+<tr >
+<td><strong>source:</strong></td><td >
+<a href='https://github.com/tshort/Sims.jl/tree/3b0a7b5312f53bdf3db06ce97765b7801761a234/src/../examples/basics/breaking_pendulum.jl#L40'>Sims/src/../examples/basics/breaking_pendulum.jl:40</a></td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class='entry'>
+<div id='BreakingPendulumInBox()' class='entry-name category-method'>
+<div class='category'>[method] &mdash; </div> BreakingPendulumInBox()
+</div>
+<div class='entry-body'>
+<p>An extension of Sims.Examples.Basics.BreakingPendulum.</p>
+<p>Floors and a wall are added. These are handled by <code>Events</code> in the <code>FreeFall</code> model. Velocities are reversed to bounce the ball. </p><div class='entry-meta'>
+<strong>Details:</strong>
+<table class='meta-table'>
+<tr >
+<td><strong>source:</strong></td><td >
+<a href='https://github.com/tshort/Sims.jl/tree/3b0a7b5312f53bdf3db06ce97765b7801761a234/src/../examples/basics/breaking_pendulum_in_box.jl#L47'>Sims/src/../examples/basics/breaking_pendulum_in_box.jl:47</a></td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class='entry'>
+<div id='DcMotorWithShaft()' class='entry-name category-method'>
+<div class='category'>[method] &mdash; </div> DcMotorWithShaft()
+</div>
+<div class='entry-body'>
+<p>A DC motor with a flexible shaft. The shaft is made of multiple elements. These are collected together algorithmically.</p>
+<p>This is a smaller version of an example on p. 117 of David Broman's <a href="http://www.bromans.com/david/publ/thesis-2010-david-broman.pdf">thesis</a>.</p>
+<p>I don't know if the results are reasonable or not. </p><div class='entry-meta'>
+<strong>Details:</strong>
+<table class='meta-table'>
+<tr >
+<td><strong>source:</strong></td><td >
+<a href='https://github.com/tshort/Sims.jl/tree/3b0a7b5312f53bdf3db06ce97765b7801761a234/src/../examples/basics/dc_motor_w_shaft.jl#L81'>Sims/src/../examples/basics/dc_motor_w_shaft.jl:81</a></td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class='entry'>
+<div id='HalfWaveRectifier()' class='entry-name category-method'>
+<div class='category'>[method] &mdash; </div> HalfWaveRectifier()
+</div>
+<div class='entry-body'>
+<p>A half-wave rectifier. The diode uses Events to toggle switching.</p>
+<p>See F. E. Cellier and E. Kofman, <em>Continuous System Simulation</em>, Springer, 2006, fig 9.27. </p><div class='entry-meta'>
+<strong>Details:</strong>
+<table class='meta-table'>
+<tr >
+<td><strong>source:</strong></td><td >
+<a href='https://github.com/tshort/Sims.jl/tree/3b0a7b5312f53bdf3db06ce97765b7801761a234/src/../examples/basics/half_wave_rectifiers.jl#L57'>Sims/src/../examples/basics/half_wave_rectifiers.jl:57</a></td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class='entry'>
+<div id='InitialCondition()' class='entry-name category-method'>
+<div class='category'>[method] &mdash; </div> InitialCondition()
+</div>
+<div class='entry-body'>
+<p>A basic test of solving for initial conditions for two simultaineous equations. </p><div class='entry-meta'>
+<strong>Details:</strong>
+<table class='meta-table'>
+<tr >
+<td><strong>source:</strong></td><td >
+<a href='https://github.com/tshort/Sims.jl/tree/3b0a7b5312f53bdf3db06ce97765b7801761a234/src/../examples/basics/initial_conditions.jl#L19'>Sims/src/../examples/basics/initial_conditions.jl:19</a></td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class='entry'>
+<div id='MkinInitialCondition()' class='entry-name category-method'>
+<div class='category'>[method] &mdash; </div> MkinInitialCondition()
+</div>
+<div class='entry-body'>
+<p>A basic test of solving for initial conditions for two simultaineous equations. </p><div class='entry-meta'>
+<strong>Details:</strong>
+<table class='meta-table'>
+<tr >
+<td><strong>source:</strong></td><td >
+<a href='https://github.com/tshort/Sims.jl/tree/3b0a7b5312f53bdf3db06ce97765b7801761a234/src/../examples/basics/initial_conditions.jl#L31'>Sims/src/../examples/basics/initial_conditions.jl:31</a></td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class='entry'>
+<div id='StructuralHalfWaveRectifier()' class='entry-name category-method'>
+<div class='category'>[method] &mdash; </div> StructuralHalfWaveRectifier()
+</div>
+<div class='entry-body'>
+<p>This is the same circuit used in Sims.Examples.Basics.HalfWaveRectifier, but a structurally variable diode is used instead of a diode that uses Events. </p><div class='entry-meta'>
+<strong>Details:</strong>
+<table class='meta-table'>
+<tr >
+<td><strong>source:</strong></td><td >
+<a href='https://github.com/tshort/Sims.jl/tree/3b0a7b5312f53bdf3db06ce97765b7801761a234/src/../examples/basics/half_wave_rectifiers.jl#L79'>Sims/src/../examples/basics/half_wave_rectifiers.jl:79</a></td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class='entry'>
+<div id='Vanderpol()' class='entry-name category-method'>
+<div class='category'>[method] &mdash; </div> Vanderpol()
+</div>
+<div class='entry-body'>
+<p>The Van Der Pol oscillator is a simple problem with two equations and two unknowns. </p><div class='entry-meta'>
+<strong>Details:</strong>
+<table class='meta-table'>
+<tr >
+<td><strong>source:</strong></td><td >
+<a href='https://github.com/tshort/Sims.jl/tree/3b0a7b5312f53bdf3db06ce97765b7801761a234/src/../examples/basics/vanderpol.jl#L24'>Sims/src/../examples/basics/vanderpol.jl:24</a></td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class='entry'>
+<div id='VanderpolWithEvents()' class='entry-name category-method'>
+<div class='category'>[method] &mdash; </div> VanderpolWithEvents()
+</div>
+<div class='entry-body'>
+<p>An extension of Sims.Examples.Basics.Vanderpol. Events are triggered every 2 sec that change the quantity <code>mu</code>. </p><div class='entry-meta'>
+<strong>Details:</strong>
+<table class='meta-table'>
+<tr >
+<td><strong>source:</strong></td><td >
+<a href='https://github.com/tshort/Sims.jl/tree/3b0a7b5312f53bdf3db06ce97765b7801761a234/src/../examples/basics/vanderpol_with_events.jl#L13'>Sims/src/../examples/basics/vanderpol_with_events.jl:13</a></td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/4.5.0/codemirror.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/4.5.0/mode/julia/julia.min.js"></script>
+
+
+
+<script type="text/javascript" src="static/custom.js"></script>
+
