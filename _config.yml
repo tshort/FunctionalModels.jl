@@ -1,10 +1,4 @@
 permalink: /:categories/:year/:month/:title
 
-# markdown: rdiscount
-# markdown: kramdown
-markdown: redcarpet
 pygments: true
-# kramdown:
-#   input: GFM
-
-highlighter: pygments
+markdown: redcarpet
