@@ -40,10 +40,12 @@ type Unknown{T<:UnknownCategory} <: UnknownVariable
     label::String 
 end
 ```
+
 ```python
 i = 32
 funcall("test") # hello
 ```
+
 ```javascript
 var i = 32;
 funcall("test"); // hello
