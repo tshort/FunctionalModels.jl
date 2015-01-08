@@ -1,5 +1,9 @@
+---
+layout: default
+title: Sims Design Documentation
+---
 
-# Design Documentation
+# Sims Design Documentation
 
 This documentation is an overview of the design of Sims, particularly
 the input specification. Some of the internals are also discussed.

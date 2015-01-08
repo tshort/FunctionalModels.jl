@@ -1,3 +1,10 @@
+---
+layout: default
+title:  Sims future
+---
+
+# Sims development options
+
 This document contains various thoughts on future development options.
 Also on the table is a complete rewrite.
 
