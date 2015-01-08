@@ -16,7 +16,7 @@ solutions. Here are some links:
 
 * http://www.jmodelica.org/5109
 * http://staff.polito.it/roberto.zanino/sub1/teach_files/modelica_minicourse/03%20-%20Symbolic%20Manipulation.pdf
-* https://modelica.org/events/modelica2011/Proceedings/pages/papers/10_3_ID_110_a_fv.pdf  
+* https://modelica.org/events/modelica2011/Proceedings/pages/papers/10_3_ID_110_a_fv.pdf 
 
 ## Better initialization
 
@@ -63,7 +63,7 @@ documentation string, a label, units, and more. Instead of arguments
 being simple values (like nodal voltages), each would need to be
 packed with more information. For example, a node voltage may become:
 
-``` .jl
+```julia
 type ElectricalNode
     v::Unknown
     description::String
