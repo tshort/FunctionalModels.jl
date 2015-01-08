@@ -1,4 +1,0 @@
-permalink: /:categories/:year/:month/:title
-
-pygments: true
-markdown: redcarpet
