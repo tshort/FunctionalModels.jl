@@ -2,3 +2,6 @@ permalink: /:categories/:year/:month/:title
 
 # markdown: rdiscount
 markdown: kramdown
+
+kramdown:
+  input: GFM
