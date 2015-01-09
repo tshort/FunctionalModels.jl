@@ -291,7 +291,7 @@ if blocks.</p>
 <p>See <a href="../../lib/index.html#IdealDiode">IdealDiode</a> and
 <a href="../../lib/index.html#Limiter">Limiter</a> in the standard library.</p>
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/main.jl#L1160">Sims/src/main.jl:1160</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/main.jl#L1160">Sims/src/main.jl:1160</a></p>
 <h2 id="branch">Branch</h2>
 <p>A helper Model to connect a branch between two different nodes and
 specify potential between nodes and the flow between nodes.</p>
@@ -335,7 +335,7 @@ library:</p>
 
 
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/main.jl#L759">Sims/src/main.jl:759</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/main.jl#L759">Sims/src/main.jl:759</a></p>
 <h2 id="addhook">addhook!</h2>
 <p>Add hooks to a Discrete variable.</p>
 <p>The propagation and handling of Discrete variables is currently rather
@@ -370,7 +370,7 @@ add some value propagation.</p>
 
 
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/main.jl#L991">Sims/src/main.jl:991</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/main.jl#L991">Sims/src/main.jl:991</a></p>
 <h2 id="check">check</h2>
 <p>Prints the number of equations and the number of unknowns.</p>
 <div class="codehilite"><pre><span class="n">name</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -386,7 +386,7 @@ add some value propagation.</p>
 <li><code>::Void</code></li>
 </ul>
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/utils.jl#L22">Sims/src/utils.jl:22</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/utils.jl#L22">Sims/src/utils.jl:22</a></p>
 <h2 id="compatible_values">compatible_values</h2>
 <p>A helper functions to return the base value from an Unknown to use
 when creating other Unknowns. It is especially useful for taking two
@@ -416,7 +416,7 @@ and <code>y</code>.</p>
 
 
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/main.jl#L632">Sims/src/main.jl:632</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/main.jl#L632">Sims/src/main.jl:632</a></p>
 <h2 id="create_sim">create_sim</h2>
 <p><code>create_sim</code> converts a model to a Sim.</p>
 <div class="codehilite"><pre><span class="n">create_sim</span><span class="p">(</span><span class="n">m</span><span class="p">::</span><span class="n">Model</span><span class="p">)</span>
@@ -434,7 +434,7 @@ and <code>y</code>.</p>
 <li><code>::Sim</code> : a simulation object</li>
 </ul>
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/simcreation.jl#L97">Sims/src/simcreation.jl:97</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/simcreation.jl#L97">Sims/src/simcreation.jl:97</a></p>
 <h2 id="create_simstate">create_simstate</h2>
 <p><code>create_simstate</code> converts a Sim is the main conversion function that
 returns a SimState, a simulation object with state history.</p>
@@ -455,7 +455,7 @@ returns a SimState, a simulation object with state history.</p>
 <li><code>::Sim</code> : a simulation object</li>
 </ul>
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/simcreation.jl#L141">Sims/src/simcreation.jl:141</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/simcreation.jl#L141">Sims/src/simcreation.jl:141</a></p>
 <h2 id="delay">delay</h2>
 <p>A Model specifying a delay to an Unknown.</p>
 <p>Internally, Unknowns that are delayed store past history. This is
@@ -474,7 +474,7 @@ interpolated as needed to find the delayed quantity.</p>
 <li><code>::MExpr</code> : a delayed Unknown</li>
 </ul>
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/main.jl#L870">Sims/src/main.jl:870</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/main.jl#L870">Sims/src/main.jl:870</a></p>
 <h2 id="der">der</h2>
 <p>Represents the derivative of an Unknown.</p>
 <div class="codehilite"><pre><span class="n">der</span><span class="p">(</span><span class="n">x</span><span class="p">::</span><span class="n">Unknown</span><span class="p">)</span>
@@ -494,7 +494,7 @@ interpolated as needed to find the delayed quantity.</p>
 
 
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/main.jl#L287">Sims/src/main.jl:287</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/main.jl#L287">Sims/src/main.jl:287</a></p>
 <h2 id="elaborate">elaborate</h2>
 <p><code>elaborate</code> is the main elaboration function that returns
 a flattened model representation that can be used by <code>sim</code>.</p>
@@ -530,7 +530,7 @@ The first step is to replace StructuralEvents that have activated
 with their new_relation in model. Then, the rest of the EquationSet
 is reflattened using <code>model</code> as the starting point.</p>
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/elaboration.jl#L69">Sims/src/elaboration.jl:69</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/elaboration.jl#L69">Sims/src/elaboration.jl:69</a></p>
 <h2 id="ifelse">ifelse</h2>
 <p>A function allowing if-then-else action for objections and expressions.</p>
 <p>Note that when this is used in a model, it does not trigger an
@@ -555,11 +555,11 @@ often in conjunction with <code>Event</code>.</p>
 <p>See <a href="../../lib/index.html#DeadZone">DeadZone</a> and
 <a href="../../lib/index.html#Limiter">Limiter</a> in the standard library.</p>
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/main.jl#L1203">Sims/src/main.jl:1203</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/main.jl#L1203">Sims/src/main.jl:1203</a></p>
 <h2 id="is_unknown">is_unknown</h2>
 <p>Is the object an UnknownVariable?</p>
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/main.jl#L238">Sims/src/main.jl:238</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/main.jl#L238">Sims/src/main.jl:238</a></p>
 <h2 id="mexpr">mexpr</h2>
 <p>Create MExpr's (model expressions). Analogous to <code>expr</code> in Base.</p>
 <p>This is also useful for wrapping user-defined functions where
@@ -588,7 +588,7 @@ the built-in mechanisms don't work.</p>
 
 
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/main.jl#L347">Sims/src/main.jl:347</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/main.jl#L347">Sims/src/main.jl:347</a></p>
 <h2 id="name">name</h2>
 <p>The name of an UnknownVariable.</p>
 <div class="codehilite"><pre><span class="n">name</span><span class="p">(</span><span class="n">a</span><span class="p">::</span><span class="n">UnknownVariable</span><span class="p">)</span>
@@ -611,7 +611,7 @@ the built-in mechanisms don't work.</p>
 
 
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/main.jl#L592">Sims/src/main.jl:592</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/main.jl#L592">Sims/src/main.jl:592</a></p>
 <h2 id="pre">pre</h2>
 <p>The value of a Discrete variable <code>x</code> prior to an event.</p>
 <p>See also <a href="#Event">Event</a>.</p>
@@ -628,7 +628,7 @@ the built-in mechanisms don't work.</p>
 <li>A value stored just prior to an event.</li>
 </ul>
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/main.jl#L1017">Sims/src/main.jl:1017</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/main.jl#L1017">Sims/src/main.jl:1017</a></p>
 <h2 id="reinit">reinit</h2>
 <p><code>reinit</code> is used in Event responses to redefine variables. </p>
 <div class="codehilite"><pre><span class="n">reinit</span><span class="p">(</span><span class="n">x</span><span class="p">::</span><span class="n">DiscreteVar</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
@@ -663,7 +663,7 @@ the built-in mechanisms don't work.</p>
 
 <p>See also <a href="../../lib/index.html#IdealThyristor">IdealThyristor</a> in the standard library.</p>
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/main.jl#L1111">Sims/src/main.jl:1111</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/main.jl#L1111">Sims/src/main.jl:1111</a></p>
 <h2 id="value">value</h2>
 <p>The value of an object or UnknownVariable.</p>
 <div class="codehilite"><pre><span class="n">value</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -685,11 +685,11 @@ expressions, except to grab an immediate value.</p>
 
 
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/main.jl#L556">Sims/src/main.jl:556</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/main.jl#L556">Sims/src/main.jl:556</a></p>
 <h2 id="defaultunknown">DefaultUnknown</h2>
 <p>The default UnknownCategory.</p>
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/main.jl#L145">Sims/src/main.jl:145</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/main.jl#L145">Sims/src/main.jl:145</a></p>
 <h2 id="derunknown">DerUnknown</h2>
 <p>An UnknownVariable representing the derivitive of an Unknown, normally
 created with <code>der(x)</code>.</p>
@@ -706,7 +706,7 @@ created with <code>der(x)</code>.</p>
 
 
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/main.jl#L257">Sims/src/main.jl:257</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/main.jl#L257">Sims/src/main.jl:257</a></p>
 <h2 id="discrete">Discrete</h2>
 <p>Discrete is a type for discrete variables. These are only changed
 during events. They are not used by the integrator. Because they are
@@ -736,11 +736,11 @@ easily. A crude mechanism for some chaining is provided by
 programming). The package
 <a href="https://github.com/JuliaLang/Reactive.jl">Reactive.jl</a> may help here.</p>
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/main.jl#L914">Sims/src/main.jl:914</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/main.jl#L914">Sims/src/main.jl:914</a></p>
 <h2 id="discretevar">DiscreteVar</h2>
 <p>A helper type used inside of the residual function.</p>
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/main.jl#L947">Sims/src/main.jl:947</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/main.jl#L947">Sims/src/main.jl:947</a></p>
 <h2 id="equationset">EquationSet</h2>
 <p>A representation of a flattened model, normally created with
 <code>elaborate(model)</code>. <code>sim</code> uses an elaborated model for simulations.</p>
@@ -748,7 +748,7 @@ programming). The package
 initial equations, events, event response functions, and a map of
 Unknown nodes.</p>
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/elaboration.jl#L20">Sims/src/elaboration.jl:20</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/elaboration.jl#L20">Sims/src/elaboration.jl:20</a></p>
 <h2 id="event">Event</h2>
 <p>Event is the main type used for hybrid modeling. It contains a
 condition for root finding and model expressions to process after
@@ -770,7 +770,7 @@ positive and negative root crossings are detected.</p>
 <h3 id="examples_11">Examples</h3>
 <p>See <a href="../../lib/index.html#IdealThyristor">IdealThyristor</a> in the standard library.</p>
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/main.jl#L1045">Sims/src/main.jl:1045</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/main.jl#L1045">Sims/src/main.jl:1045</a></p>
 <h2 id="initialequation">InitialEquation</h2>
 <p>A ModelType describing initial equations. Current support is limited
 and may be broken. There are no tests. The idea is that the equations
@@ -785,12 +785,12 @@ provided will only be used during the initial solution.</p>
   to zero during the initial equation solution.</li>
 </ul>
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/main.jl#L788">Sims/src/main.jl:788</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/main.jl#L788">Sims/src/main.jl:788</a></p>
 <h2 id="leftvar">LeftVar</h2>
 <p>A helper type needed to mark unknowns as left-side variables in
 assignments during event responses.</p>
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/main.jl#L1069">Sims/src/main.jl:1069</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/main.jl#L1069">Sims/src/main.jl:1069</a></p>
 <h2 id="mexpr_1">MExpr</h2>
 <p>Represents expressions used in models.</p>
 <div class="codehilite"><pre><span class="n">MExpr</span><span class="p">(</span><span class="n">ex</span><span class="p">::</span><span class="n">Expr</span><span class="p">)</span>
@@ -810,11 +810,11 @@ assignments during event responses.</p>
 
 
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/main.jl#L314">Sims/src/main.jl:314</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/main.jl#L314">Sims/src/main.jl:314</a></p>
 <h2 id="modeltype">ModelType</h2>
 <p>The main overall abstract type in Sims.</p>
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/main.jl#L129">Sims/src/main.jl:129</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/main.jl#L129">Sims/src/main.jl:129</a></p>
 <h2 id="parametertunknowncategory">Parameter{T&lt;:UnknownCategory}</h2>
 <p>Represents an Unknown that stays constant through a simulation. Useful
 for passing in at the top level.</p>
@@ -832,7 +832,7 @@ for passing in at the top level.</p>
 <li><code>label::String</code> : labeling string, defaults to ""</li>
 </ul>
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/main.jl#L368">Sims/src/main.jl:368</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/main.jl#L368">Sims/src/main.jl:368</a></p>
 <h2 id="passedunknown">PassedUnknown</h2>
 <p>An UnknownVariable used as a helper for the <code>delay</code> function.  It is
 an identity unknown, but it doesn't replace with a reference to the y
@@ -843,7 +843,7 @@ array.</p>
 <li><code>ref::UnknownVariable</code> : an Unknown</li>
 </ul>
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/main.jl#L814">Sims/src/main.jl:814</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/main.jl#L814">Sims/src/main.jl:814</a></p>
 <h2 id="refbranch">RefBranch</h2>
 <p>A special ModelType to specify branch flows into nodes. When the model
 is flattened, equations are created to zero out branch flows into
@@ -894,11 +894,11 @@ model that injects current (a flow variable) between two nodes:</p>
 
 
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/main.jl#L706">Sims/src/main.jl:706</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/main.jl#L706">Sims/src/main.jl:706</a></p>
 <h2 id="refdiscrete">RefDiscrete</h2>
 <p>A helper type for Discretes used in Arrays.</p>
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/main.jl#L938">Sims/src/main.jl:938</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/main.jl#L938">Sims/src/main.jl:938</a></p>
 <h2 id="refunknowntunknowncategory">RefUnknown{T&lt;:UnknownCategory}</h2>
 <p>An UnknownVariable used to allow Arrays as Unknowns. Normally created
 with <code>getindex</code>. Defined methods include:</p>
@@ -910,30 +910,30 @@ with <code>getindex</code>. Defined methods include:</p>
 <li>vcat</li>
 </ul>
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/main.jl#L521">Sims/src/main.jl:521</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/main.jl#L521">Sims/src/main.jl:521</a></p>
 <h2 id="sim">Sim</h2>
 <p>A type for holding several simulation objects needed for simulation,
 normally created with <code>create_sim(eqs)</code>. </p>
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/simcreation.jl#L42">Sims/src/simcreation.jl:42</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/simcreation.jl#L42">Sims/src/simcreation.jl:42</a></p>
 <h2 id="simfunctions">SimFunctions</h2>
 <p>The set of functions used in the DAE solution. Includes an initial set
 of equations, a residual function, and several functions for detecting
 and responding to events.</p>
 <p>All functions take (t,y,yp) as arguments. {TODO: is this still right?}</p>
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/simcreation.jl#L24">Sims/src/simcreation.jl:24</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/simcreation.jl#L24">Sims/src/simcreation.jl:24</a></p>
 <h2 id="simresult">SimResult</h2>
 <p>A type holding simulation results from <code>sim</code>, <code>dasslsim</code>, or
 <code>sunsim</code>. Includes a matrix of results and a vector of column names.</p>
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/simcreation.jl#L427">Sims/src/simcreation.jl:427</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/simcreation.jl#L427">Sims/src/simcreation.jl:427</a></p>
 <h2 id="simstate">SimState</h2>
 <p>The top level type for holding all simulation objects needed for
 simulation, including a Sim. Normally created with
 <code>create_simstate(sim)</code>.</p>
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/simcreation.jl#L70">Sims/src/simcreation.jl:70</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/simcreation.jl#L70">Sims/src/simcreation.jl:70</a></p>
 <h2 id="structuralevent">StructuralEvent</h2>
 <p>StructuralEvent defines a type for elements that change the structure
 of the model. An event is created where the condition crosses zero.
@@ -994,16 +994,16 @@ When the event is triggered, the model is re-flattened after replacing
 
 
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/main.jl#L1282">Sims/src/main.jl:1282</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/main.jl#L1282">Sims/src/main.jl:1282</a></p>
 <h2 id="unknowncategory">UnknownCategory</h2>
 <p>Categories of Unknown types; used to subtype Unknowns.</p>
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/main.jl#L140">Sims/src/main.jl:140</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/main.jl#L140">Sims/src/main.jl:140</a></p>
 <h2 id="unknownvariable">UnknownVariable</h2>
 <p>An abstract type for variables to be solved. Examples include Unknown,
 DerUnknown, and Parameter.</p>
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/main.jl#L135">Sims/src/main.jl:135</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/main.jl#L135">Sims/src/main.jl:135</a></p>
 <h2 id="unknowntunknowncategory">Unknown{T&lt;:UnknownCategory}</h2>
 <p>An Unknown represents variables to be solved in Sims. An <code>Unknown</code> is
 a symbolic type. When used in Julia expressions, Unknowns combine into
@@ -1054,7 +1054,7 @@ makes it easier to dispatch on model arguments.</p>
 
 
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/main.jl#L203">Sims/src/main.jl:203</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/main.jl#L203">Sims/src/main.jl:203</a></p>
 <h2 id="equations">@equations</h2>
 <p>A helper to make writing Models a little easier. It allows the use of
 <code>=</code> in model equations.</p>
@@ -1094,7 +1094,7 @@ makes it easier to dispatch on model arguments.</p>
 
 
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/main.jl#L1376">Sims/src/main.jl:1376</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/main.jl#L1376">Sims/src/main.jl:1376</a></p>
 <h2 id="unknown">@unknown</h2>
 <p>A macro to ease entry of many unknowns.</p>
 <div class="codehilite"><pre><span class="p">@</span><span class="n">unknown</span> <span class="n">a1</span> <span class="n">a2</span> <span class="n">a3</span> <span class="o">...</span>
@@ -1114,7 +1114,7 @@ makes it easier to dispatch on model arguments.</p>
 <li>A Gadfly object</li>
 </ul>
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/utils.jl#L222">Sims/src/utils.jl:222</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/utils.jl#L222">Sims/src/utils.jl:222</a></p>
 <h2 id="equation">Equation</h2>
 <p>Equations are used in Models. Right now, Equation is defined as <code>Any</code>,
 but that may change.  Normally, Equations are of type Unknown,
@@ -1134,11 +1134,11 @@ DerUnknown, MExpr, or Array{Equation} (for nesting models).</p>
 
 
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/main.jl#L482">Sims/src/main.jl:482</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/main.jl#L482">Sims/src/main.jl:482</a></p>
 <h2 id="mtime">MTime</h2>
 <p>The model time - a special unknown variable.</p>
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/main.jl#L647">Sims/src/main.jl:647</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/main.jl#L647">Sims/src/main.jl:647</a></p>
 <h2 id="model">Model</h2>
 <p>Represents a vector of Equations. For now, <code>Equation</code> equals <code>Any</code>, but
 in the future, it may only include ModelType's.</p>
@@ -1158,7 +1158,7 @@ in the future, it may only include ModelType's.</p>
 
 
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/main.jl#L506">Sims/src/main.jl:506</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/main.jl#L506">Sims/src/main.jl:506</a></p>
 <h2 id="sim_1">sim</h2>
 <p><code>sim</code> is the name of the default solver used to simulate Sims models
 and also shows the generic simulation API for available solvers
@@ -1238,7 +1238,7 @@ pulled in with <code>require</code> or <code>using</code>.</p>
 
 
 <p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/dba9a6a4491b8d4bacdf1ed21404d88177d22071/src/Sims.jl#L138">Sims/src/Sims.jl:138</a></p>
+<a href="https://github.com/tshort/Sims.jl/tree/d65c7b15194c61bc717f89e637969e9202f933f3/src/Sims.jl#L138">Sims/src/Sims.jl:138</a></p>
 </div>
             
         </div>
