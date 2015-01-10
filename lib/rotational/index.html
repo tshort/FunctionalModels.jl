@@ -212,6 +212,35 @@
         
             <li><a href="#inertia">Inertia</a></li>
         
+            <li><a href="#disc">Disc</a></li>
+        
+            <li><a href="#spring">Spring</a></li>
+        
+            <li><a href="#damper">Damper</a></li>
+        
+            <li><a href="#springdamper">SpringDamper</a></li>
+        
+            <li><a href="#idealgear">IdealGear</a></li>
+        
+    
+        <li class="main "><a href="#miscellaneous">Miscellaneous</a></li>
+        
+            <li><a href="#mbranchheatport">MBranchHeatPort</a></li>
+        
+    
+        <li class="main "><a href="#sensors">Sensors</a></li>
+        
+            <li><a href="#speedsensor">SpeedSensor</a></li>
+        
+            <li><a href="#accsensor">AccSensor</a></li>
+        
+    
+        <li class="main "><a href="#sources">Sources</a></li>
+        
+            <li><a href="#signaltorque">SignalTorque</a></li>
+        
+            <li><a href="#quadraticspeeddependenttorque">QuadraticSpeedDependentTorque</a></li>
+        
     
     </ul>
 </div></div>
@@ -223,6 +252,7 @@
 model in a convenient way drive trains with frictional losses.</p>
 <p>These components are modeled after the Modelica.Mechanics.Rotational
 library.</p>
+<p>NOTE: these need more testing.</p>
 <h2 id="inertia">Inertia</h2>
 <p>1D-rotational component with inertia</p>
 <p>Rotational component with inertia and two rigidly connected flanges. </p>
@@ -236,7 +266,182 @@ library.</p>
 <li><code>flange_b::Flange</code> : right flange of shaft [rad]</li>
 <li><code>J::Real</code> : Moment of inertia [kg.m^2]</li>
 </ul>
-<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../lib/rotational.jl#L40">Sims/src/../lib/rotational.jl:40</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/rotational.jl#L42">Sims/src/../lib/rotational.jl:42</a></p>
+<h2 id="disc">Disc</h2>
+<p>1-dim. rotational rigid component without inertia, where right flange is rotated by a fixed angle with respect to left flange</p>
+<p>Rotational component with two rigidly connected flanges without
+inertia. The right flange is rotated by the fixed angle "deltaPhi"
+with respect to the left flange.</p>
+<div class="codehilite"><pre><span class="n">Disc</span><span class="p">(</span><span class="n">flange_a</span><span class="p">::</span><span class="n">Flange</span><span class="p">,</span> <span class="n">flange_b</span><span class="p">::</span><span class="n">Flange</span><span class="p">,</span> <span class="n">deltaPhi</span><span class="p">)</span>
+</pre></div>
+
+
+<h3 id="arguments_1">Arguments</h3>
+<ul>
+<li><code>flange_a::Flange</code> : left flange of shaft [rad]</li>
+<li><code>flange_b::Flange</code> : right flange of shaft [rad]</li>
+<li><code>deltaPhi::Signal</code> : rotation of left flange with respect to right flange (= flange_b - flange_a) [rad]</li>
+</ul>
+<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/rotational.jl#L77">Sims/src/../lib/rotational.jl:77</a></p>
+<h2 id="spring">Spring</h2>
+<p>Linear 1D rotational spring</p>
+<p>A linear 1D rotational spring. The component can be connected either
+between two inertias/gears to describe the shaft elasticity, or
+between a inertia/gear and the housing (component Fixed), to describe
+a coupling of the element with the housing via a spring.</p>
+<div class="codehilite"><pre><span class="n">Spring</span><span class="p">(</span><span class="n">flange_a</span><span class="p">::</span><span class="n">Flange</span><span class="p">,</span> <span class="n">flange_b</span><span class="p">::</span><span class="n">Flange</span><span class="p">,</span> <span class="n">c</span><span class="p">::</span><span class="n">Real</span><span class="p">,</span> <span class="n">phi_rel0</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span>
+</pre></div>
+
+
+<h3 id="arguments_2">Arguments</h3>
+<ul>
+<li><code>flange_a::Flange</code> : left flange of shaft [rad]</li>
+<li><code>flange_b::Flange</code> : right flange of shaft [rad]</li>
+<li><code>c</code>: spring constant [N.m/rad]</li>
+<li><code>phi_rel0</code> : unstretched spring angle [rad]</li>
+</ul>
+<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/rotational.jl#L105">Sims/src/../lib/rotational.jl:105</a></p>
+<h2 id="damper">Damper</h2>
+<p>Linear 1D rotational damper</p>
+<p>Linear, velocity dependent damper element. It can be either connected
+between an inertia or gear and the housing (component Fixed), or
+between two inertia/gear elements.</p>
+<div class="codehilite"><pre><span class="n">Damper</span><span class="p">(</span><span class="n">flange_a</span><span class="p">::</span><span class="n">Flange</span><span class="p">,</span> <span class="n">flange_b</span><span class="p">::</span><span class="n">Flange</span><span class="p">,</span> <span class="n">d</span><span class="p">::</span><span class="n">Signal</span><span class="p">)</span>
+<span class="n">Damper</span><span class="p">(</span><span class="n">flange_a</span><span class="p">::</span><span class="n">Flange</span><span class="p">,</span> <span class="n">flange_b</span><span class="p">::</span><span class="n">Flange</span><span class="p">,</span> <span class="n">hp</span><span class="p">::</span><span class="n">HeatPort</span><span class="p">,</span> <span class="n">d</span><span class="p">::</span><span class="n">Signal</span><span class="p">)</span>
+</pre></div>
+
+
+<h3 id="arguments_3">Arguments</h3>
+<ul>
+<li><code>flange_a::Flange</code> : left flange of shaft [rad]</li>
+<li><code>flange_b::Flange</code> : right flange of shaft [rad]</li>
+<li><code>hp::HeatPort</code> : heat port [K]</li>
+<li><code>d</code>:  damping constant [N.m.s/rad]</li>
+</ul>
+<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/rotational.jl#L136">Sims/src/../lib/rotational.jl:136</a></p>
+<h2 id="springdamper">SpringDamper</h2>
+<p>Linear 1D rotational spring and damper in parallel</p>
+<p>A spring and damper element connected in parallel. The component can
+be connected either between two inertias/gears to describe the shaft
+elasticity and damping, or between an inertia/gear and the housing
+(component Fixed), to describe a coupling of the element with the
+housing via a spring/damper.</p>
+<div class="codehilite"><pre><span class="n">SpringDamper</span><span class="p">(</span><span class="n">flange_a</span><span class="p">::</span><span class="n">Flange</span><span class="p">,</span> <span class="n">flange_b</span><span class="p">::</span><span class="n">Flange</span><span class="p">,</span> <span class="n">c</span><span class="p">::</span><span class="n">Signal</span><span class="p">,</span> <span class="n">d</span><span class="p">::</span><span class="n">Signal</span><span class="p">)</span>
+<span class="n">SpringDamper</span><span class="p">(</span><span class="n">flange_a</span><span class="p">::</span><span class="n">Flange</span><span class="p">,</span> <span class="n">flange_b</span><span class="p">::</span><span class="n">Flange</span><span class="p">,</span> <span class="n">hp</span><span class="p">::</span><span class="n">HeatPort</span><span class="p">,</span> <span class="n">c</span><span class="p">::</span><span class="n">Signal</span><span class="p">,</span> <span class="n">d</span><span class="p">::</span><span class="n">Signal</span><span class="p">)</span>
+</pre></div>
+
+
+<h3 id="arguments_4">Arguments</h3>
+<ul>
+<li><code>flange_a::Flange</code> : left flange of shaft [rad]</li>
+<li><code>flange_b::Flange</code> : right flange of shaft [rad]</li>
+<li><code>hp::HeatPort</code> : heat port [K]</li>
+<li><code>c</code>:  spring constant [N.m/rad]</li>
+<li><code>d</code>:  damping constant [N.m.s/rad]</li>
+</ul>
+<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/rotational.jl#L172">Sims/src/../lib/rotational.jl:172</a></p>
+<h2 id="idealgear">IdealGear</h2>
+<p>Ideal gear without inertia</p>
+<p>This element characterices any type of gear box which is fixed in the
+ground and which has one driving shaft and one driven shaft. The gear
+is ideal, i.e., it does not have inertia, elasticity, damping or
+backlash. If these effects have to be considered, the gear has to be
+connected to other elements in an appropriate way.</p>
+<div class="codehilite"><pre><span class="n">IdealGear</span><span class="p">(</span><span class="n">flange_a</span><span class="p">::</span><span class="n">Flange</span><span class="p">,</span> <span class="n">flange_b</span><span class="p">::</span><span class="n">Flange</span><span class="p">,</span> <span class="n">ratio</span><span class="p">)</span>
+</pre></div>
+
+
+<h3 id="arguments_5">Arguments</h3>
+<ul>
+<li><code>flange_a::Flange</code> : left flange of shaft [rad]</li>
+<li><code>flange_b::Flange</code> : right flange of shaft [rad]</li>
+<li><code>ratio</code> : transmission ratio (flange_a / flange_b)</li>
+</ul>
+<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/rotational.jl#L293">Sims/src/../lib/rotational.jl:293</a></p>
+<h1 id="miscellaneous">Miscellaneous</h1>
+<h2 id="mbranchheatport">MBranchHeatPort</h2>
+<p>Wrap argument <code>model</code> with a heat port that captures the power
+generated by the device. This is vectorizable.</p>
+<div class="codehilite"><pre><span class="n">MBranchHeatPort</span><span class="p">(</span><span class="n">flange_a</span><span class="p">::</span><span class="n">Flange</span><span class="p">,</span> <span class="n">flange_b</span><span class="p">::</span><span class="n">Flange</span><span class="p">,</span> <span class="n">hp</span><span class="p">::</span><span class="n">HeatPort</span><span class="p">,</span>
+                <span class="n">model</span><span class="p">::</span><span class="n">Function</span><span class="p">,</span> <span class="n">args</span><span class="o">...</span><span class="p">)</span>
+</pre></div>
+
+
+<h3 id="arguments_6">Arguments</h3>
+<ul>
+<li><code>flange_a::Flange</code> : left flange of shaft [rad]</li>
+<li><code>flange_b::Flange</code> : right flange of shaft [rad]</li>
+<li><code>hp::HeatPort</code> : Heat port [K]                </li>
+<li><code>model::Function</code> : Model to wrap</li>
+<li><code>args...</code> : Arguments passed to <code>model</code>  </li>
+</ul>
+<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/rotational.jl#L331">Sims/src/../lib/rotational.jl:331</a></p>
+<h1 id="sensors">Sensors</h1>
+<h2 id="speedsensor">SpeedSensor</h2>
+<p>Ideal sensor to measure the absolute flange angular velocity</p>
+<p>Measures the absolute angular velocity w of a flange in an ideal way
+and provides the result as output signal w.</p>
+<div class="codehilite"><pre><span class="n">SpeedSensor</span><span class="p">(</span><span class="n">flange</span><span class="p">::</span><span class="n">Flange</span><span class="p">,</span> <span class="n">w</span><span class="p">::</span><span class="n">Signal</span><span class="p">)</span>
+</pre></div>
+
+
+<h3 id="arguments_7">Arguments</h3>
+<ul>
+<li><code>flange::Flange</code> : left flange of shaft [rad]</li>
+<li><code>w::Signal</code>:  absolute angular velocity of the flange [rad/sec]</li>
+</ul>
+<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/rotational.jl#L377">Sims/src/../lib/rotational.jl:377</a></p>
+<h2 id="accsensor">AccSensor</h2>
+<p>Ideal sensor to measure the absolute flange angular acceleration</p>
+<p>Measures the absolute angular velocity a of a flange in an ideal way
+and provides the result as output signal a.</p>
+<div class="codehilite"><pre><span class="n">SpeedSensor</span><span class="p">(</span><span class="n">flange</span><span class="p">::</span><span class="n">Flange</span><span class="p">,</span> <span class="n">a</span><span class="p">::</span><span class="n">Signal</span><span class="p">)</span>
+</pre></div>
+
+
+<h3 id="arguments_8">Arguments</h3>
+<ul>
+<li><code>flange::Flange</code> : left flange of shaft [rad]</li>
+<li><code>a::Signal</code>:  absolute angular acceleration of the flange [rad/sec^2]</li>
+</ul>
+<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/rotational.jl#L400">Sims/src/../lib/rotational.jl:400</a></p>
+<h1 id="sources">Sources</h1>
+<h2 id="signaltorque">SignalTorque</h2>
+<p>Input signal acting as external torque on a flange</p>
+<p>The input signal tau defines an external torque in [Nm] which acts
+(with negative sign) at a flange connector, i.e., the component
+connected to this flange is driven by torque tau.</p>
+<div class="codehilite"><pre><span class="n">SignalTorque</span><span class="p">(</span><span class="n">flange_a</span><span class="p">::</span><span class="n">Flange</span><span class="p">,</span> <span class="n">flange_b</span><span class="p">::</span><span class="n">Flange</span><span class="p">,</span> <span class="n">tau</span><span class="p">::</span><span class="n">Signal</span><span class="p">)</span>
+</pre></div>
+
+
+<h3 id="arguments_9">Arguments</h3>
+<ul>
+<li><code>flange_a::Flange</code> : left flange of shaft [rad]</li>
+<li><code>flange_b::Flange</code> : right flange of shaft [rad]</li>
+<li><code>tau</code> : Accelerating torque acting at flange_a relative to flange_b
+  (normally a support); a positive value accelerates flange_a</li>
+</ul>
+<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/rotational.jl#L437">Sims/src/../lib/rotational.jl:437</a></p>
+<h2 id="quadraticspeeddependenttorque">QuadraticSpeedDependentTorque</h2>
+<p>Quadratic dependency of torque versus speed</p>
+<p>Model of torque, quadratic dependent on angular velocity of flange.
+Parameter TorqueDirection chooses whether direction of torque is the
+same in both directions of rotation or not.</p>
+<div class="codehilite"><pre><span class="n">QuadraticSpeedDependentTorque</span><span class="p">(</span><span class="n">flange_a</span><span class="p">::</span><span class="n">Flange</span><span class="p">,</span> <span class="n">flange_b</span><span class="p">::</span><span class="n">Flange</span><span class="p">,</span>
+                              <span class="n">tau_nominal</span><span class="p">::</span><span class="n">Signal</span><span class="p">,</span> <span class="n">TorqueDirection</span><span class="p">::</span><span class="kt">Bool</span><span class="p">,</span> <span class="n">w_nominal</span><span class="p">::</span><span class="n">Signal</span><span class="p">)</span>
+</pre></div>
+
+
+<h3 id="arguments_10">Arguments</h3>
+<ul>
+<li><code>flange_a::Flange</code> : left flange of shaft [rad]</li>
+<li><code>flange_b::Flange</code> : right flange of shaft [rad]</li>
+<li><code>tau_nominal::Signal</code> : nominal torque (if negative, torque is acting as a load) [N.m]</li>
+<li><code>TorqueDirection::Bool</code> : same direction of torque in both directions of rotation</li>
+<li><code>AngularVelocity::Signal</code> : nominal speed [rad/sec]</li>
+</ul>
+<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/rotational.jl#L465">Sims/src/../lib/rotational.jl:465</a></p>
 </div>
             
         </div>

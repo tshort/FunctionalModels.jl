@@ -286,7 +286,7 @@ cp of the component material to compute C:</p>
 starting temperature [K]. You really can't used that here as in
 Modelica. You need to define the starting temperature at the top level
 for the HeatPort you define.</p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../lib/heat_transfer.jl#L74">Sims/src/../lib/heat_transfer.jl:74</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/heat_transfer.jl#L74">Sims/src/../lib/heat_transfer.jl:74</a></p>
 <h2 id="thermalconductor">ThermalConductor</h2>
 <p>Lumped thermal element transporting heat without storing it</p>
 <div class="codehilite"><pre><span class="n">ThermalConductor</span><span class="p">(</span><span class="n">port_a</span><span class="p">::</span><span class="n">HeatPort</span><span class="p">,</span> <span class="n">port_b</span><span class="p">::</span><span class="n">HeatPort</span><span class="p">,</span> <span class="n">G</span><span class="p">::</span><span class="n">Signal</span><span class="p">)</span>
@@ -336,7 +336,7 @@ be calculated, e.g., with one of the following equations:</p>
 </pre></div>
 
 
-<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../lib/heat_transfer.jl#L139">Sims/src/../lib/heat_transfer.jl:139</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/heat_transfer.jl#L139">Sims/src/../lib/heat_transfer.jl:139</a></p>
 <h2 id="convection">Convection</h2>
 <p>Lumped thermal element for heat convection</p>
 <div class="codehilite"><pre><span class="n">Convection</span><span class="p">(</span><span class="n">port_a</span><span class="p">::</span><span class="n">HeatPort</span><span class="p">,</span> <span class="n">port_b</span><span class="p">::</span><span class="n">HeatPort</span><span class="p">,</span> <span class="n">Gc</span><span class="p">::</span><span class="n">Signal</span><span class="p">)</span>
@@ -405,7 +405,7 @@ Transfer, 8th edition, McGraw-Hill, 1997, p.270):</p>
 </pre></div>
 
 
-<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../lib/heat_transfer.jl#L225">Sims/src/../lib/heat_transfer.jl:225</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/heat_transfer.jl#L225">Sims/src/../lib/heat_transfer.jl:225</a></p>
 <h2 id="bodyradiation">BodyRadiation</h2>
 <div class="codehilite"><pre><span class="n">BodyRadiation</span><span class="p">(</span><span class="n">port_a</span><span class="p">::</span><span class="n">HeatPort</span><span class="p">,</span> <span class="n">port_b</span><span class="p">::</span><span class="n">HeatPort</span><span class="p">,</span> <span class="n">Gr</span><span class="p">::</span><span class="n">Signal</span><span class="p">)</span>
 </pre></div>
@@ -476,7 +476,7 @@ inner to the outer cylinder):</strong></p>
 </pre></div>
 
 
-<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../lib/heat_transfer.jl#L316">Sims/src/../lib/heat_transfer.jl:316</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/heat_transfer.jl#L316">Sims/src/../lib/heat_transfer.jl:316</a></p>
 <h2 id="thermalcollector">ThermalCollector</h2>
 <p>This is a model to collect the heat flows from m heatports to one
 single heatport.</p>
@@ -489,7 +489,7 @@ single heatport.</p>
 <li><code>port_a::HeatPort</code> : heat port [K]</li>
 <li><code>port_b::HeatPort</code> : heat port [K]</li>
 </ul>
-<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../lib/heat_transfer.jl#L341">Sims/src/../lib/heat_transfer.jl:341</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/heat_transfer.jl#L341">Sims/src/../lib/heat_transfer.jl:341</a></p>
 <h1 id="sources">Sources</h1>
 <h2 id="fixedtemperature">FixedTemperature</h2>
 <p>Fixed temperature boundary condition in Kelvin</p>
@@ -507,7 +507,7 @@ naming is for Modelica compatibility.)</p>
 <li><code>port::HeatPort</code> : heat port [K]</li>
 <li><code>T::Signal</code> : temperature at port [K]</li>
 </ul>
-<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../lib/heat_transfer.jl#L380">Sims/src/../lib/heat_transfer.jl:380</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/heat_transfer.jl#L380">Sims/src/../lib/heat_transfer.jl:380</a></p>
 <h2 id="prescribedtemperature">PrescribedTemperature</h2>
 <p>Variable temperature boundary condition in Kelvin</p>
 <p>This model represents a variable temperature boundary condition. The
@@ -527,7 +527,7 @@ naming is for Modelica compatibility.)</p>
 <li><code>port::HeatPort</code> : heat port [K]</li>
 <li><code>T::Signal</code> : temperature at port [K]</li>
 </ul>
-<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../lib/heat_transfer.jl#L410">Sims/src/../lib/heat_transfer.jl:410</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/heat_transfer.jl#L410">Sims/src/../lib/heat_transfer.jl:410</a></p>
 <h2 id="fixedheatflow">FixedHeatFlow</h2>
 <p>Fixed heat flow boundary condition</p>
 <p>This model allows a specified amount of heat flow rate to be
@@ -555,7 +555,7 @@ variable.)</p>
 <li><code>T_ref::Signal</code> : reference temperature [K]</li>
 <li><code>alpha::Signal</code> : temperature coefficient of heat flow rate [1/K]</li>
 </ul>
-<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../lib/heat_transfer.jl#L446">Sims/src/../lib/heat_transfer.jl:446</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/heat_transfer.jl#L446">Sims/src/../lib/heat_transfer.jl:446</a></p>
 <h2 id="prescribedheatflow">PrescribedHeatFlow</h2>
 <p>Prescribed heat flow boundary condition</p>
 <p>This model allows a specified amount of heat flow rate to be
@@ -583,7 +583,7 @@ variable.)</p>
 <li><code>T_ref::Signal</code> : reference temperature [K]</li>
 <li><code>alpha::Signal</code> : temperature coefficient of heat flow rate [1/K]</li>
 </ul>
-<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../lib/heat_transfer.jl#L487">Sims/src/../lib/heat_transfer.jl:487</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/heat_transfer.jl#L487">Sims/src/../lib/heat_transfer.jl:487</a></p>
 </div>
             
         </div>
