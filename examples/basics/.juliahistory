@@ -1,0 +1,37 @@
+ax
+ax[1]
+ax[i][:plot]
+ax[1][:plot]
+whos(ax[1])
+dir(ax[1])
+dump(ax[1])
+ax[1][:plot]
+ax[1][:plot](z.y[:1],z.y[:2])
+show()
+show(ax)
+show(ax)
+ax[1][:xlabel]
+ylabel
+methods(ylable)
+methods(ylabel)
+z
+z[:x]
+pandas.DataFrame(z.y)
+pd = pandas.DataFrame(z.y)
+plot(pdf)
+plot(pd)
+pd = pandas.DataFrame(z.y[:,2:end], z.y[:,1])
+plot(pd)
+plot(pd)
+pd = pandas.DataFrame(z.y[:,2:end], z.y[:,1], columns = z.colnames)
+plot(pd)
+legend()
+legend(loc = 1)
+df.plot()
+df[:plot]()
+pd[:plot]()
+pd = pandas.DataFrame(z.y[:,2:end], z.y[:,1], columns = z.colnames)
+using Gadfly
+quit()
+quit()
+quit()

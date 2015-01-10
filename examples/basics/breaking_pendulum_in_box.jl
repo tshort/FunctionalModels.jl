@@ -1,9 +1,10 @@
 
-using Sims
 
 ############################################
 ## Breaking pendulum with floor and walls ##
 ############################################
+
+export BreakingPendulumInBox
 
 function FreeFall(x,y,vx,vy)
     @equations begin
@@ -38,6 +39,12 @@ function Pendulum(x,y,vx,vy)
     end
 end
 
+@doc* """
+An extension of Sims.Examples.Basics.BreakingPendulum.
+
+Floors and a wall are added. These are handled by `Events` in the
+`FreeFall` model. Velocities are reversed to bounce the ball.
+""" ->
 function BreakingPendulumInBox()
     x = Unknown(cos(pi/4), "x")
     y = Unknown(-cos(pi/4), "y")
@@ -50,9 +57,3 @@ function BreakingPendulumInBox()
     ]
 end
 
-p = BreakingPendulumInBox()
-p_f = elaborate(p)
-p_s = create_sim(p_f) 
-p_y = sim(p_s, 5.0)  
-
-wplot(p_y, "BreakingPendulumInBox.pdf")

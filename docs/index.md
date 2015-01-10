@@ -3,19 +3,18 @@ Sims.jl
 =======
 
 A [Julia](http://julialang.org) package for equation-based modeling
-and simulations. For more information, see the
-**[Documentation](https://tshort.github.io/Sims.jl/)**.
-
+and simulations.
 
 Background
 ----------
 
-This package is for non-causal modeling in Julia. The idea behind
-non-causal modeling is that the user develops models based on
-components which are described by a set of equations. A tool can then
-transform the equations and solve the differential algebraic
-equations. Non-causal models tend to match their physical counterparts
-in terms of their specification and implementation.
+Sims is like a lite version of Modelica. This package is for
+non-causal modeling in Julia. The idea behind non-causal modeling is
+that the user develops models based on components which are described
+by a set of equations. A tool can then transform the equations and
+solve the differential algebraic equations. Non-causal models tend to
+match their physical counterparts in terms of their specification and
+implementation.
 
 Causal modeling is where all signals have an input and an output, and
 the flow of information is clear. Simulink is the highest-profile
@@ -70,7 +69,7 @@ Sims defines a basic symbolic class used for unknown variables in
 the model. As unknown variables are evaluated, expressions (of
 type MExpr) are built up.
 
-``` julia
+```julia
 julia> using Sims
 
 julia> a = Unknown()
@@ -87,13 +86,13 @@ A device model is a function that returns a vector of equations or
 other devices that also return lists of equations. The equations
 each are assumed equal to zero. So,
 
-``` julia
+```julia
 der(y) = x + 1
 ```
 
 Should be entered as:
 
-``` julia
+```julia
 der(y) - (x+1)
 ```
 
@@ -102,7 +101,7 @@ der(y) - (x+1)
 The Van Der Pol oscillator is a simple problem with two equations
 and two unknowns:
 
-``` julia
+```julia
 function Vanderpol()
     y = Unknown(1.0, "y")   # The 1.0 is the initial value. "y" is for plotting.
     x = Unknown("x")        # The initial value is zero if not given.
@@ -118,8 +117,9 @@ end
 
 y = sim(Vanderpol(), 10.0) # Run the simulation to 10 seconds and return
                            # the result as an array.
-# plot the results with Gaston
-gplot(y)
+# plot the results with Winston
+using Winston
+wplot(y)
 ``` 
 
 Here are the results:
@@ -129,7 +129,7 @@ Here are the results:
 An `@equations` macro is provided to return `Equation[]` allowing for
 the use of equals in equations, so the example above can be:
 
-``` julia
+```julia
 function Vanderpol()
     y = Unknown(1.0, "y") 
     x = Unknown("x")
@@ -141,8 +141,8 @@ end
 
 y = sim(Vanderpol(), 10.0) # Run the simulation to 10 seconds and return
                            # the result as an array.
-# plot the results with Gaston
-gplot(y)
+# plot the results with Winston
+wplot(y)
 ``` 
 
 Electrical example
@@ -262,7 +262,3 @@ was done in R, not Julia.
 
 ![plot results](https://github.com/tshort/Sims.jl/blob/master/examples/basics/pendulum.gif?raw=true "Pendulum")
 
-
-
-
-    

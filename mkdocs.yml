@@ -1,0 +1,27 @@
+site_name: Sims.jl
+
+site_description: Sims.jl equation-based simulations
+
+repo_url: https://github.com/tshort/Sims.jl/
+
+pages:
+- [index.md, Ind]
+- [basics.md,   User guide, Basics]
+- [plotting.md, User guide, Plotting results]
+- [api/main.md,  API,  Modeling]
+- [api/sim.md,   API,  Simulations]
+- [api/utils.md, API,  Utilities]
+- [lib/types.md,         Standard library, Types]
+- [lib/blocks.md,        Standard library, Continuous blocks]
+- [lib/electrical.md,    Standard library, Electrical]
+- [lib/heat_transfer.md, Standard library, Heat transfer]
+- [lib/powersystems.md,  Standard library, Power systems]
+- [lib/rotational.md,    Standard library, Rotational mechanics]
+- [examples/basics.md, Examples, Basics]
+- [examples/lib.md,    Examples, Standard library]
+- [examples/neural.md, Examples, Neural]
+- [design.md, Design, Considerations]
+- [future.md, Design, Development options]
+- [license.md, License]
+
+markdown_extensions: [codehilite]

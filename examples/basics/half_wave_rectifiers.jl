@@ -1,6 +1,7 @@
 
-using Sims
-import Sims.IdealDiode
+
+export HalfWaveRectifier, StructuralHalfWaveRectifier
+
 
 # With a zero angle, both of the problems below fail.
 function VSource(n1::NumberOrUnknown{UVoltage}, n2::NumberOrUnknown{UVoltage}, V::Real, f::Real, ang::Real)  
@@ -47,7 +48,13 @@ function ClosedDiode(n1, n2)
     ]
 end
 
-# Cellier, fig 9.27
+
+@doc* """
+A half-wave rectifier. The diode uses Events to toggle switching.
+
+See F. E. Cellier and E. Kofman, *Continuous System Simulation*,
+Springer, 2006, fig 9.27.
+""" ->
 function HalfWaveRectifier()
     nsrc = Voltage("Source voltage")
     n2 = Voltage("")
@@ -63,18 +70,13 @@ function HalfWaveRectifier()
 end
 
 
-println("**** Non-structural Half Wave Rectifier ****")
-rct = HalfWaveRectifier()
-rct_f = elaborate(rct)
-rct_s = create_sim(rct_f) 
-rct_y = sim(rct_s, 0.1)  
-wplot(rct_y, "HalfWaveRectifier.pdf")
 
 
-
-
-
-# The same circuit with a structurally variable diode.
+@doc* """
+This is the same circuit used in
+Sims.Examples.Basics.HalfWaveRectifier, but a structurally variable
+diode is used instead of a diode that uses Events.
+""" ->
 function StructuralHalfWaveRectifier()
     nsrc = Voltage("Source voltage")
     n2 = Voltage("")
@@ -90,12 +92,4 @@ function StructuralHalfWaveRectifier()
         Resistor(nout, g, 50.0)
     end
 end
-
-println("**** Structural Half Wave Rectifier ****")
-sct = StructuralHalfWaveRectifier()
-sct_f = elaborate(sct)
-sct_s = create_sim(sct_f) 
-sct_y = sim(sct_s, 0.1)  
-wplot(sct_y, "StructuralHalfWaveRectifier.pdf")
-
 

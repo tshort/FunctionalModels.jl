@@ -1,15 +1,7 @@
 
-##
-## This model is used to calculate the membrane potential of a
-## neuron. The calculation is based on sodium ion flow, potassium ion
-## flow and leakage ion flow. (Hodgkin, A. L. and Huxley, A. F. (1952)
-## "A Quantitative Description of Membrane Current and its Application
-## to Conduction and Excitation in Nerve" Journal of Physiology 117:
-## 500-544)
-##
 
-using Sims
-using Winston
+export HodgkinHuxley
+
 
 I       =   10.0
 C_m     =    1.0
@@ -44,8 +36,15 @@ function bnf (v)
     return (0.125 * (exp ((- (v + 65)) / 80)))
 end  	                   
 
-## Model equations
 
+@doc* """
+This model is used to calculate the membrane potential of a
+neuron. The calculation is based on sodium ion flow, potassium ion
+flow and leakage ion flow. (Hodgkin, A. L. and Huxley, A. F. (1952)
+"A Quantitative Description of Membrane Current and its Application
+to Conduction and Excitation in Nerve" Journal of Physiology 117:
+500-544)
+""" ->
 function HodgkinHuxley()
 
     v   = Voltage(-65.0, "v")   
@@ -83,19 +82,4 @@ function HodgkinHuxley()
 
     end
 end
-
-hh   = HodgkinHuxley()  # returns the hierarchical model
-hh_f = elaborate(hh)    # returns the flattened model
-hh_s = create_sim(hh_f) # returns a "Sim" ready for simulation
-
-# runs the simulation and returns
-# the result as an array plus column headings
-tf = 500.0
-dt = 0.025
-
-hh_ptr = setup_sunsim (hh_s, reltol=1e-6, abstol=1e-6)
-
-@time hh_yout = sunsim(hh_ptr, tf, int(tf/dt))
-
-plot (hh_yout.y[:,1], hh_yout.y[:,2])
 

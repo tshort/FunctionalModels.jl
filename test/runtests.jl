@@ -2,5 +2,7 @@ using Sims
 using Base.Test
 
 println("== run all examples")
-include("../examples/run_all.jl")
+Sims.Examples.Basics.runexamples()
+Sims.Examples.Lib.runexamples()
+Sims.Examples.Neural.runexamples()
 

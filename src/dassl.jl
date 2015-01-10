@@ -49,6 +49,11 @@ function dasslrootfun(neq, t_in, y_in, yp_in, nrt, rval_out, rpar, ipar)
 end
 
 
+@doc* """
+The solver that uses DASKR, a variant of DASSL.
+
+See [sim](#sim) for the interface.
+""" ->
 function dasslsim(ss::SimState, tstop::Float64, Nsteps::Int; reltol::Float64=1e-4, abstol::Float64=1e-4)
     # tstop & Nsteps should be in options
     sim_info("starting sim()")

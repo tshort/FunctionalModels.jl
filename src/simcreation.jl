@@ -14,6 +14,14 @@
 # SimFunctions is the set of functions used during simulation. All
 # functions take (t,y,yp) as arguments.
 #
+
+@doc """
+The set of functions used in the DAE solution. Includes an initial set
+of equations, a residual function, and several functions for detecting
+and responding to events.
+
+All functions take (t,y,yp) as arguments. {TODO: is this still right?}
+""" ->
 type SimFunctions
     resid::Function           
     init::Function           
@@ -28,6 +36,10 @@ end
 SimFunctions(resid::Function, event_at::Function, event_pos::Vector{None}, event_neg::Vector{None}, get_discretes::Function) = 
     SimFunctions(resid, event_at, Function[], Function[], get_discretes)
 
+@doc """
+A type for holding several simulation objects needed for simulation,
+normally created with `create_sim(eqs)`. 
+""" ->
 type Sim
     eq::EquationSet           # the input
     F::SimFunctions
@@ -51,6 +63,11 @@ type SimStateHistory
     x::Dict # variable values
 end
 
+@doc """
+The top level type for holding all simulation objects needed for
+simulation, including a Sim. Normally created with
+`create_simstate(sim)`.
+""" ->
 type SimState
     t::Array{Float64, 1}      # time
     y0::Array{Float64, 1}     # state vector
@@ -61,9 +78,23 @@ type SimState
     sm::Sim # reference to a Sim
 end
 
-#
-# This is the main function for creating Sim's.
-#
+@doc* """
+`create_sim` converts a model to a Sim.
+
+```julia
+create_sim(m::Model)
+create_sim(eq::EquationSet)
+```
+
+### Arguments
+
+* `m::Model` : a Model
+* `eq::EquationSet` : a flattened model
+
+### Returns
+
+* `::Sim` : a simulation object
+""" ->
 function create_sim(eq::EquationSet)
     
     sm = Sim(eq)
@@ -88,6 +119,26 @@ function create_sim(eq::EquationSet)
 end
 create_sim(m::Model) = create_sim(elaborate(m))
 
+@doc* """
+`create_simstate` converts a Sim is the main conversion function that
+returns a SimState, a simulation object with state history.
+
+```julia
+create_simstate(m::Model)
+create_simstate(eq::EquationSet)
+create_simstate(sm::Sim)
+```
+
+### Arguments
+
+* `m::Model` : a Model
+* `eq::EquationSet` : a flattened model
+* `sm::Sim` : a simulation object
+
+### Returns
+
+* `::Sim` : a simulation object
+""" ->
 function create_simstate (sm::Sim)
 
     N_unknowns = sm.varnum - 1
@@ -370,6 +421,10 @@ function vcat_real(X::Any...)
 end
 
 
+@doc """
+A type holding simulation results from `sim`, `dasslsim`, or
+`sunsim`. Includes a matrix of results and a vector of column names.
+""" ->
 type SimResult
     y::Array{Float64, 2}
     colnames::Array{ASCIIString, 1}

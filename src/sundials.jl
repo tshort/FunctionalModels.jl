@@ -102,6 +102,11 @@ function reinit_sunsim(smem::SimSundials, ss::SimState, t)
 end
 
 
+@doc* """
+The solver that uses Sundials.
+
+See [sim](#sim) for the interface.
+""" ->
 function sunsim(smem::SimSundials, tstop::Float64, Nsteps::Int)
 
     sim_info("starting sunsim()")

@@ -1,14 +1,17 @@
-using Sims
-using Winston
-
 ########################################
 ## Test of the simulator with events  ##
 ## Van Der Pol oscillator             ##
 ## Automatic formulation              ##
 ########################################
 
+export VanderpolWithEvents
 
-function SVanderpol()
+
+@doc """
+An extension of Sims.Examples.Basics.Vanderpol. Events are triggered
+every 2 sec that change the quantity `mu`.
+""" ->
+function VanderpolWithEvents()
     y = Unknown(1.0, "y")   # The 1.0 is the initial value. "y" is for plotting.
     x = Unknown("x")        # The initial value is zero if not given.
     mu_unk = Unknown(1.0, "mu_unk") 
@@ -30,25 +33,4 @@ function SVanderpol()
               ])
     end
 end
-
-v = SVanderpol()      # returns the hierarchical model
-v_f = elaborate(v)    # returns the flattened model
-v_s = create_sim(v_f) # returns a "Sim" ready for simulation
-
-v_ptr = setup_sunsim (v_s, reltol=1e-6, abstol=1e-6)
-
-tf = 10.0
-dt = 0.025
-
-@time v_yout = sunsim(v_ptr, tf, int(tf/dt))
-
-figure()
-p1 = plot(v_yout.y[:,1], v_yout.y[:,2])
-display(p1)
-
-figure()
-# plot the signals against each other:
-p2 = plot(v_yout.y[:,2], v_yout.y[:,3])
-display(p2)
-
 

@@ -1,11 +1,11 @@
 
-using Sims
-
 
 
 ########################################
 ## Mechanical/electrical example      ##
 ########################################
+
+export DcMotorWithShaft
 
 #
 # I don't know if the answer is right.
@@ -70,7 +70,16 @@ function FlexibleShaft(flangeA::Flange, flangeB::Flange, n::Int)
     result
 end
 
-function MechSys()
+@doc* """
+A DC motor with a flexible shaft. The shaft is made of multiple
+elements. These are collected together algorithmically.
+
+This is a smaller version of an example on p. 117 of David Broman's
+[thesis](http://www.bromans.com/david/publ/thesis-2010-david-broman.pdf).
+
+I don't know if the results are reasonable or not.
+""" ->
+function DcMotorWithShaft()
     r1 = Angle("Source angle") 
     r2 = Angle()
     r3 = Angle("End-of-shaft angle")
@@ -82,7 +91,3 @@ function MechSys()
 end
 
     
-m = MechSys()         # returns the hierarchical model
-m_f = elaborate(m)    # returns the flattened model
-m_yout = sim(m, 4.0)
-wplot(m_yout, "DcMotorWShaft.pdf")

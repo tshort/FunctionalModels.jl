@@ -10,7 +10,14 @@
 # follows Hydra's SymTab structure.
 #
 
-#
+@doc """
+A representation of a flattened model, normally created with
+`elaborate(model)`. `sim` uses an elaborated model for simulations.
+
+Contains the hierarchical equations, flattened equations, flattened
+initial equations, events, event response functions, and a map of
+Unknown nodes.
+""" ->
 type EquationSet
     model             # The active model, a hierachichal set of equations.
     equations         # A flat list of equations.
@@ -20,18 +27,46 @@ type EquationSet
     neg_responses
     nodeMap::Dict
 end
-# In EquationSet, model contains equations and StructuralEvents. When
-# a StructuralEvent triggers, the entire model is elaborated again.
-# The first step is to replace StructuralEvents that have activated
-# with their new_relation in model. Then, the rest of the EquationSet
-# is reflattened using model as the starting point.
 
 
-# 
-# elaborate is the main elaboration function. There is no real symbolic
-# processing (sorting, index reduction, or any of the other stuff a
-# fancy modeling tool would do).
-# 
+@doc* """
+`elaborate` is the main elaboration function that returns
+a flattened model representation that can be used by `sim`.
+
+```julia
+elaborate(a::Model)
+```
+
+### Arguments
+
+* `a::Model` : the input model
+
+### Returns
+
+* `::EquationSet` : the flattened model
+
+### Details
+
+The main steps in flattening are:
+
+* Replace fixed initial values.
+* Flatten models and populate `eq.equations`.
+* Pull out InitialEquations and populate `eq.initialequations`.
+* Pull out Events and populate `eq.events`.
+* Handle StructuralEvents.
+* Collect nodes and populate `eq.nodeMap`.
+* Strip out MExpr's from expressions.
+* Remove empty equations.
+
+There is currently no real symbolic processing (sorting, index
+reduction, or any of the other stuff a fancy modeling tool would do).
+
+In EquationSet, `model` contains equations and StructuralEvents. When
+a StructuralEvent triggers, the entire model is elaborated again.
+The first step is to replace StructuralEvents that have activated
+with their new_relation in model. Then, the rest of the EquationSet
+is reflattened using `model` as the starting point.
+""" ->
 elaborate(a::Model) = elaborate(EquationSet(a, Equation[], Equation[], Equation[], Equation[], Equation[], Dict()))
 
 function elaborate(x::EquationSet)
