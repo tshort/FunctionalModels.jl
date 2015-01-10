@@ -34,4 +34,3 @@ function VanderpolWithEvents()
     end
 end
 
-

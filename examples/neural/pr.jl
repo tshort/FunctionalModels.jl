@@ -149,7 +149,7 @@ pr_s = create_sim(pr_f) # returns a "Sim" ready for simulation
 tf = 5000.0
 dt = 0.025
 
-pr_ptr = setup_sunsim (pr_s, 1e-7, 1e-7)
+pr_ptr = setup_sunsim (pr_s, reltol=1e-7, abstol=1e-7)
 
 # runs the simulation and returns
 # the result as an array plus column headings

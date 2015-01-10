@@ -37,7 +37,7 @@ v_s = create_sim(v_f) # returns a "Sim" ready for simulation
 tf = 200.0
 dt = 0.025
 
-v_ptr = setup_sunsim (v_s, 1e-7, 1e-7)
+v_ptr = setup_sunsim (v_s, reltol=1e-7, abstol=1e-7)
 
 # runs the simulation and returns
 # the result as an array plus column headings

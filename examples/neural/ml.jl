@@ -62,7 +62,7 @@ ml_s = create_sim(ml_f) # returns a "Sim" ready for simulation
 tf = 1000.0
 dt = 0.025
 
-ml_ptr = setup_sunsim (ml_s, 1e-6, 1e-6)
+ml_ptr = setup_sunsim (ml_s, reltol=1e-6, abstol=1e-6)
 
 # runs the simulation and returns
 # the result as an array plus column headings
