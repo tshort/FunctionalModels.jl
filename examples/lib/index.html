@@ -66,8 +66,25 @@
                                 <a href="../../plotting">Plotting results</a>
                             </li>
                         
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">API <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
                             <li >
-                                <a href="../../api">API</a>
+                                <a href="../../api/main">Modeling</a>
+                            </li>
+                        
+                            <li >
+                                <a href="../../api/sim">Simulations</a>
+                            </li>
+                        
+                            <li >
+                                <a href="../../api/utils">Utilities</a>
                             </li>
                         
                         </ul>
@@ -76,24 +93,34 @@
                 
                 
                     <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Details <b class="caret"></b></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Standard library <b class="caret"></b></a>
                         <ul class="dropdown-menu">
                         
                             <li >
-                                <a href="../../design">Design considerations</a>
+                                <a href="../../lib/types">Types</a>
                             </li>
                         
                             <li >
-                                <a href="../../future">Development options</a>
+                                <a href="../../lib/blocks">Continuous blocks</a>
+                            </li>
+                        
+                            <li >
+                                <a href="../../lib/electrical">Electrical</a>
+                            </li>
+                        
+                            <li >
+                                <a href="../../lib/heat_transfer">Heat transfer</a>
+                            </li>
+                        
+                            <li >
+                                <a href="../../lib/powersystems">Power systems</a>
+                            </li>
+                        
+                            <li >
+                                <a href="../../lib/rotational">Rotational mechanics</a>
                             </li>
                         
                         </ul>
-                    </li>
-                
-                
-                
-                    <li >
-                        <a href="../../lib">Standard library</a>
                     </li>
                 
                 
@@ -112,6 +139,23 @@
                         
                             <li >
                                 <a href="../neural">Neural</a>
+                            </li>
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Design <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            <li >
+                                <a href="../../design">Considerations</a>
+                            </li>
+                        
+                            <li >
+                                <a href="../../future">Development options</a>
                             </li>
                         
                         </ul>
@@ -164,7 +208,15 @@
                 <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
     
-        <li class="main active"><a href="#simsexampleslib">Sims.Examples.Lib</a></li>
+        <li class="main active"><a href="#simslib-examples">Sims.Lib examples</a></li>
+        
+    
+        <li class="main "><a href="#blocks">Blocks</a></li>
+        
+            <li><a href="#pid_controller">PID_Controller</a></li>
+        
+    
+        <li class="main "><a href="#electrical">Electrical</a></li>
         
             <li><a href="#cauerlowpassanalog">CauerLowPassAnalog</a></li>
         
@@ -174,27 +226,11 @@
         
             <li><a href="#characteristicidealdiodes">CharacteristicIdealDiodes</a></li>
         
-            <li><a href="#characteristicthyristors">CharacteristicThyristors</a></li>
-        
             <li><a href="#chuacircuit">ChuaCircuit</a></li>
-        
-            <li><a href="#controlledswitchwitharc">ControlledSwitchWithArc</a></li>
-        
-            <li><a href="#first">First</a></li>
-        
-            <li><a href="#heatingrectifier">HeatingRectifier</a></li>
         
             <li><a href="#heatingresistor">HeatingResistor</a></li>
         
-            <li><a href="#modalmodel">ModalModel</a></li>
-        
-            <li><a href="#motor">Motor</a></li>
-        
-            <li><a href="#pid_controller">PID_Controller</a></li>
-        
-            <li><a href="#pimodel">PiModel</a></li>
-        
-            <li><a href="#rlmodel">RLModel</a></li>
+            <li><a href="#heatingrectifier">HeatingRectifier</a></li>
         
             <li><a href="#rectifier">Rectifier</a></li>
         
@@ -202,16 +238,39 @@
         
             <li><a href="#showvariableresistor">ShowVariableResistor</a></li>
         
-            <li><a href="#twomasses">TwoMasses</a></li>
+            <li><a href="#controlledswitchwitharc">ControlledSwitchWithArc</a></li>
+        
+            <li><a href="#characteristicthyristors">CharacteristicThyristors</a></li>
         
             <li><a href="#run_electrical_examples">run_electrical_examples</a></li>
+        
+    
+        <li class="main "><a href="#heat-transfer">Heat transfer</a></li>
+        
+            <li><a href="#twomasses">TwoMasses</a></li>
+        
+            <li><a href="#motor">Motor</a></li>
+        
+    
+        <li class="main "><a href="#power-systems">Power systems</a></li>
+        
+            <li><a href="#rlmodel">RLModel</a></li>
+        
+            <li><a href="#pimodel">PiModel</a></li>
+        
+            <li><a href="#modalmodel">ModalModel</a></li>
+        
+    
+        <li class="main "><a href="#rotational">Rotational</a></li>
+        
+            <li><a href="#first">First</a></li>
         
     
     </ul>
 </div></div>
                 <div class="col-md-9" role="main">
 
-<h1 id="simsexampleslib">Sims.Examples.Lib</h1>
+<h1 id="simslib-examples">Sims.Lib examples</h1>
 <p>Examples using models from the Sims standard library (Sims.Lib).</p>
 <p>Many of these are patterned after the examples in the Modelica
 Standard Library.</p>
@@ -225,137 +284,7 @@ Standard Library.</p>
 </pre></div>
 
 
-<h2 id="cauerlowpassanalog">CauerLowPassAnalog</h2>
-<p>Cauer low-pass filter with analog components</p>
-<p>The example Cauer Filter is a low-pass-filter of the fifth order. It
-is realized using an analog network. The voltage source on <code>n1</code> is the
-input voltage (step), and <code>n4</code> is the filter output voltage. The
-pulse response is calculated.</p>
-<p><img alt="diagram" src="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica.Electrical.Analog.Examples.CauerLowPassAnalogD.png" /></p>
-<p><a href="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CauerLowPassAnalog">LBL doc link</a>
- | <a href="http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CauerLowPassAnalog">MapleSoft doc link</a></p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/electrical.jl#L35">Sims/src/../examples/lib/electrical.jl:35</a></p>
-<h2 id="cauerlowpassopv">CauerLowPassOPV</h2>
-<p>Cauer low-pass filter with operational amplifiers</p>
-<p>The example Cauer Filter is a low-pass-filter of the fifth order. It
-is realized using an analog network with op amps. The voltage source
-on <code>n[1]</code> is the input voltage (step), and <code>n[10]</code> is the filter output
-voltage. The pulse response is calculated.</p>
-<p><img alt="diagram" src="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica.Electrical.Analog.Examples.CauerLowPassOPVD.png" /></p>
-<p><a href="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CauerLowPassOPV">LBL doc link</a>
- | <a href="http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CauerLowPassOPV">MapleSoft doc link</a></p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/electrical.jl#L75">Sims/src/../examples/lib/electrical.jl:75</a></p>
-<h2 id="cauerlowpassopv2">CauerLowPassOPV2</h2>
-<p>Cauer low-pass filter with operational amplifiers (alternate implementation)</p>
-<p>The example Cauer Filter is a low-pass-filter of the fifth order. It
-is realized using an analog network with op amps. The voltage source
-on <code>n1</code> is the input voltage (step), and <code>n10</code> is the filter output
-voltage. The pulse response is calculated.</p>
-<p><img alt="diagram" src="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica.Electrical.Analog.Examples.CauerLowPassOPVD.png" /></p>
-<p><a href="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CauerLowPassOPV">LBL doc link</a>
- | <a href="http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CauerLowPassOPV">MapleSoft doc link</a></p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/electrical.jl#L128">Sims/src/../examples/lib/electrical.jl:128</a></p>
-<h2 id="characteristicidealdiodes">CharacteristicIdealDiodes</h2>
-<p>Characteristic of ideal diodes</p>
-<p>Three examples of ideal diodes are shown:</p>
-<ul>
-<li>The totally ideal diode (Ideal) with all parameters to be zero</li>
-<li>The nearly ideal diode with Ron=0.1 and Goff=0.1</li>
-<li>The nearly ideal but displaced diode with Vknee=5 and Ron=0.1 and Goff=0.1.</li>
-</ul>
-<p>The resistance and conductance are chosen untypically high since the
-slopes should be seen in the graphics. The voltage across the first
-diode is (s1 - n1). The current through the first diode is
-proportional to n1.</p>
-<p><img alt="diagram" src="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica.Electrical.Analog.Examples.CharacteristicIdealDiodesD.png" /></p>
-<p><a href="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CharacteristicIdealDiodes">LBL doc link</a>
- | <a href="http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CharacteristicIdealDiodes">MapleSoft doc link</a></p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/electrical.jl#L211">Sims/src/../examples/lib/electrical.jl:211</a></p>
-<h2 id="characteristicthyristors">CharacteristicThyristors</h2>
-<p>Characteristic of ideal thyristors</p>
-<p>Two examples of thyristors are shown: the ideal thyristor and the
-ideal GTO thyristor with Vknee=5.</p>
-<p><img alt="diagram" src="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica.Electrical.Analog.Examples.CharacteristicThyristorsD.png" /></p>
-<p><a href="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CharacteristicThyristors">LBL doc link</a>
- | <a href="http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CharacteristicThyristors">MapleSoft doc link</a></p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/electrical.jl#L638">Sims/src/../examples/lib/electrical.jl:638</a></p>
-<h2 id="chuacircuit">ChuaCircuit</h2>
-<p>Chua's circuit</p>
-<p>Chua's circuit is a simple nonlinear circuit which shows chaotic
-behaviour. The circuit consists of linear basic elements (capacitors,
-resistor, conductor, inductor), and one nonlinear element, which is
-called Chua's diode. </p>
-<p>To see the chaotic behaviour, plot n2 versus n3 (the two capacitor
-voltages).</p>
-<p><img alt="diagram" src="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica.Electrical.Analog.Examples.ChuaCircuitD.png" /></p>
-<p><a href="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.ChuaCircuit">LBL doc link</a>
- | <a href="http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.ChuaCircuit">MapleSoft doc link</a></p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/electrical.jl#L266">Sims/src/../examples/lib/electrical.jl:266</a></p>
-<h2 id="controlledswitchwitharc">ControlledSwitchWithArc</h2>
-<p>Comparison of controlled switch models both with and without arc</p>
-<p>This example is to compare the behaviour of switch models with and without an electric arc taking into consideration.</p>
-<p>a3 and b3 are proportional to the switch currents. The difference in
-the closing area shows that the simple arc model avoids the suddenly
-switching.</p>
-<p><img alt="diagram" src="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica.Electrical.Analog.Examples.ControlledSwitchWithArcD.png" /></p>
-<p><a href="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.ControlledSwitchWithArc">LBL doc link</a>
- | <a href="http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.ControlledSwitchWithArc">MapleSoft doc link</a></p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/electrical.jl#L582">Sims/src/../examples/lib/electrical.jl:582</a></p>
-<h2 id="first">First</h2>
-<p>First example: simple drive train</p>
-<p>The drive train consists of a motor inertia which is driven by a
-sine-wave motor torque. Via a gearbox the rotational energy is
-transmitted to a load inertia. Elasticity in the gearbox is modeled by
-a spring element. A linear damper is used to model the damping in the
-gearbox bearing.</p>
-<p>Note, that a force component (like the damper of this example) which
-is acting between a shaft and the housing has to be fixed in the
-housing on one side via component Fixed.</p>
-<p><img alt="diagram" src="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica.Mechanics.Rotational.Examples.FirstD.png" /></p>
-<p><a href="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Mechanics_Rotational_Examples.html#Modelica.Mechanics.Rotational.Examples.First">LBL doc link</a>
- | <a href="http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Mechanics_Rotational_Examples.html#Modelica.Mechanics.Rotational.Examples.First">MapleSoft doc link</a></p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/rotational.jl#L29">Sims/src/../examples/lib/rotational.jl:29</a></p>
-<h2 id="heatingrectifier">HeatingRectifier</h2>
-<p>Heating rectifier</p>
-<p>The heating rectifier shows a heat flow always if the electrical
-capacitor is loaded. </p>
-<p><img alt="diagram" src="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica.Electrical.Analog.Examples.HeatingRectifierD.png" /></p>
-<p><a href="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.HeatingRectifier">LBL doc link</a>
- | <a href="http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.HeatingRectifier">MapleSoft doc link</a></p>
-<p>NOTE: CURRENTLY UNFINISHED</p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/electrical.jl#L336">Sims/src/../examples/lib/electrical.jl:336</a></p>
-<h2 id="heatingresistor">HeatingResistor</h2>
-<p>Heating resistor</p>
-<p>This is a very simple circuit consisting of a voltage source and a
-resistor. The loss power in the resistor is transported to the
-environment via its heatPort.</p>
-<p><img alt="diagram" src="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica.Electrical.Analog.Examples.HeatingResistorD.png" /></p>
-<p><a href="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.HeatingResistor">LBL doc link</a>
- | <a href="http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.HeatingResistor">MapleSoft doc link</a></p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/electrical.jl#L309">Sims/src/../examples/lib/electrical.jl:309</a></p>
-<h2 id="modalmodel">ModalModel</h2>
-<p>Three-phase modal line model</p>
-<p>See also sister models: PiModel and RLModal.</p>
-<p>WARNING: immature / possibly broken!</p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/powersystems.jl#L100">Sims/src/../examples/lib/powersystems.jl:100</a></p>
-<h2 id="motor">Motor</h2>
-<p>Second order thermal model of a motor</p>
-<p><img alt="diagram" src="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica.Thermal.HeatTransfer.Examples.MotorD.png" /></p>
-<p><a href="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Thermal_HeatTransfer_Examples.html#Modelica.Thermal.HeatTransfer.Examples.Motor">LBL doc link</a>
- | <a href="http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Thermal_HeatTransfer_Examples.html#Modelica.Thermal.HeatTransfer.Examples.Motor">MapleSoft doc link</a></p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/heat_transfer.jl#L46">Sims/src/../examples/lib/heat_transfer.jl:46</a></p>
+<h1 id="blocks">Blocks</h1>
 <h2 id="pid_controller">PID_Controller</h2>
 <p>Demonstrates the usage of a Continuous.LimPID controller</p>
 <p>This is a simple drive train controlled by a PID controller:</p>
@@ -394,20 +323,84 @@ environment via its heatPort.</p>
 <p><img alt="diagram" src="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica.Blocks.Examples.PID_ControllerD.png" /></p>
 <p><a href="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Blocks_Examples.html#Modelica.Blocks.Examples.PID_Controller">LBL doc link</a>
  | <a href="http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Blocks_Examples.html#Modelica.Blocks.Examples.PID_Controller">MapleSoft doc link</a></p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/blocks.jl#L46">Sims/src/../examples/lib/blocks.jl:46</a></p>
-<h2 id="pimodel">PiModel</h2>
-<p>Three-phase Pi line model</p>
-<p>See also sister models: RLModel and ModalModal.</p>
-<p>WARNING: immature / possibly broken!</p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/powersystems.jl#L49">Sims/src/../examples/lib/powersystems.jl:49</a></p>
-<h2 id="rlmodel">RLModel</h2>
-<p>Three-phase RL line model</p>
-<p>See also sister models: PiModel and ModalModal.</p>
-<p>WARNING: immature / possibly broken!</p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/powersystems.jl#L15">Sims/src/../examples/lib/powersystems.jl:15</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/blocks.jl#L49">Sims/src/../examples/lib/blocks.jl:49</a></p>
+<h1 id="electrical">Electrical</h1>
+<h2 id="cauerlowpassanalog">CauerLowPassAnalog</h2>
+<p>Cauer low-pass filter with analog components</p>
+<p>The example Cauer Filter is a low-pass-filter of the fifth order. It
+is realized using an analog network. The voltage source on <code>n1</code> is the
+input voltage (step), and <code>n4</code> is the filter output voltage. The
+pulse response is calculated.</p>
+<p><img alt="diagram" src="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica.Electrical.Analog.Examples.CauerLowPassAnalogD.png" /></p>
+<p><a href="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CauerLowPassAnalog">LBL doc link</a>
+ | <a href="http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CauerLowPassAnalog">MapleSoft doc link</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/electrical.jl#L39">Sims/src/../examples/lib/electrical.jl:39</a></p>
+<h2 id="cauerlowpassopv">CauerLowPassOPV</h2>
+<p>Cauer low-pass filter with operational amplifiers</p>
+<p>The example Cauer Filter is a low-pass-filter of the fifth order. It
+is realized using an analog network with op amps. The voltage source
+on <code>n[1]</code> is the input voltage (step), and <code>n[10]</code> is the filter output
+voltage. The pulse response is calculated.</p>
+<p><img alt="diagram" src="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica.Electrical.Analog.Examples.CauerLowPassOPVD.png" /></p>
+<p><a href="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CauerLowPassOPV">LBL doc link</a>
+ | <a href="http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CauerLowPassOPV">MapleSoft doc link</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/electrical.jl#L79">Sims/src/../examples/lib/electrical.jl:79</a></p>
+<h2 id="cauerlowpassopv2">CauerLowPassOPV2</h2>
+<p>Cauer low-pass filter with operational amplifiers (alternate implementation)</p>
+<p>The example Cauer Filter is a low-pass-filter of the fifth order. It
+is realized using an analog network with op amps. The voltage source
+on <code>n1</code> is the input voltage (step), and <code>n10</code> is the filter output
+voltage. The pulse response is calculated.</p>
+<p><img alt="diagram" src="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica.Electrical.Analog.Examples.CauerLowPassOPVD.png" /></p>
+<p><a href="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CauerLowPassOPV">LBL doc link</a>
+ | <a href="http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CauerLowPassOPV">MapleSoft doc link</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/electrical.jl#L132">Sims/src/../examples/lib/electrical.jl:132</a></p>
+<h2 id="characteristicidealdiodes">CharacteristicIdealDiodes</h2>
+<p>Characteristic of ideal diodes</p>
+<p>Three examples of ideal diodes are shown:</p>
+<ul>
+<li>The totally ideal diode (Ideal) with all parameters to be zero</li>
+<li>The nearly ideal diode with Ron=0.1 and Goff=0.1</li>
+<li>The nearly ideal but displaced diode with Vknee=5 and Ron=0.1 and Goff=0.1.</li>
+</ul>
+<p>The resistance and conductance are chosen untypically high since the
+slopes should be seen in the graphics. The voltage across the first
+diode is (s1 - n1). The current through the first diode is
+proportional to n1.</p>
+<p><img alt="diagram" src="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica.Electrical.Analog.Examples.CharacteristicIdealDiodesD.png" /></p>
+<p><a href="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CharacteristicIdealDiodes">LBL doc link</a>
+ | <a href="http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CharacteristicIdealDiodes">MapleSoft doc link</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/electrical.jl#L215">Sims/src/../examples/lib/electrical.jl:215</a></p>
+<h2 id="chuacircuit">ChuaCircuit</h2>
+<p>Chua's circuit</p>
+<p>Chua's circuit is a simple nonlinear circuit which shows chaotic
+behaviour. The circuit consists of linear basic elements (capacitors,
+resistor, conductor, inductor), and one nonlinear element, which is
+called Chua's diode. </p>
+<p>To see the chaotic behaviour, plot n2 versus n3 (the two capacitor
+voltages).</p>
+<p><img alt="diagram" src="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica.Electrical.Analog.Examples.ChuaCircuitD.png" /></p>
+<p><a href="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.ChuaCircuit">LBL doc link</a>
+ | <a href="http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.ChuaCircuit">MapleSoft doc link</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/electrical.jl#L270">Sims/src/../examples/lib/electrical.jl:270</a></p>
+<h2 id="heatingresistor">HeatingResistor</h2>
+<p>Heating resistor</p>
+<p>This is a very simple circuit consisting of a voltage source and a
+resistor. The loss power in the resistor is transported to the
+environment via its heatPort.</p>
+<p><img alt="diagram" src="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica.Electrical.Analog.Examples.HeatingResistorD.png" /></p>
+<p><a href="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.HeatingResistor">LBL doc link</a>
+ | <a href="http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.HeatingResistor">MapleSoft doc link</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/electrical.jl#L313">Sims/src/../examples/lib/electrical.jl:313</a></p>
+<h2 id="heatingrectifier">HeatingRectifier</h2>
+<p>Heating rectifier</p>
+<p>The heating rectifier shows a heat flow always if the electrical
+capacitor is loaded. </p>
+<p><img alt="diagram" src="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica.Electrical.Analog.Examples.HeatingRectifierD.png" /></p>
+<p><a href="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.HeatingRectifier">LBL doc link</a>
+ | <a href="http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.HeatingRectifier">MapleSoft doc link</a></p>
+<p>NOTE: CURRENTLY UNFINISHED</p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/electrical.jl#L340">Sims/src/../examples/lib/electrical.jl:340</a></p>
 <h2 id="rectifier">Rectifier</h2>
 <p>B6 diode bridge</p>
 <p>The rectifier example shows a B6 diode bridge fed by a three phase
@@ -417,8 +410,7 @@ ideal no-load voltage, thus making easier initial transient.</p>
 <p><a href="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.Rectifier">LBL doc link</a>
  | <a href="http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.Rectifier">MapleSoft doc link</a></p>
 <p>NOTE: CURRENTLY BROKEN</p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/electrical.jl#L399">Sims/src/../examples/lib/electrical.jl:399</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/electrical.jl#L403">Sims/src/../examples/lib/electrical.jl:403</a></p>
 <h2 id="showsaturatinginductor">ShowSaturatingInductor</h2>
 <p>Simple demo to show behaviour of SaturatingInductor component</p>
 <p>This simple circuit uses the saturating inductor which has a changing
@@ -427,8 +419,7 @@ inductivity.</p>
 <p><a href="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.ShowSaturatingInductor">LBL doc link</a>
  | <a href="http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.ShowSaturatingInductor">MapleSoft doc link</a></p>
 <p>NOTE: CURRENTLY BROKEN</p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/electrical.jl#L458">Sims/src/../examples/lib/electrical.jl:458</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/electrical.jl#L462">Sims/src/../examples/lib/electrical.jl:462</a></p>
 <h2 id="showvariableresistor">ShowVariableResistor</h2>
 <p>Simple demo of a VariableResistor model</p>
 <p>It is a simple test circuit for the VariableResistor. The
@@ -437,8 +428,29 @@ current monitors</p>
 <p><img alt="diagram" src="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica.Electrical.Analog.Examples.ShowVariableResistorD.png" /></p>
 <p><a href="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.ShowVariableResistor">LBL doc link</a>
  | <a href="http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.ShowVariableResistor">MapleSoft doc link</a></p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/electrical.jl#L541">Sims/src/../examples/lib/electrical.jl:541</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/electrical.jl#L545">Sims/src/../examples/lib/electrical.jl:545</a></p>
+<h2 id="controlledswitchwitharc">ControlledSwitchWithArc</h2>
+<p>Comparison of controlled switch models both with and without arc</p>
+<p>This example is to compare the behaviour of switch models with and without an electric arc taking into consideration.</p>
+<p>a3 and b3 are proportional to the switch currents. The difference in
+the closing area shows that the simple arc model avoids the suddenly
+switching.</p>
+<p><img alt="diagram" src="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica.Electrical.Analog.Examples.ControlledSwitchWithArcD.png" /></p>
+<p><a href="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.ControlledSwitchWithArc">LBL doc link</a>
+ | <a href="http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.ControlledSwitchWithArc">MapleSoft doc link</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/electrical.jl#L586">Sims/src/../examples/lib/electrical.jl:586</a></p>
+<h2 id="characteristicthyristors">CharacteristicThyristors</h2>
+<p>Characteristic of ideal thyristors</p>
+<p>Two examples of thyristors are shown: the ideal thyristor and the
+ideal GTO thyristor with Vknee=5.</p>
+<p><img alt="diagram" src="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica.Electrical.Analog.Examples.CharacteristicThyristorsD.png" /></p>
+<p><a href="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CharacteristicThyristors">LBL doc link</a>
+ | <a href="http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CharacteristicThyristors">MapleSoft doc link</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/electrical.jl#L642">Sims/src/../examples/lib/electrical.jl:642</a></p>
+<h2 id="run_electrical_examples">run_electrical_examples</h2>
+<p>Run the electrical examples from Examples.Lib</p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/electrical.jl#L734">Sims/src/../examples/lib/electrical.jl:734</a></p>
+<h1 id="heat-transfer">Heat transfer</h1>
 <h2 id="twomasses">TwoMasses</h2>
 <p>Simple conduction demo</p>
 <p>This example demonstrates the thermal response of two masses
@@ -452,12 +464,44 @@ the system by the sum of the heat capacities of each element.</p>
 <p><img alt="diagram" src="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica.Thermal.HeatTransfer.Examples.TwoMassesD.png" /></p>
 <p><a href="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Thermal_HeatTransfer_Examples.html#Modelica.Thermal.HeatTransfer.Examples.TwoMasses">LBL doc link</a>
  | <a href="http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Thermal_HeatTransfer_Examples.html#Modelica.Thermal.HeatTransfer.Examples.TwoMasses">MapleSoft doc link</a></p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/heat_transfer.jl#L27">Sims/src/../examples/lib/heat_transfer.jl:27</a></p>
-<h2 id="run_electrical_examples">run_electrical_examples</h2>
-<p>Run the electrical examples from Examples.Lib</p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/electrical.jl#L730">Sims/src/../examples/lib/electrical.jl:730</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/heat_transfer.jl#L30">Sims/src/../examples/lib/heat_transfer.jl:30</a></p>
+<h2 id="motor">Motor</h2>
+<p>Second order thermal model of a motor</p>
+<p><img alt="diagram" src="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica.Thermal.HeatTransfer.Examples.MotorD.png" /></p>
+<p><a href="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Thermal_HeatTransfer_Examples.html#Modelica.Thermal.HeatTransfer.Examples.Motor">LBL doc link</a>
+ | <a href="http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Thermal_HeatTransfer_Examples.html#Modelica.Thermal.HeatTransfer.Examples.Motor">MapleSoft doc link</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/heat_transfer.jl#L49">Sims/src/../examples/lib/heat_transfer.jl:49</a></p>
+<h1 id="power-systems">Power systems</h1>
+<h2 id="rlmodel">RLModel</h2>
+<p>Three-phase RL line model</p>
+<p>See also sister models: PiModel and ModalModal.</p>
+<p>WARNING: immature / possibly broken!</p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/powersystems.jl#L19">Sims/src/../examples/lib/powersystems.jl:19</a></p>
+<h2 id="pimodel">PiModel</h2>
+<p>Three-phase Pi line model</p>
+<p>See also sister models: RLModel and ModalModal.</p>
+<p>WARNING: immature / possibly broken!</p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/powersystems.jl#L53">Sims/src/../examples/lib/powersystems.jl:53</a></p>
+<h2 id="modalmodel">ModalModel</h2>
+<p>Three-phase modal line model</p>
+<p>See also sister models: PiModel and RLModal.</p>
+<p>WARNING: immature / possibly broken!</p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/powersystems.jl#L104">Sims/src/../examples/lib/powersystems.jl:104</a></p>
+<h1 id="rotational">Rotational</h1>
+<h2 id="first">First</h2>
+<p>First example: simple drive train</p>
+<p>The drive train consists of a motor inertia which is driven by a
+sine-wave motor torque. Via a gearbox the rotational energy is
+transmitted to a load inertia. Elasticity in the gearbox is modeled by
+a spring element. A linear damper is used to model the damping in the
+gearbox bearing.</p>
+<p>Note, that a force component (like the damper of this example) which
+is acting between a shaft and the housing has to be fixed in the
+housing on one side via component Fixed.</p>
+<p><img alt="diagram" src="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica.Mechanics.Rotational.Examples.FirstD.png" /></p>
+<p><a href="http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Mechanics_Rotational_Examples.html#Modelica.Mechanics.Rotational.Examples.First">LBL doc link</a>
+ | <a href="http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Mechanics_Rotational_Examples.html#Modelica.Mechanics.Rotational.Examples.First">MapleSoft doc link</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/lib/rotational.jl#L33">Sims/src/../examples/lib/rotational.jl:33</a></p>
 </div>
             
         </div>

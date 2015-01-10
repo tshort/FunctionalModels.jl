@@ -7,15 +7,15 @@
         
         
         
-        <link rel="shortcut icon" href="../img/favicon.ico">
+        <link rel="shortcut icon" href="../../img/favicon.ico">
 
-        <title>API - Sims.jl</title>
+        <title>Modeling - Sims.jl</title>
 
-        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
-        <link href="../css/font-awesome-4.0.3.css" rel="stylesheet">
-        <link href="../css/base.css" rel="stylesheet">
-        <link rel="stylesheet" href="../css/highlight.css">
-        <link href="../css/github.css" rel="stylesheet">
+        <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../../css/font-awesome-4.0.3.css" rel="stylesheet">
+        <link href="../../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="../../css/highlight.css">
+        <link href="../../css/github.css" rel="stylesheet">
 
         <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!--[if lt IE 9]>
@@ -44,7 +44,7 @@
             
 
             <!-- Main title -->
-            <a class="navbar-brand" href="..">Sims.jl</a>
+            <a class="navbar-brand" href="../..">Sims.jl</a>
         </div>
 
         <!-- Expanded navigation -->
@@ -54,20 +54,37 @@
                 <ul class="nav navbar-nav">
                 
                 
-                    <li class="dropdown active">
+                    <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">User guide <b class="caret"></b></a>
                         <ul class="dropdown-menu">
                         
                             <li >
-                                <a href="../basics">Basics</a>
+                                <a href="../../basics">Basics</a>
                             </li>
                         
                             <li >
-                                <a href="../plotting">Plotting results</a>
+                                <a href="../../plotting">Plotting results</a>
                             </li>
                         
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li class="dropdown active">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">API <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
                             <li class="active">
-                                <a href=".">API</a>
+                                <a href=".">Modeling</a>
+                            </li>
+                        
+                            <li >
+                                <a href="../sim">Simulations</a>
+                            </li>
+                        
+                            <li >
+                                <a href="../utils">Utilities</a>
                             </li>
                         
                         </ul>
@@ -76,24 +93,34 @@
                 
                 
                     <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Details <b class="caret"></b></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Standard library <b class="caret"></b></a>
                         <ul class="dropdown-menu">
                         
                             <li >
-                                <a href="../design">Design considerations</a>
+                                <a href="../../lib/types">Types</a>
                             </li>
                         
                             <li >
-                                <a href="../future">Development options</a>
+                                <a href="../../lib/blocks">Continuous blocks</a>
+                            </li>
+                        
+                            <li >
+                                <a href="../../lib/electrical">Electrical</a>
+                            </li>
+                        
+                            <li >
+                                <a href="../../lib/heat_transfer">Heat transfer</a>
+                            </li>
+                        
+                            <li >
+                                <a href="../../lib/powersystems">Power systems</a>
+                            </li>
+                        
+                            <li >
+                                <a href="../../lib/rotational">Rotational mechanics</a>
                             </li>
                         
                         </ul>
-                    </li>
-                
-                
-                
-                    <li >
-                        <a href="../lib">Standard library</a>
                     </li>
                 
                 
@@ -103,15 +130,32 @@
                         <ul class="dropdown-menu">
                         
                             <li >
-                                <a href="../examples/basics">Basics</a>
+                                <a href="../../examples/basics">Basics</a>
                             </li>
                         
                             <li >
-                                <a href="../examples/lib">Standard library</a>
+                                <a href="../../examples/lib">Standard library</a>
                             </li>
                         
                             <li >
-                                <a href="../examples/neural">Neural</a>
+                                <a href="../../examples/neural">Neural</a>
+                            </li>
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Design <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            <li >
+                                <a href="../../design">Considerations</a>
+                            </li>
+                        
+                            <li >
+                                <a href="../../future">Development options</a>
                             </li>
                         
                         </ul>
@@ -120,7 +164,7 @@
                 
                 
                     <li >
-                        <a href="../license">License</a>
+                        <a href="../../license">License</a>
                     </li>
                 
                 
@@ -133,12 +177,12 @@
                 
                 
                 <li >
-                    <a rel="next" href="../plotting">
+                    <a rel="next" href="../../plotting">
                         <i class="fa fa-arrow-left"></i> Previous
                     </a>
                 </li>
                 <li >
-                    <a rel="prev" href="../design">
+                    <a rel="prev" href="../sim">
                         Next <i class="fa fa-arrow-right"></i>
                     </a>
                 </li>
@@ -164,7 +208,7 @@
                 <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
     
-        <li class="main active"><a href="#sims">Sims</a></li>
+        <li class="main active"><a href="#building-models">Building models</a></li>
         
             <li><a href="#boolevent">BoolEvent</a></li>
         
@@ -172,19 +216,11 @@
         
             <li><a href="#addhook">addhook!</a></li>
         
-            <li><a href="#check">check</a></li>
-        
             <li><a href="#compatible_values">compatible_values</a></li>
-        
-            <li><a href="#create_sim">create_sim</a></li>
-        
-            <li><a href="#create_simstate">create_simstate</a></li>
         
             <li><a href="#delay">delay</a></li>
         
             <li><a href="#der">der</a></li>
-        
-            <li><a href="#elaborate">elaborate</a></li>
         
             <li><a href="#ifelse">ifelse</a></li>
         
@@ -200,6 +236,14 @@
         
             <li><a href="#value">value</a></li>
         
+            <li><a href="#equation">Equation</a></li>
+        
+            <li><a href="#mtime">MTime</a></li>
+        
+            <li><a href="#model">Model</a></li>
+        
+            <li><a href="#equations">@equations</a></li>
+        
             <li><a href="#defaultunknown">DefaultUnknown</a></li>
         
             <li><a href="#derunknown">DerUnknown</a></li>
@@ -207,8 +251,6 @@
             <li><a href="#discrete">Discrete</a></li>
         
             <li><a href="#discretevar">DiscreteVar</a></li>
-        
-            <li><a href="#equationset">EquationSet</a></li>
         
             <li><a href="#event">Event</a></li>
         
@@ -230,14 +272,6 @@
         
             <li><a href="#refunknowntunknowncategory">RefUnknown{T&lt;:UnknownCategory}</a></li>
         
-            <li><a href="#sim">Sim</a></li>
-        
-            <li><a href="#simfunctions">SimFunctions</a></li>
-        
-            <li><a href="#simresult">SimResult</a></li>
-        
-            <li><a href="#simstate">SimState</a></li>
-        
             <li><a href="#structuralevent">StructuralEvent</a></li>
         
             <li><a href="#unknowncategory">UnknownCategory</a></li>
@@ -246,29 +280,14 @@
         
             <li><a href="#unknowntunknowncategory">Unknown{T&lt;:UnknownCategory}</a></li>
         
-            <li><a href="#equations">@equations</a></li>
-        
-            <li><a href="#unknown">@unknown</a></li>
-        
-    
-        <li class="main "><a href="#effects">Effects</a></li>
-        
-            <li><a href="#equation">Equation</a></li>
-        
-            <li><a href="#mtime">MTime</a></li>
-        
-            <li><a href="#model">Model</a></li>
-        
-            <li><a href="#sim_1">sim</a></li>
-        
     
     </ul>
 </div></div>
                 <div class="col-md-9" role="main">
 
-<h1 id="sims">Sims</h1>
-<p>The API for use of Sims. Includes basic models and functions for
-flattening, simulation, and plotting.</p>
+<h1 id="building-models">Building models</h1>
+<p>The API for building models with Sims. Includes basic types, models,
+and functions.</p>
 <h2 id="boolevent">BoolEvent</h2>
 <p>BoolEvent is a helper for attaching an event to a boolean variable.
 In conjunction with <code>ifelse</code>, this allows constructs like Modelica's
@@ -288,10 +307,9 @@ if blocks.</p>
 <li><code>::Event</code> : a model Event</li>
 </ul>
 <h3 id="examples">Examples</h3>
-<p>See <a href="../../lib/index.html#IdealDiode">IdealDiode</a> and
-<a href="../../lib/index.html#Limiter">Limiter</a> in the standard library.</p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L1160">Sims/src/main.jl:1160</a></p>
+<p>See <a href="../../../lib/index.html#IdealDiode">IdealDiode</a> and
+<a href="../../../lib/index.html#Limiter">Limiter</a> in the standard library.</p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L1167">Sims/src/main.jl:1167</a></p>
 <h2 id="branch">Branch</h2>
 <p>A helper Model to connect a branch between two different nodes and
 specify potential between nodes and the flow between nodes.</p>
@@ -334,8 +352,7 @@ library:</p>
 </pre></div>
 
 
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L759">Sims/src/main.jl:759</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L766">Sims/src/main.jl:766</a></p>
 <h2 id="addhook">addhook!</h2>
 <p>Add hooks to a Discrete variable.</p>
 <p>The propagation and handling of Discrete variables is currently rather
@@ -369,24 +386,7 @@ add some value propagation.</p>
 </pre></div>
 
 
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L991">Sims/src/main.jl:991</a></p>
-<h2 id="check">check</h2>
-<p>Prints the number of equations and the number of unknowns.</p>
-<div class="codehilite"><pre><span class="n">name</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-</pre></div>
-
-
-<h3 id="arguments_3">Arguments</h3>
-<ul>
-<li><code>x</code> : a Model, EquationSet, or Sim</li>
-</ul>
-<h3 id="returns_3">Returns</h3>
-<ul>
-<li><code>::Void</code></li>
-</ul>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/utils.jl#L22">Sims/src/utils.jl:22</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L998">Sims/src/main.jl:998</a></p>
 <h2 id="compatible_values">compatible_values</h2>
 <p>A helper functions to return the base value from an Unknown to use
 when creating other Unknowns. It is especially useful for taking two
@@ -399,11 +399,11 @@ arguments.</p>
 
 <p>It's still somewhat broken but works for basic cases. No type
 promotion is currently done.</p>
-<h3 id="arguments_4">Arguments</h3>
+<h3 id="arguments_3">Arguments</h3>
 <ul>
 <li><code>x</code>, <code>y</code> : objects or Unknowns</li>
 </ul>
-<h3 id="returns_4">Returns</h3>
+<h3 id="returns_3">Returns</h3>
 <p>The returned object has zeros of type and length common to both <code>x</code>
 and <code>y</code>.</p>
 <h3 id="examples_3">Examples</h3>
@@ -415,47 +415,7 @@ and <code>y</code>.</p>
 </pre></div>
 
 
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L632">Sims/src/main.jl:632</a></p>
-<h2 id="create_sim">create_sim</h2>
-<p><code>create_sim</code> converts a model to a Sim.</p>
-<div class="codehilite"><pre><span class="n">create_sim</span><span class="p">(</span><span class="n">m</span><span class="p">::</span><span class="n">Model</span><span class="p">)</span>
-<span class="n">create_sim</span><span class="p">(</span><span class="n">eq</span><span class="p">::</span><span class="n">EquationSet</span><span class="p">)</span>
-</pre></div>
-
-
-<h3 id="arguments_5">Arguments</h3>
-<ul>
-<li><code>m::Model</code> : a Model</li>
-<li><code>eq::EquationSet</code> : a flattened model</li>
-</ul>
-<h3 id="returns_5">Returns</h3>
-<ul>
-<li><code>::Sim</code> : a simulation object</li>
-</ul>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/simcreation.jl#L97">Sims/src/simcreation.jl:97</a></p>
-<h2 id="create_simstate">create_simstate</h2>
-<p><code>create_simstate</code> converts a Sim is the main conversion function that
-returns a SimState, a simulation object with state history.</p>
-<div class="codehilite"><pre><span class="n">create_simstate</span><span class="p">(</span><span class="n">m</span><span class="p">::</span><span class="n">Model</span><span class="p">)</span>
-<span class="n">create_simstate</span><span class="p">(</span><span class="n">eq</span><span class="p">::</span><span class="n">EquationSet</span><span class="p">)</span>
-<span class="n">create_simstate</span><span class="p">(</span><span class="n">sm</span><span class="p">::</span><span class="n">Sim</span><span class="p">)</span>
-</pre></div>
-
-
-<h3 id="arguments_6">Arguments</h3>
-<ul>
-<li><code>m::Model</code> : a Model</li>
-<li><code>eq::EquationSet</code> : a flattened model</li>
-<li><code>sm::Sim</code> : a simulation object</li>
-</ul>
-<h3 id="returns_6">Returns</h3>
-<ul>
-<li><code>::Sim</code> : a simulation object</li>
-</ul>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/simcreation.jl#L141">Sims/src/simcreation.jl:141</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L639">Sims/src/main.jl:639</a></p>
 <h2 id="delay">delay</h2>
 <p>A Model specifying a delay to an Unknown.</p>
 <p>Internally, Unknowns that are delayed store past history. This is
@@ -464,17 +424,16 @@ interpolated as needed to find the delayed quantity.</p>
 </pre></div>
 
 
-<h3 id="arguments_7">Arguments</h3>
+<h3 id="arguments_4">Arguments</h3>
 <ul>
 <li><code>x::Unknown</code> : the quantity to be delayed.</li>
 <li><code>val</code> : the value of the delay; may be an object or Unknown.</li>
 </ul>
-<h3 id="returns_7">Returns</h3>
+<h3 id="returns_4">Returns</h3>
 <ul>
 <li><code>::MExpr</code> : a delayed Unknown</li>
 </ul>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L870">Sims/src/main.jl:870</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L877">Sims/src/main.jl:877</a></p>
 <h2 id="der">der</h2>
 <p>Represents the derivative of an Unknown.</p>
 <div class="codehilite"><pre><span class="n">der</span><span class="p">(</span><span class="n">x</span><span class="p">::</span><span class="n">Unknown</span><span class="p">)</span>
@@ -482,7 +441,7 @@ interpolated as needed to find the delayed quantity.</p>
 </pre></div>
 
 
-<h3 id="arguments_8">Arguments</h3>
+<h3 id="arguments_5">Arguments</h3>
 <ul>
 <li><code>x::Unknown</code> : the Unknown variable</li>
 <li><code>val</code> : initial value, defaults to 0.0</li>
@@ -493,44 +452,7 @@ interpolated as needed to find the delayed quantity.</p>
 </pre></div>
 
 
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L287">Sims/src/main.jl:287</a></p>
-<h2 id="elaborate">elaborate</h2>
-<p><code>elaborate</code> is the main elaboration function that returns
-a flattened model representation that can be used by <code>sim</code>.</p>
-<div class="codehilite"><pre><span class="n">elaborate</span><span class="p">(</span><span class="n">a</span><span class="p">::</span><span class="n">Model</span><span class="p">)</span>
-</pre></div>
-
-
-<h3 id="arguments_9">Arguments</h3>
-<ul>
-<li><code>a::Model</code> : the input model</li>
-</ul>
-<h3 id="returns_8">Returns</h3>
-<ul>
-<li><code>::EquationSet</code> : the flattened model</li>
-</ul>
-<h3 id="details">Details</h3>
-<p>The main steps in flattening are:</p>
-<ul>
-<li>Replace fixed initial values.</li>
-<li>Flatten models and populate <code>eq.equations</code>.</li>
-<li>Pull out InitialEquations and populate <code>eq.initialequations</code>.</li>
-<li>Pull out Events and populate <code>eq.events</code>.</li>
-<li>Handle StructuralEvents.</li>
-<li>Collect nodes and populate <code>eq.nodeMap</code>.</li>
-<li>Strip out MExpr's from expressions.</li>
-<li>Remove empty equations.</li>
-</ul>
-<p>There is currently no real symbolic processing (sorting, index
-reduction, or any of the other stuff a fancy modeling tool would do).</p>
-<p>In EquationSet, <code>model</code> contains equations and StructuralEvents. When
-a StructuralEvent triggers, the entire model is elaborated again.
-The first step is to replace StructuralEvents that have activated
-with their new_relation in model. Then, the rest of the EquationSet
-is reflattened using <code>model</code> as the starting point.</p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/elaboration.jl#L69">Sims/src/elaboration.jl:69</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L294">Sims/src/main.jl:294</a></p>
 <h2 id="ifelse">ifelse</h2>
 <p>A function allowing if-then-else action for objections and expressions.</p>
 <p>Note that when this is used in a model, it does not trigger an
@@ -541,25 +463,23 @@ often in conjunction with <code>Event</code>.</p>
 </pre></div>
 
 
-<h3 id="arguments_10">Arguments</h3>
+<h3 id="arguments_6">Arguments</h3>
 <ul>
 <li><code>x</code> : the condition, a Bool or ModelType</li>
 <li><code>y</code> : the value to return when true</li>
 <li><code>z</code> : the value to return when false, defaults to <code>nothing</code></li>
 </ul>
-<h3 id="returns_9">Returns</h3>
+<h3 id="returns_5">Returns</h3>
 <ul>
 <li>Either <code>y</code> or <code>z</code></li>
 </ul>
 <h3 id="examples_5">Examples</h3>
-<p>See <a href="../../lib/index.html#DeadZone">DeadZone</a> and
-<a href="../../lib/index.html#Limiter">Limiter</a> in the standard library.</p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L1203">Sims/src/main.jl:1203</a></p>
+<p>See <a href="../../../lib/index.html#DeadZone">DeadZone</a> and
+<a href="../../../lib/index.html#Limiter">Limiter</a> in the standard library.</p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L1210">Sims/src/main.jl:1210</a></p>
 <h2 id="is_unknown">is_unknown</h2>
 <p>Is the object an UnknownVariable?</p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L238">Sims/src/main.jl:238</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L245">Sims/src/main.jl:245</a></p>
 <h2 id="mexpr">mexpr</h2>
 <p>Create MExpr's (model expressions). Analogous to <code>expr</code> in Base.</p>
 <p>This is also useful for wrapping user-defined functions where
@@ -568,13 +488,13 @@ the built-in mechanisms don't work.</p>
 </pre></div>
 
 
-<h3 id="arguments_11">Arguments</h3>
+<h3 id="arguments_7">Arguments</h3>
 <ul>
 <li><code>head::Symbol</code> : the expression head</li>
 <li><code>args...</code> : values and expressions passed to expression
   arguments</li>
 </ul>
-<h3 id="returns_10">Returns</h3>
+<h3 id="returns_6">Returns</h3>
 <ul>
 <li><code>ex::MExpr</code> : a model expression</li>
 </ul>
@@ -587,19 +507,18 @@ the built-in mechanisms don't work.</p>
 </pre></div>
 
 
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L347">Sims/src/main.jl:347</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L354">Sims/src/main.jl:354</a></p>
 <h2 id="name">name</h2>
 <p>The name of an UnknownVariable.</p>
 <div class="codehilite"><pre><span class="n">name</span><span class="p">(</span><span class="n">a</span><span class="p">::</span><span class="n">UnknownVariable</span><span class="p">)</span>
 </pre></div>
 
 
-<h3 id="arguments_12">Arguments</h3>
+<h3 id="arguments_8">Arguments</h3>
 <ul>
 <li><code>x::UnknownVariable</code></li>
 </ul>
-<h3 id="returns_11">Returns</h3>
+<h3 id="returns_7">Returns</h3>
 <ul>
 <li><code>s::String</code> : either the label of the Unknown or if that's blank,
   the symbol name of the Unknown.</li>
@@ -610,8 +529,7 @@ the built-in mechanisms don't work.</p>
 </pre></div>
 
 
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L592">Sims/src/main.jl:592</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L599">Sims/src/main.jl:599</a></p>
 <h2 id="pre">pre</h2>
 <p>The value of a Discrete variable <code>x</code> prior to an event.</p>
 <p>See also <a href="#Event">Event</a>.</p>
@@ -619,28 +537,27 @@ the built-in mechanisms don't work.</p>
 </pre></div>
 
 
-<h3 id="arguments_13">Arguments</h3>
+<h3 id="arguments_9">Arguments</h3>
 <ul>
 <li><code>x::Discrete</code></li>
 </ul>
-<h3 id="returns_12">Returns</h3>
+<h3 id="returns_8">Returns</h3>
 <ul>
 <li>A value stored just prior to an event.</li>
 </ul>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L1017">Sims/src/main.jl:1017</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L1024">Sims/src/main.jl:1024</a></p>
 <h2 id="reinit">reinit</h2>
 <p><code>reinit</code> is used in Event responses to redefine variables. </p>
 <div class="codehilite"><pre><span class="n">reinit</span><span class="p">(</span><span class="n">x</span><span class="p">::</span><span class="n">DiscreteVar</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
 </pre></div>
 
 
-<h3 id="arguments_14">Arguments</h3>
+<h3 id="arguments_10">Arguments</h3>
 <ul>
 <li><code>x::UnknownVariable</code> : the object to be reinitialized.</li>
 <li><code>y</code> : value for redefinition.</li>
 </ul>
-<h3 id="returns_13">Returns</h3>
+<h3 id="returns_9">Returns</h3>
 <ul>
 <li>A value stored just prior to an event.</li>
 </ul>
@@ -661,20 +578,19 @@ the built-in mechanisms don't work.</p>
 </pre></div>
 
 
-<p>See also <a href="../../lib/index.html#IdealThyristor">IdealThyristor</a> in the standard library.</p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L1111">Sims/src/main.jl:1111</a></p>
+<p>See also <a href="../../../lib/index.html#IdealThyristor">IdealThyristor</a> in the standard library.</p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L1118">Sims/src/main.jl:1118</a></p>
 <h2 id="value">value</h2>
 <p>The value of an object or UnknownVariable.</p>
 <div class="codehilite"><pre><span class="n">value</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 </pre></div>
 
 
-<h3 id="arguments_15">Arguments</h3>
+<h3 id="arguments_11">Arguments</h3>
 <ul>
 <li><code>x</code> : an object</li>
 </ul>
-<h3 id="returns_14">Returns</h3>
+<h3 id="returns_10">Returns</h3>
 <p>For standard Julia objects, <code>value(x)</code> returns x. For Unknowns and
 other ModelTypes, returns the current value of the object. <code>value</code>
 evaluates immediately, so don't expect to use this in model
@@ -684,29 +600,106 @@ expressions, except to grab an immediate value.</p>
 </pre></div>
 
 
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L556">Sims/src/main.jl:556</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L563">Sims/src/main.jl:563</a></p>
+<h2 id="equation">Equation</h2>
+<p>Equations are used in Models. Right now, Equation is defined as <code>Any</code>,
+but that may change.  Normally, Equations are of type Unknown,
+DerUnknown, MExpr, or Array{Equation} (for nesting models).</p>
+<h3 id="examples_10">Examples</h3>
+<p>Models return Arrays of Equations. Here is an example:</p>
+<div class="codehilite"><pre><span class="k">function</span><span class="nf"> Vanderpol</span><span class="p">()</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">Unknown</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="s">&quot;y&quot;</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">Unknown</span><span class="p">(</span><span class="s">&quot;x&quot;</span><span class="p">)</span>
+    <span class="n">Equation</span><span class="p">[</span>
+        <span class="n">der</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">)</span> <span class="o">-</span> <span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">y</span><span class="o">^</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">x</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span>      <span class="c"># == 0 is assumed</span>
+        <span class="n">der</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">-</span> <span class="n">x</span>
+    <span class="p">]</span>
+<span class="k">end</span>
+<span class="n">dump</span><span class="p">(</span> <span class="n">Vanderpol</span><span class="p">()</span> <span class="p">)</span>
+</pre></div>
+
+
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L489">Sims/src/main.jl:489</a></p>
+<h2 id="mtime">MTime</h2>
+<p>The model time - a special unknown variable.</p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L654">Sims/src/main.jl:654</a></p>
+<h2 id="model">Model</h2>
+<p>Represents a vector of Equations. For now, <code>Equation</code> equals <code>Any</code>, but
+in the future, it may only include ModelType's.</p>
+<p>Models return Arrays of Equations. </p>
+<h3 id="examples_11">Examples</h3>
+<div class="codehilite"><pre><span class="k">function</span><span class="nf"> Vanderpol</span><span class="p">()</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">Unknown</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="s">&quot;y&quot;</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">Unknown</span><span class="p">(</span><span class="s">&quot;x&quot;</span><span class="p">)</span>
+    <span class="n">Equation</span><span class="p">[</span>
+        <span class="n">der</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">)</span> <span class="o">-</span> <span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">y</span><span class="o">^</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">x</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span>      <span class="c"># == 0 is assumed</span>
+        <span class="n">der</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">-</span> <span class="n">x</span>
+    <span class="p">]</span>
+<span class="k">end</span>
+<span class="n">dump</span><span class="p">(</span> <span class="n">Vanderpol</span><span class="p">()</span> <span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">sim</span><span class="p">(</span><span class="n">Vanderpol</span><span class="p">(),</span> <span class="mf">50.0</span><span class="p">)</span>
+</pre></div>
+
+
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L513">Sims/src/main.jl:513</a></p>
+<h2 id="equations">@equations</h2>
+<p>A helper to make writing Models a little easier. It allows the use of
+<code>=</code> in model equations.</p>
+<div class="codehilite"><pre><span class="p">@</span><span class="n">equations</span> <span class="k">begin</span>
+    <span class="o">...</span>
+<span class="k">end</span>
+</pre></div>
+
+
+<h3 id="arguments_12">Arguments</h3>
+<ul>
+<li><code>eq</code> : the model equations, normally in a <code>begin</code> - <code>end</code> block.</li>
+</ul>
+<h3 id="returns_11">Returns</h3>
+<ul>
+<li><code>::Array{Equation}</code></li>
+</ul>
+<h3 id="examples_12">Examples</h3>
+<p>The following are both equivalent:</p>
+<div class="codehilite"><pre><span class="k">function</span><span class="nf"> Vanderpol1</span><span class="p">()</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">Unknown</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="s">&quot;y&quot;</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">Unknown</span><span class="p">(</span><span class="s">&quot;x&quot;</span><span class="p">)</span>
+    <span class="n">Equation</span><span class="p">[</span>
+        <span class="n">der</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">)</span> <span class="o">-</span> <span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">y</span><span class="o">^</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">x</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span>      <span class="c"># == 0 is assumed</span>
+        <span class="n">der</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">-</span> <span class="n">x</span>
+    <span class="p">]</span>
+<span class="k">end</span>
+<span class="k">function</span><span class="nf"> Vanderpol2</span><span class="p">()</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">Unknown</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="s">&quot;y&quot;</span><span class="p">)</span> 
+    <span class="n">x</span> <span class="o">=</span> <span class="n">Unknown</span><span class="p">(</span><span class="s">&quot;x&quot;</span><span class="p">)</span>
+    <span class="p">@</span><span class="n">equations</span> <span class="k">begin</span>
+        <span class="n">der</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">y</span><span class="o">^</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">x</span> <span class="o">-</span> <span class="n">y</span>
+        <span class="n">der</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">=</span> <span class="n">x</span>
+    <span class="k">end</span>
+<span class="k">end</span>
+</pre></div>
+
+
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L1383">Sims/src/main.jl:1383</a></p>
 <h2 id="defaultunknown">DefaultUnknown</h2>
 <p>The default UnknownCategory.</p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L145">Sims/src/main.jl:145</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L152">Sims/src/main.jl:152</a></p>
 <h2 id="derunknown">DerUnknown</h2>
 <p>An UnknownVariable representing the derivitive of an Unknown, normally
 created with <code>der(x)</code>.</p>
-<h3 id="arguments_16">Arguments</h3>
+<h3 id="arguments_13">Arguments</h3>
 <ul>
 <li><code>x::Unknown</code> : the Unknown variable</li>
 <li><code>val</code> : initial value, defaults to 0.0</li>
 </ul>
-<h3 id="examples_10">Examples</h3>
+<h3 id="examples_13">Examples</h3>
 <div class="codehilite"><pre><span class="n">a</span> <span class="o">=</span> <span class="n">Unknown</span><span class="p">()</span>
 <span class="n">der</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
 <span class="nb">typeof</span><span class="p">(</span><span class="n">der</span><span class="p">(</span><span class="n">a</span><span class="p">))</span>
 </pre></div>
 
 
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L257">Sims/src/main.jl:257</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L264">Sims/src/main.jl:264</a></p>
 <h2 id="discrete">Discrete</h2>
 <p>Discrete is a type for discrete variables. These are only changed
 during events. They are not used by the integrator. Because they are
@@ -722,33 +715,23 @@ variable.</p>
 </pre></div>
 
 
-<h3 id="arguments_17">Arguments</h3>
+<h3 id="arguments_14">Arguments</h3>
 <ul>
 <li><code>s::Symbol</code> : identification symbol, defaults to <code>gensym()</code></li>
 <li><code>value</code> : initial value and type information, defaults to 0.0</li>
 <li><code>label::String</code> : labeling string, defaults to ""</li>
 </ul>
-<h3 id="details_1">Details</h3>
+<h3 id="details">Details</h3>
 <p>Discrete variables are currently quite limited. You cannot have
 systems of equations where the values of Discrete variables propagates
 easily. A crude mechanism for some chaining is provided by
 <code>addhook!</code>. It would be nice to have data flow support (reactive
 programming). The package
 <a href="https://github.com/JuliaLang/Reactive.jl">Reactive.jl</a> may help here.</p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L914">Sims/src/main.jl:914</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L921">Sims/src/main.jl:921</a></p>
 <h2 id="discretevar">DiscreteVar</h2>
 <p>A helper type used inside of the residual function.</p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L947">Sims/src/main.jl:947</a></p>
-<h2 id="equationset">EquationSet</h2>
-<p>A representation of a flattened model, normally created with
-<code>elaborate(model)</code>. <code>sim</code> uses an elaborated model for simulations.</p>
-<p>Contains the hierarchical equations, flattened equations, flattened
-initial equations, events, event response functions, and a map of
-Unknown nodes.</p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/elaboration.jl#L20">Sims/src/elaboration.jl:20</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L954">Sims/src/main.jl:954</a></p>
 <h2 id="event">Event</h2>
 <p>Event is the main type used for hybrid modeling. It contains a
 condition for root finding and model expressions to process after
@@ -758,7 +741,7 @@ positive and negative root crossings are detected.</p>
 </pre></div>
 
 
-<h3 id="arguments_18">Arguments</h3>
+<h3 id="arguments_15">Arguments</h3>
 <ul>
 <li><code>condition::ModelType</code> : an expression used for the event detection.</li>
 <li><code>pos_response</code> : an expression indicating what to do when the
@@ -767,10 +750,9 @@ positive and negative root crossings are detected.</p>
   condition crosses zero in the negative direction. Defaults to
   Equation[].</li>
 </ul>
-<h3 id="examples_11">Examples</h3>
-<p>See <a href="../../lib/index.html#IdealThyristor">IdealThyristor</a> in the standard library.</p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L1045">Sims/src/main.jl:1045</a></p>
+<h3 id="examples_14">Examples</h3>
+<p>See <a href="../../../lib/index.html#IdealThyristor">IdealThyristor</a> in the standard library.</p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L1052">Sims/src/main.jl:1052</a></p>
 <h2 id="initialequation">InitialEquation</h2>
 <p>A ModelType describing initial equations. Current support is limited
 and may be broken. There are no tests. The idea is that the equations
@@ -779,29 +761,27 @@ provided will only be used during the initial solution.</p>
 </pre></div>
 
 
-<h3 id="arguments_19">Arguments</h3>
+<h3 id="arguments_16">Arguments</h3>
 <ul>
 <li><code>eqs::Array{Equation}</code> : a vector of equations, each to be equated
   to zero during the initial equation solution.</li>
 </ul>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L788">Sims/src/main.jl:788</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L795">Sims/src/main.jl:795</a></p>
 <h2 id="leftvar">LeftVar</h2>
 <p>A helper type needed to mark unknowns as left-side variables in
 assignments during event responses.</p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L1069">Sims/src/main.jl:1069</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L1076">Sims/src/main.jl:1076</a></p>
 <h2 id="mexpr_1">MExpr</h2>
 <p>Represents expressions used in models.</p>
 <div class="codehilite"><pre><span class="n">MExpr</span><span class="p">(</span><span class="n">ex</span><span class="p">::</span><span class="n">Expr</span><span class="p">)</span>
 </pre></div>
 
 
-<h3 id="arguments_20">Arguments</h3>
+<h3 id="arguments_17">Arguments</h3>
 <ul>
 <li><code>ex::Expr</code> : an expression</li>
 </ul>
-<h3 id="examples_12">Examples</h3>
+<h3 id="examples_15">Examples</h3>
 <div class="codehilite"><pre><span class="n">a</span> <span class="o">=</span> <span class="n">Unknown</span><span class="p">()</span>
 <span class="n">b</span> <span class="o">=</span> <span class="n">Unknown</span><span class="p">()</span>
 <span class="n">d</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="n">sin</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
@@ -809,12 +789,10 @@ assignments during event responses.</p>
 </pre></div>
 
 
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L314">Sims/src/main.jl:314</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L321">Sims/src/main.jl:321</a></p>
 <h2 id="modeltype">ModelType</h2>
 <p>The main overall abstract type in Sims.</p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L129">Sims/src/main.jl:129</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L136">Sims/src/main.jl:136</a></p>
 <h2 id="parametertunknowncategory">Parameter{T&lt;:UnknownCategory}</h2>
 <p>Represents an Unknown that stays constant through a simulation. Useful
 for passing in at the top level.</p>
@@ -825,25 +803,23 @@ for passing in at the top level.</p>
 </pre></div>
 
 
-<h3 id="arguments_21">Arguments</h3>
+<h3 id="arguments_18">Arguments</h3>
 <ul>
 <li><code>s::Symbol</code> : identification symbol, defaults to <code>gensym()</code></li>
 <li><code>value</code> : initial value and type information, defaults to 0.0</li>
 <li><code>label::String</code> : labeling string, defaults to ""</li>
 </ul>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L368">Sims/src/main.jl:368</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L375">Sims/src/main.jl:375</a></p>
 <h2 id="passedunknown">PassedUnknown</h2>
 <p>An UnknownVariable used as a helper for the <code>delay</code> function.  It is
 an identity unknown, but it doesn't replace with a reference to the y
 array.</p>
 <p>PassedUnknown(ref::UnknownVariable)</p>
-<h3 id="arguments_22">Arguments</h3>
+<h3 id="arguments_19">Arguments</h3>
 <ul>
 <li><code>ref::UnknownVariable</code> : an Unknown</li>
 </ul>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L814">Sims/src/main.jl:814</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L821">Sims/src/main.jl:821</a></p>
 <h2 id="refbranch">RefBranch</h2>
 <p>A special ModelType to specify branch flows into nodes. When the model
 is flattened, equations are created to zero out branch flows into
@@ -853,7 +829,7 @@ nodes. </p>
 </pre></div>
 
 
-<h3 id="arguments_23">Arguments</h3>
+<h3 id="arguments_20">Arguments</h3>
 <ul>
 <li><code>n</code> : the reference node.</li>
 <li><code>i</code> : the flow variable that goes with this node.</li>
@@ -868,7 +844,7 @@ Broman</a>. See the following:</p>
 </ul>
 <p><a href="https://github.com/david-broman/modelyze">Modelyze</a> has both
 <code>RefBranch</code> and <code>Branch</code>.</p>
-<h3 id="examples_13">Examples</h3>
+<h3 id="examples_16">Examples</h3>
 <p>Here is an example of RefBranch used in the definition of a
 HeatCapacitor in the standard library. <code>hp</code> is the reference node (a
 HeatPort aka Temperature), and <code>Q_flow</code> is the flow variable.</p>
@@ -893,12 +869,10 @@ model that injects current (a flow variable) between two nodes:</p>
 </pre></div>
 
 
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L706">Sims/src/main.jl:706</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L713">Sims/src/main.jl:713</a></p>
 <h2 id="refdiscrete">RefDiscrete</h2>
 <p>A helper type for Discretes used in Arrays.</p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L938">Sims/src/main.jl:938</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L945">Sims/src/main.jl:945</a></p>
 <h2 id="refunknowntunknowncategory">RefUnknown{T&lt;:UnknownCategory}</h2>
 <p>An UnknownVariable used to allow Arrays as Unknowns. Normally created
 with <code>getindex</code>. Defined methods include:</p>
@@ -909,31 +883,7 @@ with <code>getindex</code>. Defined methods include:</p>
 <li>hcat</li>
 <li>vcat</li>
 </ul>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L521">Sims/src/main.jl:521</a></p>
-<h2 id="sim">Sim</h2>
-<p>A type for holding several simulation objects needed for simulation,
-normally created with <code>create_sim(eqs)</code>. </p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/simcreation.jl#L42">Sims/src/simcreation.jl:42</a></p>
-<h2 id="simfunctions">SimFunctions</h2>
-<p>The set of functions used in the DAE solution. Includes an initial set
-of equations, a residual function, and several functions for detecting
-and responding to events.</p>
-<p>All functions take (t,y,yp) as arguments. {TODO: is this still right?}</p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/simcreation.jl#L24">Sims/src/simcreation.jl:24</a></p>
-<h2 id="simresult">SimResult</h2>
-<p>A type holding simulation results from <code>sim</code>, <code>dasslsim</code>, or
-<code>sunsim</code>. Includes a matrix of results and a vector of column names.</p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/simcreation.jl#L427">Sims/src/simcreation.jl:427</a></p>
-<h2 id="simstate">SimState</h2>
-<p>The top level type for holding all simulation objects needed for
-simulation, including a Sim. Normally created with
-<code>create_simstate(sim)</code>.</p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/simcreation.jl#L70">Sims/src/simcreation.jl:70</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L528">Sims/src/main.jl:528</a></p>
 <h2 id="structuralevent">StructuralEvent</h2>
 <p>StructuralEvent defines a type for elements that change the structure
 of the model. An event is created where the condition crosses zero.
@@ -943,7 +893,7 @@ When the event is triggered, the model is re-flattened after replacing
 </pre></div>
 
 
-<h3 id="arguments_24">Arguments</h3>
+<h3 id="arguments_21">Arguments</h3>
 <ul>
 <li><code>condition::MExpr</code> : an expression that will trigger the event at a
   zero crossing</li>
@@ -951,7 +901,7 @@ When the event is triggered, the model is re-flattened after replacing
 <li><code>new_relation</code> : a function that returns a model that will replace
   the default model when the condition triggers the event.</li>
 </ul>
-<h3 id="examples_14">Examples</h3>
+<h3 id="examples_17">Examples</h3>
 <p>Here is an example from examples/breaking_pendulum.jl:</p>
 <div class="codehilite"><pre><span class="k">function</span><span class="nf"> FreeFall</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">vx</span><span class="p">,</span><span class="n">vy</span><span class="p">)</span>
     <span class="p">@</span><span class="n">equations</span> <span class="k">begin</span>
@@ -993,17 +943,14 @@ When the event is triggered, the model is re-flattened after replacing
 </pre></div>
 
 
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L1282">Sims/src/main.jl:1282</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L1289">Sims/src/main.jl:1289</a></p>
 <h2 id="unknowncategory">UnknownCategory</h2>
 <p>Categories of Unknown types; used to subtype Unknowns.</p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L140">Sims/src/main.jl:140</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L147">Sims/src/main.jl:147</a></p>
 <h2 id="unknownvariable">UnknownVariable</h2>
 <p>An abstract type for variables to be solved. Examples include Unknown,
 DerUnknown, and Parameter.</p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L135">Sims/src/main.jl:135</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L142">Sims/src/main.jl:142</a></p>
 <h2 id="unknowntunknowncategory">Unknown{T&lt;:UnknownCategory}</h2>
 <p>An Unknown represents variables to be solved in Sims. An <code>Unknown</code> is
 a symbolic type. When used in Julia expressions, Unknowns combine into
@@ -1040,205 +987,20 @@ makes it easier to dispatch on model arguments.</p>
 </pre></div>
 
 
-<h3 id="arguments_25">Arguments</h3>
+<h3 id="arguments_22">Arguments</h3>
 <ul>
 <li><code>s::Symbol</code> : identification symbol, defaults to <code>gensym()</code></li>
 <li><code>x</code> : initial value and type information, defaults to 0.0</li>
 <li><code>label::String</code> : labeling string, defaults to ""</li>
 </ul>
-<h3 id="examples_15">Examples</h3>
+<h3 id="examples_18">Examples</h3>
 <div class="codehilite"><pre>  <span class="n">a</span> <span class="o">=</span> <span class="mi">4</span>
   <span class="n">b</span> <span class="o">=</span> <span class="n">Unknown</span><span class="p">(</span><span class="mf">3.0</span><span class="p">,</span> <span class="s">&quot;len&quot;</span><span class="p">)</span>
   <span class="n">a</span> <span class="o">*</span> <span class="n">b</span> <span class="o">+</span> <span class="n">b</span><span class="o">^</span><span class="mi">2</span>
 </pre></div>
 
 
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L203">Sims/src/main.jl:203</a></p>
-<h2 id="equations">@equations</h2>
-<p>A helper to make writing Models a little easier. It allows the use of
-<code>=</code> in model equations.</p>
-<div class="codehilite"><pre><span class="p">@</span><span class="n">equations</span> <span class="k">begin</span>
-    <span class="o">...</span>
-<span class="k">end</span>
-</pre></div>
-
-
-<h3 id="arguments_26">Arguments</h3>
-<ul>
-<li><code>eq</code> : the model equations, normally in a <code>begin</code> - <code>end</code> block.</li>
-</ul>
-<h3 id="returns_15">Returns</h3>
-<ul>
-<li><code>::Array{Equation}</code></li>
-</ul>
-<h3 id="examples_16">Examples</h3>
-<p>The following are both equivalent:</p>
-<div class="codehilite"><pre><span class="k">function</span><span class="nf"> Vanderpol1</span><span class="p">()</span>
-    <span class="n">y</span> <span class="o">=</span> <span class="n">Unknown</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="s">&quot;y&quot;</span><span class="p">)</span>
-    <span class="n">x</span> <span class="o">=</span> <span class="n">Unknown</span><span class="p">(</span><span class="s">&quot;x&quot;</span><span class="p">)</span>
-    <span class="n">Equation</span><span class="p">[</span>
-        <span class="n">der</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">)</span> <span class="o">-</span> <span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">y</span><span class="o">^</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">x</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span>      <span class="c"># == 0 is assumed</span>
-        <span class="n">der</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">-</span> <span class="n">x</span>
-    <span class="p">]</span>
-<span class="k">end</span>
-<span class="k">function</span><span class="nf"> Vanderpol2</span><span class="p">()</span>
-    <span class="n">y</span> <span class="o">=</span> <span class="n">Unknown</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="s">&quot;y&quot;</span><span class="p">)</span> 
-    <span class="n">x</span> <span class="o">=</span> <span class="n">Unknown</span><span class="p">(</span><span class="s">&quot;x&quot;</span><span class="p">)</span>
-    <span class="p">@</span><span class="n">equations</span> <span class="k">begin</span>
-        <span class="n">der</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">y</span><span class="o">^</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">x</span> <span class="o">-</span> <span class="n">y</span>
-        <span class="n">der</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">=</span> <span class="n">x</span>
-    <span class="k">end</span>
-<span class="k">end</span>
-</pre></div>
-
-
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L1376">Sims/src/main.jl:1376</a></p>
-<h2 id="unknown">@unknown</h2>
-<p>A macro to ease entry of many unknowns.</p>
-<div class="codehilite"><pre><span class="p">@</span><span class="n">unknown</span> <span class="n">a1</span> <span class="n">a2</span> <span class="n">a3</span> <span class="o">...</span>
-</pre></div>
-
-
-<h3 id="arguments_27">Arguments</h3>
-<ul>
-<li><code>a</code> : various representations of Unknowns, several specification
-  options include:</li>
-<li>symbol: equivalent to <code>symbol = Unknown(symbol)</code></li>
-<li>symbol(val): equivalent to <code>symbol = Unknown(symbol, val)</code></li>
-</ul>
-<h1 id="effects">Effects</h1>
-<p>Creates one or more Unknowns</p>
-<ul>
-<li>A Gadfly object</li>
-</ul>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/utils.jl#L222">Sims/src/utils.jl:222</a></p>
-<h2 id="equation">Equation</h2>
-<p>Equations are used in Models. Right now, Equation is defined as <code>Any</code>,
-but that may change.  Normally, Equations are of type Unknown,
-DerUnknown, MExpr, or Array{Equation} (for nesting models).</p>
-<h3 id="examples_17">Examples</h3>
-<p>Models return Arrays of Equations. Here is an example:</p>
-<div class="codehilite"><pre><span class="k">function</span><span class="nf"> Vanderpol</span><span class="p">()</span>
-    <span class="n">y</span> <span class="o">=</span> <span class="n">Unknown</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="s">&quot;y&quot;</span><span class="p">)</span>
-    <span class="n">x</span> <span class="o">=</span> <span class="n">Unknown</span><span class="p">(</span><span class="s">&quot;x&quot;</span><span class="p">)</span>
-    <span class="n">Equation</span><span class="p">[</span>
-        <span class="n">der</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">)</span> <span class="o">-</span> <span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">y</span><span class="o">^</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">x</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span>      <span class="c"># == 0 is assumed</span>
-        <span class="n">der</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">-</span> <span class="n">x</span>
-    <span class="p">]</span>
-<span class="k">end</span>
-<span class="n">dump</span><span class="p">(</span> <span class="n">Vanderpol</span><span class="p">()</span> <span class="p">)</span>
-</pre></div>
-
-
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L482">Sims/src/main.jl:482</a></p>
-<h2 id="mtime">MTime</h2>
-<p>The model time - a special unknown variable.</p>
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L647">Sims/src/main.jl:647</a></p>
-<h2 id="model">Model</h2>
-<p>Represents a vector of Equations. For now, <code>Equation</code> equals <code>Any</code>, but
-in the future, it may only include ModelType's.</p>
-<p>Models return Arrays of Equations. </p>
-<h3 id="examples_18">Examples</h3>
-<div class="codehilite"><pre><span class="k">function</span><span class="nf"> Vanderpol</span><span class="p">()</span>
-    <span class="n">y</span> <span class="o">=</span> <span class="n">Unknown</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="s">&quot;y&quot;</span><span class="p">)</span>
-    <span class="n">x</span> <span class="o">=</span> <span class="n">Unknown</span><span class="p">(</span><span class="s">&quot;x&quot;</span><span class="p">)</span>
-    <span class="n">Equation</span><span class="p">[</span>
-        <span class="n">der</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">)</span> <span class="o">-</span> <span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">y</span><span class="o">^</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">x</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span>      <span class="c"># == 0 is assumed</span>
-        <span class="n">der</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">-</span> <span class="n">x</span>
-    <span class="p">]</span>
-<span class="k">end</span>
-<span class="n">dump</span><span class="p">(</span> <span class="n">Vanderpol</span><span class="p">()</span> <span class="p">)</span>
-<span class="n">x</span> <span class="o">=</span> <span class="n">sim</span><span class="p">(</span><span class="n">Vanderpol</span><span class="p">(),</span> <span class="mf">50.0</span><span class="p">)</span>
-</pre></div>
-
-
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L506">Sims/src/main.jl:506</a></p>
-<h2 id="sim_1">sim</h2>
-<p><code>sim</code> is the name of the default solver used to simulate Sims models
-and also shows the generic simulation API for available solvers
-(currently <code>dasslsim</code> and <code>sunsim</code>). The default solver is currently
-<code>dasslsim</code>.</p>
-<p><code>sim</code> has many method definitions to accomodate solutions based on
-intermediate model representations. Also, both positional and keyword
-arguments are supported (use one or the other after the first
-argument).</p>
-<div class="codehilite"><pre><span class="n">sim</span><span class="p">(</span><span class="n">m</span><span class="p">::</span><span class="n">Model</span><span class="p">,</span> <span class="n">tstop</span><span class="p">::</span><span class="kt">Float64</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">Nsteps</span><span class="p">::</span><span class="kt">Int</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">reltol</span><span class="p">::</span><span class="kt">Float64</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">abstol</span><span class="p">::</span><span class="kt">Float64</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">)</span>
-<span class="n">sim</span><span class="p">(</span><span class="n">m</span><span class="p">::</span><span class="n">Model</span><span class="p">;</span> <span class="n">tstop</span><span class="p">::</span><span class="kt">Float64</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">Nsteps</span><span class="p">::</span><span class="kt">Int</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">reltol</span><span class="p">::</span><span class="kt">Float64</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">abstol</span><span class="p">::</span><span class="kt">Float64</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">)</span>
-<span class="n">sim</span><span class="p">(</span><span class="n">m</span><span class="p">::</span><span class="n">Sim</span><span class="p">,</span> <span class="n">tstop</span><span class="p">::</span><span class="kt">Float64</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">Nsteps</span><span class="p">::</span><span class="kt">Int</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">reltol</span><span class="p">::</span><span class="kt">Float64</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">abstol</span><span class="p">::</span><span class="kt">Float64</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">)</span>
-<span class="n">sim</span><span class="p">(</span><span class="n">m</span><span class="p">::</span><span class="n">Sim</span><span class="p">;</span> <span class="n">tstop</span><span class="p">::</span><span class="kt">Float64</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">Nsteps</span><span class="p">::</span><span class="kt">Int</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">reltol</span><span class="p">::</span><span class="kt">Float64</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">abstol</span><span class="p">::</span><span class="kt">Float64</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">)</span>
-<span class="n">sim</span><span class="p">(</span><span class="n">m</span><span class="p">::</span><span class="n">SimState</span><span class="p">,</span> <span class="n">tstop</span><span class="p">::</span><span class="kt">Float64</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">Nsteps</span><span class="p">::</span><span class="kt">Int</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">reltol</span><span class="p">::</span><span class="kt">Float64</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">abstol</span><span class="p">::</span><span class="kt">Float64</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">)</span>
-<span class="n">sim</span><span class="p">(</span><span class="n">m</span><span class="p">::</span><span class="n">SimState</span><span class="p">;</span> <span class="n">tstop</span><span class="p">::</span><span class="kt">Float64</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">Nsteps</span><span class="p">::</span><span class="kt">Int</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">reltol</span><span class="p">::</span><span class="kt">Float64</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">abstol</span><span class="p">::</span><span class="kt">Float64</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">)</span>
-</pre></div>
-
-
-<h3 id="arguments_28">Arguments</h3>
-<ul>
-<li><code>m::Model</code> : a Model</li>
-<li><code>sm::Sim</code> : a simulation object</li>
-<li><code>ss::SimState</code> : a simulation object</li>
-<li><code>tstop::Float64</code> : the simulation stopping time [secs], default = 1.0</li>
-<li><code>Nsteps::Int</code> : the number of simulation steps, default = 500</li>
-<li><code>reltol::Float64</code> : the relative tolerance, default = 1e-4</li>
-<li><code>abstol::Float64</code> : the absolute tolerance, default = 1e-4</li>
-</ul>
-<h3 id="returns_16">Returns</h3>
-<ul>
-<li><code>::SimResult</code> : the simulation result</li>
-</ul>
-<p>A number of optional packages can be used with results, including:</p>
-<ul>
-<li>Winston - plotting: <code>wplot(y::SimResult)</code></li>
-<li>Gaston - plotting: <code>gplot(y::SimResult)</code> </li>
-<li>DataFrames - conversion to a DataFrame: <code>convert(DataFrame, y::SimResult)</code> </li>
-<li>Gadfly - plotting: <code>plot(y::SimResult, ...)</code> </li>
-</ul>
-<p>For each of these, the package must be installed, and the package
-pulled in with <code>require</code> or <code>using</code>.</p>
-<h3 id="details_2">Details</h3>
-<p>The main steps in converting to a model and doing a simulation are:</p>
-<div class="codehilite"><pre><span class="n">eqs</span><span class="p">::</span><span class="n">EquationSet</span> <span class="o">=</span> <span class="n">elaborate</span><span class="p">(</span><span class="n">m</span><span class="p">::</span><span class="n">Model</span><span class="p">)</span>   <span class="c"># flatten the model</span>
-<span class="n">sm</span><span class="p">::</span><span class="n">Sim</span> <span class="o">=</span> <span class="n">create_sim</span><span class="p">(</span><span class="n">eqs</span><span class="p">::</span><span class="n">EquationSet</span><span class="p">)</span>   <span class="c"># prepare for simulation</span>
-<span class="n">sm</span><span class="p">::</span><span class="n">SimState</span> <span class="o">=</span> <span class="n">create_simstate</span><span class="p">(</span><span class="n">sm</span><span class="p">::</span><span class="n">Sim</span><span class="p">)</span>  <span class="c"># prepare for simulation II</span>
-<span class="n">y</span><span class="p">::</span><span class="n">SimResult</span> <span class="o">=</span> <span class="n">sim</span><span class="p">(</span><span class="n">ss</span><span class="p">::</span><span class="n">SimState</span><span class="p">)</span>         <span class="c"># simulate</span>
-</pre></div>
-
-
-<p>The following are equivalent:</p>
-<div class="codehilite"><pre><span class="n">y</span> <span class="o">=</span> <span class="n">sim</span><span class="p">(</span><span class="n">create_simstate</span><span class="p">(</span><span class="n">create_sim</span><span class="p">(</span><span class="n">elaborate</span><span class="p">(</span><span class="n">m</span><span class="p">))))</span>
-<span class="n">y</span> <span class="o">=</span> <span class="n">sim</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
-</pre></div>
-
-
-<h3 id="example">Example</h3>
-<div class="codehilite"><pre><span class="k">using</span> <span class="n">Sims</span>
-<span class="k">function</span><span class="nf"> Vanderpol</span><span class="p">()</span>
-    <span class="n">y</span> <span class="o">=</span> <span class="n">Unknown</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="s">&quot;y&quot;</span><span class="p">)</span>   <span class="c"># The 1.0 is the initial value. &quot;y&quot; is for plotting.</span>
-    <span class="n">x</span> <span class="o">=</span> <span class="n">Unknown</span><span class="p">(</span><span class="s">&quot;x&quot;</span><span class="p">)</span>        <span class="c"># The initial value is zero if not given.</span>
-    <span class="c"># The following gives the return value which is a list of equations.</span>
-    <span class="c"># Expressions with Unknowns are kept as expressions. Expressions of</span>
-    <span class="c"># regular variables are evaluated immediately (like normal).</span>
-    <span class="p">@</span><span class="n">equations</span> <span class="k">begin</span>
-        <span class="c"># The -1.0 in der(x, -1.0) is the initial value for the derivative </span>
-        <span class="n">der</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">y</span><span class="o">^</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">x</span> <span class="o">-</span> <span class="n">y</span> 
-        <span class="n">der</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">=</span> <span class="n">x</span>
-    <span class="k">end</span>
-<span class="k">end</span>
-
-<span class="n">v</span> <span class="o">=</span> <span class="n">Vanderpol</span><span class="p">()</span>       <span class="c"># returns the hierarchical model</span>
-<span class="n">y</span> <span class="o">=</span> <span class="n">sunsim</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="mf">50.0</span><span class="p">)</span>
-<span class="k">using</span> <span class="n">Winston</span>
-<span class="n">wplot</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
-</pre></div>
-
-
-<p><strong>source:</strong>
-<a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/Sims.jl#L138">Sims/src/Sims.jl:138</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/main.jl#L210">Sims/src/main.jl:210</a></p>
 </div>
             
         </div>
@@ -1252,9 +1014,9 @@ pulled in with <code>require</code> or <code>using</code>.</p>
         
 
         <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
-        <script src="../js/bootstrap-3.0.3.min.js"></script>
-        <script src="../js/prettify-1.0.min.js"></script>
-        <script src="../js/highlight.pack.js"></script>
-        <script src="../js/base.js"></script>
+        <script src="../../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../../js/prettify-1.0.min.js"></script>
+        <script src="../../js/highlight.pack.js"></script>
+        <script src="../../js/base.js"></script>
     </body>
 </html>

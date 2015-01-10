@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../../img/favicon.ico">
+
+        <title>Continuous blocks - Sims.jl</title>
+
+        <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../../css/font-awesome-4.0.3.css" rel="stylesheet">
+        <link href="../../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="../../css/highlight.css">
+        <link href="../../css/github.css" rel="stylesheet">
+
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+
+        
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            
+
+            <!-- Main title -->
+            <a class="navbar-brand" href="../..">Sims.jl</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            
+                <!-- Main navigation -->
+                <ul class="nav navbar-nav">
+                
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">User guide <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            <li >
+                                <a href="../../basics">Basics</a>
+                            </li>
+                        
+                            <li >
+                                <a href="../../plotting">Plotting results</a>
+                            </li>
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">API <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            <li >
+                                <a href="../../api/main">Modeling</a>
+                            </li>
+                        
+                            <li >
+                                <a href="../../api/sim">Simulations</a>
+                            </li>
+                        
+                            <li >
+                                <a href="../../api/utils">Utilities</a>
+                            </li>
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li class="dropdown active">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Standard library <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            <li >
+                                <a href="../types">Types</a>
+                            </li>
+                        
+                            <li class="active">
+                                <a href=".">Continuous blocks</a>
+                            </li>
+                        
+                            <li >
+                                <a href="../electrical">Electrical</a>
+                            </li>
+                        
+                            <li >
+                                <a href="../heat_transfer">Heat transfer</a>
+                            </li>
+                        
+                            <li >
+                                <a href="../powersystems">Power systems</a>
+                            </li>
+                        
+                            <li >
+                                <a href="../rotational">Rotational mechanics</a>
+                            </li>
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Examples <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            <li >
+                                <a href="../../examples/basics">Basics</a>
+                            </li>
+                        
+                            <li >
+                                <a href="../../examples/lib">Standard library</a>
+                            </li>
+                        
+                            <li >
+                                <a href="../../examples/neural">Neural</a>
+                            </li>
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Design <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            <li >
+                                <a href="../../design">Considerations</a>
+                            </li>
+                        
+                            <li >
+                                <a href="../../future">Development options</a>
+                            </li>
+                        
+                        </ul>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../../license">License</a>
+                    </li>
+                
+                
+                </ul>
+            
+
+            
+            <!-- Search, Navigation and Repo links -->
+            <ul class="nav navbar-nav navbar-right">
+                
+                
+                <li >
+                    <a rel="next" href="../types">
+                        <i class="fa fa-arrow-left"></i> Previous
+                    </a>
+                </li>
+                <li >
+                    <a rel="prev" href="../electrical">
+                        Next <i class="fa fa-arrow-right"></i>
+                    </a>
+                </li>
+                
+                
+                <li>
+                    <a href="https://github.com/tshort/Sims.jl/">
+                        
+                            <i class="fa fa-github"></i>
+                        
+                        GitHub
+                    </a>
+                </li>
+                
+            </ul>
+            
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+            
+                <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="main active"><a href="#control-and-signal-blocks">Control and signal blocks</a></li>
+        
+    
+        <li class="main "><a href="#continuous-linear">Continuous linear</a></li>
+        
+            <li><a href="#integrator">Integrator</a></li>
+        
+            <li><a href="#derivative">Derivative</a></li>
+        
+            <li><a href="#firstorder">FirstOrder</a></li>
+        
+            <li><a href="#limpid">LimPID</a></li>
+        
+            <li><a href="#statespace">StateSpace</a></li>
+        
+            <li><a href="#transferfunction">TransferFunction</a></li>
+        
+    
+        <li class="main "><a href="#nonlinear">Nonlinear</a></li>
+        
+            <li><a href="#limiter">Limiter</a></li>
+        
+            <li><a href="#step">Step</a></li>
+        
+            <li><a href="#deadzone">DeadZone</a></li>
+        
+    
+    </ul>
+</div></div>
+                <div class="col-md-9" role="main">
+
+<h1 id="control-and-signal-blocks">Control and signal blocks</h1>
+<p>These components are modeled after the <code>Modelica.Blocks.*</code> library.</p>
+<h1 id="continuous-linear">Continuous linear</h1>
+<h2 id="integrator">Integrator</h2>
+<p>Output the integral of the input signals</p>
+<div class="codehilite"><pre><span class="n">Integrator</span><span class="p">(</span><span class="n">u</span><span class="p">::</span><span class="n">Signal</span><span class="p">,</span> <span class="n">y</span><span class="p">::</span><span class="n">Signal</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">y_start</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span>
+<span class="n">Integrator</span><span class="p">(</span><span class="n">u</span><span class="p">::</span><span class="n">Signal</span><span class="p">,</span> <span class="n">y</span><span class="p">::</span><span class="n">Signal</span><span class="p">;</span> <span class="n">k</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">y_start</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="c"># keyword arg version</span>
+</pre></div>
+
+
+<h3 id="arguments">Arguments</h3>
+<ul>
+<li><code>u::Signal</code> : input</li>
+<li><code>y::Signal</code> : output</li>
+</ul>
+<h3 id="keywordoptional-arguments">Keyword/Optional Arguments</h3>
+<ul>
+<li><code>k</code> : integrator gains</li>
+<li><code>y_start</code> : output initial value</li>
+</ul>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../lib/blocks.jl#L45">Sims/src/../lib/blocks.jl:45</a></p>
+<h2 id="derivative">Derivative</h2>
+<p>Approximated derivative block</p>
+<p>This blocks defines the transfer function between the input <code>u</code> and
+the output <code>y</code> element-wise as the approximated derivative:</p>
+<div class="codehilite"><pre>             k[i] * s
+     y[i] = ------------ * u[i]
+            T[i] * s + 1
+</pre></div>
+
+
+<p>If you would like to be able to change easily between different
+transfer functions (FirstOrder, SecondOrder, ... ) by changing
+parameters, use the general block TransferFunction instead and model a
+derivative block with parameters as:</p>
+<div class="codehilite"><pre>    <span class="n">b</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span> <span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="n">T</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span class="n">Derivative</span><span class="p">(</span><span class="n">u</span><span class="p">::</span><span class="n">Signal</span><span class="p">,</span> <span class="n">y</span><span class="p">::</span><span class="n">Signal</span><span class="p">,</span> <span class="n">T</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">x_start</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">y_start</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span>
+<span class="n">Derivative</span><span class="p">(</span><span class="n">u</span><span class="p">::</span><span class="n">Signal</span><span class="p">,</span> <span class="n">y</span><span class="p">::</span><span class="n">Signal</span><span class="p">;</span> <span class="n">T</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">x_start</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">y_start</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span>
+</pre></div>
+
+
+<h3 id="arguments_1">Arguments</h3>
+<ul>
+<li><code>u::Signal</code> : input</li>
+<li><code>y::Signal</code> : output</li>
+</ul>
+<h3 id="keywordoptional-arguments_1">Keyword/Optional Arguments</h3>
+<ul>
+<li><code>k</code> : gains</li>
+<li><code>T</code> : Time constants [sec]</li>
+</ul>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../lib/blocks.jl#L93">Sims/src/../lib/blocks.jl:93</a></p>
+<h2 id="firstorder">FirstOrder</h2>
+<p>First order transfer function block (= 1 pole)</p>
+<p>This blocks defines the transfer function between the input u=inPort.signal and the output y=outPort.signal element-wise as first order system:</p>
+<div class="codehilite"><pre>               k[i]
+     y[i] = ------------ * u[i]
+            T[i] * s + 1
+</pre></div>
+
+
+<p>If you would like to be able to change easily between different
+transfer functions (FirstOrder, SecondOrder, ... ) by changing
+parameters, use the general block TransferFunction instead and model a
+derivative block with parameters as:</p>
+<div class="codehilite"><pre>    <span class="n">b</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span> <span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="n">T</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span class="n">FirstOrder</span><span class="p">(</span><span class="n">u</span><span class="p">::</span><span class="n">Signal</span><span class="p">,</span> <span class="n">y</span><span class="p">::</span><span class="n">Signal</span><span class="p">,</span> <span class="n">T</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">y_start</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span>
+<span class="n">FirstOrder</span><span class="p">(</span><span class="n">u</span><span class="p">::</span><span class="n">Signal</span><span class="p">,</span> <span class="n">y</span><span class="p">::</span><span class="n">Signal</span><span class="p">;</span> <span class="n">T</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">y_start</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span>
+</pre></div>
+
+
+<h3 id="arguments_2">Arguments</h3>
+<ul>
+<li><code>u::Signal</code> : input</li>
+<li><code>y::Signal</code> : output</li>
+</ul>
+<h3 id="keywordoptional-arguments_2">Keyword/Optional Arguments</h3>
+<ul>
+<li><code>k</code> : gains</li>
+<li><code>T</code> : Time constants [sec]</li>
+</ul>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../lib/blocks.jl#L150">Sims/src/../lib/blocks.jl:150</a></p>
+<h2 id="limpid">LimPID</h2>
+<p>PID controller with limited output, anti-windup compensation and setpoint weighting</p>
+<div class="codehilite"><pre><span class="n">LimPID</span><span class="p">(</span><span class="n">u_s</span><span class="p">::</span><span class="n">Signal</span><span class="p">,</span> <span class="n">u_m</span><span class="p">::</span><span class="n">Signal</span><span class="p">,</span> <span class="n">y</span><span class="p">::</span><span class="n">Signal</span><span class="p">,</span> 
+       <span class="n">controllerType</span> <span class="o">=</span> <span class="s">&quot;PID&quot;</span><span class="p">,</span>
+       <span class="n">k</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>      
+       <span class="n">Ti</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>    
+       <span class="n">Td</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>   
+       <span class="n">yMax</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>   
+       <span class="n">yMin</span> <span class="o">=</span> <span class="o">-</span><span class="n">yMax</span><span class="p">,</span> 
+       <span class="n">wp</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>     
+       <span class="n">wd</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>     
+       <span class="n">Ni</span> <span class="o">=</span> <span class="mf">0.9</span><span class="p">,</span>    
+       <span class="n">Nd</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>    
+       <span class="n">xi_start</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> 
+       <span class="n">xd_start</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+       <span class="n">y_start</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span>
+<span class="n">LimPID</span><span class="p">(</span><span class="n">u_s</span><span class="p">::</span><span class="n">Signal</span><span class="p">,</span> <span class="n">u_m</span><span class="p">::</span><span class="n">Signal</span><span class="p">,</span> <span class="n">y</span><span class="p">::</span><span class="n">Signal</span><span class="p">;</span> 
+       <span class="n">controllerType</span> <span class="o">=</span> <span class="s">&quot;PID&quot;</span><span class="p">,</span>
+       <span class="n">k</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>      
+       <span class="n">Ti</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>    
+       <span class="n">Td</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>   
+       <span class="n">yMax</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>   
+       <span class="n">yMin</span> <span class="o">=</span> <span class="o">-</span><span class="n">yMax</span><span class="p">,</span> 
+       <span class="n">wp</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>     
+       <span class="n">wd</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>     
+       <span class="n">Ni</span> <span class="o">=</span> <span class="mf">0.9</span><span class="p">,</span>    
+       <span class="n">Nd</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>    
+       <span class="n">xi_start</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> 
+       <span class="n">xd_start</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+       <span class="n">y_start</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span>
+</pre></div>
+
+
+<h3 id="arguments_3">Arguments</h3>
+<ul>
+<li><code>u::Signal</code> : input</li>
+<li><code>y::Signal</code> : output</li>
+</ul>
+<h3 id="keywordoptional-arguments_3">Keyword/Optional Arguments</h3>
+<ul>
+<li><code>k</code>    : Gain of PID block                                  </li>
+<li><code>Ti</code>   : Time constant of Integrator block [s]</li>
+<li><code>Td</code>   : Time constant of Derivative block [s]</li>
+<li><code>yMax</code> : Upper limit of output</li>
+<li><code>yMin</code> : Lower limit of output</li>
+<li><code>wp</code>   : Set-point weight for Proportional block (0..1)</li>
+<li><code>wd</code>   : Set-point weight for Derivative block (0..1)</li>
+<li><code>Ni</code>   : Ni*Ti is time constant of anti-windup compensation</li>
+<li><code>Nd</code>   : The higher Nd, the more ideal the derivative block</li>
+</ul>
+<h3 id="details">Details</h3>
+<p>This is a PID controller incorporating several practical aspects. It
+is designed according to chapter 3 of the book:</p>
+<p>K. Astroem, T. Haegglund: PID Controllers: Theory, Design, and
+Tuning. 2nd edition, 1995.</p>
+<p>Besides the additive proportional, integral and derivative part of
+this controller, the following practical aspects are included:</p>
+<ul>
+<li>
+<p>The output of this controller is limited. If the controller is in
+  its limits, anti-windup compensation is activated to drive the
+  integrator state to zero.</p>
+</li>
+<li>
+<p>The high-frequency gain of the derivative part is limited to avoid
+  excessive amplification of measurement noise.</p>
+</li>
+<li>
+<p>Setpoint weighting is present, which allows to weight the setpoint
+  in the proportional and the derivative part independantly from the
+  measurement. The controller will respond to load disturbances and
+  measurement noise independantly of this setting (parameters wp,
+  wd). However, setpoint changes will depend on this setting. For
+  example, it is useful to set the setpoint weight wd for the
+  derivative part to zero, if steps may occur in the setpoint signal.</p>
+</li>
+</ul>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../lib/blocks.jl#L244">Sims/src/../lib/blocks.jl:244</a></p>
+<h2 id="statespace">StateSpace</h2>
+<p>Linear state space system</p>
+<p>Modelica.Blocks.Continuous.StateSpace
+Information</p>
+<p>The State Space block defines the relation between the input u=inPort.signal and the output y=outPort.signal in state space form:</p>
+<div class="codehilite"><pre>der(x) = A * x + B * u
+    y  = C * x + D * u
+</pre></div>
+
+
+<p>The input is a vector of length nu, the output is a vector of length ny and nx is the number of states. Accordingly</p>
+<div class="codehilite"><pre>    A has the dimension: A(nx,nx), 
+    B has the dimension: B(nx,nu), 
+    C has the dimension: C(ny,nx), 
+    D has the dimension: D(ny,nu)
+</pre></div>
+
+
+<p>Example:</p>
+<div class="codehilite"><pre>     <span class="n">StateSpace</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">y</span><span class="p">;</span> <span class="n">A</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.12</span><span class="p">,</span> <span class="mi">2</span><span class="p">;</span> <span class="mi">3</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">],</span> 
+                      <span class="n">B</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span>    <span class="mi">7</span><span class="p">;</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                      <span class="n">C</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+                      <span class="n">D</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">(</span><span class="n">length</span><span class="p">(</span><span class="n">y</span><span class="p">),</span><span class="n">length</span><span class="p">(</span><span class="n">u</span><span class="p">)))</span>
+</pre></div>
+
+
+<p>results in the following equations:</p>
+<div class="codehilite"><pre>  [der(x[1])]   [0.12  2.00] [x[1]]   [2.0  7.0] [u[1]]
+  [         ] = [          ]*[    ] + [        ]*[    ]
+  [der(x[2])]   [3.00  1.50] [x[2]]   [0.1  2.0] [u[2]]
+
+                             [x[1]]            [u[1]]
+       y[1]   = [0.1  2.0] * [    ] + [0  0] * [    ]
+                             [x[2]]            [u[2]]
+</pre></div>
+
+
+<div class="codehilite"><pre><span class="n">StateSpace</span><span class="p">(</span><span class="n">u</span><span class="p">::</span><span class="n">Signal</span><span class="p">,</span> <span class="n">y</span><span class="p">::</span><span class="n">Signal</span><span class="p">,</span> <span class="n">A</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">],</span> <span class="n">B</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">],</span> <span class="n">C</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">],</span> <span class="n">D</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">])</span>
+<span class="n">StateSpace</span><span class="p">(</span><span class="n">u</span><span class="p">::</span><span class="n">Signal</span><span class="p">,</span> <span class="n">y</span><span class="p">::</span><span class="n">Signal</span><span class="p">;</span> <span class="n">A</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">],</span> <span class="n">B</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">],</span> <span class="n">C</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">],</span> <span class="n">D</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">])</span>
+</pre></div>
+
+
+<h3 id="arguments_4">Arguments</h3>
+<ul>
+<li><code>u::Signal</code> : input</li>
+<li><code>y::Signal</code> : output</li>
+</ul>
+<h3 id="keywordoptional-arguments_4">Keyword/Optional Arguments</h3>
+<ul>
+<li><code>A</code> : Matrix A of state space model</li>
+<li><code>B</code> : Vector B of state space model</li>
+<li><code>C</code> : Vector C of state space model</li>
+<li><code>D</code> : Matrix D of state space model</li>
+</ul>
+<h3 id="details_1">Details</h3>
+<h3 id="example">Example</h3>
+<div class="codehilite"><pre>
+</pre></div>
+
+
+<p>NOTE: untested / probably broken</p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../lib/blocks.jl#L364">Sims/src/../lib/blocks.jl:364</a></p>
+<h2 id="transferfunction">TransferFunction</h2>
+<p>Linear transfer function</p>
+<p>This block defines the transfer function between the input
+u=inPort.signal[1] and the output y=outPort.signal[1] as (nb =
+dimension of b, na = dimension of a):</p>
+<div class="codehilite"><pre>           b[1]*s^[nb-1] + b[2]*s^[nb-2] + ... + b[nb]
+   y(s) = --------------------------------------------- * u(s)
+           a[1]*s^[na-1] + a[2]*s^[na-2] + ... + a[na]
+</pre></div>
+
+
+<p>State variables x are defined according to controller canonical
+form. Initial values of the states can be set as start values of x.</p>
+<p>Example:</p>
+<div class="codehilite"><pre>     <span class="n">TransferFunction</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span> <span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
+</pre></div>
+
+
+<p>results in the following transfer function:</p>
+<div class="codehilite"><pre>        2*s + 4
+   y = --------- * u
+         s + 3
+</pre></div>
+
+
+<div class="codehilite"><pre><span class="n">TransferFunction</span><span class="p">(</span><span class="n">u</span><span class="p">::</span><span class="n">Signal</span><span class="p">,</span> <span class="n">y</span><span class="p">::</span><span class="n">Signal</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">TransferFunction</span><span class="p">(</span><span class="n">u</span><span class="p">::</span><span class="n">Signal</span><span class="p">,</span> <span class="n">y</span><span class="p">::</span><span class="n">Signal</span><span class="p">;</span> <span class="n">b</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+</pre></div>
+
+
+<h3 id="arguments_5">Arguments</h3>
+<ul>
+<li><code>u::Signal</code> : input</li>
+<li><code>y::Signal</code> : output</li>
+</ul>
+<h3 id="keywordoptional-arguments_5">Keyword/Optional Arguments</h3>
+<ul>
+<li><code>b</code> : Numerator coefficients of transfer function</li>
+<li><code>a</code> : Denominator coefficients of transfer function</li>
+</ul>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../lib/blocks.jl#L429">Sims/src/../lib/blocks.jl:429</a></p>
+<h1 id="nonlinear">Nonlinear</h1>
+<h2 id="limiter">Limiter</h2>
+<p>Limit the range of a signal</p>
+<p>The Limiter block passes its input signal as output signal as long as
+the input is within the specified upper and lower limits. If this is
+not the case, the corresponding limits are passed as output.</p>
+<div class="codehilite"><pre><span class="n">Limiter</span><span class="p">(</span><span class="n">u</span><span class="p">::</span><span class="n">Signal</span><span class="p">,</span> <span class="n">y</span><span class="p">::</span><span class="n">Signal</span><span class="p">,</span> <span class="n">uMax</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">uMin</span> <span class="o">=</span> <span class="o">-</span><span class="n">uMax</span><span class="p">)</span>
+<span class="n">Limiter</span><span class="p">(</span><span class="n">u</span><span class="p">::</span><span class="n">Signal</span><span class="p">,</span> <span class="n">y</span><span class="p">::</span><span class="n">Signal</span><span class="p">;</span> <span class="n">uMax</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">uMin</span> <span class="o">=</span> <span class="o">-</span><span class="n">uMax</span><span class="p">)</span>
+</pre></div>
+
+
+<h3 id="arguments_6">Arguments</h3>
+<ul>
+<li><code>u::Signal</code> : input</li>
+<li><code>y::Signal</code> : output</li>
+</ul>
+<h3 id="keywordoptional-arguments_6">Keyword/Optional Arguments</h3>
+<ul>
+<li><code>uMax</code> : upper limits of signals</li>
+<li><code>uMin</code> : lower limits of signals</li>
+</ul>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../lib/blocks.jl#L490">Sims/src/../lib/blocks.jl:490</a></p>
+<h2 id="step">Step</h2>
+<p>Generate step signals of type Real</p>
+<div class="codehilite"><pre><span class="n">Step</span><span class="p">(</span><span class="n">y</span><span class="p">::</span><span class="n">Signal</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">startTime</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span>
+<span class="n">Step</span><span class="p">(</span><span class="n">y</span><span class="p">::</span><span class="n">Signal</span><span class="p">;</span> <span class="n">height</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">startTime</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span>
+</pre></div>
+
+
+<h3 id="arguments_7">Arguments</h3>
+<ul>
+<li><code>u::Signal</code> : input</li>
+<li><code>y::Signal</code> : output</li>
+</ul>
+<h3 id="keywordoptional-arguments_7">Keyword/Optional Arguments</h3>
+<ul>
+<li><code>height</code> : heights of steps</li>
+<li><code>offset</code> : offsets of output signals</li>
+<li><code>startTime</code> : output = offset for time &lt; startTime [s]</li>
+</ul>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../lib/blocks.jl#L528">Sims/src/../lib/blocks.jl:528</a></p>
+<h2 id="deadzone">DeadZone</h2>
+<p>Provide a region of zero output</p>
+<p>The DeadZone block defines a region of zero output.</p>
+<p>If the input is within uMin ... uMax, the output is zero. Outside of
+this zone, the output is a linear function of the input with a slope
+of 1.</p>
+<div class="codehilite"><pre><span class="n">DeadZone</span><span class="p">(</span><span class="n">u</span><span class="p">::</span><span class="n">Signal</span><span class="p">,</span> <span class="n">y</span><span class="p">::</span><span class="n">Signal</span><span class="p">,</span> <span class="n">uMax</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">uMin</span> <span class="o">=</span> <span class="o">-</span><span class="n">uMax</span><span class="p">)</span>
+<span class="n">DeadZone</span><span class="p">(</span><span class="n">u</span><span class="p">::</span><span class="n">Signal</span><span class="p">,</span> <span class="n">y</span><span class="p">::</span><span class="n">Signal</span><span class="p">;</span> <span class="n">uMax</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">uMin</span> <span class="o">=</span> <span class="o">-</span><span class="n">uMax</span><span class="p">)</span>
+</pre></div>
+
+
+<h3 id="arguments_8">Arguments</h3>
+<ul>
+<li><code>u::Signal</code> : input</li>
+<li><code>y::Signal</code> : output</li>
+</ul>
+<h3 id="keywordoptional-arguments_8">Keyword/Optional Arguments</h3>
+<ul>
+<li><code>uMax</code> : upper limits of signals</li>
+<li><code>uMin</code> : lower limits of signals</li>
+</ul>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../lib/blocks.jl#L571">Sims/src/../lib/blocks.jl:571</a></p>
+</div>
+            
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            
+            <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+
+        
+
+        <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+        <script src="../../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../../js/prettify-1.0.min.js"></script>
+        <script src="../../js/highlight.pack.js"></script>
+        <script src="../../js/base.js"></script>
+    </body>
+</html>

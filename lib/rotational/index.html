@@ -9,7 +9,7 @@
         
         <link rel="shortcut icon" href="../../img/favicon.ico">
 
-        <title>Basics - Sims.jl</title>
+        <title>Rotational mechanics - Sims.jl</title>
 
         <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
         <link href="../../css/font-awesome-4.0.3.css" rel="stylesheet">
@@ -92,32 +92,32 @@
                 
                 
                 
-                    <li class="dropdown">
+                    <li class="dropdown active">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Standard library <b class="caret"></b></a>
                         <ul class="dropdown-menu">
                         
                             <li >
-                                <a href="../../lib/types">Types</a>
+                                <a href="../types">Types</a>
                             </li>
                         
                             <li >
-                                <a href="../../lib/blocks">Continuous blocks</a>
+                                <a href="../blocks">Continuous blocks</a>
                             </li>
                         
                             <li >
-                                <a href="../../lib/electrical">Electrical</a>
+                                <a href="../electrical">Electrical</a>
                             </li>
                         
                             <li >
-                                <a href="../../lib/heat_transfer">Heat transfer</a>
+                                <a href="../heat_transfer">Heat transfer</a>
                             </li>
                         
                             <li >
-                                <a href="../../lib/powersystems">Power systems</a>
+                                <a href="../powersystems">Power systems</a>
                             </li>
                         
-                            <li >
-                                <a href="../../lib/rotational">Rotational mechanics</a>
+                            <li class="active">
+                                <a href=".">Rotational mechanics</a>
                             </li>
                         
                         </ul>
@@ -125,20 +125,20 @@
                 
                 
                 
-                    <li class="dropdown active">
+                    <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Examples <b class="caret"></b></a>
                         <ul class="dropdown-menu">
                         
-                            <li class="active">
-                                <a href=".">Basics</a>
+                            <li >
+                                <a href="../../examples/basics">Basics</a>
                             </li>
                         
                             <li >
-                                <a href="../lib">Standard library</a>
+                                <a href="../../examples/lib">Standard library</a>
                             </li>
                         
                             <li >
-                                <a href="../neural">Neural</a>
+                                <a href="../../examples/neural">Neural</a>
                             </li>
                         
                         </ul>
@@ -177,12 +177,12 @@
                 
                 
                 <li >
-                    <a rel="next" href="../../lib/rotational">
+                    <a rel="next" href="../powersystems">
                         <i class="fa fa-arrow-left"></i> Previous
                     </a>
                 </li>
                 <li >
-                    <a rel="prev" href="../lib">
+                    <a rel="prev" href="../../examples/basics">
                         Next <i class="fa fa-arrow-right"></i>
                     </a>
                 </li>
@@ -208,88 +208,35 @@
                 <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
     
-        <li class="main active"><a href="#examples-using-basic-models">Examples using basic models</a></li>
+        <li class="main active"><a href="#rotational-mechanics">Rotational mechanics</a></li>
         
-            <li><a href="#breakingpendulum">BreakingPendulum</a></li>
-        
-            <li><a href="#breakingpenduluminbox">BreakingPendulumInBox</a></li>
-        
-            <li><a href="#dcmotorwithshaft">DcMotorWithShaft</a></li>
-        
-            <li><a href="#halfwaverectifier">HalfWaveRectifier</a></li>
-        
-            <li><a href="#structuralhalfwaverectifier">StructuralHalfWaveRectifier</a></li>
-        
-            <li><a href="#initialcondition">InitialCondition</a></li>
-        
-            <li><a href="#mkininitialcondition">MkinInitialCondition</a></li>
-        
-            <li><a href="#vanderpol">Vanderpol</a></li>
-        
-            <li><a href="#vanderpolwithevents">VanderpolWithEvents()</a></li>
+            <li><a href="#inertia">Inertia</a></li>
         
     
     </ul>
 </div></div>
                 <div class="col-md-9" role="main">
 
-<h1 id="examples-using-basic-models">Examples using basic models</h1>
-<p>These are available in <strong>Sims.Examples.Basics</strong>.</p>
-<p>Here is an example of use:</p>
-<div class="codehilite"><pre><span class="k">using</span> <span class="n">Sims</span>
-<span class="n">m</span> <span class="o">=</span> <span class="n">Sims</span><span class="o">.</span><span class="n">Examples</span><span class="o">.</span><span class="n">Basics</span><span class="o">.</span><span class="n">ChuaCircuit</span><span class="p">()</span>
-<span class="n">v</span>    <span class="o">=</span> <span class="n">sim</span><span class="p">(</span><span class="n">Vanderpol</span><span class="p">(),</span> <span class="mf">50.0</span><span class="p">)</span>
-
-<span class="k">using</span> <span class="n">Winston</span>
-<span class="n">wplot</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+<h1 id="rotational-mechanics">Rotational mechanics</h1>
+<p>Library to model 1-dimensional, rotational mechanical systems</p>
+<p>Rotational provides 1-dimensional, rotational mechanical components to
+model in a convenient way drive trains with frictional losses.</p>
+<p>These components are modeled after the Modelica.Mechanics.Rotational
+library.</p>
+<h2 id="inertia">Inertia</h2>
+<p>1D-rotational component with inertia</p>
+<p>Rotational component with inertia and two rigidly connected flanges. </p>
+<div class="codehilite"><pre><span class="n">Inertia</span><span class="p">(</span><span class="n">flange_a</span><span class="p">::</span><span class="n">Flange</span><span class="p">,</span> <span class="n">flange_b</span><span class="p">::</span><span class="n">Flange</span><span class="p">,</span> <span class="n">J</span><span class="p">::</span><span class="n">Real</span><span class="p">)</span>
 </pre></div>
 
 
-<h2 id="breakingpendulum">BreakingPendulum</h2>
-<p>Models a pendulum that breaks at 5 secs. This model uses a
-StructuralEvent to switch between <code>Pendulum</code> mode and <code>FreeFall</code> mode.</p>
-<p>Based on an example by George Giorgidze's
-thesis](http://eprints.nottingham.ac.uk/12554/1/main.pdf) that's in
-<a href="https://github.com/giorgidze/Hydra/blob/master/examples/BreakingPendulum.hs">Hydra</a>.</p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/basics/breaking_pendulum.jl#L41">Sims/src/../examples/basics/breaking_pendulum.jl:41</a></p>
-<h2 id="breakingpenduluminbox">BreakingPendulumInBox</h2>
-<p>An extension of Sims.Examples.Basics.BreakingPendulum.</p>
-<p>Floors and a wall are added. These are handled by <code>Events</code> in the
-<code>FreeFall</code> model. Velocities are reversed to bounce the ball.</p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/basics/breaking_pendulum_in_box.jl#L47">Sims/src/../examples/basics/breaking_pendulum_in_box.jl:47</a></p>
-<h2 id="dcmotorwithshaft">DcMotorWithShaft</h2>
-<p>A DC motor with a flexible shaft. The shaft is made of multiple
-elements. These are collected together algorithmically.</p>
-<p>This is a smaller version of an example on p. 117 of David Broman's
-<a href="http://www.bromans.com/david/publ/thesis-2010-david-broman.pdf">thesis</a>.</p>
-<p>I don't know if the results are reasonable or not.</p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/basics/dc_motor_w_shaft.jl#L81">Sims/src/../examples/basics/dc_motor_w_shaft.jl:81</a></p>
-<h2 id="halfwaverectifier">HalfWaveRectifier</h2>
-<p>A half-wave rectifier. The diode uses Events to toggle switching.</p>
-<p>See F. E. Cellier and E. Kofman, <em>Continuous System Simulation</em>,
-Springer, 2006, fig 9.27.</p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/basics/half_wave_rectifiers.jl#L57">Sims/src/../examples/basics/half_wave_rectifiers.jl:57</a></p>
-<h2 id="structuralhalfwaverectifier">StructuralHalfWaveRectifier</h2>
-<p>This is the same circuit used in
-Sims.Examples.Basics.HalfWaveRectifier, but a structurally variable
-diode is used instead of a diode that uses Events.</p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/basics/half_wave_rectifiers.jl#L79">Sims/src/../examples/basics/half_wave_rectifiers.jl:79</a></p>
-<h2 id="initialcondition">InitialCondition</h2>
-<p>A basic test of solving for initial conditions for two simultaineous
-equations.</p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/basics/initial_conditions.jl#L19">Sims/src/../examples/basics/initial_conditions.jl:19</a></p>
-<h2 id="mkininitialcondition">MkinInitialCondition</h2>
-<p>A basic test of solving for initial conditions for two simultaineous
-equations.</p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/basics/initial_conditions.jl#L31">Sims/src/../examples/basics/initial_conditions.jl:31</a></p>
-<h2 id="vanderpol">Vanderpol</h2>
-<p>The Van Der Pol oscillator is a simple problem with two equations
-and two unknowns.</p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/basics/vanderpol.jl#L24">Sims/src/../examples/basics/vanderpol.jl:24</a></p>
-<h2 id="vanderpolwithevents">VanderpolWithEvents()</h2>
-<p>An extension of Sims.Examples.Basics.Vanderpol. Events are triggered
-every 2 sec that change the quantity <code>mu</code>.</p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../examples/basics/vanderpol_with_events.jl#L13">Sims/src/../examples/basics/vanderpol_with_events.jl:13</a></p>
+<h3 id="arguments">Arguments</h3>
+<ul>
+<li><code>flange_a::Flange</code> : left flange of shaft [rad]</li>
+<li><code>flange_b::Flange</code> : right flange of shaft [rad]</li>
+<li><code>J::Real</code> : Moment of inertia [kg.m^2]</li>
+</ul>
+<p><a href="https://github.com/tshort/Sims.jl/tree/4daa82c7bb8aca8f9ca655abe46e9f4028f334c6/src/../lib/rotational.jl#L40">Sims/src/../lib/rotational.jl:40</a></p>
 </div>
             
         </div>
