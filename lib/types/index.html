@@ -212,11 +212,11 @@
         
             <li><a href="#numberorunknownt">NumberOrUnknown{T}</a></li>
         
-            <li><a href="#unionnumber-abstractarrayt-n-refunknownt-unknownt-mexpr">Union(Number, AbstractArray{T, N}, RefUnknown{T}, Unknown{T}, MExpr)</a></li>
+            <li><a href="#unionunknownt-abstractarrayt-n-refunknownt-number-mexpr">Union(Unknown{T}, AbstractArray{T, N}, RefUnknown{T}, Number, MExpr)</a></li>
         
             <li><a href="#signal">Signal</a></li>
         
-            <li><a href="#unionnumber-abstractarrayt-n-unknowndefaultunknown-refunknowndefaultunknown-mexpr">Union(Number, AbstractArray{T, N}, Unknown{DefaultUnknown}, RefUnknown{DefaultUnknown}, MExpr)</a></li>
+            <li><a href="#unionabstractarrayt-n-unknowndefaultunknown-number-refunknowndefaultunknown-mexpr">Union(AbstractArray{T, N}, Unknown{DefaultUnknown}, Number, RefUnknown{DefaultUnknown}, MExpr)</a></li>
         
     
         <li class="main "><a href="#electrical-types">Electrical types</a></li>
@@ -227,7 +227,7 @@
         
             <li><a href="#electricalnode">ElectricalNode</a></li>
         
-            <li><a href="#unionnumber-abstractarrayt-n-refunknownuvoltage-unknownuvoltage-mexpr">Union(Number, AbstractArray{T, N}, RefUnknown{UVoltage}, Unknown{UVoltage}, MExpr)</a></li>
+            <li><a href="#unionabstractarrayt-n-refunknownuvoltage-unknownuvoltage-number-mexpr">Union(AbstractArray{T, N}, RefUnknown{UVoltage}, Unknown{UVoltage}, Number, MExpr)</a></li>
         
             <li><a href="#voltage">Voltage</a></li>
         
@@ -248,7 +248,7 @@
         
             <li><a href="#heatport">HeatPort</a></li>
         
-            <li><a href="#unionnumber-abstractarrayt-n-unknownuheatport-refunknownuheatport-mexpr">Union(Number, AbstractArray{T, N}, Unknown{UHeatPort}, RefUnknown{UHeatPort}, MExpr)</a></li>
+            <li><a href="#unionunknownuheatport-abstractarrayt-n-refunknownuheatport-number-mexpr">Union(Unknown{UHeatPort}, AbstractArray{T, N}, RefUnknown{UHeatPort}, Number, MExpr)</a></li>
         
             <li><a href="#heatflow">HeatFlow</a></li>
         
@@ -287,7 +287,7 @@
         
             <li><a href="#flange">Flange</a></li>
         
-            <li><a href="#unionnumber-abstractarrayt-n-refunknownuangle-mexpr-unknownuangle">Union(Number, AbstractArray{T, N}, RefUnknown{UAngle}, MExpr, Unknown{UAngle})</a></li>
+            <li><a href="#unionabstractarrayt-n-unknownuangle-number-mexpr-refunknownuangle">Union(AbstractArray{T, N}, Unknown{UAngle}, Number, MExpr, RefUnknown{UAngle})</a></li>
         
     
     </ul>
@@ -353,7 +353,7 @@ Unknown or a concrete value.</p>
 <p>Most of the types and functions support Unknowns holding array values,
 and some support complex values.</p>
 <h2 id="numberorunknownt">NumberOrUnknown{T}</h2>
-<h2 id="unionnumber-abstractarrayt-n-refunknownt-unknownt-mexpr">Union(Number, AbstractArray{T, N}, RefUnknown{T}, Unknown{T}, MExpr)</h2>
+<h2 id="unionunknownt-abstractarrayt-n-refunknownt-number-mexpr">Union(Unknown{T}, AbstractArray{T, N}, RefUnknown{T}, Number, MExpr)</h2>
 <p><code>NumberOrUnknown{T}</code> is a typealias for
 <code>Union(AbstractArray, Number, MExpr, RefUnknown{T}, Unknown{T})</code>.</p>
 <p>Can be an Unknown, an AbstractArray, a Number, or an MExpr. Useful
@@ -361,106 +361,106 @@ where an object can be either an Unknown of a particular type or a
 real value, especially for use as a type in a model argument. It may
 be parameterized by an UnknownCategory, like NumberOrUnknown{UVoltage}
 (the definition of an ElectricalNode).</p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/types.jl#L65">Sims/src/../lib/types.jl:65</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L65">Sims/src/../lib/types.jl:65</a></p>
 <h2 id="signal">Signal</h2>
-<h2 id="unionnumber-abstractarrayt-n-unknowndefaultunknown-refunknowndefaultunknown-mexpr">Union(Number, AbstractArray{T, N}, Unknown{DefaultUnknown}, RefUnknown{DefaultUnknown}, MExpr)</h2>
+<h2 id="unionabstractarrayt-n-unknowndefaultunknown-number-refunknowndefaultunknown-mexpr">Union(AbstractArray{T, N}, Unknown{DefaultUnknown}, Number, RefUnknown{DefaultUnknown}, MExpr)</h2>
 <p><code>Signal</code> is a typealias for <code>NumberOrUnknown{DefaultUnknown}</code>.</p>
 <p>Can be an Unknown, an AbstractArray, a Number, or an MExpr.</p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/types.jl#L77">Sims/src/../lib/types.jl:77</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L77">Sims/src/../lib/types.jl:77</a></p>
 <h1 id="electrical-types">Electrical types</h1>
 <h2 id="uvoltage">UVoltage</h2>
 <p>An UnknownCategory for electrical potential in volts.</p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/types.jl#L90">Sims/src/../lib/types.jl:90</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L90">Sims/src/../lib/types.jl:90</a></p>
 <h2 id="ucurrent">UCurrent</h2>
 <p>An UnknownCategory for electrical current in amperes.</p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/types.jl#L95">Sims/src/../lib/types.jl:95</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L95">Sims/src/../lib/types.jl:95</a></p>
 <h2 id="electricalnode">ElectricalNode</h2>
-<h2 id="unionnumber-abstractarrayt-n-refunknownuvoltage-unknownuvoltage-mexpr">Union(Number, AbstractArray{T, N}, RefUnknown{UVoltage}, Unknown{UVoltage}, MExpr)</h2>
+<h2 id="unionabstractarrayt-n-refunknownuvoltage-unknownuvoltage-number-mexpr">Union(AbstractArray{T, N}, RefUnknown{UVoltage}, Unknown{UVoltage}, Number, MExpr)</h2>
 <p><code>ElectricalNode</code> is a typealias for <code>NumberOrUnknown{UVoltage}</code>.</p>
 <p>An electrical node, either a Voltage (an Unknown) or a real value. Can
 include arrays or complex values. Used commonly as a model arguments
 for nodes. This allows nodes to be Unknowns or fixed values (like a
 ground that's zero volts).</p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/types.jl#L110">Sims/src/../lib/types.jl:110</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L110">Sims/src/../lib/types.jl:110</a></p>
 <h2 id="voltage">Voltage</h2>
 <h2 id="unknownuvoltage">Unknown{UVoltage}</h2>
 <p><code>Voltage</code> is a typealias for <code>Unknown{UVoltage}</code>.</p>
 <p>Electrical potential with units of volts. Used as nodes and potential
 differences between nodes.</p>
 <p>Often used with <code>ElectricalNode</code> as a model argument.</p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/types.jl#L124">Sims/src/../lib/types.jl:124</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L124">Sims/src/../lib/types.jl:124</a></p>
 <h2 id="current">Current</h2>
 <h2 id="unknownucurrent">Unknown{UCurrent}</h2>
 <p><code>Current</code> is a typealias for <code>Unknown{UCurrent}</code>.</p>
 <p>Electrical current with units of amperes. A flow variable.</p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/types.jl#L135">Sims/src/../lib/types.jl:135</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L135">Sims/src/../lib/types.jl:135</a></p>
 <h1 id="thermal-types">Thermal types</h1>
 <h2 id="uheatport">UHeatPort</h2>
 <p>An UnknownCategory for temperature in kelvin.</p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/types.jl#L149">Sims/src/../lib/types.jl:149</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L149">Sims/src/../lib/types.jl:149</a></p>
 <h2 id="utemperature">UTemperature</h2>
 <p>An UnknownCategory for temperature in kelvin.</p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/types.jl#L155">Sims/src/../lib/types.jl:155</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L155">Sims/src/../lib/types.jl:155</a></p>
 <h2 id="uheatflow">UHeatFlow</h2>
 <p>An UnknownCategory for heat flow rate in watts.</p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/types.jl#L161">Sims/src/../lib/types.jl:161</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L161">Sims/src/../lib/types.jl:161</a></p>
 <h2 id="heatport">HeatPort</h2>
-<h2 id="unionnumber-abstractarrayt-n-unknownuheatport-refunknownuheatport-mexpr">Union(Number, AbstractArray{T, N}, Unknown{UHeatPort}, RefUnknown{UHeatPort}, MExpr)</h2>
+<h2 id="unionunknownuheatport-abstractarrayt-n-refunknownuheatport-number-mexpr">Union(Unknown{UHeatPort}, AbstractArray{T, N}, RefUnknown{UHeatPort}, Number, MExpr)</h2>
 <p><code>HeatPort</code> is a typealias for <code>NumberOrUnknown{UHeatPort}</code>.</p>
 <p>A thermal node, either a Temperature (an Unknown) or a real value. Can
 include arrays. Used commonly as a model arguments for nodes. This
 allows nodes to be Unknowns or fixed values.</p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/types.jl#L175">Sims/src/../lib/types.jl:175</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L175">Sims/src/../lib/types.jl:175</a></p>
 <h2 id="heatflow">HeatFlow</h2>
 <h2 id="unknownuheatflow">Unknown{UHeatFlow}</h2>
 <p><code>HeatFlow</code> is a typealias for <code>Unknown{UHeatFlow}</code>.</p>
 <p>Heat flow rate in units of watts.</p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/types.jl#L186">Sims/src/../lib/types.jl:186</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L186">Sims/src/../lib/types.jl:186</a></p>
 <h2 id="temperature">Temperature</h2>
 <h2 id="unknownuheatport">Unknown{UHeatPort}</h2>
 <p><code>Temperature</code> is a typealias for <code>Unknown{UHeatPort}</code>.</p>
 <p>A thermal potential, a Temperature (an Unknown) in units of kelvin.</p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/types.jl#L197">Sims/src/../lib/types.jl:197</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L197">Sims/src/../lib/types.jl:197</a></p>
 <h1 id="rotational-types">Rotational types</h1>
 <h2 id="uangle">UAngle</h2>
 <p>An UnknownCategory for rotational angle in radians.</p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/types.jl#L212">Sims/src/../lib/types.jl:212</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L212">Sims/src/../lib/types.jl:212</a></p>
 <h2 id="utorque">UTorque</h2>
 <p>An UnknownCategory for torque in newton-meters.</p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/types.jl#L217">Sims/src/../lib/types.jl:217</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L217">Sims/src/../lib/types.jl:217</a></p>
 <h2 id="angle">Angle</h2>
 <h2 id="unknownuangle">Unknown{UAngle}</h2>
 <p><code>Angle</code> is a typealias for <code>Unknown{UAngle}</code>.</p>
 <p>The angle in radians.</p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/types.jl#L228">Sims/src/../lib/types.jl:228</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L228">Sims/src/../lib/types.jl:228</a></p>
 <h2 id="torque">Torque</h2>
 <h2 id="unknownutorque">Unknown{UTorque}</h2>
 <p><code>Torque</code> is a typealias for <code>Unknown{UTorque}</code>.</p>
 <p>The torque in newton-meters.</p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/types.jl#L239">Sims/src/../lib/types.jl:239</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L239">Sims/src/../lib/types.jl:239</a></p>
 <h2 id="uangularvelocity">UAngularVelocity</h2>
 <p>An UnknownCategory for angular velocity in radians/sec.</p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/types.jl#L244">Sims/src/../lib/types.jl:244</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L244">Sims/src/../lib/types.jl:244</a></p>
 <h2 id="angularvelocity">AngularVelocity</h2>
 <h2 id="unknownuangularvelocity">Unknown{UAngularVelocity}</h2>
 <p><code>AngularVelocity</code> is a typealias for <code>Unknown{UAngularVelocity}</code>.</p>
 <p>The angular velocity in radians/sec.</p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/types.jl#L255">Sims/src/../lib/types.jl:255</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L255">Sims/src/../lib/types.jl:255</a></p>
 <h2 id="uangularacceleration">UAngularAcceleration</h2>
 <p>An UnknownCategory for angular acceleration in radians/sec^2.</p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/types.jl#L260">Sims/src/../lib/types.jl:260</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L260">Sims/src/../lib/types.jl:260</a></p>
 <h2 id="angularaccelleration">AngularAccelleration</h2>
 <h2 id="unknownuangularacceleration">Unknown{UAngularAcceleration}</h2>
 <p><code>AngularAcceleration</code> is a typealias for <code>Unknown{UAngularAcceleration}</code>.</p>
 <p>The angular acceleration in radians/sec^2.</p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/types.jl#L272">Sims/src/../lib/types.jl:272</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L272">Sims/src/../lib/types.jl:272</a></p>
 <h2 id="flange">Flange</h2>
-<h2 id="unionnumber-abstractarrayt-n-refunknownuangle-mexpr-unknownuangle">Union(Number, AbstractArray{T, N}, RefUnknown{UAngle}, MExpr, Unknown{UAngle})</h2>
+<h2 id="unionabstractarrayt-n-unknownuangle-number-mexpr-refunknownuangle">Union(AbstractArray{T, N}, Unknown{UAngle}, Number, MExpr, RefUnknown{UAngle})</h2>
 <p><code>Flange</code> is a typealias for <code>NumberOrUnknown{UAngle}</code>.</p>
 <p>A rotational node, either an Angle (an Unknown) or a real value in
 radians. Can include arrays. Used commonly as a model arguments for
 nodes. This allows nodes to be Unknowns or fixed values.  </p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/a04671cab72f6bbaee67551195668c1edb7b0dd7/src/../lib/types.jl#L286">Sims/src/../lib/types.jl:286</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L286">Sims/src/../lib/types.jl:286</a></p>
 </div>
             
         </div>
