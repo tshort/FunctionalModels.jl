@@ -5,13 +5,14 @@
 using Sims
 using Winston
 
-gL     = 0.1 
+gL     = 0.1
 vL     = -70.0 
-Isyn   = 10.0 
 C      = 1.0 
 theta  = 20.0 
 vreset = -65.0 
 trefractory = 5.0 
+
+Isyn   = Parameter(10.0)
 
 function Subthreshold(v)
 

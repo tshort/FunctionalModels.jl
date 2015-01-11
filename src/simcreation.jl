@@ -192,8 +192,6 @@ function setup_functions(sm::Sim)
 
     pe_block = map ((eq) ->
                     begin
-                        println("eq.x = ", eq.x)
-                        println("replace_unknowns(eq.x) = ", replace_unknowns(eq.x,sm))
                         replace_unknowns(eq.x,sm)
                         Expr (:(=),Expr(:ref,:p,sm.parameter_idx_map[eq.x.sym]),
                               replace_unknowns(eq.eq,sm))
@@ -219,7 +217,6 @@ function setup_functions(sm::Sim)
     # Parameter equations:
     param_thunk = Expr(:block, pe_block...)
 
-    println("resid_thunk = ", resid_thunk)
     println("param_thunk = ", param_thunk)
     
     # Helpers to convert an array of expressions into a single expression.
