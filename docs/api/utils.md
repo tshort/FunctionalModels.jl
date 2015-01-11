@@ -37,7 +37,7 @@ If `filename` is not give, plot interactively.
 
 * A Winston object
 
-[Sims/src/utils.jl:110](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/utils.jl#L110)
+[Sims/src/utils.jl:110](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/utils.jl#L110)
 
 
 
@@ -64,7 +64,7 @@ Base.convert(::Type{DataFrames.DataFrame}, x::SimResult)
 * `::DataFrame` : a DataFrame with the first column as `:time` and
   remaining columns with simulation results.
 
-[Sims/src/utils.jl:149](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/utils.jl#L149)
+[Sims/src/utils.jl:149](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/utils.jl#L149)
 
 
 
@@ -85,7 +85,7 @@ plot(sm::SimResult, args...)
 
 * A Gadfly object
 
-[Sims/src/utils.jl:175](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/utils.jl#L175)
+[Sims/src/utils.jl:175](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/utils.jl#L175)
 
 
 
@@ -116,7 +116,7 @@ Creates one or more Unknowns
 
 * A Gadfly object
 
-[Sims/src/utils.jl:220](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/utils.jl#L220)
+[Sims/src/utils.jl:220](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/utils.jl#L220)
 
 
 
@@ -136,5 +136,5 @@ name(x)
 
 * `::Void`
 
-[Sims/src/utils.jl:259](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/utils.jl#L259)
+[Sims/src/utils.jl:259](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/utils.jl#L259)
 

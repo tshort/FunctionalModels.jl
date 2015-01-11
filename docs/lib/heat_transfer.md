@@ -67,7 +67,7 @@ Modelica. You need to define the starting temperature at the top level
 for the HeatPort you define.
 
 
-[Sims/src/../lib/heat_transfer.jl:74](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/heat_transfer.jl#L74)
+[Sims/src/../lib/heat_transfer.jl:74](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/heat_transfer.jl#L74)
 
 
 
@@ -128,7 +128,7 @@ Typical values for k at 20 degC in W/(m.K):
 ```
 
 
-[Sims/src/../lib/heat_transfer.jl:139](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/heat_transfer.jl#L139)
+[Sims/src/../lib/heat_transfer.jl:139](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/heat_transfer.jl#L139)
 
 
 
@@ -209,7 +209,7 @@ Transfer, 8th edition, McGraw-Hill, 1997, p.270):
 ```
 
 
-[Sims/src/../lib/heat_transfer.jl:225](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/heat_transfer.jl#L225)
+[Sims/src/../lib/heat_transfer.jl:225](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/heat_transfer.jl#L225)
 
 
 
@@ -295,7 +295,7 @@ inner to the outer cylinder):**
 ```
 
 
-[Sims/src/../lib/heat_transfer.jl:316](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/heat_transfer.jl#L316)
+[Sims/src/../lib/heat_transfer.jl:316](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/heat_transfer.jl#L316)
 
 
 
@@ -314,7 +314,7 @@ ThermalCollector(port_a::HeatPort, port_b::HeatPort)
 * `port_b::HeatPort` : heat port [K]
 
 
-[Sims/src/../lib/heat_transfer.jl:341](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/heat_transfer.jl#L341)
+[Sims/src/../lib/heat_transfer.jl:341](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/heat_transfer.jl#L341)
 
 
 
@@ -345,7 +345,7 @@ FixedTemperature(port::HeatPort, T::Signal)
 * `T::Signal` : temperature at port [K]
 
 
-[Sims/src/../lib/heat_transfer.jl:380](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/heat_transfer.jl#L380)
+[Sims/src/../lib/heat_transfer.jl:380](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/heat_transfer.jl#L380)
 
 
 
@@ -373,7 +373,7 @@ PrescribedTemperature(port::HeatPort, T::Signal)
 * `T::Signal` : temperature at port [K]
 
 
-[Sims/src/../lib/heat_transfer.jl:410](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/heat_transfer.jl#L410)
+[Sims/src/../lib/heat_transfer.jl:410](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/heat_transfer.jl#L410)
 
 
 
@@ -410,7 +410,7 @@ FixedHeatFlow(port::HeatPort, Q_flow::Signal; T_ref::Signal = 293.15, alpha::Sig
 * `alpha::Signal` : temperature coefficient of heat flow rate [1/K]
 
 
-[Sims/src/../lib/heat_transfer.jl:446](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/heat_transfer.jl#L446)
+[Sims/src/../lib/heat_transfer.jl:446](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/heat_transfer.jl#L446)
 
 
 
@@ -447,5 +447,5 @@ PrescribedHeatFlow(port::HeatPort, Q_flow::Signal; T_ref::Signal = 293.15, alpha
 * `alpha::Signal` : temperature coefficient of heat flow rate [1/K]
 
 
-[Sims/src/../lib/heat_transfer.jl:487](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/heat_transfer.jl#L487)
+[Sims/src/../lib/heat_transfer.jl:487](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/heat_transfer.jl#L487)
 

@@ -65,7 +65,7 @@ Key parameters for plotting are:
 [LBL doc link](http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Blocks_Examples.html#Modelica.Blocks.Examples.PID_Controller)
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Blocks_Examples.html#Modelica.Blocks.Examples.PID_Controller)
 
-[Sims/src/../examples/lib/blocks.jl:49](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../examples/lib/blocks.jl#L49)
+[Sims/src/../examples/lib/blocks.jl:49](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../examples/lib/blocks.jl#L49)
 
 
 
@@ -89,7 +89,7 @@ pulse response is calculated.
 [LBL doc link](http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CauerLowPassAnalog)
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CauerLowPassAnalog)
 
-[Sims/src/../examples/lib/electrical.jl:39](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../examples/lib/electrical.jl#L39)
+[Sims/src/../examples/lib/electrical.jl:39](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../examples/lib/electrical.jl#L39)
 
 
 
@@ -107,7 +107,7 @@ voltage. The pulse response is calculated.
 [LBL doc link](http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CauerLowPassOPV)
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CauerLowPassOPV)
 
-[Sims/src/../examples/lib/electrical.jl:79](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../examples/lib/electrical.jl#L79)
+[Sims/src/../examples/lib/electrical.jl:79](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../examples/lib/electrical.jl#L79)
 
 
 
@@ -125,7 +125,7 @@ voltage. The pulse response is calculated.
 [LBL doc link](http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CauerLowPassOPV)
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CauerLowPassOPV)
 
-[Sims/src/../examples/lib/electrical.jl:132](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../examples/lib/electrical.jl#L132)
+[Sims/src/../examples/lib/electrical.jl:132](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../examples/lib/electrical.jl#L132)
 
 
 
@@ -149,7 +149,7 @@ proportional to n1.
 [LBL doc link](http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CharacteristicIdealDiodes)
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CharacteristicIdealDiodes)
 
-[Sims/src/../examples/lib/electrical.jl:215](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../examples/lib/electrical.jl#L215)
+[Sims/src/../examples/lib/electrical.jl:215](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../examples/lib/electrical.jl#L215)
 
 
 
@@ -170,7 +170,7 @@ voltages).
 [LBL doc link](http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.ChuaCircuit)
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.ChuaCircuit)
 
-[Sims/src/../examples/lib/electrical.jl:270](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../examples/lib/electrical.jl#L270)
+[Sims/src/../examples/lib/electrical.jl:270](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../examples/lib/electrical.jl#L270)
 
 
 
@@ -187,7 +187,7 @@ environment via its heatPort.
 [LBL doc link](http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.HeatingResistor)
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.HeatingResistor)
 
-[Sims/src/../examples/lib/electrical.jl:313](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../examples/lib/electrical.jl#L313)
+[Sims/src/../examples/lib/electrical.jl:313](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../examples/lib/electrical.jl#L313)
 
 
 
@@ -205,7 +205,7 @@ capacitor is loaded.
 
 NOTE: CURRENTLY UNFINISHED
 
-[Sims/src/../examples/lib/electrical.jl:340](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../examples/lib/electrical.jl#L340)
+[Sims/src/../examples/lib/electrical.jl:340](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../examples/lib/electrical.jl#L340)
 
 
 
@@ -224,7 +224,7 @@ ideal no-load voltage, thus making easier initial transient.
 
 NOTE: CURRENTLY BROKEN
 
-[Sims/src/../examples/lib/electrical.jl:403](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../examples/lib/electrical.jl#L403)
+[Sims/src/../examples/lib/electrical.jl:403](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../examples/lib/electrical.jl#L403)
 
 
 
@@ -242,7 +242,7 @@ inductivity.
 
 NOTE: CURRENTLY BROKEN
 
-[Sims/src/../examples/lib/electrical.jl:462](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../examples/lib/electrical.jl#L462)
+[Sims/src/../examples/lib/electrical.jl:462](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../examples/lib/electrical.jl#L462)
 
 
 
@@ -259,7 +259,7 @@ current monitors
 [LBL doc link](http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.ShowVariableResistor)
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.ShowVariableResistor)
 
-[Sims/src/../examples/lib/electrical.jl:545](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../examples/lib/electrical.jl#L545)
+[Sims/src/../examples/lib/electrical.jl:545](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../examples/lib/electrical.jl#L545)
 
 
 
@@ -278,7 +278,7 @@ switching.
 [LBL doc link](http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.ControlledSwitchWithArc)
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.ControlledSwitchWithArc)
 
-[Sims/src/../examples/lib/electrical.jl:586](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../examples/lib/electrical.jl#L586)
+[Sims/src/../examples/lib/electrical.jl:586](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../examples/lib/electrical.jl#L586)
 
 
 
@@ -294,7 +294,7 @@ ideal GTO thyristor with Vknee=5.
 [LBL doc link](http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CharacteristicThyristors)
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CharacteristicThyristors)
 
-[Sims/src/../examples/lib/electrical.jl:642](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../examples/lib/electrical.jl#L642)
+[Sims/src/../examples/lib/electrical.jl:642](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../examples/lib/electrical.jl#L642)
 
 
 
@@ -302,7 +302,7 @@ ideal GTO thyristor with Vknee=5.
 
 Run the electrical examples from Examples.Lib
 
-[Sims/src/../examples/lib/electrical.jl:734](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../examples/lib/electrical.jl#L734)
+[Sims/src/../examples/lib/electrical.jl:734](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../examples/lib/electrical.jl#L734)
 
 
 
@@ -330,7 +330,7 @@ the system by the sum of the heat capacities of each element.
 [LBL doc link](http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Thermal_HeatTransfer_Examples.html#Modelica.Thermal.HeatTransfer.Examples.TwoMasses)
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Thermal_HeatTransfer_Examples.html#Modelica.Thermal.HeatTransfer.Examples.TwoMasses)
 
-[Sims/src/../examples/lib/heat_transfer.jl:30](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../examples/lib/heat_transfer.jl#L30)
+[Sims/src/../examples/lib/heat_transfer.jl:30](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../examples/lib/heat_transfer.jl#L30)
 
 
 
@@ -343,7 +343,7 @@ Second order thermal model of a motor
 [LBL doc link](http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Thermal_HeatTransfer_Examples.html#Modelica.Thermal.HeatTransfer.Examples.Motor)
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Thermal_HeatTransfer_Examples.html#Modelica.Thermal.HeatTransfer.Examples.Motor)
 
-[Sims/src/../examples/lib/heat_transfer.jl:49](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../examples/lib/heat_transfer.jl#L49)
+[Sims/src/../examples/lib/heat_transfer.jl:49](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../examples/lib/heat_transfer.jl#L49)
 
 
 
@@ -362,7 +362,7 @@ See also sister models: PiModel and ModalModal.
 WARNING: immature / possibly broken!
 
 
-[Sims/src/../examples/lib/powersystems.jl:19](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../examples/lib/powersystems.jl#L19)
+[Sims/src/../examples/lib/powersystems.jl:19](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../examples/lib/powersystems.jl#L19)
 
 
 
@@ -375,7 +375,7 @@ See also sister models: RLModel and ModalModal.
 WARNING: immature / possibly broken!
 
 
-[Sims/src/../examples/lib/powersystems.jl:53](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../examples/lib/powersystems.jl#L53)
+[Sims/src/../examples/lib/powersystems.jl:53](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../examples/lib/powersystems.jl#L53)
 
 
 
@@ -388,7 +388,7 @@ See also sister models: PiModel and RLModal.
 WARNING: immature / possibly broken!
 
 
-[Sims/src/../examples/lib/powersystems.jl:104](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../examples/lib/powersystems.jl#L104)
+[Sims/src/../examples/lib/powersystems.jl:104](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../examples/lib/powersystems.jl#L104)
 
 
 
@@ -417,5 +417,5 @@ housing on one side via component Fixed.
 [LBL doc link](http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Mechanics_Rotational_Examples.html#Modelica.Mechanics.Rotational.Examples.First)
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Mechanics_Rotational_Examples.html#Modelica.Mechanics.Rotational.Examples.First)
 
-[Sims/src/../examples/lib/rotational.jl:33](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../examples/lib/rotational.jl#L33)
+[Sims/src/../examples/lib/rotational.jl:33](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../examples/lib/rotational.jl#L33)
 

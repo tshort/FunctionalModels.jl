@@ -27,7 +27,7 @@ create_sim(eq::EquationSet)
 
 * `::Sim` : a simulation object
 
-[Sims/src/simcreation.jl:97](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/simcreation.jl#L97)
+[Sims/src/simcreation.jl:97](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/simcreation.jl#L97)
 
 
 
@@ -52,7 +52,7 @@ create_simstate(sm::Sim)
 
 * `::Sim` : a simulation object
 
-[Sims/src/simcreation.jl:141](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/simcreation.jl#L141)
+[Sims/src/simcreation.jl:141](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/simcreation.jl#L141)
 
 
 
@@ -62,7 +62,7 @@ The solver that uses DASKR, a variant of DASSL.
 
 See [sim](#sim) for the interface.
 
-[Sims/src/dassl.jl:56](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/dassl.jl#L56)
+[Sims/src/dassl.jl:56](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/dassl.jl#L56)
 
 
 
@@ -105,7 +105,7 @@ The first step is to replace StructuralEvents that have activated
 with their new_relation in model. Then, the rest of the EquationSet
 is reflattened using `model` as the starting point.
 
-[Sims/src/elaboration.jl:69](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/elaboration.jl#L69)
+[Sims/src/elaboration.jl:69](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/elaboration.jl#L69)
 
 
 
@@ -115,7 +115,7 @@ The solver that uses Sundials.
 
 See [sim](#sim) for the interface.
 
-[Sims/src/sundials.jl:109](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/sundials.jl#L109)
+[Sims/src/sundials.jl:109](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/sundials.jl#L109)
 
 
 
@@ -205,7 +205,7 @@ using Winston
 wplot(y)
 ```
 
-[Sims/src/sim.jl:92](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/sim.jl#L92)
+[Sims/src/sim.jl:92](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/sim.jl#L92)
 
 
 
@@ -218,7 +218,7 @@ Contains the hierarchical equations, flattened equations, flattened
 initial equations, events, event response functions, and a map of
 Unknown nodes.
 
-[Sims/src/elaboration.jl:20](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/elaboration.jl#L20)
+[Sims/src/elaboration.jl:20](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/elaboration.jl#L20)
 
 
 
@@ -227,7 +227,7 @@ Unknown nodes.
 A type for holding several simulation objects needed for simulation,
 normally created with `create_sim(eqs)`. 
 
-[Sims/src/simcreation.jl:42](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/simcreation.jl#L42)
+[Sims/src/simcreation.jl:42](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/simcreation.jl#L42)
 
 
 
@@ -239,7 +239,7 @@ and responding to events.
 
 All functions take (t,y,yp) as arguments. {TODO: is this still right?}
 
-[Sims/src/simcreation.jl:24](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/simcreation.jl#L24)
+[Sims/src/simcreation.jl:24](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/simcreation.jl#L24)
 
 
 
@@ -248,7 +248,7 @@ All functions take (t,y,yp) as arguments. {TODO: is this still right?}
 A type holding simulation results from `sim`, `dasslsim`, or
 `sunsim`. Includes a matrix of results and a vector of column names.
 
-[Sims/src/simcreation.jl:427](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/simcreation.jl#L427)
+[Sims/src/simcreation.jl:427](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/simcreation.jl#L427)
 
 
 
@@ -258,5 +258,5 @@ The top level type for holding all simulation objects needed for
 simulation, including a Sim. Normally created with
 `create_simstate(sim)`.
 
-[Sims/src/simcreation.jl:70](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/simcreation.jl#L70)
+[Sims/src/simcreation.jl:70](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/simcreation.jl#L70)
 

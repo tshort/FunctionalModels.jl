@@ -192,7 +192,7 @@ end
 
 # These methods strip the MExpr's from expressions.
 strip_mexpr(a) = a
-strip_mexpr{T}(a::Vector{T}) = map(strip_mexpr, a)
+strip_mexpr(a::Vector{Any}) = map(strip_mexpr, a)
 strip_mexpr(a::MExpr) = strip_mexpr(a.ex)
 ## strip_mexpr(a::MSymbol) = a.sym 
 strip_mexpr(e::Expr) = Expr(e.head, (isempty(e.args) ? e.args : map(strip_mexpr, e.args))...)

@@ -14,11 +14,11 @@ Here is an example of use:
 
 ```julia
 using Sims
-m = Sims.Examples.Basics.ChuaCircuit()
-v    = sim(Vanderpol(), 50.0)
+m = Sims.Examples.Basics.Vanderpol()
+v = sim(m, 50.0)
 
 using Winston
-wplot(z)
+wplot(v)
 ```
 """ -> type DocExBasics <: DocTag end
 
