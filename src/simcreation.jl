@@ -24,6 +24,7 @@ All functions take (t,y,yp) as arguments. {TODO: is this still right?}
 """ ->
 type SimFunctions
     resid::Function           
+    paraminit::Function           
     init::Function           
     event_at::Function          # Returns a Vector of root-crossing values. 
     event_pos::Vector{Function} # Each function is to be run when a
@@ -33,8 +34,10 @@ type SimFunctions
     get_discretes::Function     # Placeholder for a function to return
                                 #   discrete values.
 end
-SimFunctions(resid::Function, event_at::Function, event_pos::Vector{None}, event_neg::Vector{None}, get_discretes::Function) = 
-    SimFunctions(resid, event_at, Function[], Function[], get_discretes)
+SimFunctions(resid::Function, event_at::Function,
+             event_pos::Vector{None}, event_neg::Vector{None},
+             get_discretes::Function) = 
+    SimFunctions(resid, event_at, Function[], Function[], Function[], get_discretes)
 
 @doc """
 A type for holding several simulation objects needed for simulation,
@@ -187,10 +190,20 @@ cmb(x, args...) = Expr(x, args...)
 #
 function setup_functions(sm::Sim)
 
+    pe_block = map ((eq) ->
+                    begin
+                        println("eq.x = ", eq.x)
+                        println("replace_unknowns(eq.x) = ", replace_unknowns(eq.x,sm))
+                        replace_unknowns(eq.x,sm)
+                        Expr (:(=),Expr(:ref,:p,sm.parameter_idx_map[eq.x.sym]),
+                              replace_unknowns(eq.eq,sm))
+                    end,
+                    sm.eq.paramequations)
+
     # eq_block should be just expressions suitable for eval'ing.
     eq_block = replace_unknowns(sm.eq.equations, sm)
-    in_block = replace_unknowns(sm.eq.initialequations, sm)
     ev_block = replace_unknowns(sm.eq.events, sm)
+    in_block = replace_unknowns(sm.eq.initialequations, sm)
 
     # Set up a master function with variable declarations and 
     # functions that have access to those variables.
@@ -198,11 +211,17 @@ function setup_functions(sm::Sim)
     # The following is a code block (thunk) for insertion into
     # the residual calculation function.
     resid_thunk = Expr(:call, :(Sims.vcat_real), eq_block...)
-    # Same but for the initial equations:
-    init_thunk = Expr(:call, :(Sims.vcat_real), in_block...)
     # Same but for the root crossing function:
     event_thunk = Expr(:call, :(Sims.vcat_real), ev_block...)
+    # Same but for the initial equations:
+    init_thunk = Expr(:call, :(Sims.vcat_real), in_block...)
 
+    # Parameter equations:
+    param_thunk = Expr(:block, pe_block...)
+
+    println("resid_thunk = ", resid_thunk)
+    println("param_thunk = ", param_thunk)
+    
     # Helpers to convert an array of expressions into a single expression.
     to_thunk{T}(ex::Vector{T}) = reduce((x,y) -> :($x;$y), :(), ex)
     to_thunk(ex::Expr) = ex
@@ -251,11 +270,11 @@ function setup_functions(sm::Sim)
 
     _sim_resid_name = gensym ("_sim_resid")
     _sim_init_name = gensym ("_sim_init")
+    _sim_param_name = gensym ("_sim_param")
     _sim_event_at_name = gensym ("_sim_event_at")
     _sim_event_pos_array_name = gensym ("_sim_event_pos_array")
     _sim_event_neg_array_name = gensym ("_sim_event_neg_array")
     _sim_get_discretes_name = gensym ("_sim_get_discretes")
-
     
     #
     # The framework for the master function defined. Each "thunk" gets
@@ -278,9 +297,14 @@ function setup_functions(sm::Sim)
             end
             function $_sim_init_name (t, y, yp, p, r)
                  a = $init_thunk
-                 ## @show a
-                 ## dump(a)
-                 r[1:end] = a
+                 ##@show a
+                 ##dump(a)
+                 r[1:end] = a[1:length(r)]
+                 nothing
+            end
+            function $_sim_param_name (t, y, yp, p, r)
+                 $param_thunk
+                @show p
                  nothing
             end
             function $_sim_event_at_name (t, y, yp, p, r)
@@ -294,9 +318,9 @@ function setup_functions(sm::Sim)
                  nothing
             end
         () -> begin
-            Sims.SimFunctions($_sim_resid_name, $_sim_init_name, $_sim_event_at_name,
-                              $_sim_event_pos_array_name, $_sim_event_neg_array_name,
-                              $_sim_get_discretes_name)
+            Sims.SimFunctions($_sim_resid_name, $_sim_param_name, $_sim_init_name,
+                              $_sim_event_at_name, $_sim_event_pos_array_name,
+                              $_sim_event_neg_array_name, $_sim_get_discretes_name)
         end
     end
 

@@ -22,6 +22,7 @@ type EquationSet
     model             # The active model, a hierachichal set of equations.
     equations         # A flat list of equations.
     initialequations  # A flat list of initial equations.
+    paramequations    # A flat list of parameter equations.
     events
     pos_responses
     neg_responses
@@ -51,7 +52,8 @@ The main steps in flattening are:
 
 * Replace fixed initial values.
 * Flatten models and populate `eq.equations`.
-* Pull out InitialEquations and populate `eq.initialequations`.
+* Pull out InitialEquations and populate `eq.initialequations`
+* Pull out ParameterEquations and populate `eq.paramequations`
 * Pull out Events and populate `eq.events`.
 * Handle StructuralEvents.
 * Collect nodes and populate `eq.nodeMap`.
@@ -67,10 +69,10 @@ The first step is to replace StructuralEvents that have activated
 with their new_relation in model. Then, the rest of the EquationSet
 is reflattened using `model` as the starting point.
 """ ->
-elaborate(a::Model) = elaborate(EquationSet(a, Equation[], Equation[], Equation[], Equation[], Equation[], Dict()))
+elaborate(a::Model) = elaborate(EquationSet(a, Equation[], Equation[], Equation[], Equation[], Equation[], Equation[], Dict()))
 
 function elaborate(x::EquationSet)
-    eq = EquationSet(Equation[], Equation[], Equation[], Equation[], Equation[], Equation[], Dict())
+    eq = EquationSet(Equation[], Equation[], Equation[], Equation[], Equation[], Equation[], Equation[], Dict())
     eq.model = handle_events(x.model)
     elaborate_unit(eq.model, eq) # This will modify eq.
 
@@ -81,6 +83,7 @@ function elaborate(x::EquationSet)
     end
     # last fixups:
     
+    eq.paramequations = remove_empties(map((eq) -> ParameterEquation(eq.x,strip_mexpr(eq.eq)), eq.paramequations))
     eq.initialequations = replace_fixed(remove_empties(strip_mexpr(eq.initialequations)))
     eq.equations = remove_empties(strip_mexpr(eq.equations))
     eq
@@ -132,6 +135,9 @@ function elaborate_unit(a::ModelType, eq::EquationSet)
 end
 function elaborate_unit(a::InitialEquation, eq::EquationSet)
     push!(eq.initialequations, a.eq)
+end
+function elaborate_unit(a::ParameterEquation, eq::EquationSet)
+    push!(eq.paramequations, a)
 end
 function elaborate_unit(a::Model, eq::EquationSet)
     map(x -> elaborate_unit(x, eq), a)

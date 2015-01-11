@@ -383,6 +383,7 @@ type Parameter{T<:UnknownCategory} <: UnknownVariable
     Parameter(value, label::String) = new(gensym(), value, label)
 end
 Parameter(v) = Parameter{DefaultUnknown}(gensym(), v)
+Parameter(v,label::String) = Parameter{DefaultUnknown}(v, label)
 
 
 # Set up defaults for operations on ModelType's for many common
@@ -784,11 +785,12 @@ and may be broken. There are no tests. The idea is that the equations
 provided will only be used during the initial solution.
 
 ```julia
-InitialEquation(egs)
+InitialEquation(eqs)
 ```
 
 ### Arguments
 
+* `x::Unknown` : the quantity to be initialized
 * `eqs::Array{Equation}` : a vector of equations, each to be equated
   to zero during the initial equation solution.
 
@@ -798,8 +800,31 @@ type InitialEquation
 end
 
 # TODO enhance this to support begin..end blocks
-macro init(eqs...)
+macro init(x, eqs...)
    Expr(:cell1d, [:(InitialEquation($eq)) for eq in eqs])
+end
+
+########################################
+## Parameter equations                ##
+########################################
+
+@doc """
+A ModelType describing equations that compute the values of parameters.
+Parameter equations can be used for parameters that require complex initialization.
+
+```julia
+ParameterEquation(eqs)
+```
+
+### Arguments
+
+* `eqs::Array{Equation}` : a vector of equations, each to be equated
+  to zero during the initial equation solution.
+
+""" ->
+type ParameterEquation
+    x::Parameter
+    eq
 end
 
 
