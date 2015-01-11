@@ -15,7 +15,7 @@ Here is an example of use:
 ```julia
 using Sims
 m = Sims.Examples.Basics.Vanderpol()
-v = sim(Vanderpol(), 50.0)
+v = sim(m, 50.0)
 
 using Winston
 wplot(v)
