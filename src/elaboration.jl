@@ -82,8 +82,8 @@ function elaborate(x::EquationSet)
         push!(eq.initialequations, nodeset)
     end
     # last fixups:
-    
-    eq.paramequations = remove_empties(map((eq) -> ParameterEquation(eq.x,strip_mexpr(eq.eq)), eq.paramequations))
+    eq.paramequations = remove_empties(map((eq) -> ParameterEquation(eq.x,strip_mexpr(eq.eq)),
+                                           eq.paramequations))
     eq.initialequations = replace_fixed(remove_empties(strip_mexpr(eq.initialequations)))
     eq.equations = remove_empties(strip_mexpr(eq.equations))
     eq

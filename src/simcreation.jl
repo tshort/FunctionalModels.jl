@@ -217,8 +217,6 @@ function setup_functions(sm::Sim)
     # Parameter equations:
     param_thunk = Expr(:block, pe_block...)
 
-    println("param_thunk = ", param_thunk)
-    
     # Helpers to convert an array of expressions into a single expression.
     to_thunk{T}(ex::Vector{T}) = reduce((x,y) -> :($x;$y), :(), ex)
     to_thunk(ex::Expr) = ex
@@ -301,7 +299,7 @@ function setup_functions(sm::Sim)
             end
             function $_sim_param_name (t, y, yp, p, r)
                  $param_thunk
-                @show p
+                 ##@show p
                  nothing
             end
             function $_sim_event_at_name (t, y, yp, p, r)
