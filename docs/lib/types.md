@@ -54,7 +54,7 @@ and some support complex values.
 
 
 
-## Union(Unknown{T}, AbstractArray{T, N}, RefUnknown{T}, Number, MExpr)
+## Union(AbstractArray{T, N}, Unknown{T}, MExpr, Number, RefUnknown{T})
 
 `NumberOrUnknown{T}` is a typealias for
 `Union(AbstractArray, Number, MExpr, RefUnknown{T}, Unknown{T})`.
@@ -65,7 +65,7 @@ real value, especially for use as a type in a model argument. It may
 be parameterized by an UnknownCategory, like NumberOrUnknown{UVoltage}
 (the definition of an ElectricalNode).
 
-[Sims/src/../lib/types.jl:65](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L65)
+[Sims/src/../lib/types.jl:65](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/types.jl#L65)
 
 
 
@@ -75,13 +75,13 @@ be parameterized by an UnknownCategory, like NumberOrUnknown{UVoltage}
 
 
 
-## Union(AbstractArray{T, N}, Unknown{DefaultUnknown}, Number, RefUnknown{DefaultUnknown}, MExpr)
+## Union(AbstractArray{T, N}, MExpr, RefUnknown{DefaultUnknown}, Unknown{DefaultUnknown}, Number)
 
 `Signal` is a typealias for `NumberOrUnknown{DefaultUnknown}`.
 
 Can be an Unknown, an AbstractArray, a Number, or an MExpr.
 
-[Sims/src/../lib/types.jl:77](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L77)
+[Sims/src/../lib/types.jl:77](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/types.jl#L77)
 
 
 
@@ -95,7 +95,7 @@ Can be an Unknown, an AbstractArray, a Number, or an MExpr.
 
 An UnknownCategory for electrical potential in volts.
 
-[Sims/src/../lib/types.jl:90](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L90)
+[Sims/src/../lib/types.jl:90](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/types.jl#L90)
 
 
 
@@ -103,7 +103,7 @@ An UnknownCategory for electrical potential in volts.
 
 An UnknownCategory for electrical current in amperes.
 
-[Sims/src/../lib/types.jl:95](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L95)
+[Sims/src/../lib/types.jl:95](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/types.jl#L95)
 
 
 
@@ -113,7 +113,7 @@ An UnknownCategory for electrical current in amperes.
 
 
 
-## Union(AbstractArray{T, N}, RefUnknown{UVoltage}, Unknown{UVoltage}, Number, MExpr)
+## Union(AbstractArray{T, N}, MExpr, RefUnknown{UVoltage}, Number, Unknown{UVoltage})
 
 `ElectricalNode` is a typealias for `NumberOrUnknown{UVoltage}`.
 
@@ -122,7 +122,7 @@ include arrays or complex values. Used commonly as a model arguments
 for nodes. This allows nodes to be Unknowns or fixed values (like a
 ground that's zero volts).
 
-[Sims/src/../lib/types.jl:110](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L110)
+[Sims/src/../lib/types.jl:110](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/types.jl#L110)
 
 
 
@@ -141,7 +141,7 @@ differences between nodes.
 
 Often used with `ElectricalNode` as a model argument.
 
-[Sims/src/../lib/types.jl:124](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L124)
+[Sims/src/../lib/types.jl:124](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/types.jl#L124)
 
 
 
@@ -157,7 +157,7 @@ Often used with `ElectricalNode` as a model argument.
 
 Electrical current with units of amperes. A flow variable.
 
-[Sims/src/../lib/types.jl:135](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L135)
+[Sims/src/../lib/types.jl:135](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/types.jl#L135)
 
 
 
@@ -171,7 +171,7 @@ Electrical current with units of amperes. A flow variable.
 
 An UnknownCategory for temperature in kelvin.
 
-[Sims/src/../lib/types.jl:149](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L149)
+[Sims/src/../lib/types.jl:149](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/types.jl#L149)
 
 
 
@@ -179,7 +179,7 @@ An UnknownCategory for temperature in kelvin.
 
 An UnknownCategory for temperature in kelvin.
 
-[Sims/src/../lib/types.jl:155](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L155)
+[Sims/src/../lib/types.jl:155](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/types.jl#L155)
 
 
 
@@ -187,7 +187,7 @@ An UnknownCategory for temperature in kelvin.
 
 An UnknownCategory for heat flow rate in watts.
 
-[Sims/src/../lib/types.jl:161](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L161)
+[Sims/src/../lib/types.jl:161](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/types.jl#L161)
 
 
 
@@ -197,7 +197,7 @@ An UnknownCategory for heat flow rate in watts.
 
 
 
-## Union(Unknown{UHeatPort}, AbstractArray{T, N}, RefUnknown{UHeatPort}, Number, MExpr)
+## Union(AbstractArray{T, N}, MExpr, Number, RefUnknown{UHeatPort}, Unknown{UHeatPort})
 
 `HeatPort` is a typealias for `NumberOrUnknown{UHeatPort}`.
 
@@ -205,7 +205,7 @@ A thermal node, either a Temperature (an Unknown) or a real value. Can
 include arrays. Used commonly as a model arguments for nodes. This
 allows nodes to be Unknowns or fixed values.
 
-[Sims/src/../lib/types.jl:175](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L175)
+[Sims/src/../lib/types.jl:175](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/types.jl#L175)
 
 
 
@@ -221,7 +221,7 @@ allows nodes to be Unknowns or fixed values.
 
 Heat flow rate in units of watts.
 
-[Sims/src/../lib/types.jl:186](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L186)
+[Sims/src/../lib/types.jl:186](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/types.jl#L186)
 
 
 
@@ -237,7 +237,7 @@ Heat flow rate in units of watts.
 
 A thermal potential, a Temperature (an Unknown) in units of kelvin.
 
-[Sims/src/../lib/types.jl:197](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L197)
+[Sims/src/../lib/types.jl:197](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/types.jl#L197)
 
 
 
@@ -251,7 +251,7 @@ A thermal potential, a Temperature (an Unknown) in units of kelvin.
 
 An UnknownCategory for rotational angle in radians.
 
-[Sims/src/../lib/types.jl:212](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L212)
+[Sims/src/../lib/types.jl:212](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/types.jl#L212)
 
 
 
@@ -259,7 +259,7 @@ An UnknownCategory for rotational angle in radians.
 
 An UnknownCategory for torque in newton-meters.
 
-[Sims/src/../lib/types.jl:217](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L217)
+[Sims/src/../lib/types.jl:217](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/types.jl#L217)
 
 
 
@@ -275,7 +275,7 @@ An UnknownCategory for torque in newton-meters.
 
 The angle in radians.
 
-[Sims/src/../lib/types.jl:228](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L228)
+[Sims/src/../lib/types.jl:228](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/types.jl#L228)
 
 
 
@@ -291,7 +291,7 @@ The angle in radians.
 
 The torque in newton-meters.
 
-[Sims/src/../lib/types.jl:239](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L239)
+[Sims/src/../lib/types.jl:239](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/types.jl#L239)
 
 
 
@@ -299,7 +299,7 @@ The torque in newton-meters.
 
 An UnknownCategory for angular velocity in radians/sec.
 
-[Sims/src/../lib/types.jl:244](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L244)
+[Sims/src/../lib/types.jl:244](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/types.jl#L244)
 
 
 
@@ -315,7 +315,7 @@ An UnknownCategory for angular velocity in radians/sec.
 
 The angular velocity in radians/sec.
 
-[Sims/src/../lib/types.jl:255](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L255)
+[Sims/src/../lib/types.jl:255](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/types.jl#L255)
 
 
 
@@ -323,7 +323,7 @@ The angular velocity in radians/sec.
 
 An UnknownCategory for angular acceleration in radians/sec^2.
 
-[Sims/src/../lib/types.jl:260](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L260)
+[Sims/src/../lib/types.jl:260](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/types.jl#L260)
 
 
 
@@ -339,7 +339,7 @@ An UnknownCategory for angular acceleration in radians/sec^2.
 
 The angular acceleration in radians/sec^2.
 
-[Sims/src/../lib/types.jl:272](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L272)
+[Sims/src/../lib/types.jl:272](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/types.jl#L272)
 
 
 
@@ -349,7 +349,7 @@ The angular acceleration in radians/sec^2.
 
 
 
-## Union(AbstractArray{T, N}, Unknown{UAngle}, Number, MExpr, RefUnknown{UAngle})
+## Union(RefUnknown{UAngle}, AbstractArray{T, N}, MExpr, Number, Unknown{UAngle})
 
 `Flange` is a typealias for `NumberOrUnknown{UAngle}`.
 
@@ -357,5 +357,5 @@ A rotational node, either an Angle (an Unknown) or a real value in
 radians. Can include arrays. Used commonly as a model arguments for
 nodes. This allows nodes to be Unknowns or fixed values.  
 
-[Sims/src/../lib/types.jl:286](https://github.com/tshort/Sims.jl/tree/41fa42185a92c02017ceab02d9b448fb8286c66e/src/../lib/types.jl#L286)
+[Sims/src/../lib/types.jl:286](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/types.jl#L286)
 

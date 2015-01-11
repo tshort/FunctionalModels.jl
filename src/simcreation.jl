@@ -342,7 +342,7 @@ end
 # The replace_unknowns method replaces Unknown types with
 # references to the positions in the y or yp vectors.
 replace_unknowns(a, sm::Sim) = a
-replace_unknowns{T}(a::Array{T,1}, sm::Sim) = map(x -> replace_unknowns(x, sm), a)
+replace_unknowns(a::Array{Any,1}, sm::Sim) = map(x -> replace_unknowns(x, sm), a)
 replace_unknowns(e::Expr, sm::Sim) = Expr(e.head, replace_unknowns(e.args, sm)...)
 function replace_unknowns(a::Unknown, sm::Sim)
     if isequal(a.sym, :time)
