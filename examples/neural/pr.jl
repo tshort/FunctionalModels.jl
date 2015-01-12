@@ -1,9 +1,7 @@
 
 using Sims
+using Sims.Lib
 using Winston
-
-## Disable history recording by default
-Sims.Unknown(label::String) = Sims.Unknown{Sims.DefaultUnknown}(gensym(), 0.0, label, false, false)
 
 # Pinsky-Rinzel CA3 neuron model
 # Intrinsic and Network Rhythmogenesis in a Reduced Traub Model for CA3 Neurons

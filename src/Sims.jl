@@ -19,7 +19,7 @@ export ModelType, UnknownCategory, Unknown, UnknownVariable, DefaultUnknown, Der
 export MTime, @init, @unknown
 
 ## Methods
-export Equation, @equations, is_unknown, der, delay, mexpr, value, compatible_values, reinit, update, ifelse, add_hook!,
+export Equation, @equations, is_unknown, der, delay, mexpr, value, compatible_values, reinit, ifelse, add_hook!,
        basetypeof, from_real, to_real,
        gplot, wplot,
        check, sim_verbose, 

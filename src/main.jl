@@ -1140,15 +1140,6 @@ reinit(x::RefDiscrete, y) = reinit(LeftVar(x), y)
 ## reinit(x::RefDiscrete, y) = mexpr(:call, :reinit, x, y)
 
 
-function update(x, y)
-    sim_info("update: ", x, " to ", y)
-    x[:] = y
-    nothing
-end
-update(x::LeftVar, y) = mexpr(:call, :(Sims.update), x, y)
-reinit(x::LeftVar, y::MExpr) = mexpr(:call, :(Sims.update), x, y.ex)
-update(x::Parameter, y) = update(LeftVar(x), y)
-
 setindex!(x::DiscreteVar, y, idx) = x.value = y
 
 @doc* """
