@@ -118,7 +118,15 @@ replace_fixed(u::Unknown) = u.fixed ? u.value : u
 handle_events(a::Model) = traverse_mod(handle_events, a)
 handle_events(a::InitialEquation) = a
 handle_events(x) = x
-handle_events(ev::StructuralEvent) = ev.activated ? ev.new_relation() : ev
+handle_events(ev::StructuralEvent) =
+    if ev.activated
+        begin
+            ev.activated = false
+            return ev.new_relation()
+        end
+    else 
+       return ev
+    end
 
 #
 # elaborate_unit flattens the set of equations while building up

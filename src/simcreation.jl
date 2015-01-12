@@ -232,8 +232,6 @@ function setup_functions(sm::Sim)
     ev_pos_thunk = length(ev_pos_array) > 0 ? Expr(:call, :vcat, ev_pos_array...) : Function[]
     ev_neg_thunk = length(ev_neg_array) > 0 ? Expr(:call, :vcat, ev_neg_array...) : Function[]
 
-    @show event_thunk
-    
     get_discretes_thunk = :(() -> 1)   # dummy function for now
 
     # Variable declarations are for Discrete variables. Each is stored
@@ -273,7 +271,7 @@ function setup_functions(sm::Sim)
             function $_sim_resid_name (t, y, yp, p, r)
                  ##@show y
                  ## @show length(y)
-                 @show p
+                 ##@show p
                  a = $resid_thunk
                  ## @show a
                  ## @show length(a)
