@@ -24,7 +24,6 @@ All functions take (t,y,yp) as arguments. {TODO: is this still right?}
 """ ->
 type SimFunctions
     resid::Function           
-    paraminit::Function           
     init::Function           
     event_at::Function          # Returns a Vector of root-crossing values. 
     event_pos::Vector{Function} # Each function is to be run when a
@@ -190,18 +189,10 @@ cmb(x, args...) = Expr(x, args...)
 #
 function setup_functions(sm::Sim)
 
-    pe_block = map ((eq) ->
-                    begin
-                        replace_unknowns(eq.x,sm)
-                        Expr (:(=),Expr(:ref,:p,sm.parameter_idx_map[eq.x.sym]),
-                              replace_unknowns(eq.eq,sm))
-                    end,
-                    sm.eq.paramequations)
-
     # eq_block should be just expressions suitable for eval'ing.
+    in_block = replace_unknowns(sm.eq.initialequations, sm)
     eq_block = replace_unknowns(sm.eq.equations, sm)
     ev_block = replace_unknowns(sm.eq.events, sm)
-    in_block = replace_unknowns(sm.eq.initialequations, sm)
 
     # Set up a master function with variable declarations and 
     # functions that have access to those variables.
@@ -213,9 +204,6 @@ function setup_functions(sm::Sim)
     event_thunk = Expr(:call, :(Sims.vcat_real), ev_block...)
     # Same but for the initial equations:
     init_thunk = Expr(:call, :(Sims.vcat_real), in_block...)
-
-    # Parameter equations:
-    param_thunk = Expr(:block, pe_block...)
 
     # Helpers to convert an array of expressions into a single expression.
     to_thunk{T}(ex::Vector{T}) = reduce((x,y) -> :($x;$y), :(), ex)
@@ -243,6 +231,8 @@ function setup_functions(sm::Sim)
     end
     ev_pos_thunk = length(ev_pos_array) > 0 ? Expr(:call, :vcat, ev_pos_array...) : Function[]
     ev_neg_thunk = length(ev_neg_array) > 0 ? Expr(:call, :vcat, ev_neg_array...) : Function[]
+
+    @show event_thunk
     
     get_discretes_thunk = :(() -> 1)   # dummy function for now
 
@@ -265,7 +255,6 @@ function setup_functions(sm::Sim)
 
     _sim_resid_name = gensym ("_sim_resid")
     _sim_init_name = gensym ("_sim_init")
-    _sim_param_name = gensym ("_sim_param")
     _sim_event_at_name = gensym ("_sim_event_at")
     _sim_event_pos_array_name = gensym ("_sim_event_pos_array")
     _sim_event_neg_array_name = gensym ("_sim_event_neg_array")
@@ -282,8 +271,9 @@ function setup_functions(sm::Sim)
             # mean that the _sim_* functions are seen globally.
             $discrete_defs
             function $_sim_resid_name (t, y, yp, p, r)
-                 ## @show y
+                 ##@show y
                  ## @show length(y)
+                 @show p
                  a = $resid_thunk
                  ## @show a
                  ## @show length(a)
@@ -297,11 +287,6 @@ function setup_functions(sm::Sim)
                  r[1:end] = a[1:length(r)]
                  nothing
             end
-            function $_sim_param_name (t, y, yp, p, r)
-                 $param_thunk
-                 ##@show p
-                 nothing
-            end
             function $_sim_event_at_name (t, y, yp, p, r)
                  r[1:end] = $event_thunk
                  nothing
@@ -313,7 +298,7 @@ function setup_functions(sm::Sim)
                  nothing
             end
         () -> begin
-            Sims.SimFunctions($_sim_resid_name, $_sim_param_name, $_sim_init_name,
+            Sims.SimFunctions($_sim_resid_name, $_sim_init_name,
                               $_sim_event_at_name, $_sim_event_pos_array_name,
                               $_sim_event_neg_array_name, $_sim_get_discretes_name)
         end
@@ -413,6 +398,8 @@ function replace_unknowns(a::LeftVar, sm::Sim)
         # println("D",a.var.sym)
         sm.discrete_map[a.var.sym] = a.var
         :($(a.var.sym))
+    elseif isa(a.var, Parameter)
+        :(sub(p,$(sm.parameter_idx_map[a.var.sym]):$(sm.parameter_idx_map[a.var.sym])))
     else
         var = replace_unknowns(a.var, sm)
         :(sub($(var.args[2]), $(var.args[3]):$(var.args[3])))

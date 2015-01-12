@@ -805,30 +805,6 @@ macro init(x, eqs...)
 end
 
 ########################################
-## Parameter equations                ##
-########################################
-
-@doc """
-A ModelType describing equations that compute the values of parameters.
-Parameter equations can be used for parameters that require complex initialization.
-
-```julia
-ParameterEquation(eqs)
-```
-
-### Arguments
-
-* `eqs::Array{Equation}` : a vector of equations, each to be equated
-  to zero during the initial equation solution.
-
-""" ->
-type ParameterEquation
-    x::Parameter
-    eq
-end
-
-
-########################################
 ## delay                              ##
 ########################################
 
@@ -1142,7 +1118,7 @@ See also [IdealThyristor](../lib/index.html#IdealThyristor) in the standard libr
 
 """ ->
 function reinit(x, y)
-    sim_info("reinit: ", x[], " to ", y)
+    sim_info("reinit: ", x, " to ", y)
     x[:] = y
 end
 function reinit(x::DiscreteVar, y)
@@ -1162,6 +1138,17 @@ reinit(x::Discrete, y) = reinit(LeftVar(x), y)
 reinit(x::RefDiscrete, y) = reinit(LeftVar(x), y)
 ## reinit(x::Discrete, y) = mexpr(:call, :reinit, x, y)
 ## reinit(x::RefDiscrete, y) = mexpr(:call, :reinit, x, y)
+
+
+function update(x, y)
+    sim_info("update: ", x, " to ", y)
+    x[:] = y
+    nothing
+end
+update(x::LeftVar, y) = mexpr(:call, :(Sims.update), x, y)
+reinit(x::LeftVar, y::MExpr) = mexpr(:call, :(Sims.update), x, y.ex)
+update(x::Parameter, y) = update(LeftVar(x), y)
+
 setindex!(x::DiscreteVar, y, idx) = x.value = y
 
 @doc* """
@@ -1257,7 +1244,8 @@ When the event is triggered, the model is re-flattened after replacing
 `default` with `new_relation` in the model.
 
 ```julia
-StructuralEvent(condition::MExpr, default, new_relation::Function)
+StructuralEvent(condition::MExpr, default, new_relation::Function,
+                pos_response, neg_response)
 ```
 
 ### Arguments
@@ -1267,6 +1255,11 @@ StructuralEvent(condition::MExpr, default, new_relation::Function)
 * `default` : the default Model used
 * `new_relation` : a function that returns a model that will replace
   the default model when the condition triggers the event.
+* `pos_response` : an expression indicating what to do when the
+  condition crosses zero positively. Defaults to Equation[].
+* `neg_response::Model` : an expression indicating what to do when the
+  condition crosses zero in the negative direction. Defaults to
+  Equation[].
 
 ### Examples
 
@@ -1317,15 +1310,12 @@ type StructuralEvent <: ModelType
     default
     new_relation::Function
     activated::Bool       # Indicates whether the event condition has fired
-    response::Union(Function,Nothing) # if given, the response function will be called with the model state and parameters
+    pos_response::Union(Nothing,Function)
+    # A procedure that will be invoked with the model states and parameters when
+    # the condition crosses zero positively.
 end
-StructuralEvent(condition::MExpr, default, new_relation::Function) =
-    StructuralEvent(condition, default, new_relation, false, nothing)
-StructuralEvent(condition::MExpr, default, new_relation::Function, response::Function) =
-    StructuralEvent(condition, default, new_relation, false, response)
-
-
-
+StructuralEvent(condition::MExpr, default, new_relation::Function; pos_response=nothing) =
+    StructuralEvent(condition, default, new_relation, false, pos_response)
 
 
 ########################################

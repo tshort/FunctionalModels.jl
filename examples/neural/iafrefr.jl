@@ -40,8 +40,8 @@ function Refractory(v,trefr)
         StructuralEvent(MTime - trefr,
                         # when the end of refractory period is reached,
                         # switch back to subthreshold mode
-            Equation[RefractoryEq(v),ParameterEquation(Isyn,0.0)],
-            () -> LeakyIaF())
+                        RefractoryEq(v),
+                        () -> LeakyIaF())
     end
     
 end
@@ -49,15 +49,16 @@ end
 
 function LeakyIaF()
     v = Unknown(vreset, "v")
-    @equations begin   
+    @equations begin
         StructuralEvent(v-theta,
                         # when v crosses the threshold,
                         # switch to refractory mode
-            Equation[Subthreshold(v),ParameterEquation(Isyn,10.0)],
-            () -> begin
-                trefr = value(MTime)+trefractory
-                Refractory(v,trefr)
-            end)
+                        Subthreshold(v),
+                        () -> begin
+                            trefr = value(MTime)+trefractory
+                            Refractory(v,trefr)
+                        end)
+                        
     end
 end
 

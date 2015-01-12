@@ -12,14 +12,14 @@ import Base.ifelse,
 
 ## Types
 export ModelType, UnknownCategory, Unknown, UnknownVariable, DefaultUnknown, DerUnknown, RefUnknown, Parameter,
-       RefBranch, InitialEquation, ParameterEquation, Model, MExpr, Discrete, RefDiscrete, DiscreteVar, Event, LeftVar, StructuralEvent,
+       RefBranch, InitialEquation, MExpr, Discrete, RefDiscrete, DiscreteVar, Event, LeftVar, StructuralEvent,
        EquationSet, SimFunctions, Sim, SimResult
 
 ## Specials
 export MTime, @init, @unknown
 
 ## Methods
-export Equation, @equations, is_unknown, der, delay, mexpr, value, compatible_values, reinit, ifelse, add_hook!,
+export Equation, @equations, is_unknown, der, delay, mexpr, value, compatible_values, reinit, update, ifelse, add_hook!,
        basetypeof, from_real, to_real,
        gplot, wplot,
        check, sim_verbose, 
