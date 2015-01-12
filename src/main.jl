@@ -800,7 +800,7 @@ type InitialEquation
 end
 
 # TODO enhance this to support begin..end blocks
-macro init(x, eqs...)
+macro init(eqs...)
    Expr(:cell1d, [:(InitialEquation($eq)) for eq in eqs])
 end
 
@@ -1118,7 +1118,7 @@ See also [IdealThyristor](../lib/index.html#IdealThyristor) in the standard libr
 
 """ ->
 function reinit(x, y)
-    sim_info("reinit: ", x, " to ", y)
+    sim_info("reinit: ", x[], " to ", y)
     x[:] = y
 end
 function reinit(x::DiscreteVar, y)

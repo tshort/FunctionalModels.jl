@@ -282,7 +282,7 @@ function setup_functions(sm::Sim)
                  a = $init_thunk
                  ##@show a
                  ##dump(a)
-                 r[1:end] = a[1:length(r)]
+                 r[1:end] = a
                  nothing
             end
             function $_sim_event_at_name (t, y, yp, p, r)

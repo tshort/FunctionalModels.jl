@@ -18,6 +18,7 @@ function initfun(u::N_Vector, r::N_Vector, userdata_ptr::Ptr{Void})
     yp = nu - n > 0 ? pointer_to_array(Sundials.N_VGetArrayPointer_Serial(u) + n, (nu - n,)) : []
     r  = Sundials.asarray(r)
     p  = ss.p
+    sm.F.init(ss.t[1], y, yp, p, r)
     
     return int32(0)   # indicates normal return
 end

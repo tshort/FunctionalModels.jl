@@ -12,7 +12,7 @@ import Base.ifelse,
 
 ## Types
 export ModelType, UnknownCategory, Unknown, UnknownVariable, DefaultUnknown, DerUnknown, RefUnknown, Parameter,
-       RefBranch, InitialEquation, MExpr, Discrete, RefDiscrete, DiscreteVar, Event, LeftVar, StructuralEvent,
+       RefBranch, InitialEquation, Model, MExpr, Discrete, RefDiscrete, DiscreteVar, Event, LeftVar, StructuralEvent,
        EquationSet, SimFunctions, Sim, SimResult
 
 ## Specials
