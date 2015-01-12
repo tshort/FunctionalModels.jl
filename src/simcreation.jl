@@ -378,6 +378,9 @@ end
 function replace_unknowns(a::PassedUnknown, sm::Sim)
     a.ref
 end
+function replace_unknowns{T}(a::RDiscrete{T}, sm::Sim)
+    :(value($a))
+end
 function replace_unknowns(a::Discrete, sm::Sim)
     # println(a.sym)
     sm.discrete_map[a.sym] = a

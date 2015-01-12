@@ -885,6 +885,25 @@ end
 ## Utilities for Hybrid Modeling      ##
 ########################################
 
+import Reactive
+export RDiscrete, lift, push!
+
+type RDiscrete{T <: Reactive.SignalSource} <: UnknownVariable
+    signal::T
+end
+name(a::RDiscrete) = "discrete"
+value(x::RDiscrete) = x.signal.value
+Reactive.push!{T}(x::RDiscrete{Reactive.Input{T}}, y) = mexpr(:call, :(Reactive.push!), x.signal, y)
+Reactive.lift(f::Function, t::Type, x::RDiscrete) = RDiscrete(Reactive.lift(f, t, x.signal))
+
+
+
+
+
+########################################
+## Utilities for Hybrid Modeling      ##
+########################################
+
 
 
 @doc """
