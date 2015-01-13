@@ -189,13 +189,13 @@ end
 #
 # A macro to ease entry of many unknowns.
 #
-#   @unknowns i("Load resistor current") v x("some val", 3.0)
+#   @unknowns i("Load resistor current") v x(3.0, "some val")
 #
 # becomes:
 #
-#   i = Unknown(symbol("Load resistor current"))
-#   v = Unknown(:v)
-#   x = Unknown(symbol("some val"), 3.0) 
+#   i = Unknown("Load resistor current")
+#   v = Unknown()
+#   x = Unknown(3.0, "some val") 
 #
 
 @doc """
@@ -207,30 +207,31 @@ A macro to ease entry of many unknowns.
 
 ### Arguments
 
-* `a` : various representations of Unknowns, several specification
-  options include:
-  * symbol: equivalent to `symbol = Unknown(symbol)`
-  * symbol(val): equivalent to `symbol = Unknown(symbol, val)`
+* `a` : various representations of Unknowns:
+  * `symbol`: equivalent to `symbol = Unknown()`
+  * `symbol(val)`: equivalent to `symbol = Unknown(symbol, val)`
+  * `symbol(x, y, z)`: equivalent to `symbol = Unknown(x, y, z)`
+
+For `symbol(
 
 ### Effects
 
 Creates one or more Unknowns
 
-* A Gadfly object
 """ ->
 macro unknown(args...)
     blk = Expr(:block)
     for arg in args
         if isa(arg, Symbol)
-            push!(blk.args, :($arg = Unknown($(Meta.quot(arg)), 0.0)))
+            push!(blk.args, :($arg = Unknown()))
         elseif isa(arg, Expr)
             name = arg.args[1]
             if length(arg.args) > 1
                 newcall = copy(arg)
-                newcall.args = [:Unknown, :($(Meta.quot(name))), newcall.args[2:end]]
+                newcall.args = [:Unknown, newcall.args[2:end]]
                 push!(blk.args, :($name = $newcall))
             else
-                push!(blk.args, :($name = Unknown(name)))
+                push!(blk.args, :($name = Unknown()))
             end
         end
     end
