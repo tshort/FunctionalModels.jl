@@ -15,19 +15,11 @@ These are available in **Sims.Examples.Neural**.
 include("hh.jl")
 
 function runexamples()
-    ## THESE SHOULD PROBABLY BE SHRUNK
     hh   = HodgkinHuxley()  # returns the hierarchical model
-    hh_f = elaborate(hh)    # returns the flattened model
-    hh_s = create_sim(hh_f) # returns a "Sim" ready for simulation
-    
-    # runs the simulation and returns
-    # the result as an array plus column headings
     tf = 500.0
     dt = 0.025
+    y = sunsim(hh, tstop = tf, Nsteps = int(tf/dt), reltol = 1e-6, abstol = 1e-6)
     
-    hh_ptr = setup_sunsim (hh_s, reltol = 1e-6, abstol = 1e-6)
-    
-    @time hh_yout = sunsim(hh_ptr, tf, int(tf/dt))
 end 
 
 end # module

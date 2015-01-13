@@ -162,6 +162,9 @@ function create_simstate (sm::Sim)
     
     ss
 end
+create_simstate(m::Model) = create_simstate(elaborate(m))
+create_simstate(eq::EquationSet) = create_simstate(create_sim(eq))
+
 
 # Utility to vectors based on values in Dict's. The key in the Dict
 # gives the indexes in the vector.
