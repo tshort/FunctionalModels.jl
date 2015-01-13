@@ -19,6 +19,7 @@ function initfun(u::N_Vector, r::N_Vector, userdata_ptr::Ptr{Void})
     r  = Sundials.asarray(r)
     p  = ss.p
     sm.F.init(ss.t[1], y, yp, p, r)
+    
     return int32(0)   # indicates normal return
 end
 
@@ -111,6 +112,7 @@ function sunsim(smem::SimSundials, tstop::Float64, Nsteps::Int)
 
     sim_info("starting sunsim()")
 
+
     ss = smem.ss
     sm = ss.sm
 
@@ -128,6 +130,7 @@ function sunsim(smem::SimSundials, tstop::Float64, Nsteps::Int)
 
     neq   = length(ss.y0)
     rtest = zeros(neq)
+
     sm.F.resid(tstart, ss.y0, ss.yp0, ss.p, rtest)
 
     mem = smem.mem
@@ -179,7 +182,7 @@ function sunsim(smem::SimSundials, tstop::Float64, Nsteps::Int)
                 ss = create_simstate(create_sim(elaborate(eq)))
                 ss.p = p
                 sm = ss.sm
-                
+
                 ## restart the simulation:
                 reinit_sunsim (smem, ss, tret[1])
                 

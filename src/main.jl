@@ -383,6 +383,7 @@ type Parameter{T<:UnknownCategory} <: UnknownVariable
     Parameter(value, label::String) = new(gensym(), value, label)
 end
 Parameter(v) = Parameter{DefaultUnknown}(gensym(), v)
+Parameter(v,label::String) = Parameter{DefaultUnknown}(v, label)
 
 
 # Set up defaults for operations on ModelType's for many common
@@ -784,11 +785,12 @@ and may be broken. There are no tests. The idea is that the equations
 provided will only be used during the initial solution.
 
 ```julia
-InitialEquation(egs)
+InitialEquation(eqs)
 ```
 
 ### Arguments
 
+* `x::Unknown` : the quantity to be initialized
 * `eqs::Array{Equation}` : a vector of equations, each to be equated
   to zero during the initial equation solution.
 
@@ -801,7 +803,6 @@ end
 macro init(eqs...)
    Expr(:cell1d, [:(InitialEquation($eq)) for eq in eqs])
 end
-
 
 ########################################
 ## delay                              ##
@@ -1137,6 +1138,8 @@ reinit(x::Discrete, y) = reinit(LeftVar(x), y)
 reinit(x::RefDiscrete, y) = reinit(LeftVar(x), y)
 ## reinit(x::Discrete, y) = mexpr(:call, :reinit, x, y)
 ## reinit(x::RefDiscrete, y) = mexpr(:call, :reinit, x, y)
+
+
 setindex!(x::DiscreteVar, y, idx) = x.value = y
 
 @doc* """
@@ -1232,7 +1235,8 @@ When the event is triggered, the model is re-flattened after replacing
 `default` with `new_relation` in the model.
 
 ```julia
-StructuralEvent(condition::MExpr, default, new_relation::Function)
+StructuralEvent(condition::MExpr, default, new_relation::Function,
+                pos_response, neg_response)
 ```
 
 ### Arguments
@@ -1242,6 +1246,11 @@ StructuralEvent(condition::MExpr, default, new_relation::Function)
 * `default` : the default Model used
 * `new_relation` : a function that returns a model that will replace
   the default model when the condition triggers the event.
+* `pos_response` : an expression indicating what to do when the
+  condition crosses zero positively. Defaults to Equation[].
+* `neg_response::Model` : an expression indicating what to do when the
+  condition crosses zero in the negative direction. Defaults to
+  Equation[].
 
 ### Examples
 
@@ -1292,15 +1301,12 @@ type StructuralEvent <: ModelType
     default
     new_relation::Function
     activated::Bool       # Indicates whether the event condition has fired
-    response::Union(Function,Nothing) # if given, the response function will be called with the model state and parameters
+    pos_response::Union(Nothing,Function)
+    # A procedure that will be invoked with the model states and parameters when
+    # the condition crosses zero positively.
 end
-StructuralEvent(condition::MExpr, default, new_relation::Function) =
-    StructuralEvent(condition, default, new_relation, false, nothing)
-StructuralEvent(condition::MExpr, default, new_relation::Function, response::Function) =
-    StructuralEvent(condition, default, new_relation, false, response)
-
-
-
+StructuralEvent(condition::MExpr, default, new_relation::Function; pos_response=nothing) =
+    StructuralEvent(condition, default, new_relation, false, pos_response)
 
 
 ########################################

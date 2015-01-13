@@ -51,7 +51,7 @@ The main steps in flattening are:
 
 * Replace fixed initial values.
 * Flatten models and populate `eq.equations`.
-* Pull out InitialEquations and populate `eq.initialequations`.
+* Pull out InitialEquations and populate `eq.initialequations`
 * Pull out Events and populate `eq.events`.
 * Handle StructuralEvents.
 * Collect nodes and populate `eq.nodeMap`.
@@ -80,7 +80,6 @@ function elaborate(x::EquationSet)
         push!(eq.initialequations, nodeset)
     end
     # last fixups:
-    
     eq.initialequations = replace_fixed(remove_empties(strip_mexpr(eq.initialequations)))
     eq.equations = remove_empties(strip_mexpr(eq.equations))
     eq
@@ -119,7 +118,15 @@ replace_fixed(u::Unknown) = u.fixed ? u.value : u
 handle_events(a::Model) = traverse_mod(handle_events, a)
 handle_events(a::InitialEquation) = a
 handle_events(x) = x
-handle_events(ev::StructuralEvent) = ev.activated ? ev.new_relation() : ev
+handle_events(ev::StructuralEvent) =
+    if ev.activated
+        begin
+            ev.activated = false
+            return ev.new_relation()
+        end
+    else 
+       return ev
+    end
 
 #
 # elaborate_unit flattens the set of equations while building up
@@ -162,7 +169,7 @@ function elaborate_unit(ev::StructuralEvent, eq::EquationSet)
     push!(eq.events, strip_mexpr(elaborate_subunit(ev.condition)))
     # A positive zero crossing initiates a change:
     push!(eq.pos_responses,
-          if ev.response == nothing
+          if ev.pos_response == nothing
               (t,y,yp,p,ss) ->
               begin
                   ss.structural_change = true
@@ -172,7 +179,7 @@ function elaborate_unit(ev::StructuralEvent, eq::EquationSet)
               (t,y,yp,p,ss) ->
               begin
                   if (!(ev.activated))
-                      ev.response(t,y,yp,p)
+                      ev.pos_response(t,y,yp,p,ss)
                   end
                   ss.structural_change = true
                   ev.activated = true

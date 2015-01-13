@@ -5,13 +5,14 @@
 using Sims
 using Winston
 
-gL     = 0.1 
+gL     = 0.1
 vL     = -70.0 
-Isyn   = 10.0 
 C      = 1.0 
 theta  = 20.0 
 vreset = -65.0 
 trefractory = 5.0 
+
+Isyn   = Parameter(10.0)
 
 function Subthreshold(v)
 
@@ -39,8 +40,8 @@ function Refractory(v,trefr)
         StructuralEvent(MTime - trefr,
                         # when the end of refractory period is reached,
                         # switch back to subthreshold mode
-            RefractoryEq(v),
-            () -> LeakyIaF())
+                        RefractoryEq(v),
+                        () -> LeakyIaF())
     end
     
 end
@@ -48,15 +49,16 @@ end
 
 function LeakyIaF()
     v = Unknown(vreset, "v")
-    @equations begin   
+    @equations begin
         StructuralEvent(v-theta,
                         # when v crosses the threshold,
                         # switch to refractory mode
-            Subthreshold(v),
-            () -> begin
-                trefr = value(MTime)+trefractory
-                Refractory(v,trefr)
-            end)
+                        Subthreshold(v),
+                        () -> begin
+                            trefr = value(MTime)+trefractory
+                            Refractory(v,trefr)
+                        end)
+                        
     end
 end
 
