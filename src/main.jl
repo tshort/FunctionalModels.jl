@@ -214,37 +214,30 @@ type Unknown{T<:UnknownCategory} <: UnknownVariable
     label::String
     fixed::Bool
     save_history::Bool
-    Unknown() = new(gensym(), 0.0, "", false, false)
-    Unknown(sym::Symbol, label::String) = new(sym, 0.0, label, false, true)
-    Unknown(sym::Symbol, value) = new(sym, value, "", false, false)
-    Unknown(value) = new(gensym(), value, "", false, false)
-    Unknown(label::String) = new(gensym(), 0.0, label, false, true)
-    Unknown(value, label::String) = new(gensym(), value, label, false, true)
-    Unknown(sym::Symbol, value, label::String) = new(sym, value, label, false, true)
-    Unknown(sym::Symbol, value, label::String, fixed::Bool, save_history::Bool) =
+    Unknown(;value = 0.0, label::String = "", fixed::Bool = false, save_history::Bool = false) =
+        new(gensym(), value, label, fixed, save_history)
+    Unknown(value = 0.0, label::String = "", fixed::Bool = false, save_history::Bool = false) =
+        new(gensym(), value, label, fixed, save_history)
+    Unknown(label::String = "", value = 0.0, fixed::Bool = false, save_history::Bool = false) =
+        new(gensym(), value, label, fixed, save_history)
+    Unknown(sym::Symbol, value = 0.0, label::String = "", fixed::Bool = false, save_history::Bool = false) =
         new(sym, value, label, fixed, save_history)
 end
-Unknown() = Unknown{DefaultUnknown}(gensym(), 0.0, "", false, false)
-Unknown(x) = Unknown{DefaultUnknown}(gensym(), x, "", false, false)
-Unknown(s::Symbol, label::String) = Unknown{DefaultUnknown}(s, 0.0, label, false, true)
-Unknown(x, label::String) = Unknown{DefaultUnknown}(gensym(), x, label, false, true)
-Unknown(label::String) = Unknown{DefaultUnknown}(gensym(), 0.0, label, false, true)
-Unknown(s::Symbol, x, fixed::Bool) = Unknown{DefaultUnknown}(s, x, "", fixed, false)
-Unknown(s::Symbol, x) = Unknown{DefaultUnknown}(s, x, "", false, false)
+Unknown(value = 0.0, label::String = "", fixed::Bool = false, save_history::Bool = true) =
+    Unknown{DefaultUnknown}(value, label, fixed, save_history)
+Unknown(label::String = "", value = 0.0, fixed::Bool = false, save_history::Bool = true) =
+    Unknown{DefaultUnknown}(value, label, fixed, save_history)
+Unknown(;value = 0.0, label::String = "", fixed::Bool = false, save_history::Bool = true) =
+    Unknown{DefaultUnknown}(value, label, fixed, save_history)
 
-# Better Unknown methods below? No s::Symbol; value and label are the most important
-# Do defaults work in an inner constructor?
-
-## Unknown(value = 0.0, label::String = "", fixed::Bool = false, save_history::Bool = true)
-## Unknown(label::String = "", value = 0.0, fixed::Bool = false, save_history::Bool = true)
-## Unknown(;value = 0.0, label::String = "", fixed::Bool = false, save_history::Bool = true)
 
 
 @doc* """
 Is the object an UnknownVariable?
 """ ->
 is_unknown(x) = isa(x, UnknownVariable)
-    
+
+
 @doc """
 An UnknownVariable representing the derivitive of an Unknown, normally
 created with `der(x)`.
@@ -653,7 +646,7 @@ compatible_values(num::Number, u::UnknownVariable) = length(value(u)) > length(n
 @doc """
 The model time - a special unknown variable.
 """ ->
-const MTime = Unknown(:time, 0.0)
+const MTime = Unknown{DefaultUnknown}(:time, 0.0, "", false, false)
 
 
 @doc """
