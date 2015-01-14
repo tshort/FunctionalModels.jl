@@ -9,7 +9,7 @@
         
         <link rel="shortcut icon" href="../img/favicon.ico">
 
-        <title>License - Sims.jl</title>
+        <title>Release notes - Sims.jl</title>
 
         <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
         <link href="../css/font-awesome-4.0.3.css" rel="stylesheet">
@@ -163,8 +163,19 @@
                 
                 
                 
-                    <li class="active">
-                        <a href=".">License</a>
+                    <li class="dropdown active">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">About <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            <li class="active">
+                                <a href=".">Release notes</a>
+                            </li>
+                        
+                            <li >
+                                <a href="../LICENSE">License</a>
+                            </li>
+                        
+                        </ul>
                     </li>
                 
                 
@@ -181,8 +192,8 @@
                         <i class="fa fa-arrow-left"></i> Previous
                     </a>
                 </li>
-                <li class="disabled">
-                    <a rel="prev" >
+                <li >
+                    <a rel="prev" href="../LICENSE">
                         Next <i class="fa fa-arrow-right"></i>
                     </a>
                 </li>
@@ -208,41 +219,25 @@
                 <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
     
+        <li class="main active"><a href="#sims-v010-release-notes">Sims v0.1.0 Release Notes</a></li>
+        
+    
     </ul>
 </div></div>
                 <div class="col-md-9" role="main">
 
-<p>Copyright (c) 2012 - 2015, Electric Power Research Institute and Ivan
-Raikov.</p>
-<p>Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are
-met:</p>
-<div class="codehilite"><pre>Redistributions of source code must retain the above copyright
-notice, this list of conditions and the following disclaimer.
-
-Redistributions in binary form must reproduce the above copyright
-notice, this list of conditions and the following disclaimer in
-the documentation and/or other materials provided with the
-distribution.
-</pre></div>
-
-
-<p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
-<p>This code also contains documentation adapted from the Modelica
-Standard Library available under the Modelica License Version 2 (an
-allowed usage). See here:</p>
-<p>https://www.modelica.org/licenses/ModelicaLicense2
-https://www.modelica.org/news_items/modelica-standard-library-3.2.1-released</p>
+<h1 id="sims-v010-release-notes">Sims v0.1.0 Release Notes</h1>
+<p>This is the first tagged release version. Recent highlights of this
+release include:</p>
+<ul>
+<li>Removal of global variables and general simulation API improvements
+  (Ivan Raikov)</li>
+<li>More than 15 model example of neural systems (Ivan Raikov)</li>
+<li>Bug fixes in structural models (Ivan Raikov)</li>
+<li>Documentation system based on Docile/Lexicon/Mkdocs (Tom Short)</li>
+<li>Reorganization into <code>Sims</code>, <code>Sims.Lib</code>, <code>Sims.Example</code>, and
+  <code>Sims.Example.*</code> modules (Tom Short)</li>
+</ul>
 </div>
             
         </div>

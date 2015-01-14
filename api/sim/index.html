@@ -163,8 +163,19 @@
                 
                 
                 
-                    <li >
-                        <a href="../../license">License</a>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">About <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            <li >
+                                <a href="../../NEWS">Release notes</a>
+                            </li>
+                        
+                            <li >
+                                <a href="../../LICENSE">License</a>
+                            </li>
+                        
+                        </ul>
                     </li>
                 
                 
@@ -255,7 +266,7 @@
 <ul>
 <li><code>::Sim</code> : a simulation object</li>
 </ul>
-<p><a href="https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/simcreation.jl#L97">Sims/src/simcreation.jl:97</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/simcreation.jl#L99">Sims/src/simcreation.jl:99</a></p>
 <h2 id="create_simstate">create_simstate</h2>
 <p><code>create_simstate</code> converts a Sim is the main conversion function that
 returns a SimState, a simulation object with state history.</p>
@@ -275,11 +286,11 @@ returns a SimState, a simulation object with state history.</p>
 <ul>
 <li><code>::Sim</code> : a simulation object</li>
 </ul>
-<p><a href="https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/simcreation.jl#L141">Sims/src/simcreation.jl:141</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/simcreation.jl#L143">Sims/src/simcreation.jl:143</a></p>
 <h2 id="dasslsim">dasslsim</h2>
 <p>The solver that uses DASKR, a variant of DASSL.</p>
 <p>See <a href="#sim">sim</a> for the interface.</p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/dassl.jl#L56">Sims/src/dassl.jl:56</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/dassl.jl#L56">Sims/src/dassl.jl:56</a></p>
 <h2 id="elaborate">elaborate</h2>
 <p><code>elaborate</code> is the main elaboration function that returns
 a flattened model representation that can be used by <code>sim</code>.</p>
@@ -300,7 +311,7 @@ a flattened model representation that can be used by <code>sim</code>.</p>
 <ul>
 <li>Replace fixed initial values.</li>
 <li>Flatten models and populate <code>eq.equations</code>.</li>
-<li>Pull out InitialEquations and populate <code>eq.initialequations</code>.</li>
+<li>Pull out InitialEquations and populate <code>eq.initialequations</code></li>
 <li>Pull out Events and populate <code>eq.events</code>.</li>
 <li>Handle StructuralEvents.</li>
 <li>Collect nodes and populate <code>eq.nodeMap</code>.</li>
@@ -314,11 +325,11 @@ a StructuralEvent triggers, the entire model is elaborated again.
 The first step is to replace StructuralEvents that have activated
 with their new_relation in model. Then, the rest of the EquationSet
 is reflattened using <code>model</code> as the starting point.</p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/elaboration.jl#L69">Sims/src/elaboration.jl:69</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/elaboration.jl#L69">Sims/src/elaboration.jl:69</a></p>
 <h2 id="sunsim">sunsim</h2>
 <p>The solver that uses Sundials.</p>
 <p>See <a href="#sim">sim</a> for the interface.</p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/sundials.jl#L109">Sims/src/sundials.jl:109</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/sundials.jl#L109">Sims/src/sundials.jl:109</a></p>
 <h2 id="sim">sim</h2>
 <p><code>sim</code> is the name of the default solver used to simulate Sims models
 and also shows the generic simulation API for available solvers
@@ -397,33 +408,33 @@ pulled in with <code>require</code> or <code>using</code>.</p>
 </pre></div>
 
 
-<p><a href="https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/sim.jl#L92">Sims/src/sim.jl:92</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/sim.jl#L92">Sims/src/sim.jl:92</a></p>
 <h2 id="equationset">EquationSet</h2>
 <p>A representation of a flattened model, normally created with
 <code>elaborate(model)</code>. <code>sim</code> uses an elaborated model for simulations.</p>
 <p>Contains the hierarchical equations, flattened equations, flattened
 initial equations, events, event response functions, and a map of
 Unknown nodes.</p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/elaboration.jl#L20">Sims/src/elaboration.jl:20</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/elaboration.jl#L20">Sims/src/elaboration.jl:20</a></p>
 <h2 id="sim_1">Sim</h2>
 <p>A type for holding several simulation objects needed for simulation,
 normally created with <code>create_sim(eqs)</code>. </p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/simcreation.jl#L42">Sims/src/simcreation.jl:42</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/simcreation.jl#L44">Sims/src/simcreation.jl:44</a></p>
 <h2 id="simfunctions">SimFunctions</h2>
 <p>The set of functions used in the DAE solution. Includes an initial set
 of equations, a residual function, and several functions for detecting
 and responding to events.</p>
 <p>All functions take (t,y,yp) as arguments. {TODO: is this still right?}</p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/simcreation.jl#L24">Sims/src/simcreation.jl:24</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/simcreation.jl#L24">Sims/src/simcreation.jl:24</a></p>
 <h2 id="simresult">SimResult</h2>
 <p>A type holding simulation results from <code>sim</code>, <code>dasslsim</code>, or
 <code>sunsim</code>. Includes a matrix of results and a vector of column names.</p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/simcreation.jl#L427">Sims/src/simcreation.jl:427</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/simcreation.jl#L434">Sims/src/simcreation.jl:434</a></p>
 <h2 id="simstate">SimState</h2>
 <p>The top level type for holding all simulation objects needed for
 simulation, including a Sim. Normally created with
 <code>create_simstate(sim)</code>.</p>
-<p><a href="https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/simcreation.jl#L70">Sims/src/simcreation.jl:70</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/simcreation.jl#L72">Sims/src/simcreation.jl:72</a></p>
 </div>
             
         </div>

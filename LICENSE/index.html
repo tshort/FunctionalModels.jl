@@ -7,15 +7,15 @@
         
         
         
-        <link rel="shortcut icon" href="../../img/favicon.ico">
+        <link rel="shortcut icon" href="../img/favicon.ico">
 
-        <title>Power systems - Sims.jl</title>
+        <title>License - Sims.jl</title>
 
-        <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
-        <link href="../../css/font-awesome-4.0.3.css" rel="stylesheet">
-        <link href="../../css/base.css" rel="stylesheet">
-        <link rel="stylesheet" href="../../css/highlight.css">
-        <link href="../../css/github.css" rel="stylesheet">
+        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../css/font-awesome-4.0.3.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="../css/highlight.css">
+        <link href="../css/github.css" rel="stylesheet">
 
         <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!--[if lt IE 9]>
@@ -44,7 +44,7 @@
             
 
             <!-- Main title -->
-            <a class="navbar-brand" href="../..">Sims.jl</a>
+            <a class="navbar-brand" href="..">Sims.jl</a>
         </div>
 
         <!-- Expanded navigation -->
@@ -59,11 +59,11 @@
                         <ul class="dropdown-menu">
                         
                             <li >
-                                <a href="../../basics">Basics</a>
+                                <a href="../basics">Basics</a>
                             </li>
                         
                             <li >
-                                <a href="../../plotting">Plotting results</a>
+                                <a href="../plotting">Plotting results</a>
                             </li>
                         
                         </ul>
@@ -76,15 +76,15 @@
                         <ul class="dropdown-menu">
                         
                             <li >
-                                <a href="../../api/main">Modeling</a>
+                                <a href="../api/main">Modeling</a>
                             </li>
                         
                             <li >
-                                <a href="../../api/sim">Simulations</a>
+                                <a href="../api/sim">Simulations</a>
                             </li>
                         
                             <li >
-                                <a href="../../api/utils">Utilities</a>
+                                <a href="../api/utils">Utilities</a>
                             </li>
                         
                         </ul>
@@ -92,32 +92,32 @@
                 
                 
                 
-                    <li class="dropdown active">
+                    <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Standard library <b class="caret"></b></a>
                         <ul class="dropdown-menu">
                         
                             <li >
-                                <a href="../types">Types</a>
+                                <a href="../lib/types">Types</a>
                             </li>
                         
                             <li >
-                                <a href="../blocks">Continuous blocks</a>
+                                <a href="../lib/blocks">Continuous blocks</a>
                             </li>
                         
                             <li >
-                                <a href="../electrical">Electrical</a>
+                                <a href="../lib/electrical">Electrical</a>
                             </li>
                         
                             <li >
-                                <a href="../heat_transfer">Heat transfer</a>
-                            </li>
-                        
-                            <li class="active">
-                                <a href=".">Power systems</a>
+                                <a href="../lib/heat_transfer">Heat transfer</a>
                             </li>
                         
                             <li >
-                                <a href="../rotational">Rotational mechanics</a>
+                                <a href="../lib/powersystems">Power systems</a>
+                            </li>
+                        
+                            <li >
+                                <a href="../lib/rotational">Rotational mechanics</a>
                             </li>
                         
                         </ul>
@@ -130,15 +130,15 @@
                         <ul class="dropdown-menu">
                         
                             <li >
-                                <a href="../../examples/basics">Basics</a>
+                                <a href="../examples/basics">Basics</a>
                             </li>
                         
                             <li >
-                                <a href="../../examples/lib">Standard library</a>
+                                <a href="../examples/lib">Standard library</a>
                             </li>
                         
                             <li >
-                                <a href="../../examples/neural">Neural</a>
+                                <a href="../examples/neural">Neural</a>
                             </li>
                         
                         </ul>
@@ -151,11 +151,11 @@
                         <ul class="dropdown-menu">
                         
                             <li >
-                                <a href="../../design">Considerations</a>
+                                <a href="../design">Considerations</a>
                             </li>
                         
                             <li >
-                                <a href="../../future">Development options</a>
+                                <a href="../future">Development options</a>
                             </li>
                         
                         </ul>
@@ -163,16 +163,16 @@
                 
                 
                 
-                    <li class="dropdown">
+                    <li class="dropdown active">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">About <b class="caret"></b></a>
                         <ul class="dropdown-menu">
                         
                             <li >
-                                <a href="../../NEWS">Release notes</a>
+                                <a href="../NEWS">Release notes</a>
                             </li>
                         
-                            <li >
-                                <a href="../../LICENSE">License</a>
+                            <li class="active">
+                                <a href=".">License</a>
                             </li>
                         
                         </ul>
@@ -188,12 +188,12 @@
                 
                 
                 <li >
-                    <a rel="next" href="../heat_transfer">
+                    <a rel="next" href="../NEWS">
                         <i class="fa fa-arrow-left"></i> Previous
                     </a>
                 </li>
-                <li >
-                    <a rel="prev" href="../rotational">
+                <li class="disabled">
+                    <a rel="prev" >
                         Next <i class="fa fa-arrow-right"></i>
                     </a>
                 </li>
@@ -219,16 +219,41 @@
                 <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
     
-        <li class="main active"><a href="#power-systems-models">Power systems models</a></li>
-        
-    
     </ul>
 </div></div>
                 <div class="col-md-9" role="main">
 
-<h1 id="power-systems-models">Power systems models</h1>
-<p>This includes <strong>experimental</strong> methods for modeling power systems.</p>
-<p><em>Under construction</em></p>
+<p>Copyright (c) 2012 - 2015, Electric Power Research Institute and Ivan
+Raikov.</p>
+<p>Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:</p>
+<div class="codehilite"><pre>Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+
+Redistributions in binary form must reproduce the above copyright
+notice, this list of conditions and the following disclaimer in
+the documentation and/or other materials provided with the
+distribution.
+</pre></div>
+
+
+<p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+<p>This code also contains documentation adapted from the Modelica
+Standard Library available under the Modelica License Version 2 (an
+allowed usage). See here:</p>
+<p>https://www.modelica.org/licenses/ModelicaLicense2
+https://www.modelica.org/news_items/modelica-standard-library-3.2.1-released</p>
 </div>
             
         </div>
@@ -242,9 +267,9 @@
         
 
         <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
-        <script src="../../js/bootstrap-3.0.3.min.js"></script>
-        <script src="../../js/prettify-1.0.min.js"></script>
-        <script src="../../js/highlight.pack.js"></script>
-        <script src="../../js/base.js"></script>
+        <script src="../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../js/prettify-1.0.min.js"></script>
+        <script src="../js/highlight.pack.js"></script>
+        <script src="../js/base.js"></script>
     </body>
 </html>

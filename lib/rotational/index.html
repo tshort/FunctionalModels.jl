@@ -163,8 +163,19 @@
                 
                 
                 
-                    <li >
-                        <a href="../../license">License</a>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">About <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            <li >
+                                <a href="../../NEWS">Release notes</a>
+                            </li>
+                        
+                            <li >
+                                <a href="../../LICENSE">License</a>
+                            </li>
+                        
+                        </ul>
                     </li>
                 
                 
@@ -266,7 +277,7 @@ library.</p>
 <li><code>flange_b::Flange</code> : right flange of shaft [rad]</li>
 <li><code>J::Real</code> : Moment of inertia [kg.m^2]</li>
 </ul>
-<p><a href="https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/rotational.jl#L42">Sims/src/../lib/rotational.jl:42</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/rotational.jl#L42">Sims/src/../lib/rotational.jl:42</a></p>
 <h2 id="disc">Disc</h2>
 <p>1-dim. rotational rigid component without inertia, where right flange is rotated by a fixed angle with respect to left flange</p>
 <p>Rotational component with two rigidly connected flanges without
@@ -282,7 +293,7 @@ with respect to the left flange.</p>
 <li><code>flange_b::Flange</code> : right flange of shaft [rad]</li>
 <li><code>deltaPhi::Signal</code> : rotation of left flange with respect to right flange (= flange_b - flange_a) [rad]</li>
 </ul>
-<p><a href="https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/rotational.jl#L77">Sims/src/../lib/rotational.jl:77</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/rotational.jl#L77">Sims/src/../lib/rotational.jl:77</a></p>
 <h2 id="spring">Spring</h2>
 <p>Linear 1D rotational spring</p>
 <p>A linear 1D rotational spring. The component can be connected either
@@ -300,7 +311,7 @@ a coupling of the element with the housing via a spring.</p>
 <li><code>c</code>: spring constant [N.m/rad]</li>
 <li><code>phi_rel0</code> : unstretched spring angle [rad]</li>
 </ul>
-<p><a href="https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/rotational.jl#L105">Sims/src/../lib/rotational.jl:105</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/rotational.jl#L105">Sims/src/../lib/rotational.jl:105</a></p>
 <h2 id="damper">Damper</h2>
 <p>Linear 1D rotational damper</p>
 <p>Linear, velocity dependent damper element. It can be either connected
@@ -318,7 +329,7 @@ between two inertia/gear elements.</p>
 <li><code>hp::HeatPort</code> : heat port [K]</li>
 <li><code>d</code>:  damping constant [N.m.s/rad]</li>
 </ul>
-<p><a href="https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/rotational.jl#L136">Sims/src/../lib/rotational.jl:136</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/rotational.jl#L136">Sims/src/../lib/rotational.jl:136</a></p>
 <h2 id="springdamper">SpringDamper</h2>
 <p>Linear 1D rotational spring and damper in parallel</p>
 <p>A spring and damper element connected in parallel. The component can
@@ -339,7 +350,7 @@ housing via a spring/damper.</p>
 <li><code>c</code>:  spring constant [N.m/rad]</li>
 <li><code>d</code>:  damping constant [N.m.s/rad]</li>
 </ul>
-<p><a href="https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/rotational.jl#L172">Sims/src/../lib/rotational.jl:172</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/rotational.jl#L172">Sims/src/../lib/rotational.jl:172</a></p>
 <h2 id="idealgear">IdealGear</h2>
 <p>Ideal gear without inertia</p>
 <p>This element characterices any type of gear box which is fixed in the
@@ -357,7 +368,7 @@ connected to other elements in an appropriate way.</p>
 <li><code>flange_b::Flange</code> : right flange of shaft [rad]</li>
 <li><code>ratio</code> : transmission ratio (flange_a / flange_b)</li>
 </ul>
-<p><a href="https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/rotational.jl#L293">Sims/src/../lib/rotational.jl:293</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/rotational.jl#L293">Sims/src/../lib/rotational.jl:293</a></p>
 <h1 id="miscellaneous">Miscellaneous</h1>
 <h2 id="mbranchheatport">MBranchHeatPort</h2>
 <p>Wrap argument <code>model</code> with a heat port that captures the power
@@ -375,7 +386,7 @@ generated by the device. This is vectorizable.</p>
 <li><code>model::Function</code> : Model to wrap</li>
 <li><code>args...</code> : Arguments passed to <code>model</code>  </li>
 </ul>
-<p><a href="https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/rotational.jl#L331">Sims/src/../lib/rotational.jl:331</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/rotational.jl#L331">Sims/src/../lib/rotational.jl:331</a></p>
 <h1 id="sensors">Sensors</h1>
 <h2 id="speedsensor">SpeedSensor</h2>
 <p>Ideal sensor to measure the absolute flange angular velocity</p>
@@ -390,7 +401,7 @@ and provides the result as output signal w.</p>
 <li><code>flange::Flange</code> : left flange of shaft [rad]</li>
 <li><code>w::Signal</code>:  absolute angular velocity of the flange [rad/sec]</li>
 </ul>
-<p><a href="https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/rotational.jl#L377">Sims/src/../lib/rotational.jl:377</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/rotational.jl#L377">Sims/src/../lib/rotational.jl:377</a></p>
 <h2 id="accsensor">AccSensor</h2>
 <p>Ideal sensor to measure the absolute flange angular acceleration</p>
 <p>Measures the absolute angular velocity a of a flange in an ideal way
@@ -404,7 +415,7 @@ and provides the result as output signal a.</p>
 <li><code>flange::Flange</code> : left flange of shaft [rad]</li>
 <li><code>a::Signal</code>:  absolute angular acceleration of the flange [rad/sec^2]</li>
 </ul>
-<p><a href="https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/rotational.jl#L400">Sims/src/../lib/rotational.jl:400</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/rotational.jl#L400">Sims/src/../lib/rotational.jl:400</a></p>
 <h1 id="sources">Sources</h1>
 <h2 id="signaltorque">SignalTorque</h2>
 <p>Input signal acting as external torque on a flange</p>
@@ -422,7 +433,7 @@ connected to this flange is driven by torque tau.</p>
 <li><code>tau</code> : Accelerating torque acting at flange_a relative to flange_b
   (normally a support); a positive value accelerates flange_a</li>
 </ul>
-<p><a href="https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/rotational.jl#L437">Sims/src/../lib/rotational.jl:437</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/rotational.jl#L437">Sims/src/../lib/rotational.jl:437</a></p>
 <h2 id="quadraticspeeddependenttorque">QuadraticSpeedDependentTorque</h2>
 <p>Quadratic dependency of torque versus speed</p>
 <p>Model of torque, quadratic dependent on angular velocity of flange.
@@ -441,7 +452,7 @@ same in both directions of rotation or not.</p>
 <li><code>TorqueDirection::Bool</code> : same direction of torque in both directions of rotation</li>
 <li><code>AngularVelocity::Signal</code> : nominal speed [rad/sec]</li>
 </ul>
-<p><a href="https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/rotational.jl#L465">Sims/src/../lib/rotational.jl:465</a></p>
+<p><a href="https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/rotational.jl#L465">Sims/src/../lib/rotational.jl:465</a></p>
 </div>
             
         </div>
