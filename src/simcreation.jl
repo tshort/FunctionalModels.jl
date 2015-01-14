@@ -49,7 +49,6 @@ type Sim
     outputs::Array{ASCIIString, 1} # output labels
     unknown_idx_map::Dict     # symbol => index into y (or yp)
     discrete_map::Dict        # sym => Discrete variable 
-    rdiscrete_inputs::Set     # RDiscrete variables
     parameter_idx_map::Dict   # symbol => index into parameters
     y_map::Dict               # sym => Unknown variable 
     yp_map::Dict              # sym => DerUnknown variable 
@@ -106,7 +105,6 @@ function create_sim(eq::EquationSet)
     sm.parameter_idx_map = Dict()
     sm.unknown_idx_map = Dict()
     sm.discrete_map = Dict()
-    sm.rdiscrete_inputs = Set()
     sm.y_map = Dict()
     sm.yp_map = Dict()
     sm.parameter_map = Dict()
@@ -384,16 +382,6 @@ function replace_unknowns(a::DerUnknown, sm::Sim)
 end
 function replace_unknowns(a::PassedUnknown, sm::Sim)
     a.ref
-end
-function replace_unknowns{T}(a::RDiscrete{Reactive.Input{T}}, sm::Sim)
-    push!(sm.rdiscrete_inputs, a)    # RDiscrete inputs
-    :(value($a))
-end
-function replace_unknowns{T}(a::RDiscrete{T}, sm::Sim)
-    :(value($a))
-end
-function replace_unknowns{T}(a::RParameter{T}, sm::Sim)
-    :(value($a))
 end
 function replace_unknowns(a::Discrete, sm::Sim)
     # println(a.sym)
