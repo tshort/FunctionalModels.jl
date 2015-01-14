@@ -214,37 +214,30 @@ type Unknown{T<:UnknownCategory} <: UnknownVariable
     label::String
     fixed::Bool
     save_history::Bool
-    Unknown() = new(gensym(), 0.0, "", false, false)
-    Unknown(sym::Symbol, label::String) = new(sym, 0.0, label, false, true)
-    Unknown(sym::Symbol, value) = new(sym, value, "", false, false)
-    Unknown(value) = new(gensym(), value, "", false, false)
-    Unknown(label::String) = new(gensym(), 0.0, label, false, true)
-    Unknown(value, label::String) = new(gensym(), value, label, false, true)
-    Unknown(sym::Symbol, value, label::String) = new(sym, value, label, false, true)
-    Unknown(sym::Symbol, value, label::String, fixed::Bool, save_history::Bool) =
+    Unknown(;value = 0.0, label::String = "", fixed::Bool = false, save_history::Bool = false) =
+        new(gensym(), value, label, fixed, save_history)
+    Unknown(value = 0.0, label::String = "", fixed::Bool = false, save_history::Bool = false) =
+        new(gensym(), value, label, fixed, save_history)
+    Unknown(label::String = "", value = 0.0, fixed::Bool = false, save_history::Bool = false) =
+        new(gensym(), value, label, fixed, save_history)
+    Unknown(sym::Symbol, value = 0.0, label::String = "", fixed::Bool = false, save_history::Bool = false) =
         new(sym, value, label, fixed, save_history)
 end
-Unknown() = Unknown{DefaultUnknown}(gensym(), 0.0, "", false, false)
-Unknown(x) = Unknown{DefaultUnknown}(gensym(), x, "", false, false)
-Unknown(s::Symbol, label::String) = Unknown{DefaultUnknown}(s, 0.0, label, false, true)
-Unknown(x, label::String) = Unknown{DefaultUnknown}(gensym(), x, label, false, true)
-Unknown(label::String) = Unknown{DefaultUnknown}(gensym(), 0.0, label, false, true)
-Unknown(s::Symbol, x, fixed::Bool) = Unknown{DefaultUnknown}(s, x, "", fixed, false)
-Unknown(s::Symbol, x) = Unknown{DefaultUnknown}(s, x, "", false, false)
+Unknown(value = 0.0, label::String = "", fixed::Bool = false, save_history::Bool = true) =
+    Unknown{DefaultUnknown}(value, label, fixed, save_history)
+Unknown(label::String = "", value = 0.0, fixed::Bool = false, save_history::Bool = true) =
+    Unknown{DefaultUnknown}(value, label, fixed, save_history)
+Unknown(;value = 0.0, label::String = "", fixed::Bool = false, save_history::Bool = true) =
+    Unknown{DefaultUnknown}(value, label, fixed, save_history)
 
-# Better Unknown methods below? No s::Symbol; value and label are the most important
-# Do defaults work in an inner constructor?
-
-## Unknown(value = 0.0, label::String = "", fixed::Bool = false, save_history::Bool = true)
-## Unknown(label::String = "", value = 0.0, fixed::Bool = false, save_history::Bool = true)
-## Unknown(;value = 0.0, label::String = "", fixed::Bool = false, save_history::Bool = true)
 
 
 @doc* """
 Is the object an UnknownVariable?
 """ ->
 is_unknown(x) = isa(x, UnknownVariable)
-    
+
+
 @doc """
 An UnknownVariable representing the derivitive of an Unknown, normally
 created with `der(x)`.
@@ -383,6 +376,7 @@ type Parameter{T<:UnknownCategory} <: UnknownVariable
     Parameter(value, label::String) = new(gensym(), value, label)
 end
 Parameter(v) = Parameter{DefaultUnknown}(gensym(), v)
+Parameter(v,label::String) = Parameter{DefaultUnknown}(v, label)
 
 
 # Set up defaults for operations on ModelType's for many common
@@ -652,7 +646,7 @@ compatible_values(num::Number, u::UnknownVariable) = length(value(u)) > length(n
 @doc """
 The model time - a special unknown variable.
 """ ->
-const MTime = Unknown(:time, 0.0)
+const MTime = Unknown{DefaultUnknown}(:time, 0.0, "", false, false)
 
 
 @doc """
@@ -784,11 +778,12 @@ and may be broken. There are no tests. The idea is that the equations
 provided will only be used during the initial solution.
 
 ```julia
-InitialEquation(egs)
+InitialEquation(eqs)
 ```
 
 ### Arguments
 
+* `x::Unknown` : the quantity to be initialized
 * `eqs::Array{Equation}` : a vector of equations, each to be equated
   to zero during the initial equation solution.
 
@@ -801,7 +796,6 @@ end
 macro init(eqs...)
    Expr(:cell1d, [:(InitialEquation($eq)) for eq in eqs])
 end
-
 
 ########################################
 ## delay                              ##
@@ -1177,6 +1171,8 @@ reinit(x::Discrete, y) = reinit(LeftVar(x), y)
 reinit(x::RefDiscrete, y) = reinit(LeftVar(x), y)
 ## reinit(x::Discrete, y) = mexpr(:call, :reinit, x, y)
 ## reinit(x::RefDiscrete, y) = mexpr(:call, :reinit, x, y)
+
+
 setindex!(x::DiscreteVar, y, idx) = x.value = y
 
 @doc* """
@@ -1272,7 +1268,8 @@ When the event is triggered, the model is re-flattened after replacing
 `default` with `new_relation` in the model.
 
 ```julia
-StructuralEvent(condition::MExpr, default, new_relation::Function)
+StructuralEvent(condition::MExpr, default, new_relation::Function,
+                pos_response, neg_response)
 ```
 
 ### Arguments
@@ -1282,6 +1279,11 @@ StructuralEvent(condition::MExpr, default, new_relation::Function)
 * `default` : the default Model used
 * `new_relation` : a function that returns a model that will replace
   the default model when the condition triggers the event.
+* `pos_response` : an expression indicating what to do when the
+  condition crosses zero positively. Defaults to Equation[].
+* `neg_response::Model` : an expression indicating what to do when the
+  condition crosses zero in the negative direction. Defaults to
+  Equation[].
 
 ### Examples
 
@@ -1332,15 +1334,12 @@ type StructuralEvent <: ModelType
     default
     new_relation::Function
     activated::Bool       # Indicates whether the event condition has fired
-    response::Union(Function,Nothing) # if given, the response function will be called with the model state and parameters
+    pos_response::Union(Nothing,Function)
+    # A procedure that will be invoked with the model states and parameters when
+    # the condition crosses zero positively.
 end
-StructuralEvent(condition::MExpr, default, new_relation::Function) =
-    StructuralEvent(condition, default, new_relation, false, nothing)
-StructuralEvent(condition::MExpr, default, new_relation::Function, response::Function) =
-    StructuralEvent(condition, default, new_relation, false, response)
-
-
-
+StructuralEvent(condition::MExpr, default, new_relation::Function; pos_response=nothing) =
+    StructuralEvent(condition, default, new_relation, false, pos_response)
 
 
 ########################################

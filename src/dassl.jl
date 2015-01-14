@@ -54,7 +54,7 @@ The solver that uses DASKR, a variant of DASSL.
 
 See [sim](#sim) for the interface.
 """ ->
-function dasslsim(ss::SimState, tstop::Float64, Nsteps::Int; reltol::Float64=1e-4, abstol::Float64=1e-4)
+function dasslsim(ss::SimState, tstop::Float64=1.0, Nsteps::Int=500, reltol::Float64=1e-4, abstol::Float64=1e-4)
     # tstop & Nsteps should be in options
     sim_info("starting sim()")
 
@@ -184,17 +184,20 @@ function dasslsim(ss::SimState, tstop::Float64, Nsteps::Int; reltol::Float64=1e-
     end
     SimResult(yout, [sm.outputs[yidx]])
 end
-dasslsim(ss::SimState; reltol::Float64=1e-5, abstol::Float64=1e-3) =
-    dasslsim(ss, 1.0, 500, reltol=reltol, abstol=abstol)
-dasslsim(ss::SimState, tstop::Float64; reltol::Float64=1e-5, abstol::Float64=1e-3) =
-    dasslsim(ss, tstop, 500, reltol=reltol, abstol=abstol)
-dasslsim(sm::Sim, tstop::Float64, Nsteps::Int; reltol::Float64=1e-5, abstol::Float64=1e-3) =
-    dasslsim(create_simstate(sm), tstop, Nsteps, reltol=reltol, abstol=abstol)
-dasslsim(sm::Sim, tstop::Float64; reltol::Float64=1e-5, abstol::Float64=1e-3) =
-    dasslsim(create_simstate(sm), tstop, 500, reltol=reltol, abstol=abstol)
-dasslsim(m::Model, tstop::Float64, Nsteps::Int; reltol::Float64=1e-5, abstol::Float64=1e-3)  =
-    dasslsim(create_sim(elaborate(m)), tstop, Nsteps, reltol=reltol, abstol=abstol)
-dasslsim(m::Model; reltol::Float64=1e-5, abstol::Float64=1e-3) =
-    dasslsim(m, 1.0, 500, reltol=reltol, abstol=abstol)
-dasslsim(m::Model, tstop::Float64; reltol::Float64=1e-5, abstol::Float64=1e-3) =
-    dasslsim(m, tstop, 500, reltol=reltol, abstol=abstol)
+dasslsim(ss::SimState; tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol = 1e-4) =
+    dasslsim(ss, tstop, Nsteps, reltol, abstol)
+    
+dasslsim(m::Model, tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol = 1e-4) =
+    dasslsim(create_simstate(m), tstop, Nsteps, reltol, abstol)
+dasslsim(m::Model; tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol = 1e-4) =
+    dasslsim(create_simstate(m), tstop, Nsteps, reltol, abstol)
+    
+dasslsim(sm::Sim, tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol = 1e-4) =
+    dasslsim(create_simstate(sm), tstop, Nsteps, reltol, abstol)
+dasslsim(sm::Sim; tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol = 1e-4) =
+    dasslsim(create_simstate(sm), tstop, Nsteps, reltol, abstol)
+
+dasslsim(e::EquationSet, tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol = 1e-4) =
+    dasslsim(create_simstate(e), tstop, Nsteps, reltol, abstol)
+dasslsim(e::EquationSet; tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol = 1e-4) =
+    dasslsim(create_simstate(e), tstop, Nsteps, reltol, abstol)

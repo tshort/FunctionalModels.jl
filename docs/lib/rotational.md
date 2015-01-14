@@ -34,7 +34,7 @@ Inertia(flange_a::Flange, flange_b::Flange, J::Real)
 * `J::Real` : Moment of inertia [kg.m^2]
 
 
-[Sims/src/../lib/rotational.jl:42](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/rotational.jl#L42)
+[Sims/src/../lib/rotational.jl:42](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/rotational.jl#L42)
 
 
 
@@ -57,7 +57,7 @@ Disc(flange_a::Flange, flange_b::Flange, deltaPhi)
 * `deltaPhi::Signal` : rotation of left flange with respect to right flange (= flange_b - flange_a) [rad]
 
 
-[Sims/src/../lib/rotational.jl:77](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/rotational.jl#L77)
+[Sims/src/../lib/rotational.jl:77](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/rotational.jl#L77)
 
 
 
@@ -82,7 +82,7 @@ Spring(flange_a::Flange, flange_b::Flange, c::Real, phi_rel0 = 0.0)
 * `phi_rel0` : unstretched spring angle [rad]
 
 
-[Sims/src/../lib/rotational.jl:105](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/rotational.jl#L105)
+[Sims/src/../lib/rotational.jl:105](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/rotational.jl#L105)
 
 
 
@@ -107,7 +107,7 @@ Damper(flange_a::Flange, flange_b::Flange, hp::HeatPort, d::Signal)
 * `d`: 	damping constant [N.m.s/rad]
 
 
-[Sims/src/../lib/rotational.jl:136](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/rotational.jl#L136)
+[Sims/src/../lib/rotational.jl:136](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/rotational.jl#L136)
 
 
 
@@ -135,7 +135,7 @@ SpringDamper(flange_a::Flange, flange_b::Flange, hp::HeatPort, c::Signal, d::Sig
 * `d`: 	damping constant [N.m.s/rad]
 
 
-[Sims/src/../lib/rotational.jl:172](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/rotational.jl#L172)
+[Sims/src/../lib/rotational.jl:172](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/rotational.jl#L172)
 
 
 
@@ -160,7 +160,7 @@ IdealGear(flange_a::Flange, flange_b::Flange, ratio)
 * `ratio` : transmission ratio (flange_a / flange_b)
 
 
-[Sims/src/../lib/rotational.jl:293](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/rotational.jl#L293)
+[Sims/src/../lib/rotational.jl:293](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/rotational.jl#L293)
 
 
 
@@ -189,7 +189,7 @@ MBranchHeatPort(flange_a::Flange, flange_b::Flange, hp::HeatPort,
 * `args...` : Arguments passed to `model`  
 
 
-[Sims/src/../lib/rotational.jl:331](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/rotational.jl#L331)
+[Sims/src/../lib/rotational.jl:331](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/rotational.jl#L331)
 
 
 
@@ -216,7 +216,7 @@ SpeedSensor(flange::Flange, w::Signal)
 * `w::Signal`: 	absolute angular velocity of the flange [rad/sec]
 
 
-[Sims/src/../lib/rotational.jl:377](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/rotational.jl#L377)
+[Sims/src/../lib/rotational.jl:377](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/rotational.jl#L377)
 
 
 
@@ -237,7 +237,7 @@ SpeedSensor(flange::Flange, a::Signal)
 * `a::Signal`: 	absolute angular acceleration of the flange [rad/sec^2]
 
 
-[Sims/src/../lib/rotational.jl:400](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/rotational.jl#L400)
+[Sims/src/../lib/rotational.jl:400](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/rotational.jl#L400)
 
 
 
@@ -267,7 +267,7 @@ SignalTorque(flange_a::Flange, flange_b::Flange, tau::Signal)
   (normally a support); a positive value accelerates flange_a
 
 
-[Sims/src/../lib/rotational.jl:437](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/rotational.jl#L437)
+[Sims/src/../lib/rotational.jl:437](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/rotational.jl#L437)
 
 
 
@@ -293,5 +293,5 @@ QuadraticSpeedDependentTorque(flange_a::Flange, flange_b::Flange,
 * `AngularVelocity::Signal` : nominal speed [rad/sec]
 
 
-[Sims/src/../lib/rotational.jl:465](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/rotational.jl#L465)
+[Sims/src/../lib/rotational.jl:465](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/rotational.jl#L465)
 

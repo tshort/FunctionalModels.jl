@@ -20,5 +20,5 @@ flow and leakage ion flow. (Hodgkin, A. L. and Huxley, A. F. (1952)
 to Conduction and Excitation in Nerve" Journal of Physiology 117:
 500-544)
 
-[Sims/src/../examples/neural/hh.jl:47](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../examples/neural/hh.jl#L47)
+[Sims/src/../examples/neural/hh.jl:47](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../examples/neural/hh.jl#L47)
 
