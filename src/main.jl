@@ -881,20 +881,41 @@ function delay(x::Unknown, val)
 end
 
 
+
+
+
+
 ########################################
 ## Utilities for Hybrid Modeling      ##
 ########################################
 
 import Reactive
-export RDiscrete, lift, push!
+export RDiscrete, RParameter, lift, push!, @lift
 
-type RDiscrete{T <: Reactive.SignalSource} <: UnknownVariable
+abstract UnknownReactive <: UnknownVariable
+
+## RDiscrete's need to have an initial value to be reset
+type RDiscrete{T <: Reactive.SignalSource} <: UnknownReactive
+    signal::T
+    initialvalue
+end
+RDiscrete(x) = RDiscrete(x, 0.0)
+
+type RParameter{T <: Reactive.SignalSource} <: UnknownReactive
     signal::T
 end
-name(a::RDiscrete) = "discrete"
-value(x::RDiscrete) = x.signal.value
+
+name(a::UnknownReactive) = "discrete"
+value(x::UnknownReactive) = x.signal.value
+
 Reactive.push!{T}(x::RDiscrete{Reactive.Input{T}}, y) = mexpr(:call, :(Reactive.push!), x.signal, y)
-Reactive.lift(f::Function, t::Type, x::RDiscrete) = RDiscrete(Reactive.lift(f, t, x.signal))
+Reactive.push!{T}(x::RParameter{Reactive.Input{T}}, y) = Reactive.push!(x.signal, y)
+
+Reactive.lift(f::Function, t::Type, x::UnknownReactive) = RParameter(Reactive.lift(f, t, x.signal))
+
+
+
+
 
 
 

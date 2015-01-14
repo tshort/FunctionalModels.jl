@@ -59,6 +59,9 @@ function dasslsim(ss::SimState, tstop::Float64, Nsteps::Int; reltol::Float64=1e-
     sim_info("starting sim()")
 
     sm = ss.sm
+    for x in sm.rdiscrete_inputs
+        push!(x, x.initialvalue)
+    end
     yidx = sm.outputs .!= ""
     ## yidx = map((s) -> s != "", sm.outputs)
     Noutputs = sum(yidx)

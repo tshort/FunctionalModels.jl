@@ -4,7 +4,7 @@
 ## Automatic formulation              ##
 ########################################
 
-export VanderpolWithEvents
+export VanderpolWithEventsReactive
 
 using Reactive
 
