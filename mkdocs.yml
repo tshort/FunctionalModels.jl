@@ -22,6 +22,7 @@ pages:
 - [examples/neural.md, Examples, Neural]
 - [design.md, Design, Considerations]
 - [future.md, Design, Development options]
-- [license.md, License]
+- [NEWS.md,    About, Release notes]
+- [LICENSE.md, About, License]
 
 markdown_extensions: [codehilite]
