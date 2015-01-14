@@ -120,11 +120,9 @@ iaf   = Circuit(input)
 iaf_f = elaborate(iaf)    # returns the flattened model
 iaf_s = create_sim(iaf_f) # returns a "Sim" ready for simulation
 
-iaf_ptr = setup_sunsim (iaf_s, reltol=1e-7, abstol=1e-7)
-
 # runs the simulation and returns
 # the result as an array plus column headings
-@time iaf_yout = sunsim(iaf_ptr, tf / ms, int(tf/dt))
+@time iaf_yout = sunsim(iaf_s, tstop=tf / ms, Nsteps=int(tf/dt), reltol=1e-7, abstol=1e-7)
 
 plot (iaf_yout.y[:,1], iaf_yout.y[:,2])
 

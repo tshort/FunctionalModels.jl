@@ -53,11 +53,9 @@ izhfs_s = create_sim(izhfs_f) # returns a "Sim" ready for simulation
 tf = 800.0
 dt = 0.025
 
-izhfs_ptr = setup_sunsim (izhfs_s, reltol=1e-6, abstol=1e-6)
-
 # runs the simulation and returns
 # the result as an array plus column headings
-@time izhfs_yout = sunsim(izhfs_ptr, tf, int(tf/dt))
+@time izhfs_yout = sunsim(izhfs_s, tstop=tf, Nsteps=int(tf/dt), reltol=1e-6, abstol=1e-6)
 
 plot (izhfs_yout.y[:,1], izhfs_yout.y[:,2])
 

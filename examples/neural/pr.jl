@@ -147,11 +147,9 @@ pr_s = create_sim(pr_f) # returns a "Sim" ready for simulation
 tf = 5000.0
 dt = 0.025
 
-pr_ptr = setup_sunsim (pr_s, reltol=1e-7, abstol=1e-7)
-
 # runs the simulation and returns
 # the result as an array plus column headings
-@time pr_yout = sunsim(pr_ptr, tf, int(tf/dt))
+@time pr_yout = sunsim(pr_s, tstop=tf, Nsteps=int(tf/dt), reltol=1e-7, abstol=1e-7)
 
 plot (pr_yout.y[:,1], pr_yout.y[:,2])
 
