@@ -9,7 +9,7 @@ Various functions for simulations and building simulation objects from models.
 `sim` is the name of the default solver used to simulate Sims models
 and also shows the generic simulation API for available solvers
 (currently `dasslsim` and `sunsim`). The default solver is currently
-`dasslsim`.
+`dasslsim` if DASSL is available.
 
 `sim` has many method definitions to accomodate solutions based on
 intermediate model representations. Also, both positional and keyword
@@ -91,3 +91,7 @@ wplot(y)
 ```
 """ ->
 sim = dasslsim
+
+if !hasdassl
+    sim = sunsim
+end

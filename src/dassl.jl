@@ -17,13 +17,18 @@
 
 global __DF = Any[]
 
-dllname = Pkg.dir() * "/Sims/deps/daskr.so"
-if !isfile(dllname)
+@windows_only dllname = Pkg.dir() * "\\Sims\\deps\\bin$WORD_SIZE\\daskr.dll"
+@unix_only dllname = Pkg.dir() * "/Sims/deps/daskr.so"
+
+hasdassl = isfile(dllname)
+
+if !hasdassl
     println("*********************************************")
-    println("Can't find daskr.so                          ")
+    println("Can't find daskr.so; dasslsim not available  ")
     println("*********************************************")
+else
+    const lib = dlopen(dllname)
 end    
-const lib = dlopen(dllname)
 
 function dasslfun(t_in, y_in, yp_in, cj, delta_out, ires, rpar, ipar)
     n = int(pointer_to_array(ipar, (3,)))

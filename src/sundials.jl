@@ -74,7 +74,7 @@ function setup_sunsim(ss::SimState, reltol, abstol)
     flag  = Sundials.IDADense(mem, neq)
     flag  = Sundials.IDARootInit(mem, int32(length(sm.F.event_pos)), rootfun)
     id    = float64(copy(sm.id))
-    id[id .< 0] = 0
+    id[id .< 0] = 0.0
     flag  = Sundials.IDASetId(mem, id)
     return SimSundials (mem, ss)
 end
@@ -134,15 +134,19 @@ function sunsim(smem::SimSundials, tstop::Float64, Nsteps::Int)
 
     mem = smem.mem
     
+    sim_info("starting IDAReInit()")
     flag = Sundials.IDAReInit(mem, tstart, ss.y0, ss.yp0)
 
+    sim_info("starting IDACalcIC()")
     if any(abs(rtest) .>= sm.reltol)
         flag = Sundials.IDACalcIC(mem, Sundials.IDA_YA_YDP_INIT, tstart + tstep)  # IDA_YA_YDP_INIT or IDA_Y_INIT
     end
     
     for idx in 1:Nsteps
 
+        sim_info("starting IDASolve()")
         flag = Sundials.IDASolve(mem, t, tret, ss.y0, ss.yp0, Sundials.IDA_NORMAL)
+        sim_info("finished IDASolve()")
         yout[idx, 1] = tret[1]
         yout[idx, 2:(Noutputs + 1)] = ss.y0[yidx]
         t = tret[1] + tstep
