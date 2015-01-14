@@ -46,10 +46,9 @@ end
 v   = HindmarshRose(0.1)       # returns the hierarchical model
 v_f = elaborate(v)    # returns the flattened model
 v_s = create_sim(v_f) # returns a "Sim" ready for simulatio
-v_ptr = setup_sunsim (v_s, reltol=1e-7, abstol=1e-7)
 
 tf = 500.0
 dt = 0.025
-v_yout = sunsim(v_ptr, tf, int (tf/dt))
+v_yout = sunsim(v_s, tstop=tf, Nsteps=int(tf/dt), reltol=1e-7, abstol=1e-7)
 
 plot (v_yout.y[:,1], v_yout.y[:,2])
