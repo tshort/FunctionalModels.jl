@@ -37,7 +37,7 @@ If `filename` is not give, plot interactively.
 
 * A Winston object
 
-[Sims/src/utils.jl:110](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/utils.jl#L110)
+[Sims/src/utils.jl:110](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/utils.jl#L110)
 
 
 
@@ -64,7 +64,7 @@ Base.convert(::Type{DataFrames.DataFrame}, x::SimResult)
 * `::DataFrame` : a DataFrame with the first column as `:time` and
   remaining columns with simulation results.
 
-[Sims/src/utils.jl:149](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/utils.jl#L149)
+[Sims/src/utils.jl:149](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/utils.jl#L149)
 
 
 
@@ -85,7 +85,7 @@ plot(sm::SimResult, args...)
 
 * A Gadfly object
 
-[Sims/src/utils.jl:175](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/utils.jl#L175)
+[Sims/src/utils.jl:175](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/utils.jl#L175)
 
 
 
@@ -105,18 +105,19 @@ A macro to ease entry of many unknowns.
 
 ### Arguments
 
-* `a` : various representations of Unknowns, several specification
-  options include:
-  * symbol: equivalent to `symbol = Unknown(symbol)`
-  * symbol(val): equivalent to `symbol = Unknown(symbol, val)`
+* `a` : various representations of Unknowns:
+  * `symbol`: equivalent to `symbol = Unknown()`
+  * `symbol(val)`: equivalent to `symbol = Unknown(symbol, val)`
+  * `symbol(x, y, z)`: equivalent to `symbol = Unknown(x, y, z)`
+
+For `symbol(
 
 ### Effects
 
 Creates one or more Unknowns
 
-* A Gadfly object
 
-[Sims/src/utils.jl:220](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/utils.jl#L220)
+[Sims/src/utils.jl:221](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/utils.jl#L221)
 
 
 
@@ -136,5 +137,5 @@ name(x)
 
 * `::Void`
 
-[Sims/src/utils.jl:259](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/utils.jl#L259)
+[Sims/src/utils.jl:260](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/utils.jl#L260)
 

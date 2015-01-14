@@ -37,7 +37,7 @@ See [IdealDiode](../lib/index.html#IdealDiode) and
 [Limiter](../lib/index.html#Limiter) in the standard library.
 
 
-[Sims/src/main.jl:1167](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/main.jl#L1167)
+[Sims/src/main.jl:1163](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/main.jl#L1163)
 
 
 
@@ -89,7 +89,7 @@ function Resistor(n1::ElectricalNode, n2::ElectricalNode, R::Signal)
 end
 ```
 
-[Sims/src/main.jl:766](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/main.jl#L766)
+[Sims/src/main.jl:760](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/main.jl#L760)
 
 
 
@@ -130,7 +130,7 @@ end
 y = sim(test_BoolEventHook())
 ```
 
-[Sims/src/main.jl:998](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/main.jl#L998)
+[Sims/src/main.jl:992](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/main.jl#L992)
 
 
 
@@ -168,7 +168,7 @@ b = Unknown([1., 0.])
 y = Unknown(compatible_values(a,b)) # Initialized to [0.0, 0.0].
 ```
 
-[Sims/src/main.jl:639](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/main.jl#L639)
+[Sims/src/main.jl:633](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/main.jl#L633)
 
 
 
@@ -193,7 +193,7 @@ delay(x::Unknown, val)
 * `::MExpr` : a delayed Unknown
 
 
-[Sims/src/main.jl:877](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/main.jl#L877)
+[Sims/src/main.jl:871](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/main.jl#L871)
 
 
 
@@ -218,7 +218,7 @@ a = Unknown()
 der(a) + 1
 ```
 
-[Sims/src/main.jl:294](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/main.jl#L294)
+[Sims/src/main.jl:287](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/main.jl#L287)
 
 
 
@@ -251,7 +251,7 @@ See [DeadZone](../lib/index.html#DeadZone) and
 [Limiter](../lib/index.html#Limiter) in the standard library.
 
 
-[Sims/src/main.jl:1210](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/main.jl#L1210)
+[Sims/src/main.jl:1206](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/main.jl#L1206)
 
 
 
@@ -259,7 +259,7 @@ See [DeadZone](../lib/index.html#DeadZone) and
 
 Is the object an UnknownVariable?
 
-[Sims/src/main.jl:245](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/main.jl#L245)
+[Sims/src/main.jl:237](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/main.jl#L237)
 
 
 
@@ -293,7 +293,7 @@ typeof(d)
 myfun(x) = mexpr(:call, :myfun, x)
 ```
 
-[Sims/src/main.jl:354](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/main.jl#L354)
+[Sims/src/main.jl:347](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/main.jl#L347)
 
 
 
@@ -321,7 +321,7 @@ a = Unknown("var1")
 name(a)
 ```
 
-[Sims/src/main.jl:599](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/main.jl#L599)
+[Sims/src/main.jl:593](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/main.jl#L593)
 
 
 
@@ -344,7 +344,7 @@ pre(x::DiscreteVar)
 * A value stored just prior to an event.
 
 
-[Sims/src/main.jl:1024](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/main.jl#L1024)
+[Sims/src/main.jl:1018](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/main.jl#L1018)
 
 
 
@@ -387,7 +387,7 @@ end
 See also [IdealThyristor](../lib/index.html#IdealThyristor) in the standard library.
 
 
-[Sims/src/main.jl:1118](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/main.jl#L1118)
+[Sims/src/main.jl:1112](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/main.jl#L1112)
 
 
 
@@ -416,7 +416,7 @@ expressions, except to grab an immediate value.
 v = Voltage(value(n1) - value(n2))
 ```
 
-[Sims/src/main.jl:563](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/main.jl#L563)
+[Sims/src/main.jl:557](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/main.jl#L557)
 
 
 
@@ -442,7 +442,7 @@ end
 dump( Vanderpol() )
 ```
 
-[Sims/src/main.jl:489](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/main.jl#L489)
+[Sims/src/main.jl:483](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/main.jl#L483)
 
 
 
@@ -450,7 +450,7 @@ dump( Vanderpol() )
 
 The model time - a special unknown variable.
 
-[Sims/src/main.jl:654](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/main.jl#L654)
+[Sims/src/main.jl:648](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/main.jl#L648)
 
 
 
@@ -476,7 +476,7 @@ dump( Vanderpol() )
 x = sim(Vanderpol(), 50.0)
 ```
 
-[Sims/src/main.jl:513](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/main.jl#L513)
+[Sims/src/main.jl:507](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/main.jl#L507)
 
 
 
@@ -522,7 +522,7 @@ function Vanderpol2()
 end
 ```
 
-[Sims/src/main.jl:1383](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/main.jl#L1383)
+[Sims/src/main.jl:1382](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/main.jl#L1382)
 
 
 
@@ -530,7 +530,7 @@ end
 
 The default UnknownCategory.
 
-[Sims/src/main.jl:152](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/main.jl#L152)
+[Sims/src/main.jl:152](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/main.jl#L152)
 
 
 
@@ -552,7 +552,7 @@ der(a) + 1
 typeof(der(a))
 ```
 
-[Sims/src/main.jl:264](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/main.jl#L264)
+[Sims/src/main.jl:257](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/main.jl#L257)
 
 
 
@@ -589,7 +589,7 @@ programming). The package
 [Reactive.jl](https://github.com/JuliaLang/Reactive.jl) may help here.
 
 
-[Sims/src/main.jl:921](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/main.jl#L921)
+[Sims/src/main.jl:915](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/main.jl#L915)
 
 
 
@@ -597,7 +597,7 @@ programming). The package
 
 A helper type used inside of the residual function.
 
-[Sims/src/main.jl:954](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/main.jl#L954)
+[Sims/src/main.jl:948](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/main.jl#L948)
 
 
 
@@ -627,7 +627,7 @@ Event(condition::ModelType, pos_response, neg_response)
 See [IdealThyristor](../lib/index.html#IdealThyristor) in the standard library.
 
 
-[Sims/src/main.jl:1052](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/main.jl#L1052)
+[Sims/src/main.jl:1046](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/main.jl#L1046)
 
 
 
@@ -638,16 +638,17 @@ and may be broken. There are no tests. The idea is that the equations
 provided will only be used during the initial solution.
 
 ```julia
-InitialEquation(egs)
+InitialEquation(eqs)
 ```
 
 ### Arguments
 
+* `x::Unknown` : the quantity to be initialized
 * `eqs::Array{Equation}` : a vector of equations, each to be equated
   to zero during the initial equation solution.
 
 
-[Sims/src/main.jl:795](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/main.jl#L795)
+[Sims/src/main.jl:790](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/main.jl#L790)
 
 
 
@@ -656,7 +657,7 @@ InitialEquation(egs)
 A helper type needed to mark unknowns as left-side variables in
 assignments during event responses.
 
-[Sims/src/main.jl:1076](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/main.jl#L1076)
+[Sims/src/main.jl:1070](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/main.jl#L1070)
 
 
 
@@ -681,7 +682,7 @@ d = a + sin(b)
 typeof(d)
 ```
 
-[Sims/src/main.jl:321](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/main.jl#L321)
+[Sims/src/main.jl:314](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/main.jl#L314)
 
 
 
@@ -689,7 +690,7 @@ typeof(d)
 
 The main overall abstract type in Sims.
 
-[Sims/src/main.jl:136](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/main.jl#L136)
+[Sims/src/main.jl:136](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/main.jl#L136)
 
 
 
@@ -712,7 +713,7 @@ Parameter(value, label::String)
 * `label::String` : labeling string, defaults to ""
 
 
-[Sims/src/main.jl:375](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/main.jl#L375)
+[Sims/src/main.jl:368](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/main.jl#L368)
 
 
 
@@ -728,7 +729,7 @@ PassedUnknown(ref::UnknownVariable)
 
 * `ref::UnknownVariable` : an Unknown
 
-[Sims/src/main.jl:821](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/main.jl#L821)
+[Sims/src/main.jl:815](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/main.jl#L815)
 
 
 
@@ -789,7 +790,7 @@ function SignalCurrent(n1::ElectricalNode, n2::ElectricalNode, I::Signal)
 end
 ```
 
-[Sims/src/main.jl:713](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/main.jl#L713)
+[Sims/src/main.jl:707](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/main.jl#L707)
 
 
 
@@ -797,7 +798,7 @@ end
 
 A helper type for Discretes used in Arrays.
 
-[Sims/src/main.jl:945](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/main.jl#L945)
+[Sims/src/main.jl:939](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/main.jl#L939)
 
 
 
@@ -812,7 +813,7 @@ with `getindex`. Defined methods include:
 * hcat
 * vcat
 
-[Sims/src/main.jl:528](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/main.jl#L528)
+[Sims/src/main.jl:522](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/main.jl#L522)
 
 
 
@@ -824,7 +825,8 @@ When the event is triggered, the model is re-flattened after replacing
 `default` with `new_relation` in the model.
 
 ```julia
-StructuralEvent(condition::MExpr, default, new_relation::Function)
+StructuralEvent(condition::MExpr, default, new_relation::Function,
+                pos_response, neg_response)
 ```
 
 ### Arguments
@@ -834,6 +836,11 @@ StructuralEvent(condition::MExpr, default, new_relation::Function)
 * `default` : the default Model used
 * `new_relation` : a function that returns a model that will replace
   the default model when the condition triggers the event.
+* `pos_response` : an expression indicating what to do when the
+  condition crosses zero positively. Defaults to Equation[].
+* `neg_response::Model` : an expression indicating what to do when the
+  condition crosses zero in the negative direction. Defaults to
+  Equation[].
 
 ### Examples
 
@@ -879,7 +886,7 @@ end
 p_y = sim(BreakingPendulum(), 6.0)  
 ```
 
-[Sims/src/main.jl:1289](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/main.jl#L1289)
+[Sims/src/main.jl:1291](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/main.jl#L1291)
 
 
 
@@ -887,7 +894,7 @@ p_y = sim(BreakingPendulum(), 6.0)
 
 Categories of Unknown types; used to subtype Unknowns.
 
-[Sims/src/main.jl:147](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/main.jl#L147)
+[Sims/src/main.jl:147](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/main.jl#L147)
 
 
 
@@ -896,7 +903,7 @@ Categories of Unknown types; used to subtype Unknowns.
 An abstract type for variables to be solved. Examples include Unknown,
 DerUnknown, and Parameter.
 
-[Sims/src/main.jl:142](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/main.jl#L142)
+[Sims/src/main.jl:142](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/main.jl#L142)
 
 
 
@@ -956,5 +963,5 @@ Unknown{T}(s::Symbol, x)
   a * b + b^2
 ```
 
-[Sims/src/main.jl:210](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/main.jl#L210)
+[Sims/src/main.jl:210](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/main.jl#L210)
 

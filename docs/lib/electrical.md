@@ -84,7 +84,7 @@ end
 y = sim(model())
 ```
 
-[Sims/src/../lib/electrical.jl:90](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/electrical.jl#L90)
+[Sims/src/../lib/electrical.jl:90](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/electrical.jl#L90)
 
 
 
@@ -117,7 +117,7 @@ function Resistor(n1::ElectricalNode, n2::ElectricalNode, R::Signal, hp::Tempera
 end
 ```
 
-[Sims/src/../lib/electrical.jl:129](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/electrical.jl#L129)
+[Sims/src/../lib/electrical.jl:129](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/electrical.jl#L129)
 
 
 
@@ -188,7 +188,7 @@ end
 y = sim(model())
 ```
 
-[Sims/src/../lib/electrical.jl:218](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/electrical.jl#L218)
+[Sims/src/../lib/electrical.jl:218](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/electrical.jl#L218)
 
 
 
@@ -234,7 +234,7 @@ function model()
 end
 ```
 
-[Sims/src/../lib/electrical.jl:286](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/electrical.jl#L286)
+[Sims/src/../lib/electrical.jl:286](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/electrical.jl#L286)
 
 
 
@@ -281,7 +281,7 @@ function model()
 end
 ```
 
-[Sims/src/../lib/electrical.jl:341](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/electrical.jl#L341)
+[Sims/src/../lib/electrical.jl:341](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/electrical.jl#L341)
 
 
 
@@ -289,7 +289,7 @@ end
 
 TBD
 
-[Sims/src/../lib/electrical.jl:356](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/electrical.jl#L356)
+[Sims/src/../lib/electrical.jl:356](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/electrical.jl#L356)
 
 
 
@@ -325,7 +325,7 @@ Transformer(p1::ElectricalNode, n1::ElectricalNode, p2::ElectricalNode, n2::Elec
 * `L2::Signal` : Secondary inductance [H], default = 1.0 H
 * `M::Signal`  : Coupling inductance [H], default = 1.0 H
 
-[Sims/src/../lib/electrical.jl:457](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/electrical.jl#L457)
+[Sims/src/../lib/electrical.jl:457](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/electrical.jl#L457)
 
 
 
@@ -354,7 +354,7 @@ EMF(n1::ElectricalNode, n2::ElectricalNode, flange::Flange;
 * `support_flange` : Support/housing of the EMF shaft 
 * `k` : Transformation coefficient [N.m/A] 
 
-[Sims/src/../lib/electrical.jl:501](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/electrical.jl#L501)
+[Sims/src/../lib/electrical.jl:501](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/electrical.jl#L501)
 
 
 
@@ -398,7 +398,7 @@ IdealDiode(n1::ElectricalNode, n2::ElectricalNode;
 * `Goff` : Opened diode conductance [S], default = 1.E-5
 
 
-[Sims/src/../lib/electrical.jl:566](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/electrical.jl#L566)
+[Sims/src/../lib/electrical.jl:566](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/electrical.jl#L566)
 
 
 
@@ -437,7 +437,7 @@ IdealThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete;
 * `Ron` : Closed thyristor resistance [Ohm], default = 1.E-5
 * `Goff` : Opened thyristor conductance [S], default = 1.E-5
 
-[Sims/src/../lib/electrical.jl:619](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/electrical.jl#L619)
+[Sims/src/../lib/electrical.jl:619](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/electrical.jl#L619)
 
 
 
@@ -476,7 +476,7 @@ IdealGTOThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete;
 * `Ron` : Closed thyristor resistance [Ohm], default = 1.E-5
 * `Goff` : Opened thyristor conductance [S], default = 1.E-5
 
-[Sims/src/../lib/electrical.jl:675](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/electrical.jl#L675)
+[Sims/src/../lib/electrical.jl:675](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/electrical.jl#L675)
 
 
 
@@ -502,7 +502,7 @@ IdealOpAmp(p1::ElectricalNode, n1::ElectricalNode, p2::ElectricalNode)
 * `p2::ElectricalNode` : Positive electrical node of the right port (potential `p2 > n2` for positive voltage drop v2) [V]
 * `n2::ElectricalNode` : Negative electrical node of the right port [V], defaults to 0.0 V
 
-[Sims/src/../lib/electrical.jl:717](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/electrical.jl#L717)
+[Sims/src/../lib/electrical.jl:717](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/electrical.jl#L717)
 
 
 
@@ -538,7 +538,7 @@ IdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Discrete;
 * `Ron` : Closed switch resistance [Ohm], default = 1.E-5
 * `Goff` : Opened switch conductance [S], default = 1.E-5
 
-[Sims/src/../lib/electrical.jl:765](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/electrical.jl#L765)
+[Sims/src/../lib/electrical.jl:765](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/electrical.jl#L765)
 
 
 
@@ -574,7 +574,7 @@ IdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Discrete;
 * `Ron` : Closed switch resistance [Ohm], default = 1.E-5
 * `Goff` : Opened switch conductance [S], default = 1.E-5
 
-[Sims/src/../lib/electrical.jl:813](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/electrical.jl#L813)
+[Sims/src/../lib/electrical.jl:813](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/electrical.jl#L813)
 
 
 
@@ -582,7 +582,7 @@ IdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Discrete;
 
 TBD
 
-[Sims/src/../lib/electrical.jl:833](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/electrical.jl#L833)
+[Sims/src/../lib/electrical.jl:833](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/electrical.jl#L833)
 
 
 
@@ -590,7 +590,7 @@ TBD
 
 TBD
 
-[Sims/src/../lib/electrical.jl:856](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/electrical.jl#L856)
+[Sims/src/../lib/electrical.jl:856](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/electrical.jl#L856)
 
 
 
@@ -658,7 +658,7 @@ ControlledOpenerWithArc(n1::ElectricalNode, n2::ElectricalNode, control::Signal;
 * `dVdt` : Arc voltage slope [V/s], default = 10e3
 * `Vmax` : Max. arc voltage [V], default = 60.0
 
-[Sims/src/../lib/electrical.jl:929](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/electrical.jl#L929)
+[Sims/src/../lib/electrical.jl:929](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/electrical.jl#L929)
 
 
 
@@ -689,7 +689,7 @@ ControlledCloserWithArc(n1::ElectricalNode, n2::ElectricalNode, control::Signal;
 * `dVdt` : Arc voltage slope [V/s], default = 10e3
 * `Vmax` : Max. arc voltage [V], default = 60.0
 
-[Sims/src/../lib/electrical.jl:995](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/electrical.jl#L995)
+[Sims/src/../lib/electrical.jl:995](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/electrical.jl#L995)
 
 
 
@@ -733,7 +733,7 @@ Diode(n1::ElectricalNode, n2::ElectricalNode; hp::HeatPort;
 * `Maxexp` : Max. exponent for linear continuation, default = 15.0
 * `R` : Parallel ohmic resistance [Ohm], default = 1.e8
 
-[Sims/src/../lib/electrical.jl:1047](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/electrical.jl#L1047)
+[Sims/src/../lib/electrical.jl:1047](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/electrical.jl#L1047)
 
 
 
@@ -741,7 +741,7 @@ Diode(n1::ElectricalNode, n2::ElectricalNode; hp::HeatPort;
 
 TBD
 
-[Sims/src/../lib/electrical.jl:1072](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/electrical.jl#L1072)
+[Sims/src/../lib/electrical.jl:1072](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/electrical.jl#L1072)
 
 
 
@@ -784,7 +784,7 @@ HeatingDiode(n1::ElectricalNode, n2::ElectricalNode;
 * `TNOM` : Parameter measurement temperature [K], default = 300.15
 * `XTI` : Temperature exponent of saturation current, default = 3.0
 
-[Sims/src/../lib/electrical.jl:1135](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/electrical.jl#L1135)
+[Sims/src/../lib/electrical.jl:1135](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/electrical.jl#L1135)
 
 
 
@@ -811,7 +811,7 @@ SignalVoltage(n1::ElectricalNode, n2::ElectricalNode, V::Signal)
 * `n2::ElectricalNode` : Negative electrical node [V]
 * `V::Signal` : Voltage between n1 and n2 (= n1 - n2) as an input signal
 
-[Sims/src/../lib/electrical.jl:1180](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/electrical.jl#L1180)
+[Sims/src/../lib/electrical.jl:1180](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/electrical.jl#L1180)
 
 
 
@@ -844,7 +844,7 @@ SineVoltage(n1::ElectricalNode, n2::ElectricalNode;
 * `offset` : Voltage offset [V], default = 0.0
 * `startTime` : Time offset [s], default = 0.0
 
-[Sims/src/../lib/electrical.jl:1217](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/electrical.jl#L1217)
+[Sims/src/../lib/electrical.jl:1217](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/electrical.jl#L1217)
 
 
 
@@ -871,7 +871,7 @@ StepVoltage(n1::ElectricalNode, n2::ElectricalNode;
 * `offset` : Voltage offset [V], default = 0.0
 * `startTime` : Time offset [s], default = 0.0
 
-[Sims/src/../lib/electrical.jl:1249](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/electrical.jl#L1249)
+[Sims/src/../lib/electrical.jl:1249](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/electrical.jl#L1249)
 
 
 
@@ -892,5 +892,5 @@ SignalCurrent(n1::ElectricalNode, n2::ElectricalNode, I::Signal)
 * `n2::ElectricalNode` : Negative electrical node [V]
 * `I::Signal` : Current flowing from n1 to n2 as an input signal
 
-[Sims/src/../lib/electrical.jl:1284](https://github.com/tshort/Sims.jl/tree/d39a15c1969c6fad87a4a7ab7f25088963690512/src/../lib/electrical.jl#L1284)
+[Sims/src/../lib/electrical.jl:1284](https://github.com/tshort/Sims.jl/tree/558b12477832ec70e2baee9b22bfbfb2b68aae57/src/../lib/electrical.jl#L1284)
 
