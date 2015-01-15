@@ -592,7 +592,7 @@ name(a)
 ```
 """ ->
 name(a::Unknown) = a.label != "" ? a.label : symname(a.sym)
-name(a::DerUnknown) = a.parent.label != "" ? a.parent.label : symname(a.parent.sym)
+name(a::DerUnknown) = a.parent.label != "" ? "der("*a.parent.label*")" : "der("*symname(a.parent.sym)*")"
 name(a::RefUnknown) = a.u.label != "" ? a.u.label : symname(a.u.sym)
 name(a::Parameter) = a.label != "" ? a.label : symname(a.sym)
 
