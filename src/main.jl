@@ -886,16 +886,16 @@ end
 import Reactive
 export RDiscrete, RParameter, lift, push!, @lift
 
-abstract UnknownReactive <: UnknownVariable
+abstract UnknownReactive{T} <: UnknownVariable
 
 ## RDiscrete's need to have an initial value to be reset
-type RDiscrete{T <: Reactive.SignalSource} <: UnknownReactive
+type RDiscrete{T <: Reactive.SignalSource} <: UnknownReactive{T}
     signal::T
     initialvalue
 end
 RDiscrete(x) = RDiscrete(x, 0.0)
 
-type RParameter{T <: Reactive.SignalSource} <: UnknownReactive
+type RParameter{T <: Reactive.SignalSource} <: UnknownReactive{T}
     signal::T
 end
 
@@ -904,9 +904,30 @@ value(x::UnknownReactive) = x.signal.value
 
 Reactive.push!{T}(x::RDiscrete{Reactive.Input{T}}, y) = mexpr(:call, :(Reactive.push!), x.signal, y)
 Reactive.push!{T}(x::RParameter{Reactive.Input{T}}, y) = Reactive.push!(x.signal, y)
+reinit{T}(x::RDiscrete{Reactive.Input{T}}, y) = mexpr(:call, :(Reactive.push!), x.signal, y)
+reinit{T}(x::RParameter{Reactive.Input{T}}, y) = Reactive.push!(x.signal, y)
 
-Reactive.lift(f::Function, t::Type, x::UnknownReactive) = RParameter(Reactive.lift(f, t, x.signal))
+Reactive.foldl{T,S}(f,v0::T, signal::UnknownReactive{S}, signals::UnknownReactive{S}...) =
+    RParameter(Reactive.foldl(f, v0, signal.signal, [s.signal for s in signals]...))
 
+Reactive.lift{T}(f::Function, t::Type, x::UnknownReactive{T}) = RParameter(Reactive.lift(f, t, x.signal))
+
+Reactive.lift{T}(f::Function, x::UnknownReactive{T}) = RParameter(Reactive.lift(f, x.signal))
+
+function BoolEvent{T}(d::RDiscrete{T}, condition::ModelType)
+    lend = length(value(d))
+    lencond = length(value(condition))
+    if lend > 1 && lencond == lend
+        convert(Vector{Any},
+                map((idx) -> BoolEvent(d[idx], condition[idx]), [1:lend]))
+    elseif lend == 1 && lencond == 1
+        Event(condition,       
+              Equation[reinit(d, true)],
+              Equation[reinit(d, false)])
+    else
+        error("Mismatched lengths for BoolEvent")
+    end
+end
 
 
 

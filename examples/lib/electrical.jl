@@ -1,3 +1,4 @@
+import Reactive
 
 ########################################
 ## Electrical examples
@@ -644,12 +645,15 @@ function CharacteristicThyristors()
     n1 = Voltage("n1")
     n2 = Voltage("n2")
     n3 = Voltage("n3")
-    sig = Discrete(false)
+    x = Unknown("pulse")
+    sig = RDiscrete(Reactive.Input(false))
     g = 0.0
     Equation[
+        x - sig
+        BooleanPulse(sig, width = 20.0, period = 1.0, startTime = 0.15)
         SineVoltage(n1, g, 10.0, 1.0, -0.006) 
         IdealThyristor(n1, n2, sig, 5.0)
-        IdealGTOThyristor(n1, n3, sig, 0.0)
+        ## IdealGTOThyristor(n1, n3, sig, 0.0)
         BoolEvent(sig, MTime - 1.25)  
         Resistor(n2, g, 1e-3)
         Resistor(n3, g, 1e-3)
