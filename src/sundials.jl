@@ -26,10 +26,11 @@ end
 function daefun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userdata_ptr::Ptr{Void})
     ss::SimState = unsafe_pointer_to_objref(userdata_ptr)
     sm::Sim = ss.sm
-    
+
     y  = Sundials.asarray(y) 
-    yp = Sundials.asarray(yp) 
-    r  = Sundials.asarray(r)
+    yp = Sundials.asarray(yp)
+    ## r  = Sundials.asarray(r)
+    r  = pointer_to_array(Sundials.N_VGetArrayPointer_Serial(r), (unsafe_load(unsafe_load(convert(Ptr{Ptr{Cint}}, r))),))
     p  = ss.p
     sm.F.resid(t, y, yp, p, r)
     return int32(0)   # indicates normal return
@@ -134,19 +135,15 @@ function sunsim(smem::SimSundials, tstop::Float64, Nsteps::Int)
 
     mem = smem.mem
     
-    sim_info("starting IDAReInit()")
     flag = Sundials.IDAReInit(mem, tstart, ss.y0, ss.yp0)
 
-    sim_info("starting IDACalcIC()")
     if any(abs(rtest) .>= sm.reltol)
         flag = Sundials.IDACalcIC(mem, Sundials.IDA_YA_YDP_INIT, tstart + tstep)  # IDA_YA_YDP_INIT or IDA_Y_INIT
     end
     
     for idx in 1:Nsteps
 
-        sim_info("starting IDASolve()")
         flag = Sundials.IDASolve(mem, t, tret, ss.y0, ss.yp0, Sundials.IDA_NORMAL)
-        sim_info("finished IDASolve()")
         yout[idx, 1] = tret[1]
         yout[idx, 2:(Noutputs + 1)] = ss.y0[yidx]
         t = tret[1] + tstep

@@ -17,7 +17,7 @@
 
 global __DF = Any[]
 
-@windows_only dllname = Pkg.dir() * "\\Sims\\deps\\bin$WORD_SIZE\\daskr.dll"
+@windows_only dllname = Pkg.dir() * "/Sims/deps/daskr$WORD_SIZE.dll"
 @unix_only dllname = Pkg.dir() * "/Sims/deps/daskr.so"
 
 hasdassl = isfile(dllname)
