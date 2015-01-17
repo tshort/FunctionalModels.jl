@@ -646,7 +646,7 @@ function CharacteristicThyristors()
     n2 = Voltage("n2")
     n3 = Voltage("n3")
     x = Unknown("pulse")
-    sig = RDiscrete(Reactive.Input(false))
+    sig = RDiscrete(false)
     g = 0.0
     Equation[
         x - sig

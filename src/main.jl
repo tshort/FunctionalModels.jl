@@ -883,8 +883,6 @@ end
 ## Utilities for Hybrid Modeling      ##
 ########################################
 
-import Reactive
-export RDiscrete, RParameter, lift, push!, @lift
 
 abstract UnknownReactive{T} <: UnknownVariable
 
@@ -893,14 +891,18 @@ type RDiscrete{T <: Reactive.SignalSource} <: UnknownReactive{T}
     signal::T
     initialvalue
 end
-RDiscrete(x) = RDiscrete(x, 0.0)
+RDiscrete(x::Reactive.SignalSource) = RDiscrete(x, 0.0)
+RDiscrete(x, initialval) = RDiscrete(Reactive.Input(x), initialval)
+RDiscrete(x) = RDiscrete(Reactive.Input(x), 0.0)
 
 type RParameter{T <: Reactive.SignalSource} <: UnknownReactive{T}
     signal::T
 end
+RParameter() = RParameter(Reactive.Input(0.0))
+RParameter(x) = RParameter(Reactive.Input(x))
 
 name(a::UnknownReactive) = "discrete"
-value(x::UnknownReactive) = x.signal.value
+value{T}(x::UnknownReactive{T}) = Reactive.value(x.signal)
 
 Reactive.push!{T}(x::RDiscrete{Reactive.Input{T}}, y) = mexpr(:call, :(Reactive.push!), x.signal, y)
 Reactive.push!{T}(x::RParameter{Reactive.Input{T}}, y) = Reactive.push!(x.signal, y)
@@ -910,9 +912,9 @@ reinit{T}(x::RParameter{Reactive.Input{T}}, y) = Reactive.push!(x.signal, y)
 Reactive.foldl{T,S}(f,v0::T, signal::UnknownReactive{S}, signals::UnknownReactive{S}...) =
     RParameter(Reactive.foldl(f, v0, signal.signal, [s.signal for s in signals]...))
 
-Reactive.lift{T}(f::Function, t::Type, x::UnknownReactive{T}) = RParameter(Reactive.lift(f, t, x.signal))
+Reactive.lift{T}(f::Function, t::Type, input::UnknownReactive{T}, inputs::UnknownReactive{T}...) = RParameter(Reactive.lift(f, t, input.signal, [input.signal for input in inputs]...))
 
-Reactive.lift{T}(f::Function, x::UnknownReactive{T}) = RParameter(Reactive.lift(f, x.signal))
+Reactive.lift{T}(f::Function, input::UnknownReactive{T}, inputs::UnknownReactive{T}...) = RParameter(Reactive.lift(f, input.signal, [input.signal for input in inputs]...))
 
 function BoolEvent{T}(d::RDiscrete{T}, condition::ModelType)
     lend = length(value(d))
@@ -931,7 +933,62 @@ end
 
 
 
+@doc """
+A helper for an expression of discrete variables
 
+```julia
+@liftd exp
+```
+
+Note that the expression should not contain Unknowns. To mark the
+Discrete variables, enter them as Symbols. This uses `lift` from
+Reactive.jl.
+
+### Arguments
+
+* `exp` : an expression, usually containing other Discrete variables
+
+### Returns
+
+* `::Discrete` : a signal
+
+### Examples
+
+```julia
+x = Discrete(true)
+y = Discrete(false)
+z = @liftd :x & !:y
+# equivalent to:
+z2 = lift((x, y) -> x & !y, x, y)
+```
+
+""" ->
+macro liftd(ex)
+    varnames = Any[]
+    body = replace_syms(ex, varnames)
+    front = Expr(:tuple, varnames...)
+    esc(:( Reactive.lift($front ->  $body, $(varnames...)) ))
+end
+replace_syms(x, varnames) = x
+function replace_syms(e::Expr, varnames)
+    if e.head == :call && length(e.args) == 2 && e.args[1] == :^
+        return e.args[2]
+    elseif e.head == :.     # special case for :a.b
+        return Expr(e.head, replace_syms(e.args[1], varnames),
+                            typeof(e.args[2]) == Expr && e.args[2].head == :quote ? e.args[2] : replace_syms(e.args[2], varnames))
+    elseif e.head != :quote
+        return Expr(e.head, (isempty(e.args) ? e.args : map(x -> replace_syms(x, varnames), e.args))...)
+    else
+        push!(varnames, e.args[1])
+        return e.args[1]
+    end
+end
+
+function pre{T}(x::UnknownReactive{T})
+    Reactive.lift(x -> x[1],
+         Reactive.foldl((a,b) -> (a[2], b), (zero(Sims.value(x)), Sims.value(x)), x))
+end
+    
 
 
 

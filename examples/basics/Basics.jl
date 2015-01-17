@@ -41,12 +41,12 @@ function runexamples()
     v    = sim(Vanderpol(), 50.0)
     vwe  = sim(VanderpolWithEventsReactive(), 10.0)
     
-    mu = RParameter(Reactive.Input(1.0))
-    ss = create_simstate(create_sim(elaborate(VanderpolWithParameter(mu))))
+    mu = RParameter(1.0)
+    ss = create_simstate(VanderpolWithParameter(mu))
     vwp1 = sim(ss, 10.0)
-    push!(mu, 1.5)
+    reinit(mu, 1.5)
     vwp2 = sim(ss, 10.0)
-    push!(mu, 1.0)
+    reinit(mu, 1.0)
     vwp3 = sim(ss, 10.0) # should be the same as vwp1
     
     ic   = solve(InitialCondition())

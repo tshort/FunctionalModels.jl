@@ -624,11 +624,11 @@ function IdealThyristor(n1::ElectricalNode, n2::ElectricalNode, fire,
     i = Current(vals)
     v = Voltage(vals)
     s = Unknown(vals)  # dummy variable
-    spositive = RDiscrete(Reactive.Input(value(s) > 0.0))
-    ## off = Reactive.@lift !spositive | (off & !fire) # on/off state of each switch
-    off = Reactive.lift(x -> x[1],
-                        Reactive.foldl((off, spositive, fire) -> (!spositive | (off[1] & !fire), spositive, fire),
-                                       (true, Sims.value(spositive), Sims.value(fire)), spositive, fire))
+    spositive = RDiscrete(value(s) > 0.0)
+    ## off = @lift !spositive | (off & !fire) # on/off state of each switch
+    off = lift(x -> x[1],
+               foldl((off, spositive, fire) -> (!spositive | (off[1] & !fire), spositive, fire),
+                     (true, value(spositive), value(fire)), spositive, fire))
     @equations begin
         Branch(n1, n2, v, i)
         BoolEvent(spositive, s)
