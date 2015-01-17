@@ -33,6 +33,8 @@ export HeatCapacitor, ThermalConductor, Convection, BodyRadiation, ThermalCollec
 ## Rotational
 export Inertia, Disc, Spring, BranchHeatPort, Damper, SpringDamper,
        IdealGear, SpeedSensor, AccSensor, SignalTorque
+## Chemical kinetics
+export Reaction, ReactionSystem
 
 # load standard Sims libraries
 include("types.jl")
@@ -42,5 +44,6 @@ include("electrical.jl")
 include("powersystems.jl")
 include("heat_transfer.jl")
 include("rotational.jl")
+include("kinetic.jl")
 
 end # module Lib
