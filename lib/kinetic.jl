@@ -40,7 +40,7 @@ function ReactionSystem (X, ## state vector
     n = size(M,2) ## number of species
     r = size(M,1) ## number of reactions
     F = reactionFlux (K,S,X)
-    [ Reaction(M,F,X,i) for i=1:n ]
+    return Equation[ Reaction(M,F,X,i) for i=1:n ]
 end
 
 
