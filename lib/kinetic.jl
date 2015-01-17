@@ -10,7 +10,7 @@
 """ -> type DocKinetic <: DocTag end
 
 
-function Reaction (M,F,X,i)
+function ReactionEquation (M,F,X,i)
     r = size(M,1) ## number of reactions
     Equation[der(X[i]) - sum([ M[i,j] * F[j] for j = 1:r ])]
 end
@@ -40,7 +40,7 @@ function ReactionSystem (X, ## state vector
     n = size(M,2) ## number of species
     r = size(M,1) ## number of reactions
     F = reactionFlux (K,S,X)
-    return Equation[ Reaction(M,F,X,i) for i=1:n ]
+    return Equation[ ReactionEquation(M,F,X,i) for i=1:n ]
 end
 
 

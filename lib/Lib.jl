@@ -34,7 +34,7 @@ export HeatCapacitor, ThermalConductor, Convection, BodyRadiation, ThermalCollec
 export Inertia, Disc, Spring, BranchHeatPort, Damper, SpringDamper,
        IdealGear, SpeedSensor, AccSensor, SignalTorque
 ## Chemical kinetics
-export Reaction, ReactionSystem
+export ReactionSystem, ReactionEquation
 
 # load standard Sims libraries
 include("types.jl")
