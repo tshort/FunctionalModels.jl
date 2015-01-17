@@ -26,10 +26,11 @@ end
 function daefun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userdata_ptr::Ptr{Void})
     ss::SimState = unsafe_pointer_to_objref(userdata_ptr)
     sm::Sim = ss.sm
-    
+
     y  = Sundials.asarray(y) 
-    yp = Sundials.asarray(yp) 
-    r  = Sundials.asarray(r)
+    yp = Sundials.asarray(yp)
+    ## r  = Sundials.asarray(r)
+    r  = pointer_to_array(Sundials.N_VGetArrayPointer_Serial(r), (unsafe_load(unsafe_load(convert(Ptr{Ptr{Cint}}, r))),))
     p  = ss.p
     sm.F.resid(t, y, yp, p, r)
     return int32(0)   # indicates normal return
@@ -74,7 +75,7 @@ function setup_sunsim(ss::SimState, reltol, abstol)
     flag  = Sundials.IDADense(mem, neq)
     flag  = Sundials.IDARootInit(mem, int32(length(sm.F.event_pos)), rootfun)
     id    = float64(copy(sm.id))
-    id[id .< 0] = 0
+    id[id .< 0] = 0.0
     flag  = Sundials.IDASetId(mem, id)
     return SimSundials (mem, ss)
 end
