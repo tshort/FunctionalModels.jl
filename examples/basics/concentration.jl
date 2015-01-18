@@ -14,8 +14,8 @@ function Concentration(; A0 = 0.25, rateA = 0.333, rateB = 0.16)
 
     X= { Unknown("A", A0), Unknown("B", 0.0) }
 
-    S = [ [1, 0] [0, 1] ] ## stoichiometric coefficients for reactants
-    R = [ [0, 1] [1, 0] ] ## stoichiometric coefficients for products
+    S = [ 1 0; 0 1 ] ## stoichiometric coefficients for reactants
+    R = [ 0 1; 1 0 ] ## stoichiometric coefficients for products
     K = [rateA , rateB] ## reaction rates
     
     return ReactionSystem (X, S, R, K)
