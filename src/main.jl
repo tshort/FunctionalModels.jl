@@ -1044,8 +1044,8 @@ Reactive.foldl{T,S}(f,v0::T, signal::UnknownReactive{S}, signals::UnknownReactiv
 
 
 @doc """
-Create a new UnknownReactive type from existing UnknownReactive types
-(like Discrete and Parameter).
+Create a new UnknownReactive type that links to existing
+UnknownReactive types (like Discrete and Parameter).
 
 ```julia
 lift{T}(f::Function, inputs::UnknownReactive{T}...)
@@ -1056,12 +1056,16 @@ See also
 [Reactive.lift](http://julialang.org/Reactive.jl/api.html#lift)] and
 the [@liftd](#liftd) helper macro to ease writing expressions.
 
+
 ### Arguments
 
 * `f::Function` : the transformation function; takes one argument for
   each `inputs` argument
 * `inputs::UnknownReactive` : signals to apply `f` to
 * `t::Type` : optional output type
+
+Note: you cannot use Unknowns or MExprs in `f`, the transformation
+function.
 
 ### Examples
 
@@ -1074,6 +1078,22 @@ b    # now 4
 c    # now 12
 ```
 See [IdealThyristor](../lib/index.html#IdealThyristor) in the standard library.
+
+Note that you can use Discretes and Parameters in expressions that
+create MExprs. Compare the following:
+
+```julia
+j = lift((x,y) = x * y, a, b)
+k = a * b
+```
+
+In this example, `j` uses `lift` to immediately connect to `a` and
+`b`. `k` is an MExpr with `a * b` embedded inside. When `j` is used in
+a model, the `j` UnknownReactive object is embedded in the model, and it
+is updated automatically. With `k`, `a * b` is inserted into the
+model, so it's more like a macro; `a * b` will be evaluated every time
+in the residual calculation. The advantage of the `a * b` approach is
+that the expression can include Unknowns.
 
 """ ->
 Reactive.lift{T}(f::Function, input::UnknownReactive{T}, inputs::UnknownReactive{T}...) = Parameter(Reactive.lift(f, input.signal, [input.signal for input in inputs]...))
