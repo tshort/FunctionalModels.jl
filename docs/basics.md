@@ -244,6 +244,28 @@ function IdealDiode(n1, n2)
 end
 ```
 
+Discrete variables are based on Signals from the
+[Reactive.jl](http://julialang.org/Reactive.jl/) package. This
+provides
+[Reactive Programming](http://en.wikipedia.org/wiki/Reactive_programming)
+capabilities where variables have data flow. This is similar to how
+spreadsheets dynamically update and how Simulink works. This `lift`
+operator defines dependencies based on a function, and `reinit` is
+used to update inputs. Here is an example:
+
+```julia
+a = Discrete(2.0)
+b = Discrete(4.0)
+c = lift((x,y) -> x * y, a, b)   # 8.0
+reinit(a, 4.0)  # c becomes 16.0
+```
+
+Parameters are a special type of Discrete variable. These can be used
+as input to models. These stay alive through flattening and simulation
+creation. They can be updated externally from one simulation to the
+next.
+
+
 ## Structurally Varying Systems
 
 `StructuralEvent` defines a type for elements that change the structure
@@ -283,9 +305,4 @@ One special thing to note is that `new_relation` must be a function (in
 the case above, an anonymous function). If `new_relation` is not a
 function, it will evaluate right away. The use of a function delays
 evaluation until the model is recompiled.
-
-## Known Issues
-
-- Things are not tested much.
-
 
