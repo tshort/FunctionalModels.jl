@@ -864,6 +864,11 @@ variations.
 Because they are Unknowns, UnknownReactive types form MExpr's when
 used in expressions just like Unknowns.
 
+Many of the methods from Reactive.jl are supported, including `lift`,
+`foldl`, `filter`, `dropif`, `droprepeats`, `keepwhen`, `dropwhen`,
+`sampleon`, and `merge`. Use `reinit` to reinitialize a Discrete or a
+Parameter (equivalent to `Reactive.push!`).
+
 """ ->
 abstract UnknownReactive{T} <: UnknownVariable
 
@@ -953,6 +958,7 @@ Parameter(x = 0.0) = Parameter(Reactive.Input(x))
 
 name(a::UnknownReactive) = "discrete"
 value{T}(x::UnknownReactive{T}) = Reactive.value(x.signal)
+signal(x::UnknownReactive) = x.signal
 
 Reactive.push!{T}(x::Discrete{Reactive.Input{T}}, y) = mexpr(:call, :(Reactive.push!), x.signal, y)
 Reactive.push!{T}(x::Parameter{Reactive.Input{T}}, y) = Reactive.push!(x.signal, y)
@@ -1020,30 +1026,6 @@ reinit(x::DerUnknown, y) = reinit(LeftVar(x), y)
 
 
 @doc """
-
-### Arguments
-
-```julia
-```
-
-
-### Arguments
-
-* `initialvalue` : initial value and type information, defaults to 0.0
-* `x::Reactive.Signal` : a `Signal` from the Reactive.jl package.
-
-### Returns
-
-* `::UnknownReactive`
-
-
-""" ->
-Reactive.foldl{T,S}(f,v0::T, signal::UnknownReactive{S}, signals::UnknownReactive{S}...) =
-    Parameter(Reactive.foldl(f, v0, signal.signal, [s.signal for s in signals]...))
-
-
-
-@doc """
 Create a new UnknownReactive type that links to existing
 UnknownReactive types (like Discrete and Parameter).
 
@@ -1100,6 +1082,48 @@ Reactive.lift{T}(f::Function, input::UnknownReactive{T}, inputs::UnknownReactive
 
 Reactive.lift{T}(f::Function, t::Type, input::UnknownReactive{T}, inputs::UnknownReactive{T}...) = Parameter(Reactive.lift(f, t, input.signal, [input.signal for input in inputs]...))
 
+Reactive.filter{T}(pred::Function, v0, s::UnknownReactive{T}) = Parameter(filter(pred, v0, s.signal))
+Reactive.dropwhen{T}(test::Signal{Bool}, v0, s::UnknownReactive{T}) = Parameter(dropwhen(pred, v0, s.signal))
+Reactive.sampleon(s1::UnknownReactive, s2::UnknownReactive) = Parameter(sampleon(s1.signal, s2.signal))
+Reactive.merge() = nothing
+Reactive.merge(signals::UnknownReactive...) = Parameter(merge(map(signal, signals)))
+Reactive.droprepeats(s::UnknownReactive) = Parameter(droprepeats(signal(s)))
+Reactive.dropif(pred::Function, v0, s::UnknownReactive) = Parameter(dropif(pred, v0, s.signal))
+Reactive.keepwhen(test::UnknownReactive{Signal{Bool}}, v0, s::UnknownReactive) = Parameter(keepwhen(test.signal, v0, s.signal))
+
+
+
+@doc """
+"Fold over time" -- an UnknownReactive updated based on stored state
+and additional inputs.
+
+See also
+[Reactive.foldl](http://julialang.org/Reactive.jl/api.html#foldl)].
+
+```julia
+foldl(f::Function, v0, inputs::UnknownReactive{T}...)
+```
+
+### Arguments
+
+* `f::Function` : the transformation function; the first argument is
+  the stored state followed by one argument for each `inputs` argument
+* `v0` : initial value of the stored state
+* `inputs::UnknownReactive` : signals to apply `f` to
+
+
+### Returns
+
+* `::UnknownReactive`
+
+### Examples
+
+See the definition of [pre](#pre) for an example.
+
+""" ->
+Reactive.foldl{T,S}(f,v0::T, signal::UnknownReactive{S}, signals::UnknownReactive{S}...) =
+    Parameter(Reactive.foldl(f, v0, signal.signal, [s.signal for s in signals]...))
+
 
 
 @doc """
@@ -1153,12 +1177,12 @@ function replace_syms(e::Expr, varnames)
 end
 
 @doc* """
-The value of a Discrete variable `x` prior to an event.
+An `UnknownReactive` based on the previous value of `x` (normally prior to an event).
 
 See also [Event](#Event).
 
 ```julia
-pre(x::DiscreteVar)
+pre(x::UnknownReactive)
 ```
 
 ### Arguments
@@ -1167,7 +1191,7 @@ pre(x::DiscreteVar)
 
 ### Returns
 
-* A value stored just prior to an event.
+* `::UnknownReactive`
 
 """ ->
 function pre{T}(x::UnknownReactive{T})
