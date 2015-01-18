@@ -1,5 +1,5 @@
 
-using Sims
+using Sims, Docile
 
 using PyPlot, PyCall
 @pyimport pandas
@@ -17,7 +17,7 @@ explains modeling and simulations very well, and it's easy to compare
 results to those online.
 
 NOTE: These are not yet included in `Sims.Examples.*`.
-"""
+""" -> type DocExTiller <: DocTag end
 
 @doc """
 Rotational example
@@ -79,28 +79,25 @@ function SecondOrderSystemUsingSimsLib(; #phi1 = Angle(label = "Angle of inertia
         SpringDamper(phi1, phi2, k1, d1)
     end
 end
-m = SecondOrderSystemUsingSimsLib()
-e = elaborate(m)
-s = create_simstate(e)
+## m = SecondOrderSystemUsingSimsLib()
+## e = elaborate(m)
+## s = create_simstate(e)
 ## y = dasslsim(SecondOrderSystemUsingSimsLib(), tstop = 5.0)
 
-pplot(y)
+## pplot(y)
 
 
-using Reactive
 
 @doc """
 Rotational example with sample-and-hold measurement
 
 http://book.xogeny.com/behavior/discrete/measuring/#sample-and-hold
 
-Uses old-style Discrete's.
-
 """ ->
 function SampleAndHold()
     sample_time = 0.125
     omega1 = Unknown("omega1")
-    omega1_measured = Discrete()
+    omega1_measured = Discrete(0.0)
     omega1_measured_u = Unknown("omega1 measured")
     @equations begin
         Event(sin(MTime / sample_time * 2pi ),
@@ -113,54 +110,33 @@ y = dasslsim(SampleAndHold(), tstop = 5.0)
 pplot(y)
 
 @doc """
-Rotational example with sample-and-hold measurement
-
-http://book.xogeny.com/behavior/discrete/measuring/#sample-and-hold
-
-""" ->
-function RSampleAndHold()
-    sample_time = 0.125
-    omega1 = Unknown("omega1")
-    omega1_measured = RDiscrete(Reactive.Input(0.0))
-    omega1_measured_u = Unknown("omega1 measured")
-    @equations begin
-        Event(sin(MTime / sample_time * 2pi ),
-              Equation[push!(omega1_measured, omega1)])
-        SecondOrderSystem(omega1 = omega1)
-        omega1_measured_u = omega1_measured
-    end
-end
-y = dasslsim(RSampleAndHold(), tstop = 5.0)
-pplot(y)
-
-@doc """
 Rotational example with interval measurements
 
 http://book.xogeny.com/behavior/discrete/measuring/#interval-measurement
 
 """ ->
-function RIntervalMeasure()
+function IntervalMeasure()
     teeth = 200
     tooth_angle = 2pi / teeth
     phi1 = Unknown("phi1")
     omega1_measured_u = Unknown("omega1 measured")
-    omega1_measured = RDiscrete(Reactive.Input(0.0))
-    next_phi = RDiscrete(Reactive.Input(value(phi1) + tooth_angle))
-    prev_phi = RDiscrete(Reactive.Input(value(phi1) - tooth_angle))
-    last_time = RDiscrete(Reactive.Input(0.0))
+    omega1_measured = Discrete(0.0)
+    next_phi = Discrete(value(phi1) + tooth_angle)
+    prev_phi = Discrete(value(phi1) - tooth_angle)
+    last_time = Discrete(0.0)
     @equations begin
         Event(ifelse(phi1 > next_phi, phi1 - next_phi, prev_phi - phi1),
               Equation[
-                       push!(omega1_measured, tooth_angle / (MTime - last_time))
-                       push!(next_phi, phi1 + tooth_angle)
-                       push!(prev_phi, phi1 - tooth_angle)
-                       push!(last_time, MTime)
+                       reinit(omega1_measured, tooth_angle / (MTime - last_time))
+                       reinit(next_phi, phi1 + tooth_angle)
+                       reinit(prev_phi, phi1 - tooth_angle)
+                       reinit(last_time, MTime)
                        ])
         SecondOrderSystem(phi1 = phi1)
         omega1_measured_u = omega1_measured
     end
 end
-y = dasslsim(RIntervalMeasure(), tstop = 5.0)
+y = dasslsim(IntervalMeasure(), tstop = 5.0)
 pplot(y)
 
 @doc """
@@ -169,31 +145,31 @@ Rotational example with pulse counting
 http://book.xogeny.com/behavior/discrete/measuring/#pulse-counting
 
 """ ->
-function RPulseCounting()
+function PulseCounting()
     sample_time = 0.125
     teeth = 200
     tooth_angle = 2pi / teeth
     phi1 = Unknown("phi1")
     omega1_measured_u = Unknown("omega1 measured")
-    omega1_measured = RDiscrete(Reactive.Input(0.0))
-    next_phi = RDiscrete(Reactive.Input(value(phi1) + tooth_angle))
-    prev_phi = RDiscrete(Reactive.Input(value(phi1) - tooth_angle))
-    count = RDiscrete(Reactive.Input(0))
+    omega1_measured = Discrete(0.0)
+    next_phi = Discrete(value(phi1) + tooth_angle)
+    prev_phi = Discrete(value(phi1) - tooth_angle)
+    count = Discrete(0)
     @equations begin
         Event(ifelse(phi1 > next_phi, phi1 - next_phi, prev_phi - phi1),
               Equation[
-                       push!(next_phi, phi1 + tooth_angle)
-                       push!(prev_phi, phi1 - tooth_angle)
-                       push!(count, count + 1)
+                       reinit(next_phi, phi1 + tooth_angle)
+                       reinit(prev_phi, phi1 - tooth_angle)
+                       reinit(count, count + 1)
                        ])
         Event(sin(MTime / sample_time * 2pi),
               Equation[
-                       push!(omega1_measured, count * tooth_angle / sample_time)
-                       push!(count, 0)
+                       reinit(omega1_measured, count * tooth_angle / sample_time)
+                       reinit(count, 0)
                        ])
         SecondOrderSystem(phi1 = phi1)
         omega1_measured_u = omega1_measured
     end
 end
-y = dasslsim(RPulseCounting(), tstop = 5.0)
+y = dasslsim(PulseCounting(), tstop = 5.0)
 pplot(y)

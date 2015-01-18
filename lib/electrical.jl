@@ -571,7 +571,7 @@ function IdealDiode(n1::ElectricalNode, n2::ElectricalNode,
     i = Current(vals)
     v = Voltage(vals)
     s = Unknown(vals)  # dummy variable
-    openswitch = Discrete(fill(true, length(vals)))  # on/off state of each diode
+    openswitch = Discrete(true)  # on/off state of each diode
     @equations begin
         Branch(n1, n2, v, i)
         BoolEvent(openswitch, -s)  # openswitch becomes true when s goes negative
@@ -624,7 +624,7 @@ function IdealThyristor(n1::ElectricalNode, n2::ElectricalNode, fire,
     i = Current(vals)
     v = Voltage(vals)
     s = Unknown(vals)  # dummy variable
-    spositive = RDiscrete(value(s) > 0.0)
+    spositive = Discrete(value(s) > 0.0)
     ## off = @lift !spositive | (off & !fire) # on/off state of each switch
     off = lift(x -> x[1],
                foldl((off, spositive, fire) -> (!spositive | (off[1] & !fire), spositive, fire),

@@ -646,7 +646,7 @@ function CharacteristicThyristors()
     n2 = Voltage("n2")
     n3 = Voltage("n3")
     x = Unknown("pulse")
-    sig = RDiscrete(false)
+    sig = Discrete(false)
     g = 0.0
     Equation[
         x - sig
@@ -661,25 +661,6 @@ function CharacteristicThyristors()
 end
 
 
-
-function test_BoolEventHook()
-    n1 = Voltage("n1")
-    sig2 = Discrete(true)
-    sig = Discrete(false)
-    addhook!(sig, 
-             reinit(sig2, false))
-    g = 0.0
-    Equation[
-        SineVoltage(n1, g, ifelse(sig2, 10.0, 5.0), ifelse(sig, 1.0, 2.0)) 
-        BoolEvent(sig, MTime - 0.25)  
-        Resistor(n1, g, 1e-3)
-    ]
-end
-
-## m = test_BoolEventHook()
-## f = elaborate(m)
-## s = create_sim(f)
-## y = sim(s, 2.0)
 
 
 function docutil()
@@ -744,7 +725,7 @@ function run_electrical_examples()
     cc    = sim(ChuaCircuit(), 5000.0)
     hr    = sim(HeatingResistor(), 5.0)
     svr   = sim(ShowVariableResistor(), 6.2832)
-    ## ct    = sim(CharacteristicThyristors(), 2.0)
+    ct    = sim(CharacteristicThyristors(), 2.0)
     ## -- Broken examples --
     ## hr    = sim(HeatingRectifier(), 5.0)
     ## r     = sim(Rectifier(), 0.1)

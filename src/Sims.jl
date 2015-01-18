@@ -14,11 +14,11 @@ import Base.ifelse,
        Base.vcat
 
 ## Types
-export ModelType, UnknownCategory, Unknown, UnknownVariable, DefaultUnknown, DerUnknown, RefUnknown, Parameter,
-       RefBranch, InitialEquation, Model, MExpr, Discrete, RefDiscrete, DiscreteVar, Event, LeftVar, StructuralEvent,
+export ModelType, UnknownCategory, Unknown, UnknownVariable, DefaultUnknown, DerUnknown, RefUnknown, 
+       RefBranch, InitialEquation, Model, MExpr, Event, LeftVar, StructuralEvent,
        EquationSet, SimFunctions, Sim, SimResult
 
-export UnknownReactive, RDiscrete, RParameter
+export UnknownReactive, Discrete, Parameter
 
 ## Specials
 export MTime, @init, @unknown, @liftd

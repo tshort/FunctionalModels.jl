@@ -348,36 +348,6 @@ myfun(x) = mexpr(:call, :myfun, x)
 mexpr(head::Symbol, args::ANY...) = MExpr(Expr(head, args...))
 
 
-@doc """
-Represents an Unknown that stays constant through a simulation. Useful
-for passing in at the top level.
-
-```julia
-Parameter(s::Symbol, value)
-Parameter(value)
-Parameter(s::Symbol, label::String)
-Parameter(value, label::String)
-```
-
-### Arguments
-
-* `s::Symbol` : identification symbol, defaults to `gensym()`
-* `value` : initial value and type information, defaults to 0.0
-* `label::String` : labeling string, defaults to ""
-
-""" ->
-type Parameter{T<:UnknownCategory} <: UnknownVariable
-    sym::Symbol
-    value         # holds parameter value (and type info)
-    label::String
-    Parameter(sym::Symbol, value) = new(sym, value, "")
-    Parameter(value) = new(gensym(), value, "")
-    Parameter(sym::Symbol, label::String) = new(sym, 0.0, label)
-    Parameter(value, label::String) = new(gensym(), value, label)
-end
-Parameter(v) = Parameter{DefaultUnknown}(gensym(), v)
-Parameter(v,label::String) = Parameter{DefaultUnknown}(v, label)
-
 
 # Set up defaults for operations on ModelType's for many common
 # methods.
@@ -561,7 +531,6 @@ value(x::UnknownVariable) = x.value
 value(x::RefUnknown) = x.u.value[x.idx...]
 value(a::MExpr) = value(a.ex)
 value(e::Expr) = eval(Expr(e.head, (isempty(e.args) ? e.args : map(value, e.args))...))
-value(x::Parameter) = x.value
 
 function symname(s::Symbol)
     s = string(s)
@@ -594,7 +563,6 @@ name(a)
 name(a::Unknown) = a.label != "" ? a.label : symname(a.sym)
 name(a::DerUnknown) = a.parent.label != "" ? "der("*a.parent.label*")" : "der("*symname(a.parent.sym)*")"
 name(a::RefUnknown) = a.u.label != "" ? a.u.label : symname(a.u.sym)
-name(a::Parameter) = a.label != "" ? a.label : symname(a.sym)
 
 
 
@@ -884,65 +852,245 @@ end
 ########################################
 
 
+@doc """
+An abstract type representing Unknowns that use the Reactive.jl
+package. The main types included are `Discrete` and
+`Parameter`. `Discrete` is normally used as inputs inside of models
+and includes an initial value that is reset at every simulation
+run. `Parameter` is used to pass information from outside to the
+model. Use this for repeated simulation runs based on parameter
+variations.
+
+Because they are Unknowns, UnknownReactive types form MExpr's when
+used in expressions just like Unknowns.
+
+""" ->
 abstract UnknownReactive{T} <: UnknownVariable
 
-## RDiscrete's need to have an initial value to be reset
-type RDiscrete{T <: Reactive.SignalSource} <: UnknownReactive{T}
+@doc """
+Discrete is a type for discrete variables. These are only changed
+during events. They are not used by the integrator. Because they are
+not used by the integrator, almost any type can be used as a discrete
+variable. Discrete variables wrap a Signal from the
+[Reactive.jl](http://julialang.org/Reactive.jl/) package.
+
+### Constructors
+
+```julia
+Discrete(initialvalue = 0.0)
+Discrete(x::Reactive.Signal, initialvalue)
+```
+
+Without arguments, `Discrete()` uses an initial value of 0.0.
+
+### Arguments
+
+* `initialvalue` : initial value and type information, defaults to 0.0
+* `x::Reactive.Signal` : a `Signal` from the Reactive.jl package.
+
+### Details
+
+`Discrete` is the main input type for discrete variables. By default,
+it wraps a `Reactive.Input` type. `Discrete` variables support data
+flow using Reactive.jl. Use `reinit` to update Discrete variables. Use
+`lift` to create additional `UnknownReactive` types that depend on the
+`Discrete` input. Use `foldl` for actions that remember state. For
+more information on *Reactive Programming*, see the
+[Reactive.jl](http://julialang.org/Reactive.jl/) package.
+
+""" ->
+type Discrete{T <: Reactive.Signal} <: UnknownReactive{T}
     signal::T
     initialvalue
 end
-RDiscrete(x::Reactive.SignalSource) = RDiscrete(x, 0.0)
-RDiscrete(x, initialval) = RDiscrete(Reactive.Input(x), initialval)
-RDiscrete(x) = RDiscrete(Reactive.Input(x), 0.0)
+Discrete(x::Reactive.SignalSource) = Discrete(x, zero(x))
+Discrete(initialval) = Discrete(Reactive.Input(initialval), initialval)
+Discrete() = Discrete(Reactive.Input(0.0), 0.0)
 
-type RParameter{T <: Reactive.SignalSource} <: UnknownReactive{T}
+@doc """
+An `UnknownReactive` type that is useful for passing parameters at the
+top level.
+
+### Arguments
+
+```julia
+Parameter(x = 0.0)
+Parameter(sig::Reactive.Signal}
+```
+
+### Arguments
+
+* `x` : initial value and type information, defaults to 0.0
+* `sig` : A `Reactive.Signal 
+
+### Details
+
+Parameters can be reinitialized with `reinit`, either externally or
+inside models. If you want Parameters to be read-only, wrap them in
+another UnknownReactive before passing to models. For example, use
+`param_read_only = lift(x -> x, param)`.
+
+### Examples
+
+Sims.Examples.Basics.VanderpolWithParameter takes one model argument
+`mu`. Here is an example of it used externally with a Parameter:
+
+```julia
+mu = Parameter(1.0)
+ss = create_simstate(VanderpolWithParameter(mu))
+vwp1 = sim(ss, 10.0)
+reinit(mu, 1.5)
+vwp2 = sim(ss, 10.0)
+reinit(mu, 1.0)
+vwp3 = sim(ss, 10.0) # should be the same as vwp1
+```
+
+""" ->
+type Parameter{T <: Reactive.Signal} <: UnknownReactive{T}
     signal::T
 end
-RParameter() = RParameter(Reactive.Input(0.0))
-RParameter(x) = RParameter(Reactive.Input(x))
+Parameter(x = 0.0) = Parameter(Reactive.Input(x))
 
 name(a::UnknownReactive) = "discrete"
 value{T}(x::UnknownReactive{T}) = Reactive.value(x.signal)
 
-Reactive.push!{T}(x::RDiscrete{Reactive.Input{T}}, y) = mexpr(:call, :(Reactive.push!), x.signal, y)
-Reactive.push!{T}(x::RParameter{Reactive.Input{T}}, y) = Reactive.push!(x.signal, y)
-reinit{T}(x::RDiscrete{Reactive.Input{T}}, y) = mexpr(:call, :(Reactive.push!), x.signal, y)
-reinit{T}(x::RParameter{Reactive.Input{T}}, y) = Reactive.push!(x.signal, y)
+Reactive.push!{T}(x::Discrete{Reactive.Input{T}}, y) = mexpr(:call, :(Reactive.push!), x.signal, y)
+Reactive.push!{T}(x::Parameter{Reactive.Input{T}}, y) = Reactive.push!(x.signal, y)
 
-Reactive.foldl{T,S}(f,v0::T, signal::UnknownReactive{S}, signals::UnknownReactive{S}...) =
-    RParameter(Reactive.foldl(f, v0, signal.signal, [s.signal for s in signals]...))
 
-Reactive.lift{T}(f::Function, t::Type, input::UnknownReactive{T}, inputs::UnknownReactive{T}...) = RParameter(Reactive.lift(f, t, input.signal, [input.signal for input in inputs]...))
+@doc* """
+`reinit` is used in Event responses to redefine variables. 
 
-Reactive.lift{T}(f::Function, input::UnknownReactive{T}, inputs::UnknownReactive{T}...) = RParameter(Reactive.lift(f, input.signal, [input.signal for input in inputs]...))
+```julia
+reinit(x, y)
+```
 
-function BoolEvent{T}(d::RDiscrete{T}, condition::ModelType)
-    lend = length(value(d))
-    lencond = length(value(condition))
-    if lend > 1 && lencond == lend
-        convert(Vector{Any},
-                map((idx) -> BoolEvent(d[idx], condition[idx]), [1:lend]))
-    elseif lend == 1 && lencond == 1
-        Event(condition,       
-              Equation[reinit(d, true)],
-              Equation[reinit(d, false)])
-    else
-        error("Mismatched lengths for BoolEvent")
+### Arguments
+
+* `x` : the object to be reinitialized; can be a Discrete, Parameter, an Unknown, or DerUnknown
+* `y` : value for redefinition.
+
+### Returns
+
+* A value stored just prior to an event.
+
+### Examples
+
+Here is the definition of Step in the standard library:
+
+```julia
+function Step(y::Signal, 
+              height = 1.0,
+              offset = 0.0, 
+              startTime = 0.0)
+    ymag = Discrete(offset)
+    @equations begin
+        y = ymag  
+        Event(MTime - startTime,
+              Equation[reinit(ymag, offset + height)],   # positive crossing
+              Equation[reinit(ymag, offset)])            # negative crossing
     end
 end
+```
+
+See also [IdealThyristor](../lib/index.html#IdealThyristor) in the standard library.
+
+""" ->
+reinit{T}(x::Discrete{Reactive.Input{T}}, y) = mexpr(:call, :(Reactive.push!), x.signal, y)
+reinit{T}(x::Parameter{Reactive.Input{T}}, y) = Reactive.push!(x.signal, y)
+
+function reinit(x, y)
+    sim_info("reinit: ", x[], " to ", y)
+    x[:] = y
+end
+
+@doc """
+A helper type needed to mark unknowns as left-side variables in
+assignments during event responses.
+""" ->
+type LeftVar <: ModelType
+    var
+end
+
+reinit(x::LeftVar, y) = mexpr(:call, :(Sims.reinit), x, y)
+reinit(x::LeftVar, y::MExpr) = mexpr(:call, :(Sims.reinit), x, y.ex)
+reinit(x::Unknown, y) = reinit(LeftVar(x), y)
+reinit(x::RefUnknown, y) = reinit(LeftVar(x), y)
+reinit(x::DerUnknown, y) = reinit(LeftVar(x), y)
+
+
+@doc """
+
+### Arguments
+
+```julia
+```
+
+
+### Arguments
+
+* `initialvalue` : initial value and type information, defaults to 0.0
+* `x::Reactive.Signal` : a `Signal` from the Reactive.jl package.
+
+### Returns
+
+* `::UnknownReactive`
+
+
+""" ->
+Reactive.foldl{T,S}(f,v0::T, signal::UnknownReactive{S}, signals::UnknownReactive{S}...) =
+    Parameter(Reactive.foldl(f, v0, signal.signal, [s.signal for s in signals]...))
 
 
 
 @doc """
-A helper for an expression of discrete variables
+Create a new UnknownReactive type from existing UnknownReactive types
+(like Discrete and Parameter).
+
+```julia
+lift{T}(f::Function, inputs::UnknownReactive{T}...)
+lift{T}(f::Function, t::Type, inputs::UnknownReactive{T}...)
+```
+
+See also
+[Reactive.lift](http://julialang.org/Reactive.jl/api.html#lift)] and
+the [@liftd](#liftd) helper macro to ease writing expressions.
+
+### Arguments
+
+* `f::Function` : the transformation function; takes one argument for
+  each `inputs` argument
+* `inputs::UnknownReactive` : signals to apply `f` to
+* `t::Type` : optional output type
+
+### Examples
+
+```julia
+a = Discrete(1)
+b = lift(x -> x + 1, a)
+c = lift((x,y) -> x * y, a, b)
+reinit(a, 3)
+b    # now 4
+c    # now 12
+```
+See [IdealThyristor](../lib/index.html#IdealThyristor) in the standard library.
+
+""" ->
+Reactive.lift{T}(f::Function, input::UnknownReactive{T}, inputs::UnknownReactive{T}...) = Parameter(Reactive.lift(f, input.signal, [input.signal for input in inputs]...))
+
+Reactive.lift{T}(f::Function, t::Type, input::UnknownReactive{T}, inputs::UnknownReactive{T}...) = Parameter(Reactive.lift(f, t, input.signal, [input.signal for input in inputs]...))
+
+
+
+@doc """
+A helper for an expression of UnknownReactive variables
 
 ```julia
 @liftd exp
 ```
 
 Note that the expression should not contain Unknowns. To mark the
-Discrete variables, enter them as Symbols. This uses `lift` from
-Reactive.jl.
+Discrete variables, enter them as Symbols. This uses `lift()`.
 
 ### Arguments
 
@@ -958,7 +1106,7 @@ Reactive.jl.
 x = Discrete(true)
 y = Discrete(false)
 z = @liftd :x & !:y
-# equivalent to:
+## equivalent to:
 z2 = lift((x, y) -> x & !y, x, y)
 ```
 
@@ -984,138 +1132,6 @@ function replace_syms(e::Expr, varnames)
     end
 end
 
-function pre{T}(x::UnknownReactive{T})
-    Reactive.lift(x -> x[1],
-         Reactive.foldl((a,b) -> (a[2], b), (zero(Sims.value(x)), Sims.value(x)), x))
-end
-    
-
-
-
-
-########################################
-## Utilities for Hybrid Modeling      ##
-########################################
-
-
-
-@doc """
-Discrete is a type for discrete variables. These are only changed
-during events. They are not used by the integrator. Because they are
-not used by the integrator, almost any type can be used as a discrete
-variable.
-
-```julia
-Discrete()
-Discrete(x)
-Discrete(s::Symbol, label::String)
-Discrete(x, label::String)
-Discrete(label::String)
-Discrete(s::Symbol, x)
-Discrete(s::Symbol, x, label::String)
-```
-
-### Arguments
-
-* `s::Symbol` : identification symbol, defaults to `gensym()`
-* `value` : initial value and type information, defaults to 0.0
-* `label::String` : labeling string, defaults to ""
-
-### Details
-
-Discrete variables are currently quite limited. You cannot have
-systems of equations where the values of Discrete variables propagates
-easily. A crude mechanism for some chaining is provided by
-`addhook!`. It would be nice to have data flow support (reactive
-programming). The package
-[Reactive.jl](https://github.com/JuliaLang/Reactive.jl) may help here.
-
-""" ->
-type Discrete <: UnknownVariable
-    sym::Symbol
-    value
-    label::String
-    ## hooks::Vector{Function}
-    hookex::Vector{Expr}
-end
-Discrete() = Discrete(gensym(), 0.0, "")
-Discrete(x) = Discrete(gensym(), x, "")
-Discrete(s::Symbol, label::String) = Discrete(s, 0.0, label)
-Discrete(x, label::String) = Discrete(gensym(), x, label)
-Discrete(label::String) = Discrete(gensym(), 0.0, label)
-Discrete(s::Symbol, x) = Discrete(s, x, "")
-Discrete(s::Symbol, x, label::String) = Discrete(s, x, label, Expr[])
-
-## function Discrete(s::Symbol, x, ex::MExpr, label::String)
-##     res = Discrete(s, x, label)
-##     x.value = value(ex)
-##     x.ex = ex
-## end
-
-@doc """
-A helper type for Discretes used in Arrays.
-""" ->
-type RefDiscrete <: UnknownVariable
-    u::Discrete
-    idx
-end
-getindex(x::Discrete, args...) = RefDiscrete(x, args)
-
-@doc """
-A helper type used inside of the residual function.
-""" ->
-type DiscreteVar
-    value
-    pre
-    hooks::Vector{Function}
-end
-DiscreteVar(d::Discrete, funs::Vector{Function}) = DiscreteVar(d.value, d.value, funs)
-DiscreteVar(d::Discrete) = DiscreteVar(d.value, d.value, Function[])
-
-@doc* """
-Add hooks to a Discrete variable.
-
-The propagation and handling of Discrete variables is currently rather
-simple. It would be nice for Discrete variables to handle data flows
-like a reactive programming system. This allows for a simple way to
-add some value propagation.
-
-### Arguments
-
-* `d::Discrete` : the discrete variable.
-* `ex::ModelType` : the value of the delay; may be an object or Unknown.
-
-### Returns
-
-* `Void`
-
-### Examples
-
-```julia
-function test_BoolEventHook()
-    n1 = Voltage("n1")
-    sig2 = Discrete(true)
-    sig = Discrete(false)
-    Sims.addhook!(sig, 
-             reinit(sig2, false))
-    g = 0.0
-    Equation[
-        SineVoltage(n1, g, ifelse(sig2, 10.0, 5.0), ifelse(sig, 1.0, 2.0)) 
-        BoolEvent(sig, MTime - 0.25)  
-        Resistor(n1, g, 1e-3)
-    ]
-end
-y = sim(test_BoolEventHook())
-```
-""" ->
-addhook!(d::Discrete, ex::ModelType) = push!(d.hookex, strip_mexpr(ex))
-
-value(x::RefDiscrete) = x.u.value[x.idx...]
-value(x::DiscreteVar) = x.value
-name(x::Discrete) = x.label != "" ? x.label : symname(x.sym)
-name(x::RefDiscrete) = x.u.label != "" ? x.u.label : symname(x.u.sym)
-name(x::DiscreteVar) = "D"
-
 @doc* """
 The value of a Discrete variable `x` prior to an event.
 
@@ -1134,9 +1150,12 @@ pre(x::DiscreteVar)
 * A value stored just prior to an event.
 
 """ ->
-pre(x::DiscreteVar) = x.pre
+function pre{T}(x::UnknownReactive{T})
+    Reactive.lift(x -> x[1],
+         Reactive.foldl((a,b) -> (a[2], b), (zero(Sims.value(x)), Sims.value(x)), x))
+end
 
-
+    
 @doc """
 Event is the main type used for hybrid modeling. It contains a
 condition for root finding and model expressions to process after
@@ -1177,81 +1196,7 @@ Event(condition::ModelType, p::Model) = Event(condition, p, Equation[])
 Event(condition::ModelType, p::MExpr) = Event(condition, Equation[p], Equation[])
 Event(condition::ModelType, p::Expr) = Event(condition, p, Equation[])
 
-#
-# reinit is used in Event responses to redefine variables. LeftVar is
-# needed to mark unknowns as left-side variables in assignments during
-# event responses.
-# 
-@doc """
-A helper type needed to mark unknowns as left-side variables in
-assignments during event responses.
-""" ->
-type LeftVar <: ModelType
-    var
-end
 
-@doc* """
-`reinit` is used in Event responses to redefine variables. 
-
-```julia
-reinit(x::DiscreteVar, y)
-```
-
-### Arguments
-
-* `x::UnknownVariable` : the object to be reinitialized.
-* `y` : value for redefinition.
-
-### Returns
-
-* A value stored just prior to an event.
-
-### Examples
-
-Here is the definition of Step in the standard library:
-
-```julia
-function Step(y::Signal, 
-              height = 1.0,
-              offset = 0.0, 
-              startTime = 0.0)
-    ymag = Discrete(offset)
-    @equations begin
-        y = ymag  
-        Event(MTime - startTime,
-              Equation[reinit(ymag, offset + height)],   # positive crossing
-              Equation[reinit(ymag, offset)])            # negative crossing
-    end
-end
-```
-
-See also [IdealThyristor](../lib/index.html#IdealThyristor) in the standard library.
-
-""" ->
-function reinit(x, y)
-    sim_info("reinit: ", x[], " to ", y)
-    x[:] = y
-end
-function reinit(x::DiscreteVar, y)
-    sim_info("reinit discrete: ", x.value, " to ", y)
-    x.pre = x.value
-    x.value = y
-    for fun in x.hooks
-        fun()
-    end
-end
-reinit(x::LeftVar, y) = mexpr(:call, :(Sims.reinit), x, y)
-reinit(x::LeftVar, y::MExpr) = mexpr(:call, :(Sims.reinit), x, y.ex)
-reinit(x::Unknown, y) = reinit(LeftVar(x), y)
-reinit(x::RefUnknown, y) = reinit(LeftVar(x), y)
-reinit(x::DerUnknown, y) = reinit(LeftVar(x), y)
-reinit(x::Discrete, y) = reinit(LeftVar(x), y)
-reinit(x::RefDiscrete, y) = reinit(LeftVar(x), y)
-## reinit(x::Discrete, y) = mexpr(:call, :reinit, x, y)
-## reinit(x::RefDiscrete, y) = mexpr(:call, :reinit, x, y)
-
-
-setindex!(x::DiscreteVar, y, idx) = x.value = y
 
 @doc* """
 BoolEvent is a helper for attaching an event to a boolean variable.
@@ -1279,7 +1224,7 @@ See [IdealDiode](../lib/index.html#IdealDiode) and
 [Limiter](../lib/index.html#Limiter) in the standard library.
 
 """ ->
-function BoolEvent(d::Union(Discrete, RefDiscrete), condition::ModelType)
+function BoolEvent{T}(d::Discrete{T}, condition::ModelType)
     lend = length(value(d))
     lencond = length(value(condition))
     if lend > 1 && lencond == lend
@@ -1293,6 +1238,8 @@ function BoolEvent(d::Union(Discrete, RefDiscrete), condition::ModelType)
         error("Mismatched lengths for BoolEvent")
     end
 end
+
+
 
 @doc* """
 A function allowing if-then-else action for objections and expressions.
@@ -1332,6 +1279,9 @@ ifelse(x::MExpr, y, z) = mexpr(:call, :ifelse, x.ex, y, z)
 ifelse(x::MExpr, y) = mexpr(:call, :ifelse, x.ex, y)
 ifelse(x::MExpr, y::MExpr, z::MExpr) = mexpr(:call, :ifelse, x.ex, y.ex, z.ex)
 ifelse(x::MExpr, y::MExpr) = mexpr(:call, :ifelse, x.ex, y.ex)
+
+
+
 
 
 
