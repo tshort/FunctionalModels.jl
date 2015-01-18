@@ -41,6 +41,7 @@ function runexamples()
     v    = sim(Vanderpol(), 50.0)
     vwe  = sim(VanderpolWithEvents(), 10.0)
     conc  = sim(Concentration(), 10.0)
+    sconc  = sim(SimpleConcentration(), 10.0)
     ic   = solve(InitialCondition())
     mic  = solve(MkinInitialCondition())
 end 
