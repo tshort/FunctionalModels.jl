@@ -100,7 +100,7 @@ end
 
 ## Parses reactions of the form
 ##
-## { :-> a b rate }
+## :-> a b rate 
 ##
 function parseReactionSystem (V)
 
@@ -144,8 +144,8 @@ function parseReactionSystem (V)
             x = reaction[2]
             y = reaction[3]
 
-            xi = find(indexin(X, {x}))[1]
-            yi = find(indexin(X, {y}))[1]
+            xi = find(indexin(X, Any[x]))[1]
+            yi = find(indexin(X, Any[y]))[1]
             
             S = vcat(S,c)
             R = vcat(R,c)
