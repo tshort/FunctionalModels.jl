@@ -132,14 +132,13 @@ end
 wrr   = WRR()  # returns the hierarchical model
 wrr_f = elaborate(wrr)    # returns the flattened model
 wrr_s = create_sim(wrr_f) # returns a "Sim" ready for simulation
-wrr_ptr = setup_sunsim (wrr_s, reltol=1e-7, abstol=1e-7)
 
 # runs the simulation and returns
 # the result as an array plus column headings
 tf = 50.0
 dt = 0.025
 
-@time wrr_yout = sunsim(wrr_ptr, tf, int(tf/dt))
+@time wrr_yout = sunsim(wrr_s, tstop=tf, Nsteps=int(tf/dt), reltol=1e-7, abstol=1e-7)
 
 plot (wrr_yout.y[:,1], wrr_yout.y[:,3])
 

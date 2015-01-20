@@ -4,7 +4,8 @@
 ## Automatic formulation              ##
 ########################################
 
-export VanderpolWithEventsReactive
+export VanderpolWithEvents
+
 
 @doc """
 An extension of Sims.Examples.Basics.Vanderpol. Events are triggered

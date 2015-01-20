@@ -30,7 +30,7 @@ include("half_wave_rectifiers.jl")
 include("initial_conditions.jl")
 include("vanderpol.jl")
 include("vanderpol_with_events.jl")
-include("vanderpol_with_parameter.jl")
+include("concentration.jl")
 
 function runexamples()
     bp   = sim(BreakingPendulum(), 6.0)
@@ -48,6 +48,9 @@ function runexamples()
     vwp2 = sim(ss, 10.0)
     reinit(mu, 1.0)
     vwp3 = sim(ss, 10.0) # should be the same as vwp1
+    
+    conc  = sim(Concentration(), 10.0)
+    sconc  = sim(SimpleConcentration(), 10.0)
     
     ic   = solve(InitialCondition())
     mic  = solve(MkinInitialCondition())
