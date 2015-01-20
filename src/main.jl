@@ -622,7 +622,7 @@ A special ModelType to specify branch flows into nodes. When the model
 is flattened, equations are created to zero out branch flows into
 nodes. 
 
-See also [Branch](#Branch).
+See also [Branch](#branch).
 
 ```julia
 RefBranch(n, i) 
@@ -683,7 +683,7 @@ end
 A helper Model to connect a branch between two different nodes and
 specify potential between nodes and the flow between nodes.
 
-See also [RefBranch](#RefBranch).
+See also [RefBranch](#refbranch).
 
 ```julia
 Branch(n1, n2, v, i)
@@ -999,7 +999,7 @@ function Step(y::Signal,
 end
 ```
 
-See also [IdealThyristor](../lib/index.html#IdealThyristor) in the standard library.
+See also [IdealThyristor](../../lib/electrical/#idealthyristor) in the standard library.
 
 """ ->
 reinit{T}(x::Discrete{Reactive.Input{T}}, y) = mexpr(:call, :(Reactive.push!), x.signal, y)
@@ -1059,7 +1059,7 @@ reinit(a, 3)
 b    # now 4
 c    # now 12
 ```
-See [IdealThyristor](../lib/index.html#IdealThyristor) in the standard library.
+See [IdealThyristor](../../lib/electrical/#idealthyristor) in the standard library.
 
 Note that you can use Discretes and Parameters in expressions that
 create MExprs. Compare the following:
@@ -1179,7 +1179,7 @@ end
 @doc* """
 An `UnknownReactive` based on the previous value of `x` (normally prior to an event).
 
-See also [Event](#Event).
+See also [Event](#event).
 
 ```julia
 pre(x::UnknownReactive)
@@ -1205,7 +1205,7 @@ Event is the main type used for hybrid modeling. It contains a
 condition for root finding and model expressions to process after
 positive and negative root crossings are detected.
 
-See also [BoolEvent](#BoolEvent).
+See also [BoolEvent](#boolevent).
 
 ```julia
 Event(condition::ModelType, pos_response, neg_response)
@@ -1222,7 +1222,7 @@ Event(condition::ModelType, pos_response, neg_response)
 
 ### Examples
 
-See [IdealThyristor](../lib/index.html#IdealThyristor) in the standard library.
+See [IdealThyristor](../../lib/electrical/#idealthyristor) in the standard library.
 
 """ ->
 type Event <: ModelType
@@ -1264,8 +1264,8 @@ BoolEvent(d::Discrete, condition::ModelType)
 
 ### Examples
 
-See [IdealDiode](../lib/index.html#IdealDiode) and
-[Limiter](../lib/index.html#Limiter) in the standard library.
+See [IdealDiode](../../lib/electrical/#idealdiode) and
+[Limiter](../../lib/electrical/#limiter) in the standard library.
 
 """ ->
 function BoolEvent{T}(d::Discrete{T}, condition::ModelType)
@@ -1309,8 +1309,8 @@ ifelse(x, y, z)
 
 ### Examples
 
-See [DeadZone](../lib/index.html#DeadZone) and
-[Limiter](../lib/index.html#Limiter) in the standard library.
+See [DeadZone](../../lib/electrical/#deadzone) and
+[Limiter](../../lib/electrical/#limiter) in the standard library.
 
 """ ->
 ifelse(x::ModelType, y, z) = mexpr(:call, :ifelse, x, y, z)
