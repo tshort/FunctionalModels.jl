@@ -586,3 +586,37 @@ DeadZone(u::Signal, y::Signal;
          uMax = 1.0,
          uMin = -uMax) = DeadZone(u, y, uMax, uMin)
 
+
+@doc* """
+Generate a Discrete boolean pulse signal
+
+```julia
+BooleanPulse(y, width = 50.0, period = 1.0, startTime = 0.0)
+BooleanPulse(y; width = 50.0, period = 1.0, startTime = 0.0)
+```
+
+### Arguments
+
+* `y::Signal` : output signal
+
+### Keyword/Optional Arguments
+
+* `width` : width of pulse in the percent of period [0 - 100]
+* `period` : time for one period [sec]
+* `startTime` : time instant of the first pulse [sec]
+
+""" ->
+function BooleanPulse(x, width = 50.0, period = 1.0, startTime = 0.0)
+    BoolEvent(x, ifelse(MTime > startTime,
+                        trianglewave(MTime - startTime, width, period),
+                        -1.0))
+end
+BooleanPulse(x; width = 50.0, period = 1.0, startTime = 0.0) =
+    BooleanPulse(x, width, period, startTime)
+    
+
+function trianglewave(t, width, a)
+    # handle offset:
+    t = t - (width - 100) / 200 * a
+    y = 2 * abs(2 * (t/a - floor(t/a + 1/2))) - 2 * (100 - width) / 100
+end

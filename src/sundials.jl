@@ -17,8 +17,7 @@ function initfun(u::N_Vector, r::N_Vector, userdata_ptr::Ptr{Void})
     y  = pointer_to_array(Sundials.N_VGetArrayPointer_Serial(u), (n,))
     yp = nu - n > 0 ? pointer_to_array(Sundials.N_VGetArrayPointer_Serial(u) + n, (nu - n,)) : []
     r  = Sundials.asarray(r)
-    p  = ss.p
-    sm.F.init(ss.t[1], y, yp, p, r)
+    sm.F.init(ss.t[1], y, yp, r)
     
     return int32(0)   # indicates normal return
 end
@@ -28,11 +27,9 @@ function daefun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userdata_ptr
     sm::Sim = ss.sm
 
     y  = Sundials.asarray(y) 
-    yp = Sundials.asarray(yp)
-    ## r  = Sundials.asarray(r)
-    r  = pointer_to_array(Sundials.N_VGetArrayPointer_Serial(r), (unsafe_load(unsafe_load(convert(Ptr{Ptr{Cint}}, r))),))
-    p  = ss.p
-    sm.F.resid(t, y, yp, p, r)
+    yp = Sundials.asarray(yp) 
+    r  = Sundials.asarray(r)
+    sm.F.resid(t, y, yp, r)
     return int32(0)   # indicates normal return
 end
 
@@ -43,8 +40,7 @@ function rootfun(t::Float64, y::N_Vector, yp::N_Vector, g::Ptr{Sundials.realtype
     y  = Sundials.asarray(y) 
     yp = Sundials.asarray(yp) 
     g  = Sundials.asarray(g, (length(sm.F.event_pos),))
-    p  = ss.p
-    sm.F.event_at(t, y, yp, p, g)
+    sm.F.event_at(t, y, yp, g)
     return int32(0)   # indicates normal return
 end
 
@@ -115,6 +111,10 @@ function sunsim(smem::SimSundials, tstop::Float64, Nsteps::Int)
 
     ss = smem.ss
     sm = ss.sm
+    
+    for x in sm.discrete_inputs
+        push!(x, x.initialvalue)
+    end
 
     tstart = ss.t[1]
     tstep = (tstop - tstart) / Nsteps
@@ -131,7 +131,7 @@ function sunsim(smem::SimSundials, tstop::Float64, Nsteps::Int)
     neq   = length(ss.y0)
     rtest = zeros(neq)
 
-    sm.F.resid(tstart, ss.y0, ss.yp0, ss.p, rtest)
+    sm.F.resid(tstart, ss.y0, ss.yp0, rtest)
 
     mem = smem.mem
     
@@ -160,9 +160,9 @@ function sunsim(smem::SimSundials, tstop::Float64, Nsteps::Int)
             retvalr = Sundials.IDAGetRootInfo(mem, jroot)
             for ridx in 1:length(jroot)
                 if jroot[ridx] == 1
-                    sm.F.event_pos[ridx](tret[1], ss.y0, ss.yp0, ss.p, ss)
+                    sm.F.event_pos[ridx](tret[1], ss.y0, ss.yp0, ss)
                 elseif jroot[ridx] == -1
-                    sm.F.event_neg[ridx](tret[1], ss.y0, ss.yp0, ss.p, ss)
+                    sm.F.event_neg[ridx](tret[1], ss.y0, ss.yp0, ss)
                 end
                 flag = Sundials.IDAReInit(mem, tret[1], ss.y0, ss.yp0)
                 flag = Sundials.IDACalcIC(mem, Sundials.IDA_YA_YDP_INIT, tret[1] + tstep/10)  # IDA_YA_YDP_INIT or IDA_Y_INIT
@@ -175,12 +175,9 @@ function sunsim(smem::SimSundials, tstop::Float64, Nsteps::Int)
                 ## TODO: avoid reflattening, if possible precompute
                 ## all possible equations ahead of time
 
-                ## preserve any modifications to parameters
-                p = copy(ss.p)
                 ## reflatten equations
                 eq = sm.eq
                 ss = create_simstate(create_sim(elaborate(eq)))
-                ss.p = p
                 sm = ss.sm
 
                 ## restart the simulation:

@@ -1,6 +1,9 @@
 
 module Sims
 
+using Reexport
+@reexport using Reactive
+
 import Base.ifelse,
        Base.hcat,
        Base.length,
@@ -11,15 +14,16 @@ import Base.ifelse,
        Base.vcat
 
 ## Types
-export ModelType, UnknownCategory, Unknown, UnknownVariable, DefaultUnknown, DerUnknown, RefUnknown, Parameter,
-       RefBranch, InitialEquation, Model, MExpr, Discrete, RefDiscrete, DiscreteVar, Event, LeftVar, StructuralEvent,
+export ModelType, UnknownCategory, Unknown, UnknownVariable, DefaultUnknown, DerUnknown, RefUnknown, 
+       RefBranch, InitialEquation, Model, MExpr, Event, LeftVar, StructuralEvent,
        EquationSet, SimFunctions, Sim, SimResult
 
-## Specials
-export MTime, @init, @unknown
+export UnknownReactive, Discrete, Parameter
 
+## Specials
+export MTime, @init, @unknown, @liftd
 ## Methods
-export Equation, @equations, is_unknown, der, delay, mexpr, value, compatible_values, reinit, ifelse, add_hook!,
+export Equation, @equations, is_unknown, der, delay, mexpr, compatible_values, reinit, ifelse, pre,
        basetypeof, from_real, to_real,
        gplot, wplot,
        check, sim_verbose, 

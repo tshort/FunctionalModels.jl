@@ -38,7 +38,7 @@ function dasslfun(t_in, y_in, yp_in, cj, delta_out, ires, rpar, ipar)
     y = pointer_to_array(y_in, (n[1],))
     yp = pointer_to_array(yp_in, (n[1],))
     delta = pointer_to_array(delta_out, (n[1],))
-    df.resid(t, y, yp, rpar, delta)
+    df.resid(t, y, yp, delta)
     return nothing
 end
 function dasslrootfun(neq, t_in, y_in, yp_in, nrt, rval_out, rpar, ipar)
@@ -49,7 +49,7 @@ function dasslrootfun(neq, t_in, y_in, yp_in, nrt, rval_out, rpar, ipar)
     y = pointer_to_array(y_in, (n[1],))
     yp = pointer_to_array(yp_in, (n[1],))
     rval = pointer_to_array(rval_out, (n[2],))
-    df.event_at(t, y, yp, rpar, rval) 
+    df.event_at(t, y, yp, rval) 
     return nothing
 end
 
@@ -64,6 +64,9 @@ function dasslsim(ss::SimState, tstop::Float64=1.0, Nsteps::Int=500, reltol::Flo
     sim_info("starting sim()")
 
     sm = ss.sm
+    for x in sm.discrete_inputs
+        push!(x, x.initialvalue)
+    end
     yidx = sm.outputs .!= ""
     ## yidx = map((s) -> s != "", sm.outputs)
     Noutputs = sum(yidx)
@@ -82,7 +85,7 @@ function dasslsim(ss::SimState, tstop::Float64=1.0, Nsteps::Int=500, reltol::Flo
         yp = copy(ss.yp0)
         sm = ss.sm
         nrt = [int32(length(sm.F.event_pos))]
-        rpar = copy(ss.p)
+        rpar = [0.0]
         rtol = [reltol]
         atol = [abstol]
         lrw = [int32(N[1]^2 + 9 * N[1] + 60 + 3 * nrt[1])] 
@@ -149,20 +152,17 @@ function dasslsim(ss::SimState, tstop::Float64=1.0, Nsteps::Int=500, reltol::Flo
             if idid[1] == 5 # Event found
                 for ridx in 1:length(jroot)
                     if jroot[ridx] == 1
-                        sm.F.event_pos[ridx](t, y, yp, ss.p, ss)
+                        sm.F.event_pos[ridx](t, y, yp, ss)
                     elseif jroot[ridx] == -1
-                        sm.F.event_neg[ridx](t, y, yp, ss.p, ss)
+                        sm.F.event_neg[ridx](t, y, yp, ss)
                     end
                 end
                 if ss.structural_change
                     sim_info("Structural change event found at t = $(t[1]), restarting")
                     # Put t, y, and yp values back into original equations:
                     MTime.value = t[1]
-                    ## preserve any modifications to parameters
-                    p = copy(ss.p)
                     # Reflatten equations
                     ss = create_simstate(create_sim(elaborate(sm.eq)))
-                    ss.p = p
                     sm = ss.sm
                     
                     # Restart the simulation:
