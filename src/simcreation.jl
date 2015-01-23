@@ -30,13 +30,10 @@ type SimFunctions
                                 #   positive root crossing is detected.
     event_neg::Vector{Function} # Each function is to be run when a
                                 #   negative root crossing is detected.
-    get_discretes::Function     # Placeholder for a function to return
-                                #   discrete values.
 end
 SimFunctions(resid::Function, event_at::Function,
-             event_pos::Vector{None}, event_neg::Vector{None},
-             get_discretes::Function) = 
-    SimFunctions(resid, event_at, Function[], Function[], Function[], get_discretes)
+             event_pos::Vector{None}, event_neg::Vector{None}) = 
+    SimFunctions(resid, event_at, Function[], Function[], Function[])
 
 @doc """
 A type for holding several simulation objects needed for simulation,
@@ -48,13 +45,10 @@ type Sim
     id::Array{Int, 1}         # indicates whether a variable is algebraic or differential
     outputs::Array{ASCIIString, 1} # output labels
     unknown_idx_map::Dict     # symbol => index into y (or yp)
-    discrete_map::Dict        # sym => Discrete variable 
-    parameter_idx_map::Dict   # symbol => index into parameters
+    discrete_inputs::Set      # Discrete variables
     y_map::Dict               # sym => Unknown variable 
     yp_map::Dict              # sym => DerUnknown variable 
-    parameter_map::Dict       # sym => Parameter
     varnum::Int               # variable indicator position that's incremented
-    paramnum::Int             # parameter indicator position that's incremented
     abstol::Float64           # absolute error tolerance
     reltol::Float64           # relative error tolerance
     Sim(eq::EquationSet) = new(eq)
@@ -74,7 +68,6 @@ type SimState
     t::Array{Float64, 1}      # time
     y0::Array{Float64, 1}     # state vector
     yp0::Array{Float64, 1}    # derivatives vector
-    p::Array{Float64, 1}      # parameters vector
     structural_change::Bool
     history::SimStateHistory
     sm::Sim # reference to a Sim
@@ -101,16 +94,12 @@ function create_sim(eq::EquationSet)
     
     sm = Sim(eq)
     sm.varnum = 1
-    sm.paramnum = 1
-    sm.parameter_idx_map = Dict()
     sm.unknown_idx_map = Dict()
-    sm.discrete_map = Dict()
+    sm.discrete_inputs = Set()
     sm.y_map = Dict()
     sm.yp_map = Dict()
-    sm.parameter_map = Dict()
     sm.F = setup_functions(sm)  # Most of the work's done here.
     N_unknowns = sm.varnum - 1
-    N_params = sm.paramnum - 1
     
     sm.outputs = fill_from_map("", N_unknowns, sm.y_map, x -> x.label)
     sm.id = fill_from_map(-1, N_unknowns, sm.yp_map, x -> 1)
@@ -144,12 +133,10 @@ create_simstate(sm::Sim)
 function create_simstate (sm::Sim)
 
     N_unknowns = sm.varnum - 1
-    N_params = sm.paramnum - 1
 
     t = [0.0]
     y0 = fill_from_map(0.0, N_unknowns, sm.y_map, x -> to_real(x.value))
     yp0 = fill_from_map(0.0, N_unknowns, sm.yp_map, x -> to_real(x.value))
-    p = fill_from_map(0.0, N_params, sm.parameter_map, x -> to_real(x.value))
     structural_change = false
     history = SimStateHistory (Dict(),Dict())
     for (k,v) in sm.y_map
@@ -158,7 +145,7 @@ function create_simstate (sm::Sim)
             history.x[k] = Any[]
         end
     end
-    ss = SimState (t,y0,yp0,p,structural_change,history,sm)
+    ss = SimState (t,y0,yp0,structural_change,history,sm)
     
     ss
 end
@@ -224,42 +211,22 @@ function setup_functions(sm::Sim)
         ex = to_thunk(replace_unknowns(sm.eq.pos_responses[idx], sm))
         push!(ev_pos_array, 
              quote
-                 (t, y, yp, p, ss) -> begin $ex; return; end
+                 (t, y, yp, ss) -> begin $ex; return; end
              end)
         ex = to_thunk(replace_unknowns(sm.eq.neg_responses[idx], sm))
         push!(ev_neg_array, 
              quote
-                 (t, y, yp, p, ss) -> begin $ex; return; end
+                 (t, y, yp, ss) -> begin $ex; return; end
              end)
     end
     ev_pos_thunk = length(ev_pos_array) > 0 ? Expr(:call, :vcat, ev_pos_array...) : Function[]
     ev_neg_thunk = length(ev_neg_array) > 0 ? Expr(:call, :vcat, ev_neg_array...) : Function[]
-
-    get_discretes_thunk = :(() -> 1)   # dummy function for now
-
-    # Variable declarations are for Discrete variables. Each is stored
-    # in its own array, so it can be overwritten by reinit. From the
-    # discrete_map Dict, y[1] is the key (symbol name), and y[2] is
-    # the value (type Discrete).
-    discrete_defs = :()
-    for (k, v) in sm.discrete_map
-        # println("k", k)
-        if length(v.hookex) == 0
-            ex = :($k = Sims.DiscreteVar($v))
-        else
-            funs = map(x -> :(() -> $(replace_unknowns(x, sm))), v.hookex)
-            funs = cmb(:vcat, funs...)
-            ex = :($k = Sims.DiscreteVar($v, $funs))
-        end
-        discrete_defs = :($discrete_defs; $ex)
-    end
 
     _sim_resid_name = gensym ("_sim_resid")
     _sim_init_name = gensym ("_sim_init")
     _sim_event_at_name = gensym ("_sim_event_at")
     _sim_event_pos_array_name = gensym ("_sim_event_pos_array")
     _sim_event_neg_array_name = gensym ("_sim_event_neg_array")
-    _sim_get_discretes_name = gensym ("_sim_get_discretes")
     
     #
     # The framework for the master function defined. Each "thunk" gets
@@ -270,8 +237,7 @@ function setup_functions(sm::Sim)
             # to eval globally for two reasons: (1) performance and (2) so
             # cfunction could be used to set up Julia callbacks. This does
             # mean that the _sim_* functions are seen globally.
-            $discrete_defs
-            function $_sim_resid_name (t, y, yp, p, r)
+            function $_sim_resid_name (t, y, yp, r)
                  ##@show y
                  ## @show length(y)
                  ##@show p
@@ -281,27 +247,23 @@ function setup_functions(sm::Sim)
                  r[1:end] = a
                  nothing
             end
-            function $_sim_init_name (t, y, yp, p, r)
+            function $_sim_init_name (t, y, yp, r)
                  a = $init_thunk
                  ##@show a
                  ##dump(a)
                  r[1:end] = a
                  nothing
             end
-            function $_sim_event_at_name (t, y, yp, p, r)
+            function $_sim_event_at_name (t, y, yp, r)
                  r[1:end] = $event_thunk
                  nothing
             end
             $_sim_event_pos_array_name = $ev_pos_thunk
             $_sim_event_neg_array_name = $ev_neg_thunk
-            function $_sim_get_discretes_name ()
-                 $get_discretes_thunk
-                 nothing
-            end
         () -> begin
             Sims.SimFunctions($_sim_resid_name, $_sim_init_name,
                               $_sim_event_at_name, $_sim_event_pos_array_name,
-                              $_sim_event_neg_array_name, $_sim_get_discretes_name)
+                              $_sim_event_neg_array_name)
         end
     end
 
@@ -329,18 +291,6 @@ function add_var(v, sm)
         idx = len == 1 ? sm.varnum : (sm.varnum:(sm.varnum + len - 1))
         sm.unknown_idx_map[v.sym] = idx
         sm.varnum = sm.varnum + len
-    end
-end
-
-# adds a parameter to the parameter_idx_map if it isn't already
-# there. 
-function add_param(v, sm) 
-    if !haskey(sm.parameter_idx_map, v.sym)
-        # Account for the length and fundamental size of the object
-        len = length(v.value) * int(sizeof([v.value][1]) / 8)  
-        idx = len == 1 ? sm.paramnum : (sm.paramnum:(sm.paramnum + len - 1))
-        sm.parameter_idx_map[v.sym] = idx
-        sm.paramnum = sm.paramnum + len
     end
 end
 
@@ -383,37 +333,21 @@ end
 function replace_unknowns(a::PassedUnknown, sm::Sim)
     a.ref
 end
-function replace_unknowns(a::Discrete, sm::Sim)
-    # println(a.sym)
-    sm.discrete_map[a.sym] = a
-    :(($(a.sym)).value)
+function replace_unknowns{T}(a::Discrete{Reactive.Input{T}}, sm::Sim)
+    push!(sm.discrete_inputs, a)    # Discrete inputs
+    :(value($a))
 end
-function replace_unknowns(a::RefDiscrete, sm::Sim) # handle array referencing
-    sm.discrete_map[a.u.sym] = a.u
-    :(getindex(($(a.u.sym)).value, a.idx))
+function replace_unknowns{T}(a::Discrete{T}, sm::Sim)
+    :(value($a))
+end
+function replace_unknowns{T}(a::Parameter{T}, sm::Sim)
+    :(value($a))
 end
 # In assigned variables (LeftVar), use SubArrays (sub), instead of ref.
 # This allows assignment.
 function replace_unknowns(a::LeftVar, sm::Sim)
-    if isa(a.var, Discrete)
-        # println("D",a.var.sym)
-        sm.discrete_map[a.var.sym] = a.var
-        :($(a.var.sym))
-    elseif isa(a.var, Parameter)
-        :(sub(p,$(sm.parameter_idx_map[a.var.sym]):$(sm.parameter_idx_map[a.var.sym])))
-    else
-        var = replace_unknowns(a.var, sm)
-        :(sub($(var.args[2]), $(var.args[3]):$(var.args[3])))
-    end
-end
-function replace_unknowns(a::Parameter, sm::Sim) 
-    add_param(a, sm)
-    sm.parameter_map[sm.parameter_idx_map[a.sym]] = a
-    if isreal(a.value) && ndims(a.value) < 2
-        :(getindex(p, ($(sm.parameter_idx_map[a.sym]))))
-    else
-        :(from_real(getindex(p, ($(sm.parameter_idx_map[a.sym]))), $(basetypeof(a.value)), $(size(a.value))))
-    end
+    var = replace_unknowns(a.var, sm)
+    :(sub($(var.args[2]), $(var.args[3]):$(var.args[3])))
 end
 
 #

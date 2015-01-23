@@ -1,3 +1,4 @@
+import Reactive
 
 ########################################
 ## Electrical library                 ##
@@ -570,7 +571,7 @@ function IdealDiode(n1::ElectricalNode, n2::ElectricalNode,
     i = Current(vals)
     v = Voltage(vals)
     s = Unknown(vals)  # dummy variable
-    openswitch = Discrete(fill(true, length(vals)))  # on/off state of each diode
+    openswitch = Discrete(true)  # on/off state of each diode
     @equations begin
         Branch(n1, n2, v, i)
         BoolEvent(openswitch, -s)  # openswitch becomes true when s goes negative
@@ -617,23 +618,25 @@ IdealThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete;
 * `Ron` : Closed thyristor resistance [Ohm], default = 1.E-5
 * `Goff` : Opened thyristor conductance [S], default = 1.E-5
 """ ->
-function IdealThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete, 
+function IdealThyristor(n1::ElectricalNode, n2::ElectricalNode, fire, 
                         Vknee = 0.0, Ron = 1e-5, Goff = 1e-5)
     vals = compatible_values(n1, n2) 
     i = Current(vals)
     v = Voltage(vals)
     s = Unknown(vals)  # dummy variable
-    off = Discrete(true)  # on/off state of each switch
-    addhook!(fire, 
-             ifelse(fire, reinit(off, false)))
+    spositive = Discrete(value(s) > 0.0)
+    ## off = @lift !spositive | (off & !fire) # on/off state of each switch
+    off = lift(x -> x[1],
+               foldl((off, spositive, fire) -> (!spositive | (off[1] & !fire), spositive, fire),
+                     (true, value(spositive), value(fire)), spositive, fire))
     @equations begin
         Branch(n1, n2, v, i)
-        Event(-s, reinit(off, true)) 
+        BoolEvent(spositive, s)
         v = s .* ifelse(off, 1.0, Ron) + Vknee
         i = s .* ifelse(off, Goff, 1.0) + Goff .* Vknee
     end
 end
-function IdealThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete; 
+function IdealThyristor(n1::ElectricalNode, n2::ElectricalNode, fire; 
                         Vknee = 0.0, Ron = 1e-5, Goff = 1e-5)
     IdealThyristor(n1, n2, fire, Vknee, Ron, Goff)
 end

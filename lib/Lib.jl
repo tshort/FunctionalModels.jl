@@ -12,7 +12,7 @@ export NumberOrUnknown, Signal, UVoltage, UCurrent, ElectricalNode, Voltage, Cur
        UAngularAcceleration, AngularAcceleration, Flange
 ## Blocks
 export Integrator, Derivativ, Integrator, Derivative,
-       LimPID, StateSpace, Limiter, DeadZone
+       LimPID, StateSpace, Limiter, DeadZone, BooleanPulse
 ## Electrical
 export SeriesProbe, BranchHeatPort,
        Resistor, Capacitor, Inductor, SaturatingInductor, Transformer, EMF,

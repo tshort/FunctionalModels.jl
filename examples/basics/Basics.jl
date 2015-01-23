@@ -40,8 +40,18 @@ function runexamples()
     shwr = sim(StructuralHalfWaveRectifier(), 0.1)
     v    = sim(Vanderpol(), 50.0)
     vwe  = sim(VanderpolWithEvents(), 10.0)
+    
+    mu = Parameter(1.0)
+    ss = create_simstate(VanderpolWithParameter(mu))
+    vwp1 = sim(ss, 10.0)
+    reinit(mu, 1.5)
+    vwp2 = sim(ss, 10.0)
+    reinit(mu, 1.0)
+    vwp3 = sim(ss, 10.0) # should be the same as vwp1
+    
     conc  = sim(Concentration(), 10.0)
     sconc  = sim(SimpleConcentration(), 10.0)
+    
     ic   = solve(InitialCondition())
     mic  = solve(MkinInitialCondition())
 end 

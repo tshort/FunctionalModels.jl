@@ -72,17 +72,6 @@ The type above could be split into pieces, with standards for
 annotation. In any case, we'd need standard extraction methods to pull
 data out about parameters.
 
-### Connections
-
-This is the biggest deficiency of using a nodal approach. It's tough
-to see how to map connections. As a user plops down models, where is a
-given "Node" defined?
-
-Maybe a node could have a graphical list of the connections to all
-top-level models attached.
-
-TODO: Look at how Simplorer (VHDL-AMS) works. 
-
 ### One option
 
 One option to including GUI-related metadata is to use method
