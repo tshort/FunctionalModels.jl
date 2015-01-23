@@ -49,6 +49,8 @@ function Ca_model(cai,I_Ca)
     end
 end
 
+
+
 function Purkinje(I)
 
     v   = Voltage (-70.0, "v")   
