@@ -65,20 +65,33 @@ y = sim(simpleConcentration())
 
 """ ->
 
-function ReactionEquation (M,F,X,i)
+function ReactionEquation (M,F,X,j)
     r = size(M,1) ## number of reactions
-    Equation[der(X[i]) - sum([ M[i,j] * F[j] for j = 1:r ])]
+    Equation[der(X[j]) - sum(filter (x -> !(x == 0.0),
+                                     [ (M[i,j] == 0 ? 0.0 : M[i,j] * F[i]) for i in 1:r]))]
 end
 
 function reactionFlux (K,S,X)
+
+    function f(S,X,i,j)
+        if S[i,j] == 0.0
+            return 1.0
+        elseif S[i,j] == 1.0
+            return X[j]
+        else
+            return X[j] ^ S[i,j]
+        end
+    end
+    
     n = size(S,2) ## number of species
     r = size(S,1) ## number of reactions
 
     F = cell(r)
     
-    for j = 1:r
+    for i = 1:r
         ## (reaction rate) * (reactant concentrations)
-        F[j] = K[j] * prod ([ S[i,j] == 0.0 ? 1.0 : (X[i] ^ S[i,j]) for i = 1:n])
+        F[i] = K[i] * prod (filter(x -> !(x == 1.0),
+                                   [ f(S,X,i,j) for j = 1:n]))
     end
 
     F
@@ -137,7 +150,7 @@ function parseReactionSystem (V)
     c = cell(1,n)
     c[:] = 0
     i = 1
-    
+
     for reaction in V
         if reaction[1] == :->
             
