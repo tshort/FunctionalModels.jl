@@ -113,7 +113,8 @@ end
 
 ## Parses reactions of the form
 ##
-## :-> a b rate 
+## :-> a b rate  or :→ a b rate 
+## :⇄ a b rate1 rate2
 ##
 function parseReactionSystem (V)
 
@@ -122,7 +123,7 @@ function parseReactionSystem (V)
     
     for reaction in V
 
-        if reaction[1] == :-> 
+        if reaction[1] == :-> || reaction[1] == :→ 
             assert(length(reaction) == 4)
             x = reaction[2]
             y = reaction[3]
@@ -134,7 +135,20 @@ function parseReactionSystem (V)
                 push!(X, y)
             end
             push!(K, rate)
-            
+        elseif reaction[1] == :⇄
+            assert(length(reaction) == 5)
+            x = reaction[2]
+            y = reaction[3]
+            rate1 = reaction[4]
+            rate2 = reaction[5]
+            if (!(x in X))
+                push!(X, x)
+            end
+            if (!(y in X))
+                push!(X, y)
+            end
+            push!(K, rate1)
+            push!(K, rate2)
         else
             error("Unknown reaction type", reaction)
         end
@@ -152,7 +166,7 @@ function parseReactionSystem (V)
     i = 1
 
     for reaction in V
-        if reaction[1] == :->
+        if reaction[1] == :-> || reaction[1] == :→ 
             
             x = reaction[2]
             y = reaction[3]
@@ -167,6 +181,27 @@ function parseReactionSystem (V)
             R[i,yi] = 1
 
             i = i + 1
+        elseif reaction[1] == :⇄
+            
+            x = reaction[2]
+            y = reaction[3]
+
+            xi = find(indexin(X, Any[x]))[1]
+            yi = find(indexin(X, Any[y]))[1]
+            
+            S = vcat(S,c)
+            R = vcat(R,c)
+
+            S[i,xi] = 1
+            R[i,yi] = 1
+
+            S = vcat(S,c)
+            R = vcat(R,c)
+
+            S[i+1,yi] = 1
+            R[i+1,xi] = 1
+
+            i = i + 2
         else 
             error("Unknown reaction type", reaction)
         end
