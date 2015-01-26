@@ -49,42 +49,31 @@ pplot(y)
 
 
 using Sims.Lib
-function Inertia1(flange_a::Flange, J::Real)
-    val = compatible_values(flange_a)
-    tau_a = Torque(val)
-    w = AngularVelocity(val)
-    a = AngularAcceleration(val)
-    @equations begin
-        RefBranch(flange_a, tau_a)
-        w = der(flange_a)
-        a = der(w)
-        tau_a = J .* a
-    end
-end
 
+@doc """
+Rotational example based on components in Sims.Lib
 
-##
-## NOTE: broken - fails on initial conditions
-##
-function SecondOrderSystemUsingSimsLib(; #phi1 = Angle(label = "Angle of inertia 1"),
+http://book.xogeny.com/behavior/equations/mechanical/
+
+![diagram](http://book.xogeny.com/_images/PlantWithPulseCounter.svg)
+
+""" ->
+function SecondOrderSystemUsingSimsLib(; phi1 = Angle(label = "Angle of inertia 1", value = 0.0, fixed = true),
                                          phi2 = Angle(label = "Angle of inertia 2", value = 1.0, fixed = true),
-                                         ## omega1 = Unknown("Velocity of inertia 1"),
-                                         ## omega2 = Unknown("Velocity of inertia 2"),
+                                         omega1 = Unknown(label = "Velocity of inertia 1", value = 0.0, fixed = true),
+                                         omega2 = Unknown(label = "Velocity of inertia 2", value = 0.0, fixed = true),
                                          J1 = 0.4, J2 = 1.0, k1 = 11.0, k2 = 5.0, d1 = 0.2, d2 = 1.0)
     @equations begin
-        ## omega1 = der(phi1)
-        ## omega2 = der(phi2)
-        Inertia1(phi1, J1)
-        Inertia1(phi2, J2)
+        omega1 = der(phi1)
+        omega2 = der(phi2)
+        Inertia(phi1, J1)
+        Inertia(phi2, J2)
         SpringDamper(phi1, phi2, k1, d1)
+        SpringDamper(phi2, 0.0, k2, d2)
     end
 end
-## m = SecondOrderSystemUsingSimsLib()
-## e = elaborate(m)
-## s = create_simstate(e)
-## y = dasslsim(SecondOrderSystemUsingSimsLib(), tstop = 5.0)
-
-## pplot(y)
+y = dasslsim(SecondOrderSystemUsingSimsLib(), tstop = 5.0)
+pplot(y)
 
 
 
@@ -107,7 +96,7 @@ function SampleAndHold()
     end
 end
 y = dasslsim(SampleAndHold(), tstop = 5.0)
-pplot(y)
+## pplot(y)
 
 @doc """
 Rotational example with interval measurements
@@ -137,7 +126,7 @@ function IntervalMeasure()
     end
 end
 y = dasslsim(IntervalMeasure(), tstop = 5.0)
-pplot(y)
+## pplot(y)
 
 @doc """
 Rotational example with pulse counting
@@ -172,4 +161,4 @@ function PulseCounting()
     end
 end
 y = dasslsim(PulseCounting(), tstop = 5.0)
-pplot(y)
+## pplot(y)

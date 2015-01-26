@@ -27,9 +27,11 @@ NOTE: these need more testing.
 @doc* """
 1D-rotational component with inertia
 
-Rotational component with inertia and two rigidly connected flanges. 
+Rotational component with inertia at a flange (or between two rigidly
+connected flanges).
 
 ```julia
+Inertia(flange_a::Flange, J::Real)
 Inertia(flange_a::Flange, flange_b::Flange, J::Real)
 ```
 
@@ -40,6 +42,18 @@ Inertia(flange_a::Flange, flange_b::Flange, J::Real)
 * `J::Real` : Moment of inertia [kg.m^2]
 
 """ ->
+function Inertia(flange_a::Flange, J::Real)
+    val = compatible_values(flange_a)
+    tau_a = Torque(val)
+    w = AngularVelocity(val)
+    a = AngularAcceleration(val)
+    @equations begin
+        RefBranch(flange_a, tau_a)
+        w = der(flange_a)
+        a = der(w)
+        tau_a = J .* a
+    end
+end
 function Inertia(flange_a::Flange, flange_b::Flange, J::Real)
     val = compatible_values(flange_a, flange_b)
     tau_a = Torque(val)
@@ -105,7 +119,7 @@ Spring(flange_a::Flange, flange_b::Flange, c::Real, phi_rel0 = 0.0)
 """ ->
 function Spring(flange_a::Flange, flange_b::Flange, c::Real, phi_rel0::Signal = 0.0)
     val = compatible_values(flange_a, flange_b)
-    phi_rel = Angle(val)
+    phi_rel = Angle(value(flange_b) - value(flange_a))
     tau = Torque(val)
     @equations begin
         Branch(flange_b, flange_a, phi_rel, tau)
@@ -136,7 +150,7 @@ Damper(flange_a::Flange, flange_b::Flange, hp::HeatPort, d::Signal)
 """ ->
 function Damper(flange_a::Flange, flange_b::Flange, d::Signal)
     val = compatible_values(flange_a, flange_b)
-    phi_rel = Angle(val)
+    phi_rel = Angle(value(flange_b) - value(flange_a))
     tau = Torque(val)
     @equations begin
         Branch(flange_b, flange_a, phi_rel, tau)
@@ -172,7 +186,7 @@ SpringDamper(flange_a::Flange, flange_b::Flange, hp::HeatPort, c::Signal, d::Sig
 """ ->
 function SpringDamper(flange_a::Flange, flange_b::Flange, c::Signal, d::Signal)
     val = compatible_values(flange_a, flange_b)
-    phi_rel = Angle(val)
+    phi_rel = Angle(value(flange_b) - value(flange_a))
     tau = Torque(val)
     @equations begin
         Spring(flange_a, flange_b, c)
@@ -332,7 +346,7 @@ MBranchHeatPort(flange_a::Flange, flange_b::Flange, hp::HeatPort,
 function MBranchHeatPort(flange_a::Flange, flange_b::Flange, hp::HeatPort,
                          model::Function, args...)
     val = compatible_values(flange_a, flange_b)
-    phi_rel = Angle(val)
+    phi_rel = Angle(value(flange_b) - value(flange_a))
     w_rel = AngularVelocity(val)
     tau = Torque(val)
     PowerLoss = Power(compatible_values(hp))
