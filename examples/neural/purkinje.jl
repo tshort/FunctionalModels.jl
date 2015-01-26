@@ -555,7 +555,3 @@ dt = 0.025
 @time cell_yout = sunsim(cell_s, tstop=tf, Nsteps=int(tf/dt), reltol=1e-1, abstol=1e-4)
 
 
-
-##@time cell_yout = sim(cell_s, tf, int(tf/dt))
-
-##plot (cell_yout.y[:,1], cell_yout.y[:,3])
