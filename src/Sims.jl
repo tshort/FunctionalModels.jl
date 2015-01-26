@@ -16,7 +16,7 @@ import Base.ifelse,
 ## Types
 export ModelType, UnknownCategory, Unknown, UnknownVariable, DefaultUnknown, DerUnknown, RefUnknown, 
        RefBranch, InitialEquation, Model, MExpr, Event, LeftVar, StructuralEvent,
-       EquationSet, SimFunctions, Sim, SimResult
+       EquationSet, SimFunctions, Sim, SimState, SimResult
 
 export UnknownReactive, Discrete, Parameter
 
@@ -27,7 +27,8 @@ export Equation, @equations, is_unknown, der, delay, mexpr, compatible_values, r
        basetypeof, from_real, to_real,
        gplot, wplot,
        check, sim_verbose, 
-       elaborate, create_sim, create_simstate, sim, sunsim, dasslsim, solve
+       elaborate, create_sim, create_simstate, sim, sunsim, dasslsim, solve,
+       initialize!
 
 ## Model methods
 export Branch, BoolEvent
@@ -50,6 +51,7 @@ export DocTag
 ##     :( @doc $ex -> type $(gensym()) <: DocTag end )
 ## end
 ## export @doctag, DocTag
+using Compat
         
 
 include("main.jl")

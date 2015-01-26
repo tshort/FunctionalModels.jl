@@ -247,22 +247,110 @@ end
 Prints the number of equations and the number of unknowns.
 
 ```julia
-name(x)
+check(x)
 ```
 
 ### Arguments
 
-* `x` : a Model, EquationSet, or Sim
+* `x` : a Model, EquationSet, Sim, or SimState
 
 ### Returns
 
-* `::Void`
+* `Nvar` : Number of floating point variables
+* `Neq` : Number of equations
+
 """ ->
 function check(s::Sim)
     Nvar = length(s.y0)
-    println("Number of floating point variables: ", Nvar)
     Neq = length(s.F.resid_check(Nvar))
-    println("Number of equations: ", Neq)
+    Nvar, Neq
 end
+check(s::SimState) = check(s.sm)
 check(e::EquationSet) = check(create_sim(e))
 check(m::Model) = check(create_sim(elaborate(m)))
+
+
+########################################
+## Model initiation                   ##
+########################################
+
+
+@require JuMP begin
+
+    @doc* """
+    Experimental function to initialize models.
+    
+    ```julia
+    initialize!(ss::SimState)
+    ```
+    
+    ### Arguments
+    
+    * `ss::SimState` : the SimState to be initialized
+    
+    ### Returns
+    
+    * `::JuMP.Model`
+    
+    ### Details
+    
+    `initialize!` updates `ss.y0` and `ss.yp0` with values that
+    satisfy the initial equations. If it does not converge, a warning
+    is printed, and `ss` is not changed.
+
+    `JuMP.jl` must be installed along with a nonlinear solver like
+    `Ipopt.jl` or `NLopt.jl`. The JuMP model is set up without an
+    objective function. Linear equality constraints are added for each
+    `fixed` variable. Nonlinear equality constraints are added for
+    each equation in the model (with some additional checking work,
+    some of these could probably be converted to linear constraints).
+
+    Also, `initialize!` only works for scalar models. Models with
+    vector components don't work. Internally, `.*` is replaced with
+    `*`. It's rather kludgy, but right now, JuMP doesn't support
+    `.*`. A better approach would be to fully flatten the model.
+    
+    """ ->
+    function initialize!(ss::SimState)
+        ## Attempt to use JuMP.jl
+        ##
+        ## try to set constraints for each equation
+        sm    = ss.sm
+        m = Model()
+        n = length(ss.y0)
+        @defVar(m, y[1:n])
+        @defVar(m, yp[1:n])
+        eq = ss.sm.eq.initialequations
+        global exv = Sims.replace_unknowns(eq, sm)
+        for i in 1:n
+            setValue(y[i], ss.y0[i])
+            setValue(yp[i], ss.yp0[i])
+            if sm.yfixed[i]
+                @addConstraint(m, y[i] == ss.y0[i])
+            end
+            if sm.ypfixed[i]
+                @addConstraint(m, yp[i] == ss.yp0[i])
+            end
+            ex = exv[i]
+            if Meta.isexpr(ex, :call) && ex.args[1] == :(-) && length(ex.args) == 3
+                ex.args[1] = :(==)
+                ex = Expr(:comparison, ex.args[2], :(==), ex.args[3])
+            else
+                ex = Expr(:comparison, 0.0, :(==), ex)
+            end
+            replacegetindex!(ex)
+            eval(X, :( using Base.Operators; _f(y, yp, m) = @addNLConstraint(m, $ex) ))
+            _f(y, yp, m)
+        end
+        global _m = m
+        r = solve(m)
+        if r == :Optimal
+            ss.y0 = getValue(y)[:]
+            ss.yp0 = getValue(yp)[:]
+            return m
+        else
+            println("Initial value solution failed")
+        end
+    end
+
+end # require

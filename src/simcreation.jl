@@ -43,6 +43,8 @@ type Sim
     eq::EquationSet           # the input
     F::SimFunctions
     id::Array{Int, 1}         # indicates whether a variable is algebraic or differential
+    yfixed::Array{Bool, 1}    # indicates whether a variable is fixed
+    ypfixed::Array{Bool, 1}   # indicates whether a derivative is fixed
     outputs::Array{ASCIIString, 1} # output labels
     unknown_idx_map::Dict     # symbol => index into y (or yp)
     discrete_inputs::Set      # Discrete variables
@@ -66,8 +68,10 @@ simulation, including a Sim. Normally created with
 """ ->
 type SimState
     t::Array{Float64, 1}      # time
-    y0::Array{Float64, 1}     # state vector
-    yp0::Array{Float64, 1}    # derivatives vector
+    y0::Array{Float64, 1}     # initial state vector
+    yp0::Array{Float64, 1}    # initial derivatives vector
+    y::Array{Float64, 1}      # state vector
+    yp::Array{Float64, 1}     # derivatives vector
     structural_change::Bool
     history::SimStateHistory
     sm::Sim # reference to a Sim
@@ -103,6 +107,8 @@ function create_sim(eq::EquationSet)
     
     sm.outputs = fill_from_map("", N_unknowns, sm.y_map, x -> x.label)
     sm.id = fill_from_map(-1, N_unknowns, sm.yp_map, x -> 1)
+    sm.yfixed = fill_from_map(true, N_unknowns, sm.y_map, x -> x.fixed)
+    sm.ypfixed = fill_from_map(true, N_unknowns, sm.yp_map, x -> x.fixed)
     sm.abstol = 1e-4
     sm.reltol = 1e-4
 
@@ -137,6 +143,8 @@ function create_simstate (sm::Sim)
     t = [0.0]
     y0 = fill_from_map(0.0, N_unknowns, sm.y_map, x -> to_real(x.value))
     yp0 = fill_from_map(0.0, N_unknowns, sm.yp_map, x -> to_real(x.value))
+    y = copy(y0)
+    yp = copy(yp0)
     structural_change = false
     history = SimStateHistory (Dict(),Dict())
     for (k,v) in sm.y_map
@@ -145,7 +153,7 @@ function create_simstate (sm::Sim)
             history.x[k] = Any[]
         end
     end
-    ss = SimState (t,y0,yp0,structural_change,history,sm)
+    ss = SimState(t,y0,yp0,y,yp,structural_change,history,sm)
     
     ss
 end

@@ -272,7 +272,7 @@ voltages).
 function ChuaCircuit()
     n1 = Voltage("n1")
     n2 = Voltage("n2")
-    n3 = Voltage(4.0, "n3")
+    n3 = Voltage(value = 4.0, label = "n3", fixed = true)
     g = 0.0
     function NonlinearResistor(n1::ElectricalNode, n2::ElectricalNode, Ga, Gb, Ve)
         i = Current(compatible_values(n1, n2))

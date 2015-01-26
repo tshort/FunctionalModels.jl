@@ -403,11 +403,11 @@ import Base.(^)
 for f in binary_functions
     ## @eval import Base.(f)
     eval(Expr(:toplevel, Expr(:import, :Base, f)))
-    @eval ($f)(x::ModelType, y::ModelType) = mexpr(:call, ($f), _expr(x), _expr(y))
-    @eval ($f)(x::ModelType, y::Number) = mexpr(:call, ($f), _expr(x), y)
-    @eval ($f)(x::ModelType, y::AbstractArray) = mexpr(:call, ($f), _expr(x), y)
-    @eval ($f)(x::Number, y::ModelType) = mexpr(:call, ($f), x, _expr(y))
-    @eval ($f)(x::AbstractArray, y::ModelType) = mexpr(:call, ($f), x, _expr(y))
+    @eval ($f)(x::ModelType, y::ModelType) = mexpr(:call, $(Expr(:quote, f)), _expr(x), _expr(y))
+    @eval ($f)(x::ModelType, y::Number) = mexpr(:call, $(Expr(:quote, f)), _expr(x), y)
+    @eval ($f)(x::ModelType, y::AbstractArray) = mexpr(:call, $(Expr(:quote, f)), _expr(x), y)
+    @eval ($f)(x::Number, y::ModelType) = mexpr(:call, $(Expr(:quote, f)), x, _expr(y))
+    @eval ($f)(x::AbstractArray, y::ModelType) = mexpr(:call, $(Expr(:quote, f)), x, _expr(y))
 end 
 
 for f in unary_functions
@@ -415,14 +415,14 @@ for f in unary_functions
     eval(Expr(:toplevel, Expr(:import, :Base, f)))
 
     # Define separate method to get rid of 'ambiguous definition' warnings in base/floatfuncs.jl
-    @eval ($f)(x::ModelType, arg::Integer) = mexpr(:call, ($f), _expr(x), arg)
+    @eval ($f)(x::ModelType, arg::Integer) = mexpr(:call, $(Expr(:quote, f)), _expr(x), arg)
 
-    @eval ($f)(x::ModelType, args...) = mexpr(:call, ($f), _expr(x), map(_expr, args)...)
+    @eval ($f)(x::ModelType, args...) = mexpr(:call, $(Expr(:quote, f)), _expr(x), map(_expr, args)...)
 end
 
 # Non-Base functions:
 for f in [:der, :pre]
-    @eval ($f)(x::ModelType, args...) = mexpr(:call, ($f), _expr(x), args...)
+    @eval ($f)(x::ModelType, args...) = mexpr(:call, $(Expr(:quote, f)), _expr(x), args...)
 end
 
 
