@@ -138,7 +138,7 @@ Typical values for k at 20 degC in W/(m.K):
 
 """ ->
 function ThermalConductor(port_a::HeatPort, port_b::HeatPort, G::Signal)
-    dT = Temperature(compatible_values(port_a, port_b))
+    dT = Temperature(value(port_a) - value(port_b))
     Q_flow = HeatFlow(compatible_values(port_a, port_b))
     @equations begin
         Branch(port_a, port_b, dT, Q_flow)
@@ -224,7 +224,7 @@ Transfer, 8th edition, McGraw-Hill, 1997, p.270):
 
 """ ->
 function Convection(port_a::HeatPort, port_b::HeatPort, Gc::Signal)
-    dT = Temperature(compatible_values(port_a, port_b))
+    dT = Temperature(value(port_a) - value(port_b))
     Q_flow = HeatFlow(compatible_values(port_a, port_b))
     @equations begin
         Branch(port_a, port_b, dT, Q_flow)

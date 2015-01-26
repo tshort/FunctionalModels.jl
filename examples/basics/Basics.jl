@@ -30,6 +30,7 @@ include("half_wave_rectifiers.jl")
 include("initial_conditions.jl")
 include("vanderpol.jl")
 include("vanderpol_with_events.jl")
+include("vanderpol_with_parameter.jl")
 include("concentration.jl")
 
 function runexamples()
