@@ -167,11 +167,11 @@ function CaBK_model(v,cai,I_CaBK)
 
     g_CaBK  = Unknown(value(m^3 * h * z^2 * gbar_CaBK))
 
-    z_reactions = parseReactionSystem (Any
-                                        [
-                                         [ :-> zO zC z_alpha ]
-                                         [ :-> zC zO z_beta ]
-                                        ])
+    z_reactions = parse_reactions (Any
+                                   [
+                                    [ :-> zO zC z_alpha ]
+                                    [ :-> zC zO z_beta ]
+                                   ])
     ## TODO: conservation equation zO + zC = 1
 
     @equations begin
@@ -428,28 +428,28 @@ function Narsg_model(v,I_Na)
     O  = Unknown(1.7e-4)
     B  = Unknown(0.007)
     
-    reaction = parseReactionSystem (Any [
-
-                                         [ :⇄ C1 C2 f01 b01 ]
-                                         [ :⇄ C2 C3 f02 b02 ]
-                                         [ :⇄ C3 C4 f03 b03 ]
-                                         [ :⇄ C4 C5 f04 b04 ]
-                                         [ :⇄ C5 O  f0O b0O ]
-                                         [ :⇄ O  B  fip bip ]
-                                         [ :⇄ O  I6 fin bin ]
-                                         [ :⇄ C1 I1 fi1 bi1 ]
-                                         [ :⇄ C2 I2 fi2 bi2 ]
-                                         [ :⇄ C3 I3 fi3 bi3 ]
-                                         [ :⇄ C4 I4 fi4 bi4 ]
-                                         [ :⇄ C5 I5 fi5 bi5 ]
-                                         [ :⇄ I1 I2 f11 b11 ]
-                                         [ :⇄ I2 I3 f12 b12 ]
-                                         [ :⇄ I3 I4 f13 b12 ]
-                                         [ :⇄ I4 I5 f14 b14 ]
-                                         [ :⇄ I5 I6 f1n b1n ]
-
-                                         ])
-
+    reaction = parse_reactions (Any [
+                                     
+                                     [ :⇄ C1 C2 f01 b01 ]
+                                     [ :⇄ C2 C3 f02 b02 ]
+                                     [ :⇄ C3 C4 f03 b03 ]
+                                     [ :⇄ C4 C5 f04 b04 ]
+                                     [ :⇄ C5 O  f0O b0O ]
+                                     [ :⇄ O  B  fip bip ]
+                                     [ :⇄ O  I6 fin bin ]
+                                     [ :⇄ C1 I1 fi1 bi1 ]
+                                     [ :⇄ C2 I2 fi2 bi2 ]
+                                     [ :⇄ C3 I3 fi3 bi3 ]
+                                     [ :⇄ C4 I4 fi4 bi4 ]
+                                     [ :⇄ C5 I5 fi5 bi5 ]
+                                     [ :⇄ I1 I2 f11 b11 ]
+                                     [ :⇄ I2 I3 f12 b12 ]
+                                     [ :⇄ I3 I4 f13 b12 ]
+                                     [ :⇄ I4 I5 f14 b14 ]
+                                     [ :⇄ I5 I6 f1n b1n ]
+                                     
+                                     ])
+    
     g_Na = Unknown(value(O * gbar_Na))
     
     @equations begin

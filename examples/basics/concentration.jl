@@ -36,5 +36,5 @@ function SimpleConcentration(; A0 = 0.25, rateA = 0.333, rateB = 0.16)
                      [ :-> B A rateB ]
                     ]
 
-    return parseReactionSystem (reactions)
+    return parse_reactions (reactions)
 end

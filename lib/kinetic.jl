@@ -39,7 +39,7 @@ end
 y = sim(concentration())
 ```
 
-
+```julia
 ### Simple reaction syntax parser
 
 function simpleConcentration()
@@ -56,13 +56,11 @@ function simpleConcentration()
                      [ :-> B A rateB ]
                    ]
 
-    return parseReactionSystem (reactions)
+    return parse_reactions (reactions)
 end
 
 y = sim(simpleConcentration())
-
-
-
+```
 """ ->
 
 function ReactionEquation (M,F,X,j)
@@ -71,7 +69,7 @@ function ReactionEquation (M,F,X,j)
                                      [ (M[i,j] == 0 ? 0.0 : M[i,j] * F[i]) for i in 1:r]))]
 end
 
-function reactionFlux (K,S,X)
+function reaction_flux (K,S,X)
 
     function f(S,X,i,j)
         if S[i,j] == 0.0
@@ -107,16 +105,46 @@ function ReactionSystem (X, ## state vector
     M = (R - S) ## stoichiometric matrix
     n = size(M,2) ## number of species
     r = size(M,1) ## number of reactions
-    F = reactionFlux (K,S,X)
+    F = reaction_flux (K,S,X)
     return Equation[ ReactionEquation(M,F,X,i) for i=1:n ]
 end
 
-## Parses reactions of the form
+## 
 ##
-## :-> a b rate  or :→ a b rate 
-## :⇄ a b rate1 rate2
 ##
-function parseReactionSystem (V)
+    
+@doc* """
+Parses reactions of the form
+
+```julia
+Any[ :-> a b rate ]
+Any[ :→ a b rate  ]
+Any[ :⇄ a b rate1 rate2 ]
+```
+
+### Arguments
+
+* `V` : Vector of reactions
+
+### Example
+
+```julia
+    A0 = 0.25
+    rateA = 0.333
+    rateB = 0.16
+
+    A = Unknown(A0)
+    B = Unknown(0.0)
+
+    reactions = Any[
+                     [ :⇄ A B rateA rateB ]
+                   ]
+
+    parse_reactions (reactions)
+```
+
+""" ->
+function parse_reactions (V)
 
     X = Any[] ## species
     K = Any[] ## reaction rates
