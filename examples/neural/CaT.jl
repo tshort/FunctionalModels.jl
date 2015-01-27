@@ -1,5 +1,6 @@
 
 using Sims
+using Sims.Lib
 using Winston
 
 ### Wang, X., Rinzel, J. and Rogawski, M. (1992) "A model of the
