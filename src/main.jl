@@ -398,7 +398,7 @@ end
 
 # special case to avoid a warning:
 import Base.(^)
-(^)(x::ModelType, y::Integer) = mexpr(:call, (^), _expr(x), y)
+(^)(x::ModelType, y::Integer) = mexpr(:call, :(^), _expr(x), y)
 
 for f in binary_functions
     ## @eval import Base.(f)

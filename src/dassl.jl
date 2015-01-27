@@ -66,9 +66,10 @@ function dasslsim(ss::SimState, tstop::Float64=1.0, Nsteps::Int=500, reltol::Flo
 
     sm = ss.sm
     for x in sm.discrete_inputs
-        push!(x, x.initialvalue)
+        push!(x.signal, x.initialvalue)
     end
     ss.y[:] = ss.y0
+    @show ss.y
     ss.yp[:] = ss.yp0
     yidx = sm.outputs .!= ""
     ## yidx = map((s) -> s != "", sm.outputs)

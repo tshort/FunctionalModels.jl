@@ -114,7 +114,7 @@ function sunsim(smem::SimSundials, tstop::Float64, Nsteps::Int, init::Symbol)
 
     # fix up initial values
     for x in sm.discrete_inputs
-        push!(x, x.initialvalue)
+        push!(x.signal, x.initialvalue)
     end
     ss.y[:] = ss.y0
     ss.yp[:] = ss.yp0
@@ -141,7 +141,7 @@ function sunsim(smem::SimSundials, tstop::Float64, Nsteps::Int, init::Symbol)
     flag = Sundials.IDAReInit(mem, tstart, ss.y, ss.yp)
 
     if any(abs(rtest) .>= sm.reltol)
-        flag = Sundials.IDACalcIC(mem, init == :Ya_Ydp ? Sundials.IDA_YA_YDP_INIT : Sundials.IDA_Y_INIT, tstart + tstep)
+        flag = Sundials.IDACalcIC(mem, init == :Y ? Sundials.IDA_Y_INIT : Sundials.IDA_YA_YDP_INIT, tstart + tstep)
     end
     
     for idx in 1:Nsteps

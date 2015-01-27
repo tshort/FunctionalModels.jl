@@ -141,10 +141,10 @@ function create_simstate (sm::Sim)
     N_unknowns = sm.varnum - 1
 
     t = [0.0]
-    y0 = fill_from_map(0.0, N_unknowns, sm.y_map, x -> to_real(x.value))
-    yp0 = fill_from_map(0.0, N_unknowns, sm.yp_map, x -> to_real(x.value))
-    y = copy(y0)
-    yp = copy(yp0)
+    y = fill_from_map(0.0, N_unknowns, sm.y_map, x -> to_real(x.value))
+    yp = fill_from_map(0.0, N_unknowns, sm.yp_map, x -> to_real(x.value))
+    y0 = copy(y)
+    yp0 = copy(yp)
     structural_change = false
     history = SimStateHistory (Dict(),Dict())
     for (k,v) in sm.y_map

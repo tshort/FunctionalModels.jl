@@ -12,7 +12,7 @@ An extension of Sims.Examples.Basics.Vanderpol. Events are triggered
 every 2 sec that change the quantity `mu`.
 """ ->
 function VanderpolWithEvents()
-    y = Unknown(1.0, "y")   
+    y = Unknown(value = 1.0, label = "y", fixed = true)   
     x = Unknown("x")
     mu = Discrete(1.0)
     alpha = @liftd(0.8 * :mu)
@@ -21,8 +21,7 @@ function VanderpolWithEvents()
     alpha_u = Unknown(value(alpha), "alpha_u") 
     beta_u = Unknown(value(beta), "beta_u") 
     @equations begin
-        # The -1.0 in der(x, -1.0) is the initial value for the derivative 
-        der(x, -1.0) = mu * (1 - y^2) * x - y
+        der(x) = mu * (1 - y^2) * x - y
         der(y) = x
         mu_u    = mu
         alpha_u = alpha
