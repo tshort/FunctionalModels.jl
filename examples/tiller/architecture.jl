@@ -6,7 +6,7 @@ export FlatSystem, BaseSystem, IdealSensor, SampleHoldSensor,
        PIDController
 
 @comment """
-## Architectures
+# Architectures
 
 These examples from the following sections from the [Architectures
 chapter](http://book.xogeny.com/components/architectures/):
@@ -22,7 +22,7 @@ approach is generally cleaner.
 """
 
 
-@doc """
+@doc* """
 Sensor comparison for a rotational example
 
 http://book.xogeny.com/components/architectures/sensor_comparison/
@@ -161,7 +161,9 @@ end
 ## bs = dasslsim(BaseSystem(), tstop = 5.0)
 ## wplot(bs)
 
-"Creating sample-hold variant using system architecture"
+"""
+BaseSystem variant with sample-hold sensing
+"""
 Variant1 = BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.01));
 
 ## v1 = dasslsim(Variant1, tstop = 5.0)
@@ -173,7 +175,9 @@ Variant1a = BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.036));
 ## wplot(v1a)
 
 
-"Adds PID control and realistic actuator subsystems"
+"""
+BaseSystem variant with PID control along with a realistic actuator
+"""
 Variant2  = BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.01),
                        Controller = PIDController(yMax=15, Td=0.1, k=20, Ti=0.1),
                        Actuator = LimitedActuator(delayTime=0.005, uMax=10));
@@ -182,7 +186,9 @@ Variant2  = BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.01),
 ## wplot(v2)
 
 
-"Adds a tuned PID control along with a realistic actuator"
+"""
+BaseSystem variant with a tuned PID control along with a realistic actuator
+"""
 Variant2a  = BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.01),
                         Controller = PIDController(yMax=50, Td=0.01, k=4, Ti=0.07),
                         Actuator = LimitedActuator(delayTime=0.005, uMax=50));

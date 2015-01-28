@@ -4,6 +4,8 @@ module Tiller
 using ....Sims
 using ....Sims.Lib
 using Docile
+@document
+
 
 @comment """
 # Examples from [Modelica by Example](http://book.xogeny.com/)

@@ -11,7 +11,7 @@ export SecondOrderSystem, SecondOrderSystemUsingSimsLib, SampleAndHold, Interval
 ## end
 
 @comment """
-## Examples of speed measurement
+# Examples of speed measurement
 
 These examples show several ways of measuring speed on a rotational
 system. They are based on Michael's section on [Speed
