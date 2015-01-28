@@ -32,7 +32,7 @@ include("powersystems.jl")
 include("rotational.jl")
 
 
-function runexamples()
+function runall()
     ## Electrical
     run_electrical_examples()
     
@@ -49,7 +49,7 @@ function runexamples()
     fst   = sim(First())
     
     ## Blocks
-    ## pidc  = sim(PID_Controller(), 4.0)
+    pidc  = sim(PID_Controller(), 4.0)
 end
 
 end # module

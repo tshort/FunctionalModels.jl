@@ -438,7 +438,7 @@ The input signal tau defines an external torque in [Nm] which acts
 connected to this flange is driven by torque tau.
 
 ```julia
-SignalTorque(flange_a::Flange, flange_b::Flange, tau::Signal)
+SignalTorque(flange_a::Flange, flange_b::Flange, tau)
 ```
 
 ### Arguments
@@ -449,7 +449,7 @@ SignalTorque(flange_a::Flange, flange_b::Flange, tau::Signal)
   (normally a support); a positive value accelerates flange_a
 
 """ ->
-function SignalTorque(flange_a::Flange, flange_b::Flange, tau::Signal)
+function SignalTorque(flange_a::Flange, flange_b::Flange, tau)
     @equations begin
         RefBranch(flange_a, -tau)
         RefBranch(flange_b, tau)

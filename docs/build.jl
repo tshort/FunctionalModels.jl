@@ -83,11 +83,12 @@ mysave("lib/rotational.md",    filter(Sims.Lib, files = ["rotational.jl"]), [:so
 mysave("examples/basics.md", Sims.Examples.Basics, [:source])
 mysave("examples/lib.md",    Sims.Examples.Lib, [:source])
 mysave("examples/neural.md", Sims.Examples.Neural, [:source])
+mysave("examples/tiller.md", Sims.Examples.Tiller, [:source])
 
 
 mysave("api/main.md",       filter(Sims, files = ["main.jl"]))
 smfiles = ["dassl.jl","sundials.jl","sim.jl", "elaboration.jl", "simcreation.jl"]
 mysave("api/sim.md",        filter(Sims, files = smfiles))
 # Need to load all optional modules to bring in all of the files.
-using Gadfly, DataFrames, Winston    # , Gaston
+using Gadfly, DataFrames, Winston, PyPlot    # , Gaston
 mysave("api/utils.md",      filter(Sims, files = ["utils.jl"]), [:source])

@@ -14,7 +14,7 @@ These are available in **Sims.Examples.Neural**.
 
 include("hh.jl")
 
-function runexamples()
+function runall()
     hh   = HodgkinHuxley()  # returns the hierarchical model
     tf = 500.0
     dt = 0.025

@@ -1,30 +1,34 @@
 
-using Sims, Docile
+using Sims, Sims.Lib, Docile
 
-using PyPlot, PyCall
-@pyimport pandas
-function pplot(x)
-    pd = pandas.DataFrame(x.y[:,2:end], x.y[:,1], columns = x.colnames)
-    pd[:plot]()
-end
+export SecondOrderSystem, SecondOrderSystemUsingSimsLib, SampleAndHold, IntervalMeasure, PulseCounting
 
-@doc """
-# Examples from *Modelica by Example*
+## using PyPlot, PyCall
+## @pyimport pandas
+## function pplot(x)
+##     pd = pandas.DataFrame(x.y[:,2:end], x.y[:,1], columns = x.colnames)
+##     pd[:plot]()
+## end
 
-These examples are from the online book [Modelica by
-Example](http://book.xogeny.com/) by Michael M. Tiller. Michael
-explains modeling and simulations very well, and it's easy to compare
-results to those online.
+@comment """
+## Examples of speed measurement
 
-NOTE: These are not yet included in `Sims.Examples.*`.
-""" -> type DocExTiller <: DocTag end
+These examples show several ways of measuring speed on a rotational
+system. They are based on Michael's section on [Speed
+Measurement](http://book.xogeny.com/behavior/discrete/measuring/). These
+examples include use of Discrete variables and Events.
+
+The system is based on the following plant:
+
+![diagram](http://book.xogeny.com/_images/PlantWithPulseCounter.svg)
+
+"""
+
 
 @doc """
 Rotational example
 
 http://book.xogeny.com/behavior/equations/mechanical/
-
-![diagram](http://book.xogeny.com/_images/PlantWithPulseCounter.svg)
 
 """ ->
 function SecondOrderSystem(; phi1 = Unknown("Angle of inertia 1"),
@@ -43,12 +47,10 @@ function SecondOrderSystem(; phi1 = Unknown("Angle of inertia 1"),
         J2*der(omega2) = k1*(phi1-phi2)-d1*der(phidiff)-k2*phi2-d2*der(phi2)
     end
 end
-y = dasslsim(SecondOrderSystem(), tstop = 5.0)
-pplot(y)
+## y = dasslsim(SecondOrderSystem(), tstop = 5.0)
+## pplot(y)
 
 
-
-using Sims.Lib
 
 @doc """
 Rotational example based on components in Sims.Lib
@@ -72,8 +74,8 @@ function SecondOrderSystemUsingSimsLib(; phi1 = Angle(label = "Angle of inertia 
         SpringDamper(phi2, 0.0, k2, d2)
     end
 end
-y = dasslsim(SecondOrderSystemUsingSimsLib(), tstop = 5.0)
-pplot(y)
+## y = dasslsim(SecondOrderSystemUsingSimsLib(), tstop = 5.0)
+## pplot(y)
 
 
 
@@ -95,7 +97,7 @@ function SampleAndHold()
         omega1_measured_u = omega1_measured
     end
 end
-y = dasslsim(SampleAndHold(), tstop = 5.0)
+## y = dasslsim(SampleAndHold(), tstop = 5.0)
 ## pplot(y)
 
 @doc """
@@ -125,7 +127,7 @@ function IntervalMeasure()
         omega1_measured_u = omega1_measured
     end
 end
-y = dasslsim(IntervalMeasure(), tstop = 5.0)
+## y = dasslsim(IntervalMeasure(), tstop = 5.0)
 ## pplot(y)
 
 @doc """
@@ -160,5 +162,5 @@ function PulseCounting()
         omega1_measured_u = omega1_measured
     end
 end
-y = dasslsim(PulseCounting(), tstop = 5.0)
+## y = dasslsim(PulseCounting(), tstop = 5.0)
 ## pplot(y)

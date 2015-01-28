@@ -1265,7 +1265,7 @@ BoolEvent(d::Discrete, condition::ModelType)
 ### Examples
 
 See [IdealDiode](../../lib/electrical/#idealdiode) and
-[Limiter](../../lib/electrical/#limiter) in the standard library.
+[Limiter](../../lib/blocks/#limiter) in the standard library.
 
 """ ->
 function BoolEvent{T}(d::Discrete{T}, condition::ModelType)
@@ -1310,7 +1310,7 @@ ifelse(x, y, z)
 ### Examples
 
 See [DeadZone](../../lib/electrical/#deadzone) and
-[Limiter](../../lib/electrical/#limiter) in the standard library.
+[Limiter](../../lib/blocks/#limiter) in the standard library.
 
 """ ->
 ifelse(x::ModelType, y, z) = mexpr(:call, :ifelse, x, y, z)
