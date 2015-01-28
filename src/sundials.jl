@@ -24,23 +24,23 @@ end
 
 function daefun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userdata_ptr::Ptr{Void})
     ss::SimState = unsafe_pointer_to_objref(userdata_ptr)
+    history::SimStateHistory = ss.history
     sm::Sim = ss.sm
-
     y  = Sundials.asarray(y) 
     yp = Sundials.asarray(yp) 
     r  = Sundials.asarray(r)
-    sm.F.resid(t, y, yp, r)
+    sm.F.resid(t, y, yp, r, history)
     return int32(0)   # indicates normal return
 end
 
 function rootfun(t::Float64, y::N_Vector, yp::N_Vector, g::Ptr{Sundials.realtype}, userdata_ptr::Ptr{Void})
     ss::SimState = unsafe_pointer_to_objref(userdata_ptr)
+    history::SimStateHistory = ss.history
     sm::Sim = ss.sm
-
     y  = Sundials.asarray(y) 
     yp = Sundials.asarray(yp) 
     g  = Sundials.asarray(g, (length(sm.F.event_pos),))
-    sm.F.event_at(t, y, yp, g)
+    sm.F.event_at(t, y, yp, g, history)
     return int32(0)   # indicates normal return
 end
 
@@ -134,7 +134,7 @@ function sunsim(smem::SimSundials, tstop::Float64, Nsteps::Int, init::Symbol)
     neq   = length(ss.y0)
     rtest = zeros(neq)
 
-    sm.F.resid(tstart, ss.y, ss.yp, rtest)
+    sm.F.resid(tstart, ss.y, ss.yp, rtest, ss.history)
 
     mem = smem.mem
     

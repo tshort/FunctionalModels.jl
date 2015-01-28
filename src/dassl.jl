@@ -33,23 +33,23 @@ end
 function dasslfun(t_in, y_in, yp_in, cj, delta_out, ires, rpar, ipar)
     n = int(pointer_to_array(ipar, (3,)))
     index = n[3]
-    df = __DF[index]
+    (df,history) = __DF[index]
     t = pointer_to_array(t_in, (1,))
     y = pointer_to_array(y_in, (n[1],))
     yp = pointer_to_array(yp_in, (n[1],))
     delta = pointer_to_array(delta_out, (n[1],))
-    df.resid(t, y, yp, delta)
+    df.resid(t, y, yp, delta, history)
     return nothing
 end
 function dasslrootfun(neq, t_in, y_in, yp_in, nrt, rval_out, rpar, ipar)
     n = int(pointer_to_array(ipar, (3,)))
     index = n[3]
-    df = __DF[index]
+    (df,history) = __DF[index]
     t = pointer_to_array(t_in, (1,))
     y = pointer_to_array(y_in, (n[1],))
     yp = pointer_to_array(yp_in, (n[1],))
     rval = pointer_to_array(rval_out, (n[2],))
-    df.event_at(t, y, yp, rval) 
+    df.event_at(t, y, yp, rval, history) 
     return nothing
 end
 
@@ -105,7 +105,7 @@ function dasslsim(ss::SimState, tstop::Float64=1.0, Nsteps::Int=500, reltol::Flo
         ## @show rtest
 
         index = convert(Cint,length(__DF)+1)
-        push!(__DF, sm.F)
+        push!(__DF, (sm.F,ss.history))
         ipar = [int32(length(ss.y0)), nrt[1], index]
          
         # Set up the callback.
