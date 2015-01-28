@@ -42,7 +42,7 @@ function runexamples()
     
     ## Power systems
     rlm   = sim(RLModel(), 0.2)
-    pim   = sim(PiModel(), 0.02)
+    ## pim   = sim(PiModel(), 0.02)
     ## mm    = sim(ModalModel(), 0.2)
     
     ## Rotational
