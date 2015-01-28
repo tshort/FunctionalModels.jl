@@ -7,9 +7,9 @@
 
 export PID_Controller
 
-@doc """
+@comment """
 # Blocks
-""" -> type DocHeadBlocks <: DocTag end
+"""
 
 
 @doc* """

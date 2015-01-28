@@ -12,6 +12,7 @@ pages:
 - [api/sim.md,   API,  Simulations]
 - [api/utils.md, API,  Utilities]
 - [lib/types.md,         Standard library, Types]
+- [lib/kinetics.md,      Standard library, Chemical kinetics]
 - [lib/blocks.md,        Standard library, Control and signal blocks]
 - [lib/electrical.md,    Standard library, Electrical]
 - [lib/heat_transfer.md, Standard library, Heat transfer]

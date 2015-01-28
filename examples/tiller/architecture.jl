@@ -46,13 +46,15 @@ function FlatSystem(phi1 = Angle(),
         SignalTorque(phi1, 0.0, 20 * (ifelse(d, 1.0, 0.0) - omega2))
     end
 end
+
 ## y = dasslsim(FlatSystem(), tstop = 5.0)
 ## wplot(y)
 
 
-"Basic plant for the example"
-function BasicPlant(phi1 = Angle(),
-                    phi2 = Angle())
+@doc* """
+Basic plant for the example
+""" ->
+function BasicPlant(phi1 = Angle(), phi2 = Angle())
     @equations begin
         Inertia(phi1, 0.1) # left side
         Inertia(phi2, 0.3) # right side
@@ -61,14 +63,18 @@ function BasicPlant(phi1 = Angle(),
     end
 end
 
-"Ideal sensor for angular velocity"
+@doc* """
+Ideal sensor for angular velocity
+""" ->
 function IdealSensor(phi, signal)
     @equations begin
         signal = der(phi)
     end
 end
 
-"Sample-and-hold velocity sensor"
+@doc* """
+Sample-and-hold velocity sensor
+""" ->
 function SampleHoldSensor(phi, signal, sampletime)
     omega_measured = Discrete(0.0)
     omega = AngularVelocity()
@@ -82,14 +88,18 @@ end
 ## Create a closure to handle samplerate adjustments
 SampleHoldSensor(; sampletime = 1.0) = (phi, signal) -> SampleHoldSensor(phi, signal, sampletime)
 
-"Ideal actuator"
+@doc* """
+Ideal actuator
+""" ->
 function IdealActuator(phi, tau)
     @equations begin
         SignalTorque(phi, 0.0, tau)
     end
 end
 
-"Actuator with lag and saturation"
+@doc* """
+Actuator with lag and saturation
+""" ->
 function LimitedActuator(phi, tau, delayTime, uMax)
     clippedtau = Unknown()
     delayedtau = Unknown()
@@ -102,7 +112,9 @@ function LimitedActuator(phi, tau, delayTime, uMax)
 end
 LimitedActuator(; delayTime = 0.0, uMax = Inf) = (phi, tau) -> LimitedActuator(phi, tau, delayTime, uMax)
 
-"Proportional controller"
+@doc* """
+Proportional controller
+""" ->
 function ProportionalController(setpoint, measured, command, k)
     @equations begin
         command = k * (setpoint - measured)
@@ -110,7 +122,9 @@ function ProportionalController(setpoint, measured, command, k)
 end
 ProportionalController(; k = 20.0) = (setpoint, measured, command) -> ProportionalController(setpoint, measured, command, k)
     
-"PID controller"
+@doc* """
+PID controller
+""" ->
 function PIDController(setpoint, measured, command, k, Ti, Td, yMax)
     @equations begin
         LimPID(setpoint, measured, command, k=k, Ti=Ti, Td=Td, yMax=yMax, yMin = -yMax)
@@ -119,7 +133,7 @@ end
 PIDController(; k = 1.0, Ti = 1.0, Td = 1.0, yMax = Inf) = (setpoint, measured, command) -> PIDController(setpoint, measured, command, k, Ti, Td, yMax)
 
 
-"""
+@doc* """
 Base system with replaceable components
 
 This is the same example as [FlatSystem](#flatsystem), but `Plant`,
@@ -135,7 +149,7 @@ Variant2  = BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.01),
                        Controller = PIDController(yMax=15, Td=0.1, k=20, Ti=0.1),
                        Actuator = LimitedActuator(delayTime=0.005, uMax=10));
 ```
-"""
+""" ->
 function BaseSystem(; Plant = BasicPlant,
                       Sensor = IdealSensor,
                       Actuator = IdealActuator,

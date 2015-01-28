@@ -3,7 +3,7 @@
 ## Rotational Mechanical Models       ##
 ########################################
 
-@doc """
+@comment """
 # Rotational mechanics
 
 Library to model 1-dimensional, rotational mechanical systems
@@ -15,7 +15,7 @@ These components are modeled after the Modelica.Mechanics.Rotational
 library.
 
 NOTE: these need more testing.
-""" -> type DocRotational <: DocTag end
+"""
 
 
 
@@ -321,9 +321,9 @@ end
 ########################################
 ## Misc
 ########################################
-@doc """
+@comment """
 # Miscellaneous
-""" -> type DocHMiscellaneous <: DocTag end
+"""
 
 @doc* """
 Wrap argument `model` with a heat port that captures the power
@@ -369,9 +369,9 @@ end
 ########################################
 ## Sensors
 ########################################
-@doc """
+@comment """
 # Sensors
-""" -> type DocHSensors <: DocTag end
+"""
 
 @doc* """
 Ideal sensor to measure the absolute flange angular velocity
@@ -425,9 +425,9 @@ end
 ########################################
 ## Sources
 ########################################
-@doc """
+@comment """
 # Sources
-""" -> type DocHSources <: DocTag end
+"""
 
 
 @doc* """

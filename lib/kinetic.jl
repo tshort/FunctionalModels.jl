@@ -3,8 +3,11 @@
 ## Chemical Kinetic equations
 ########################################
 
+@comment """
+# Chemical kinetics
+"""
 
-@doc """
+@doc* """
 Chemical kinetic reaction system
 
 ```julia

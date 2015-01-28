@@ -8,7 +8,7 @@ using Docile
 
 
 @comment """
-# Examples from [Modelica by Example](http://book.xogeny.com/)
+# From [Modelica by Example](http://book.xogeny.com/)
 
 These examples are from the online book [Modelica by
 Example](http://book.xogeny.com/) by Michael M. Tiller. Michael

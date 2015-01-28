@@ -13,15 +13,15 @@
 #    DiscreteBlock(u, y, Ts, SS.TransferFunction(a,b)) # fuzzy
 
 
-@doc """
+@comment """
 # Control and signal blocks
 
 These components are modeled after the `Modelica.Blocks.*` library.
-""" -> type DocBlocks <: DocTag end
+"""
 
-@doc """
+@comment """
 # Continuous linear
-""" -> type DocBlocksLinear <: DocTag end
+"""
 
 
 @doc* """
@@ -462,9 +462,9 @@ TransferFunction(u::Signal, y::Signal;
 ########################################
 ## Nonlinear Blocks
 ########################################
-@doc """
+@comment """
 # Nonlinear
-""" -> type DocBlocksNonlinear <: DocTag end
+"""
 
 
 

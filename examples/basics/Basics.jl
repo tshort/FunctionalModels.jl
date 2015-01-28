@@ -3,9 +3,10 @@ module Basics
 using ....Sims
 using ....Sims.Lib
 using Docile
+@document
 
 
-@doc """
+@comment """
 # Examples using basic models
 
 These are available in **Sims.Examples.Basics**.
@@ -20,7 +21,7 @@ v = sim(m, 50.0)
 using Winston
 wplot(v)
 ```
-""" -> type DocExBasics <: DocTag end
+"""
 
 
 include("breaking_pendulum.jl")

@@ -1,23 +1,13 @@
 
-using Docile, Docile.Interface, Sims
+using Docile, Docile.Interface, Lexicon, Sims
 
 
-function Base.filter(m::Module; args...)
-    filter(documentation(m); args...)
-end
-
-function Base.filter(docs::Metadata; files = String[])
-    entries = copy(docs.entries)
-    if length(files) > 0
-        filter!((k,v) -> any(x -> contains(v.data[:source][2], x), files),
-                entries)
-    end
-    Metadata(docs.modname, entries, docs.root, docs.files, docs.data, docs.loaded)
-end
+myfilter(x::Module; files = [""]) = filter(metadata(x), files = files, categories = [:comment, :module, :function, :method, :type, :typealias, :macro, :global])
+myfilter(x::Metadata; files = [""]) = filter(x, files = files, categories = [:comment, :module, :function, :method, :type, :typealias, :macro, :global])
 
 # Stuff from Lexicon.jl:
-writeobj(any)       = string(any)
-writeobj(m::Method) = first(split(string(m), " at "))
+writeobj(any) = string(any)
+writeobj(m::Method) = first(split(string(m), "("))
 # from base/methodshow.jl
 function url(m)
     line, file = m
@@ -39,56 +29,50 @@ function url(m)
     end
 end
 
-getcat{T}(x::Entry{T}) = T
 
-function mysave(file::String, m::Module, order = [:doctag, :category, :name, :source])
+function mysave(file::String, m::Module, order = [:source])
     mysave(file, documentation(m), order)
 end
-function mysave(file::String, docs::Metadata, order = [:doctag, :category, :name, :source])
+function mysave(file::String, docs::Metadata, order = [:source])
     isfile(file) || mkpath(dirname(file))
     open(file, "w") do io
         info("writing documentation to $(file)")
         println(io)
-        doctag = [isa(k, Type) && k <: DocTag for k in keys(docs.entries)]
-        name = [replace(writeobj(k), ",", ", ") for k in keys(docs.entries)]
-        source = [v.data[:source] for v in values(docs.entries)]
-        data = [v.docs.data for v in values(docs.entries)]
-        category = [getcat(v) for v in values(docs.entries)]
-        d = [:doctag => !doctag,    # various vectors for sorting
-             :name => name,
-             :source => [(a[2], a[1]) for a in source],
-             :category => category]
-        for i in sortperm(collect(zip([d[o] for o in order]...)))
+        for (k,v) in EachEntry(docs, order = order)
+            name = writeobj(k)
+            source = v.data[:source]
+            catgory = category(v)
+            comment = catgory == :comment
             println(io)
             println(io)
-            !doctag[i] && println(io, "## $(name[i])")
+            !comment && println(io, "## $name")
             println(io)
-            println(io, data[i])
-            s = source[i]
-            path = last(split(s[2], r"v[\d\.]+(/|\\)"))
-            !doctag[i] && println(io, "[$(path):$(s[1])]($(url(s)))")
+            println(io, v.docs.data)
+            path = last(split(source[2], r"v[\d\.]+(/|\\)"))
+            !comment && println(io, "[$(path):$(source[1])]($(url(source)))")
             println(io)
         end
     end
 end
 
 
-mysave("lib/types.md",         filter(Sims.Lib, files = ["types.jl"]), [:source])
-mysave("lib/blocks.md",        filter(Sims.Lib, files = ["blocks.jl"]), [:source])
-mysave("lib/electrical.md",    filter(Sims.Lib, files = ["electrical.jl"]), [:source])
-mysave("lib/heat_transfer.md", filter(Sims.Lib, files = ["heat_transfer.jl"]), [:source])
-mysave("lib/powersystems.md",  filter(Sims.Lib, files = ["powersystems.jl"]), [:source])
-mysave("lib/rotational.md",    filter(Sims.Lib, files = ["rotational.jl"]), [:source])
+mysave("lib/types.md",         myfilter(Sims.Lib, files = ["types.jl"]))
+mysave("lib/blocks.md",        myfilter(Sims.Lib, files = ["blocks.jl"]))
+mysave("lib/electrical.md",    myfilter(Sims.Lib, files = ["electrical.jl"]))
+mysave("lib/kinetics.md",      myfilter(Sims.Lib, files = ["kinetic.jl"]))
+mysave("lib/heat_transfer.md", myfilter(Sims.Lib, files = ["heat_transfer.jl"]))
+mysave("lib/powersystems.md",  myfilter(Sims.Lib, files = ["powersystems.jl"]))
+mysave("lib/rotational.md",    myfilter(Sims.Lib, files = ["rotational.jl"]))
 
-mysave("examples/basics.md", Sims.Examples.Basics, [:source])
-mysave("examples/lib.md",    Sims.Examples.Lib, [:source])
-mysave("examples/neural.md", Sims.Examples.Neural, [:source])
-mysave("examples/tiller.md", Sims.Examples.Tiller, [:source])
+mysave("examples/basics.md", Sims.Examples.Basics)
+mysave("examples/lib.md",    Sims.Examples.Lib)
+mysave("examples/neural.md", Sims.Examples.Neural)
+mysave("examples/tiller.md", Sims.Examples.Tiller)
 
 
-mysave("api/main.md",       filter(Sims, files = ["main.jl"]))
+mysave("api/main.md",       myfilter(Sims, files = ["main.jl"]), [:category, :name, :source])
 smfiles = ["dassl.jl","sundials.jl","sim.jl", "elaboration.jl", "simcreation.jl"]
-mysave("api/sim.md",        filter(Sims, files = smfiles))
+mysave("api/sim.md",        myfilter(Sims, files = smfiles), [:category, :name, :source])
 # Need to load all optional modules to bring in all of the files.
 using Gadfly, DataFrames, Winston, PyPlot    # , Gaston
-mysave("api/utils.md",      filter(Sims, files = ["utils.jl"]), [:source])
+mysave("api/utils.md",      myfilter(Sims, files = ["utils.jl"]), [:category, :name, :source])
