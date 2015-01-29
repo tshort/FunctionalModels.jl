@@ -23,6 +23,6 @@ function DDE(; tau=3.0)
     # Expressions with Unknowns are kept as expressions. Expressions of
     # regular variables are evaluated immediately (like normal).
     @equations begin
-        der(x) = -x + f(a * x - b * delay(x,tau) + p)
+        der(x,-1.0) = -x + f(a * x - b * delay(x,tau) + p)
     end
 end
