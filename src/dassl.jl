@@ -80,6 +80,7 @@ function dasslsim(ss::SimState, tstop::Float64=1.0, Nsteps::Int=500, reltol::Flo
     idid = [int32(0)]
     info = fill(int32(0), 20)
     info[11] = initdassl[init]    # calc initial conditions (1 or 2) / don't calc (0)
+    info[16] = 1    # == 1 to ignore algebraic variables in the error calculation
     info[18] = 2    # more initialization info
     
     function setup_sim(ss::SimState, tstart::Float64, tstop::Float64, Nsteps::Int; reltol::Float64=1e-5, abstol::Float64=1e-3)
@@ -92,7 +93,7 @@ function dasslsim(ss::SimState, tstop::Float64=1.0, Nsteps::Int=500, reltol::Flo
         rpar = [0.0]
         rtol = [reltol]
         atol = [abstol]
-        lrw = [int32(N[1]^2 + 9 * N[1] + 60 + 3 * nrt[1])] 
+        lrw = [int32(N[1]^3 + 9 * N[1] + 60 + 3 * nrt[1])] 
         rwork = fill(0.0, lrw[1])
         liw = [int32(2*N[1] + 40)] 
         iwork = fill(int32(0), liw[1])

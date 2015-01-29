@@ -1,3 +1,8 @@
+[![Example](http://pkg.julialang.org/badges/Sims_release.svg)](http://pkg.julialang.org/?pkg=Sims&ver=release)
+[![Example](http://pkg.julialang.org/badges/Sims_nightly.svg)](http://pkg.julialang.org/?pkg=Sims&ver=nightly)
+[![Build Status](https://travis-ci.org/tshort/Sims.jl.svg?branch=master)](https://travis-ci.org/tshort/Sims.jl)
+[![Coverage Status](https://img.shields.io/coveralls/tshort/Sims.jl.svg)](https://coveralls.io/r/tshort/Sims.jl)
+
 
 Sims.jl
 =======

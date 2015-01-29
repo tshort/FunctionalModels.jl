@@ -1,8 +1,8 @@
-@doc """
+@comment """
 # Simulations
 
 Various functions for simulations and building simulation objects from models.
-""" -> type DocSim <: DocTag end
+"""
 
 
 @doc """

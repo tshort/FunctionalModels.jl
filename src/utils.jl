@@ -1,11 +1,11 @@
 
 using Requires
 
-@doc """
+@comment """
 # Utilities
 
 The API for simulating models and converting models to simulation objects. 
-""" -> type DocUtils <: DocTag end
+"""
 
     
 
@@ -17,9 +17,9 @@ The API for simulating models and converting models to simulation objects.
 
 @require Gaston begin
 
-    @doc """
+    @comment """
     # Gaston plotting
-    """ -> type DocUtilsGaston <: DocTag end
+    """
     
     @doc* """
 
@@ -71,9 +71,9 @@ end
     
 @require Winston begin
     
-    @doc """
+    @comment """
     # Winston plotting
-    """ -> type DocUtilsWinston <: DocTag end
+    """
     
     function _wplot(sm::SimResult)
             N = length(sm.colnames)
@@ -125,9 +125,9 @@ end
 ## DataFrames / Gadfly integration    ##
 ########################################
 
-@doc """
+@comment """
 # DataFrames and Gadfly
-""" -> type DocUtilsDataFrames <: DocTag end
+"""
     
 @require DataFrames begin
 
@@ -180,9 +180,9 @@ end
 
 end
 
-@doc """
+@comment """
 # Miscellaneous
-""" -> type DocUtilsMisc <: DocTag end
+"""
     
 #
 # @unknown

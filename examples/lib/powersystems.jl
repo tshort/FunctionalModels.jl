@@ -5,9 +5,9 @@
 
 export RLModel, PiModel, ModalModel
 
-@doc """
+@comment """
 # Power systems
-""" -> type DocHeadPower <: DocTag end
+"""
 
 @doc* """
 Three-phase RL line model

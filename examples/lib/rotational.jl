@@ -1,4 +1,3 @@
-using Sims
 
 
 ########################################
@@ -9,9 +8,9 @@ using Sims
 
 export First
 
-@doc """
+@comment """
 # Rotational
-""" -> type DocHeadRotational <: DocTag end
+"""
 
 @doc* """
 First example: simple drive train

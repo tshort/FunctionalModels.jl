@@ -13,15 +13,15 @@
 #    DiscreteBlock(u, y, Ts, SS.TransferFunction(a,b)) # fuzzy
 
 
-@doc """
+@comment """
 # Control and signal blocks
 
 These components are modeled after the `Modelica.Blocks.*` library.
-""" -> type DocBlocks <: DocTag end
+"""
 
-@doc """
+@comment """
 # Continuous linear
-""" -> type DocBlocksLinear <: DocTag end
+"""
 
 
 @doc* """
@@ -166,6 +166,8 @@ FirstOrder(u::Signal, y::Signal;
 @doc* """
 PID controller with limited output, anti-windup compensation and setpoint weighting
 
+![diagram](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica.Blocks.Continuous.LimPIDD.png)
+
 ```julia
 LimPID(u_s::Signal, u_m::Signal, y::Signal, 
        controllerType = "PID",
@@ -199,8 +201,9 @@ LimPID(u_s::Signal, u_m::Signal, y::Signal;
 
 ### Arguments
 
-* `u::Signal` : input
-* `y::Signal` : output
+* `u_s::Signal` : input setpoint
+* `u_m::Signal` : input measurement
+* `y_s::Signal` : output
 
 ### Keyword/Optional Arguments
 
@@ -268,9 +271,9 @@ function LimPID(u_s::Signal, u_m::Signal, y::Signal,
         i = u_s - u_m + (y - x) / (k * Ni)
         with_I ? Integrator(i, I, 1/Ti) : Equation[]
         with_D ? Derivative(d, D, Td, max(Td/Nd, 1e-14)) : Equation[]
-        d = u_s - u_m
+        d = wd * u_s - u_m
         Limiter(x, y, yMax, yMin)
-        x = k * ((with_I ? I : 0.0) + (with_D ? D : 0.0) + u_s - u_m)
+        x = k * ((with_I ? I : 0.0) + (with_D ? D : 0.0) + wp * u_s - u_m)
     end
 end
 
@@ -459,9 +462,9 @@ TransferFunction(u::Signal, y::Signal;
 ########################################
 ## Nonlinear Blocks
 ########################################
-@doc """
+@comment """
 # Nonlinear
-""" -> type DocBlocksNonlinear <: DocTag end
+"""
 
 
 
@@ -613,6 +616,29 @@ function BooleanPulse(x, width = 50.0, period = 1.0, startTime = 0.0)
 end
 BooleanPulse(x; width = 50.0, period = 1.0, startTime = 0.0) =
     BooleanPulse(x, width, period, startTime)
+    
+
+function Pulse(d, amplitude = 1.0, width = 50.0, period = 1.0, offset = 0.0, startTime = 0.0)
+    @equations begin
+        Event(ifelse(MTime > startTime,
+                     trianglewave(MTime - startTime, width, period),
+                     -1.0),
+              reinit(d, amplitude + offset),
+              reinit(d, offset))
+    end
+end
+Pulse(x; amplitude = 1.0, width = 50.0, period = 1.0, offset = 0.0, startTime = 0.0) =
+    Pulse(x, amplitude, width, period, offset, startTime)
+    
+## function Pulse(x, amplitude = 1.0, width = 50.0, period = 1.0, offset = 0.0, startTime = 0.0)
+##     b = Discrete(false)
+##     @equations begin
+##         BooleanPulse(b, width, period, startTime)
+##         x = ifelse(b, amplitude + offset, offset)
+##     end
+## end
+## Pulse(x; amplitude = 1.0, width = 50.0, period = 1.0, offset = 0.0, startTime = 0.0) =
+##     Pulse(x, amplitude, width, period, offset, startTime)
     
 
 function trianglewave(t, width, a)

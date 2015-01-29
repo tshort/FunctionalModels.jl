@@ -4,13 +4,13 @@
 ## PowerSystems
 ########################################
 
-@doc """
+@comment """
 # Power systems models
 
 This includes **experimental** methods for modeling power systems.
 
 *Under construction*
-""" -> type DocPower <: DocTag end
+"""
 
 
 const c = 299792458.0
@@ -23,6 +23,14 @@ const epsilon_0 = 1 / (mue_0 * c * c)
 
 SeriesImpedance = ShuntAdmittance = Array{Complex128, 2}
 
+
+@doc* """
+R-L line model
+
+```julia
+RLLine(n1::ElectricalNode, n2::ElectricalNode, Z::SeriesImpedance, len::Real, freq::Real)
+```
+""" ->
 function RLLine(n1::ElectricalNode, n2::ElectricalNode, Z::SeriesImpedance, len::Real, freq::Real)
     vals = compatible_values(n1, n2) 
     i = Current(vals)
@@ -36,6 +44,13 @@ function RLLine(n1::ElectricalNode, n2::ElectricalNode, Z::SeriesImpedance, len:
 end
 
 
+@doc* """
+PI line model
+
+```julia
+PiLine(n1::ElectricalNode, n2::ElectricalNode, Z::SeriesImpedance, Y::ShuntAdmittance, len::Real, freq::Real, ne::Int)
+```
+""" ->
 function PiLine(n1::ElectricalNode, n2::ElectricalNode, Z::SeriesImpedance, Y::ShuntAdmittance, len::Real, freq::Real, ne::Int)
     vals = compatible_values(n1, n2)
     nc = length(vals)
@@ -54,6 +69,13 @@ function PiLine(n1::ElectricalNode, n2::ElectricalNode, Z::SeriesImpedance, Y::S
     end
 end
 
+@doc* """
+Modal line model
+
+```julia
+ModalLine(v1::ElectricalNode, v2::ElectricalNode, Z::SeriesImpedance, Y::ShuntAdmittance, len::Real, freq::Real)
+```
+""" ->
 function ModalLine(v1::ElectricalNode, v2::ElectricalNode, Z::SeriesImpedance, Y::ShuntAdmittance, len::Real, freq::Real)
     # unknowns
     vals = compatible_values(v1, v2)

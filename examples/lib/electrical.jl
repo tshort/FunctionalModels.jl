@@ -1,4 +1,3 @@
-import Reactive
 
 ########################################
 ## Electrical examples
@@ -6,9 +5,9 @@ import Reactive
 ## These attempt to mimic the Modelica.Electrical.Analog.Examples
 ########################################
 
-@doc """
+@comment """
 # Electrical
-""" -> type DocHeadElectrical <: DocTag end
+"""
   
 
 export CauerLowPassAnalog,
@@ -714,9 +713,7 @@ function docutil()
 end    
     
 
-@doc* """
-Run the electrical examples from Examples.Lib
-""" ->
+## Run the electrical examples from Examples.Lib
 function run_electrical_examples()
     clpa  = sim(CauerLowPassAnalog(), 60.0)
     clpo  = sim(CauerLowPassOPV(), 60.0)

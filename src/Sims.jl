@@ -36,21 +36,8 @@ export Branch, BoolEvent
 
 
 
-## The v"0.4" stuff is commented out because of a bug in Base.@doc
-
-## if VERSION < v"0.4.0-dev"
 using Docile
-## else
-##     macro docstrings()
-##         :(nothing)
-##     end
-## end
-abstract DocTag
-export DocTag
-## macro doctag(ex)
-##     :( @doc $ex -> type $(gensym()) <: DocTag end )
-## end
-## export @doctag, DocTag
+@document
 using Compat
         
 

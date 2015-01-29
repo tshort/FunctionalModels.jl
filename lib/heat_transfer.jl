@@ -4,7 +4,7 @@
 ## Heat transfer models               ##
 ########################################
 
-@doc """
+@comment """
 # Heat transfer models
 
 Library of 1-dimensional heat transfer with lumped elements
@@ -22,7 +22,7 @@ usually not possible).
 
 Note, that all temperatures of this package, including initial
 conditions, are given in Kelvin.
-""" -> type DocHeat <: DocTag end
+"""
 
 
 ########################################
@@ -353,9 +353,9 @@ end
 ## Sources
 ########################################
 
-@doc """
+@comment """
 # Sources
-""" -> type DocHeatSources <: DocTag end
+"""
 
 
 @doc* """

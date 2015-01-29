@@ -1,5 +1,5 @@
 
-@doc """
+@comment """
 # The Sims standard library
 
 These components are available with **Sims.Lib**.
@@ -42,16 +42,12 @@ Unknown or a concrete value.
 
 Most of the types and functions support Unknowns holding array values,
 and some support complex values.
-""" -> type DocTypes <: DocTag end
+"""
 
 
 ########################################
 ## Types
 ########################################
-
-@doc """
-## NumberOrUnknown{T}
-""" -> type DocT1 <: DocTag end
 
 @doc """
 `NumberOrUnknown{T}` is a typealias for
@@ -67,10 +63,6 @@ typealias NumberOrUnknown{T} Union(AbstractArray, Number, MExpr,
                                    RefUnknown{T}, Unknown{T})
 
 @doc """
-## Signal
-""" -> type DocT2 <: DocTag end
-
-@doc """
 `Signal` is a typealias for `NumberOrUnknown{DefaultUnknown}`.
 
 Can be an Unknown, an AbstractArray, a Number, or an MExpr.
@@ -81,9 +73,9 @@ typealias Signal NumberOrUnknown{DefaultUnknown}
 ############################################
 # Main electrical types
 ############################################
-@doc """
+@comment """
 # Electrical types
-""" -> type DocElT <: DocTag end
+"""
 
 @doc """
 An UnknownCategory for electrical potential in volts.
@@ -97,10 +89,6 @@ type UCurrent <: UnknownCategory
 end
 
 @doc """
-## ElectricalNode
-""" -> type DocT3 <: DocTag end
-
-@doc """
 `ElectricalNode` is a typealias for `NumberOrUnknown{UVoltage}`.
 
 An electrical node, either a Voltage (an Unknown) or a real value. Can
@@ -109,10 +97,6 @@ for nodes. This allows nodes to be Unknowns or fixed values (like a
 ground that's zero volts).
 """ ->
 typealias ElectricalNode NumberOrUnknown{UVoltage}
-
-@doc """
-## Voltage
-""" -> type DocT4 <: DocTag end
 
 @doc """
 `Voltage` is a typealias for `Unknown{UVoltage}`.
@@ -125,10 +109,6 @@ Often used with `ElectricalNode` as a model argument.
 typealias Voltage Unknown{UVoltage}
 
 @doc """
-## Current
-""" -> type DocT5 <: DocTag end
-
-@doc """
 `Current` is a typealias for `Unknown{UCurrent}`.
 
 Electrical current with units of amperes. A flow variable.
@@ -139,9 +119,9 @@ typealias Current Unknown{UCurrent}
 ############################################
 # Main thermal types
 ############################################
-@doc """
+@comment """
 # Thermal types
-""" -> type DocThT <: DocTag end
+"""
 
 ## Thermal
 @doc """
@@ -162,9 +142,9 @@ An UnknownCategory for heat flow rate in watts.
 type UHeatFlow <: UnknownCategory
 end
 
-@doc """
+@comment """
 ## HeatPort
-""" -> type DocT6 <: DocTag end
+"""
 
 @doc """
 `HeatPort` is a typealias for `NumberOrUnknown{UHeatPort}`.
@@ -176,19 +156,11 @@ allows nodes to be Unknowns or fixed values.
 typealias HeatPort NumberOrUnknown{UHeatPort}
 
 @doc """
-## HeatFlow
-""" -> type DocT7 <: DocTag end
-
-@doc """
 `HeatFlow` is a typealias for `Unknown{UHeatFlow}`.
 
 Heat flow rate in units of watts.
 """ ->
 typealias HeatFlow Unknown{UHeatFlow}
-
-@doc """
-## Temperature
-""" -> type DocT8 <: DocTag end
 
 @doc """
 `Temperature` is a typealias for `Unknown{UHeatPort}`.
@@ -202,9 +174,9 @@ typealias Temperature Unknown{UHeatPort}
 ############################################
 # Main mechanical types
 ############################################
-@doc """
+@comment """
 # Rotational types
-""" -> type DocRoT <: DocTag end
+"""
 
 ## Mechanical rotation
 @doc """
@@ -218,19 +190,11 @@ An UnknownCategory for torque in newton-meters.
 type UTorque <: UnknownCategory; end
 
 @doc """
-## Angle
-""" -> type DocM1 <: DocTag end
-
-@doc """
 `Angle` is a typealias for `Unknown{UAngle}`.
 
 The angle in radians.
 """ ->
 typealias Angle Unknown{UAngle}
-
-@doc """
-## Torque
-""" -> type DocM2 <: DocTag end
 
 @doc """
 `Torque` is a typealias for `Unknown{UTorque}`.
@@ -243,10 +207,6 @@ typealias Torque Unknown{UTorque}
 An UnknownCategory for angular velocity in radians/sec.
 """ ->
 type UAngularVelocity <: UnknownCategory; end
-
-@doc """
-## AngularVelocity
-""" -> type DocM3 <: DocTag end
 
 @doc """
 `AngularVelocity` is a typealias for `Unknown{UAngularVelocity}`.
@@ -262,10 +222,6 @@ type UAngularAcceleration <: UnknownCategory; end
 
 
 @doc """
-## AngularAccelleration
-""" -> type DocM4 <: DocTag end
-
-@doc """
 `AngularAcceleration` is a typealias for `Unknown{UAngularAcceleration}`.
 
 The angular acceleration in radians/sec^2.
@@ -273,15 +229,12 @@ The angular acceleration in radians/sec^2.
 typealias AngularAcceleration Unknown{UAngularAcceleration}
 
 # Mechanical node:
-@doc """
-## Flange
-""" -> type DocM5 <: DocTag end
 
 @doc """
 `Flange` is a typealias for `NumberOrUnknown{UAngle}`.
 
 A rotational node, either an Angle (an Unknown) or a real value in
-radians. Can include arrays. Used commonly as a model arguments for
+radians. Can include arrays. Used commonly as a model argument for
 nodes. This allows nodes to be Unknowns or fixed values.  
 """ ->
 typealias Flange NumberOrUnknown{UAngle}

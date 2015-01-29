@@ -7,9 +7,9 @@
 
 export TwoMasses, Motor
 
-@doc """
+@comment """
 # Heat transfer
-""" -> type DocHeadHeat <: DocTag end
+"""
 
 @doc* """
 Simple conduction demo
