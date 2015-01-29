@@ -564,8 +564,6 @@ name(a::Unknown) = a.label != "" ? a.label : symname(a.sym)
 name(a::DerUnknown) = a.parent.label != "" ? "der("*a.parent.label*")" : "der("*symname(a.parent.sym)*")"
 name(a::RefUnknown) = a.u.label != "" ? a.u.label : symname(a.u.sym)
 
-
-
 @doc* """
 A helper functions to return the base value from an Unknown to use
 when creating other Unknowns. It is especially useful for taking two
@@ -784,36 +782,42 @@ PassedUnknown(ref::UnknownVariable)
 type PassedUnknown <: UnknownVariable
     ref
 end
+name(a::PassedUnknown) = a.ref.label != "" ? a.ref.label : symname(a.ref.sym)
+value(a::PassedUnknown) = value(a.ref)
 
-## TODO: refactor for SimStateHistory interface
-function _interp(x, t)
-    # assumes that tvec is sorted from low to high
-    if length(x.t) == 0 || t < 0.0 return zero(x.value) end
-    idx = searchsortedfirst(x.t, t)
-    if idx == 1
-        return x.x[1]
-    elseif idx > length(x.t) 
-        return x.x[end]
-    else
-        return (t - x.t[idx-1]) / (x.t[idx] - x.t[idx-1]) .* (x.x[idx] - x.x[idx-1]) + x.x[idx-1]
-    end
-end
 # version vectorized on t:
-function _interp(x, t)
-    res = zero(t)
-    for i in 1:length(res)
-        if t[i] < 0.0 continue end
-        idx = searchsortedfirst(x.t, t[i])
-        if idx > length(res) continue end
-        if idx == 1
-            res[i] = x.x[1][i]
-        elseif idx > length(x.t) 
-            res[i] = x.x[end][i]
-        else
-            res[i] = (t[i] - x.t[idx-1]) / (x.t[idx] - x.t[idx-1]) .* (x.x[idx][i] - x.x[idx-1][i]) + x.x[idx-1][i]
-        end
+## function _interp(index, ts, xs, t)
+##     tsv = ts[index]
+##     xsv = xs[index]
+##     res = zero(t)
+##     for i in 1:length(res)
+##         if t[i] < 0.0 continue end
+##         idx = searchsortedfirst(tsv, t[i])
+##         if idx > length(res) continue end
+##         if idx == 1
+##             res[i] = xsv[1][i]
+##         elseif idx > length(tsv) 
+##             res[i] = xsv[end][i]
+##         else
+##             res[i] = (t[i] - tsv[idx-1]) / (tsv[idx] - tsv[idx-1]) .* (xsv[idx][i] - xsv[idx-1][i]) + xsv[idx-1][i]
+##         end
+##     end
+##     res
+## end
+
+function _interp(index, ts, xs, t)
+    tsv = ts[index]
+    xsv = xs[index]
+    # assumes that tvec is sorted from low to high
+    if length(tsv) == 0 || t < 0.0 return zero(t) end
+    idx = searchsortedfirst(tsv, t)
+    if idx == 1
+        return xsv[1]
+    elseif idx > length(tsv) 
+        return xsv[end]
+    else
+        return (t - tsv[idx-1]) / (tsv[idx] - tsv[idx-1]) .* (xsv[idx] - xsv[idx-1]) + xsv[idx-1]
     end
-    res
 end
 
 
@@ -839,11 +843,12 @@ delay(x::Unknown, val)
 """ ->
 function delay(x::Unknown, val)
     x.save_history = true
-    MExpr(:(Sims._interp($(PassedUnknown(x)), t[1] - $(val))))
+    mexpr(:call, :(Sims._interp),
+          PassedUnknown(x),
+          :(history.t),
+          :(history.x),
+          :(t[1] - $(val)))
 end
-
-
-
 
 
 

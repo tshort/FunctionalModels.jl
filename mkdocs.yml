@@ -16,6 +16,7 @@ pages:
 - [lib/blocks.md,        Standard library, Control and signal blocks]
 - [lib/electrical.md,    Standard library, Electrical]
 - [lib/heat_transfer.md, Standard library, Heat transfer]
+- [lib/kinetic.md,    Standard library, Chemical kinetics]
 - [lib/powersystems.md,  Standard library, Power systems]
 - [lib/rotational.md,    Standard library, Rotational mechanics]
 - [examples/basics.md, Examples, Basics]

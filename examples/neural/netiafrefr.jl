@@ -61,37 +61,20 @@ function LeakyIaF()
 end
 
 
-iaf   = LeakyIaF()      # returns the hierarchical model
-iaf_f = elaborate(iaf)    # returns the flattened model
-iaf_s = create_sim(iaf_f) # returns a "Sim" ready for simulation
+function init (size)
 
-tf = 0.1
-dt = 0.025
+    netiaf  = Equation[ LeakyIaF() for i = 1:size ]
 
-function init (i)
-    println ("init: ", i)
-    iaf_ptr = setup_sunsim (iaf_s, 1e-6, 1e-6)
-
-    return (i,iaf_s,iaf_ptr)
-end
-
-function iafsim (x::(Int64,Sims.SimState,Sims.SimSundials))
-    i = x[1]
-    iaf_s = x[2]
-    iaf_ptr = x[3]
-    println ("iafsim: ", i)
-
-    # runs the simulation and returns
-    # the result as an array plus column headings
-    iaf_yout = sunsim(iaf_ptr, tf, int(tf/dt))
-
-    return iaf_yout
+    return netiaf
 end
 
     
-inits = map(init, 1:12500)
-@time map(iafsim, inits)
+net = init(250)
 
+tf = 1.0
+dt = 0.25
+
+yout = sunsim(net, tstop=tf, Nsteps=int(tf/dt))
 
 ## plot (iaf_yout.y[:,1], iaf_yout.y[:,2])
 

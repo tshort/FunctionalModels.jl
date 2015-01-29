@@ -117,7 +117,7 @@ hh_s = create_sim(hh_f) # returns a "Sim" ready for simulation
 tf = 500.0
 dt = 0.001
 
-@time hh_yout = sunsim(hh_s, tstop=tf, Nsteps=int(tf/dt), reltol=1e-6, abstol=1e-6))
+@time hh_yout = sunsim(hh_s, tstop=tf, Nsteps=int(tf/dt), reltol=1e-6, abstol=1e-6)
 
 plot (hh_yout.y[:,1], hh_yout.y[:,3])
 

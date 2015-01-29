@@ -42,7 +42,7 @@ end
 y = sim(concentration())
 ```
 
-
+```julia
 ### Simple reaction syntax parser
 
 function simpleConcentration()
@@ -59,29 +59,40 @@ function simpleConcentration()
                      [ :-> B A rateB ]
                    ]
 
-    return parseReactionSystem (reactions)
+    return parse_reactions (reactions)
 end
 
 y = sim(simpleConcentration())
-
-
-
+```
 """ ->
 
-function ReactionEquation (M,F,X,i)
+function ReactionEquation (M,F,X,j)
     r = size(M,1) ## number of reactions
-    Equation[der(X[i]) - sum([ M[i,j] * F[j] for j = 1:r ])]
+    Equation[der(X[j]) - sum(filter (x -> !(x == 0.0),
+                                     [ (M[i,j] == 0 ? 0.0 : M[i,j] * F[i]) for i in 1:r]))]
 end
 
-function reactionFlux (K,S,X)
+function reaction_flux (K,S,X)
+
+    function f(S,X,i,j)
+        if S[i,j] == 0.0
+            return 1.0
+        elseif S[i,j] == 1.0
+            return X[j]
+        else
+            return X[j] ^ S[i,j]
+        end
+    end
+    
     n = size(S,2) ## number of species
     r = size(S,1) ## number of reactions
 
     F = cell(r)
     
-    for j = 1:r
+    for i = 1:r
         ## (reaction rate) * (reactant concentrations)
-        F[j] = K[j] * prod ([ S[i,j] == 0.0 ? 1.0 : (X[i] ^ S[i,j]) for i = 1:n])
+        F[i] = K[i] * prod (filter(x -> !(x == 1.0),
+                                   [ f(S,X,i,j) for j = 1:n]))
     end
 
     F
@@ -97,22 +108,53 @@ function ReactionSystem (X, ## state vector
     M = (R - S) ## stoichiometric matrix
     n = size(M,2) ## number of species
     r = size(M,1) ## number of reactions
-    F = reactionFlux (K,S,X)
+    F = reaction_flux (K,S,X)
     return Equation[ ReactionEquation(M,F,X,i) for i=1:n ]
 end
 
-## Parses reactions of the form
+## 
 ##
-## :-> a b rate 
 ##
-function parseReactionSystem (V)
+    
+@doc* """
+Parses reactions of the form
+
+```julia
+Any[ :-> a b rate ]
+Any[ :→ a b rate  ]
+Any[ :⇄ a b rate1 rate2 ]
+```
+
+### Arguments
+
+* `V` : Vector of reactions
+
+### Example
+
+```julia
+    A0 = 0.25
+    rateA = 0.333
+    rateB = 0.16
+
+    A = Unknown(A0)
+    B = Unknown(0.0)
+
+    reactions = Any[
+                     [ :⇄ A B rateA rateB ]
+                   ]
+
+    parse_reactions (reactions)
+```
+
+""" ->
+function parse_reactions (V)
 
     X = Any[] ## species
     K = Any[] ## reaction rates
     
     for reaction in V
 
-        if reaction[1] == :-> 
+        if reaction[1] == :-> || reaction[1] == :→ 
             assert(length(reaction) == 4)
             x = reaction[2]
             y = reaction[3]
@@ -124,7 +166,20 @@ function parseReactionSystem (V)
                 push!(X, y)
             end
             push!(K, rate)
-            
+        elseif reaction[1] == :⇄
+            assert(length(reaction) == 5)
+            x = reaction[2]
+            y = reaction[3]
+            rate1 = reaction[4]
+            rate2 = reaction[5]
+            if (!(x in X))
+                push!(X, x)
+            end
+            if (!(y in X))
+                push!(X, y)
+            end
+            push!(K, rate1)
+            push!(K, rate2)
         else
             error("Unknown reaction type", reaction)
         end
@@ -140,9 +195,9 @@ function parseReactionSystem (V)
     c = cell(1,n)
     c[:] = 0
     i = 1
-    
+
     for reaction in V
-        if reaction[1] == :->
+        if reaction[1] == :-> || reaction[1] == :→ 
             
             x = reaction[2]
             y = reaction[3]
@@ -157,6 +212,27 @@ function parseReactionSystem (V)
             R[i,yi] = 1
 
             i = i + 1
+        elseif reaction[1] == :⇄
+            
+            x = reaction[2]
+            y = reaction[3]
+
+            xi = find(indexin(X, Any[x]))[1]
+            yi = find(indexin(X, Any[y]))[1]
+            
+            S = vcat(S,c)
+            R = vcat(R,c)
+
+            S[i,xi] = 1
+            R[i,yi] = 1
+
+            S = vcat(S,c)
+            R = vcat(R,c)
+
+            S[i+1,yi] = 1
+            R[i+1,xi] = 1
+
+            i = i + 2
         else 
             error("Unknown reaction type", reaction)
         end

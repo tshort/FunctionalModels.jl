@@ -33,6 +33,7 @@ include("vanderpol.jl")
 include("vanderpol_with_events.jl")
 include("vanderpol_with_parameter.jl")
 include("concentration.jl")
+include("dde.jl")
 
 function runall()
     bp   = sim(BreakingPendulum(), 6.0)
@@ -51,8 +52,9 @@ function runall()
     reinit(mu, 1.0)
     vwp3 = sim(ss, 10.0) # should be the same as vwp1
     
-    conc  = sim(Concentration(), 10.0)
+    conc   = sim(Concentration(), 10.0)
     sconc  = sim(SimpleConcentration(), 10.0)
+    dde    = sim(DDE(), 100.0)
     
     ic   = solve(InitialCondition())
     mic  = solve(MkinInitialCondition())
