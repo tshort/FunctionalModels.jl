@@ -131,6 +131,12 @@ function dasslsim(ss::SimState, tstop::Float64=1.0, Nsteps::Int=500, reltol::Flo
     end
 
     simulate = setup_sim(ss, 0.0, tstop, Nsteps, reltol=reltol, abstol=abstol)
+    for (k,v) in sm.y_map
+        if v.save_history
+            push!(ss.history.t[k], 0.0)
+            push!(ss.history.x[k], ss.y0[k])
+        end
+    end
     yout = zeros(Nsteps, Ncol + 1)
 
     for idx in 1:Nsteps
