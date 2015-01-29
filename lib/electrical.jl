@@ -4,7 +4,7 @@ import Reactive
 ## Electrical library                 ##
 ########################################
 
-@doc """
+@comment """
 # Analog electrical models
 
 This library of components is modeled after the
@@ -52,7 +52,7 @@ end
 y = sim(ex_ChuaCircuit(), 200.0)
 wplot(y)
 ```
-""" -> type DocElectrical <: DocTag end
+"""
 
 
 ########################################
@@ -153,9 +153,9 @@ end
 ########################################
 ## Basic
 ########################################
-@doc """
+@comment """
 # Basics
-""" -> type DocElBasics <: DocTag end
+"""
 
 @doc* """
 The linear resistor connects the branch voltage `v` with the branch
@@ -527,9 +527,9 @@ end
 ########################################
 ## Ideal
 ########################################
-@doc """
+@comment """
 # Ideal
-""" -> type DocElIdeal <: DocTag end
+"""
 
 
 @doc* """
@@ -1010,9 +1010,9 @@ end
 ########################################
 ## Semiconductors
 ########################################
-@doc """
+@comment """
 # Semiconductors
-""" -> type DocElSemiconductors <: DocTag end
+"""
 
 
 @doc* """
@@ -1160,9 +1160,9 @@ end
 ########################################
 ## Sources
 ########################################
-@doc """
+@comment """
 # Sources
-""" -> type DocElSources <: DocTag end
+"""
 
 
 @doc* """

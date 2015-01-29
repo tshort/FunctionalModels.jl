@@ -1,6 +1,7 @@
 module Lib
 using ..Sims
 using Docile
+@document
 
 
 ## Standard library
@@ -12,7 +13,7 @@ export NumberOrUnknown, Signal, UVoltage, UCurrent, ElectricalNode, Voltage, Cur
        UAngularAcceleration, AngularAcceleration, Flange
 ## Blocks
 export Integrator, Derivativ, Integrator, Derivative,
-       LimPID, StateSpace, Limiter, DeadZone, BooleanPulse
+       LimPID, StateSpace, Limiter, DeadZone, BooleanPulse, Pulse
 ## Electrical
 export SeriesProbe, BranchHeatPort,
        Resistor, Capacitor, Inductor, SaturatingInductor, Transformer, EMF,

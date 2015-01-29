@@ -3,8 +3,9 @@ module Lib
 using ....Sims
 using ....Sims.Lib
 using Docile
+@document
 
-@doc """
+@comment """
 # Sims.Lib examples
 
 Examples using models from the Sims standard library (Sims.Lib).
@@ -22,7 +23,7 @@ z = sim(m, 5000.0)
 using Winston
 wplot(z)
 ```
-""" -> type DocLib <: DocTag end
+"""
 
 
 include("blocks.jl")
@@ -32,7 +33,7 @@ include("powersystems.jl")
 include("rotational.jl")
 
 
-function runexamples()
+function runall()
     ## Electrical
     run_electrical_examples()
     
@@ -49,7 +50,7 @@ function runexamples()
     fst   = sim(First())
     
     ## Blocks
-    ## pidc  = sim(PID_Controller(), 4.0)
+    pidc  = sim(PID_Controller(), 4.0)
 end
 
 end # module

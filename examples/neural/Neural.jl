@@ -3,18 +3,19 @@ module Neural
 using ....Sims
 using ....Sims.Lib
 using Docile
+@document
 
-@doc """
+@comment """
 # Neural models
 
 Examples using neural models.
 
 These are available in **Sims.Examples.Neural**.
-""" -> type DocNeural <: DocTag end
+"""
 
 include("hh.jl")
 
-function runexamples()
+function runall()
     hh   = HodgkinHuxley()  # returns the hierarchical model
     tf = 500.0
     dt = 0.025
