@@ -135,6 +135,12 @@ function sunsim(smem::SimSundials, tstop::Float64, Nsteps::Int, init::Symbol)
     rtest = zeros(neq)
 
     sm.F.resid(tstart, ss.y, ss.yp, rtest, ss.history)
+    for (k,v) in sm.y_map
+        if v.save_history
+            push!(ss.history.t[k], tret[1])
+            push!(ss.history.x[k], ss.y[k])
+        end
+    end
 
     mem = smem.mem
     

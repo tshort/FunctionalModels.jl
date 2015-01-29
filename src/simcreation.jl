@@ -339,7 +339,7 @@ function replace_unknowns(a::DerUnknown, sm::Sim)
     end
 end
 function replace_unknowns(a::PassedUnknown, sm::Sim)
-    a.ref.sym
+    sm.unknown_idx_map[a.ref.sym]
 end
 function replace_unknowns{T}(a::Discrete{Reactive.Input{T}}, sm::Sim)
     push!(sm.discrete_inputs, a)    # Discrete inputs
