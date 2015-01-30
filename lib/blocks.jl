@@ -641,8 +641,11 @@ Pulse(x; amplitude = 1.0, width = 50.0, period = 1.0, offset = 0.0, startTime = 
 ##     Pulse(x, amplitude, width, period, offset, startTime)
     
 
+
+export trianglewave
 function trianglewave(t, width, a)
     # handle offset:
     t = t - (width - 100) / 200 * a
-    y = 2 * abs(2 * (t/a - floor(t/a + 1/2))) - 2 * (100 - width) / 100
+    2 * abs(2 * (t/a - floor(t/a + 1/2))) - 2 * (100 - width) / 100
 end
+## trianglewave(t::ModelType, width, a) = mexpr(:call, trianglewave, t, width, a)
