@@ -54,7 +54,7 @@ function runall()
     
     conc   = sim(Concentration(), 10.0)
     sconc  = sim(SimpleConcentration(), 10.0)
-    dde    = sim(DDE(), 100.0)
+    dde    = sim(DDE(tau=15.0), tstop=250.0, alg=true)
     
     ic   = solve(InitialCondition())
     mic  = solve(MkinInitialCondition())

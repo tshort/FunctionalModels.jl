@@ -250,7 +250,7 @@ function setup_functions(sm::Sim)
                  ## @show length(y)
                  ##@show p
                  a = $resid_thunk
-                 ## @show a
+                 ##@show a
                  ## @show length(a)
                  r[1:end] = a
                  nothing

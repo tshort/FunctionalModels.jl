@@ -2,6 +2,7 @@
 ## Modular integrate-and-fire model with synaptic dynamics.
 
 using Sims
+using Sims.Lib
 using Winston
 using Grid ## for interpolating input values
 using SIUnits
@@ -9,12 +10,6 @@ using SIUnits.ShortUnits
 
 
 include ("poisson_grid.jl")
-
-siemens = Ampere / Volt
-millisiemens = Milli * siemens
-mS = millisiemens
-microfarad = Micro * Farad
-uF = microfarad
 
 ##gL     = 0.2 * mS
 ##vL     = -70.0 * mV
