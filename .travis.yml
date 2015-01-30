@@ -8,6 +8,9 @@ julia:
 notifications:
     email: false
 script:
+    - if [ `uname` = "Linux" ]; then
+        sudo apt-get install gfortran liblapack-dev libgmp-dev libglpk-dev;
+      fi
     - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
     - julia -e 'Pkg.clone(pwd()); Pkg.build("Sims")'
     - julia -e 'Pkg.test("Sims", coverage=true)'

@@ -33,14 +33,14 @@ include("vanderpol.jl")
 include("vanderpol_with_events.jl")
 include("vanderpol_with_parameter.jl")
 include("concentration.jl")
-include("dde.jl")
+## include("dde.jl")
 
 function runall()
-    bp   = sim(BreakingPendulum(), 6.0)
-    bpb  = sim(BreakingPendulumInBox(), 5.0)
+    ## bp   = sim(BreakingPendulum(), 6.0)
+    ## bpb  = sim(BreakingPendulumInBox(), 5.0)
     dmws = sim(DcMotorWithShaft(), 4.0)
     hwr  = sim(HalfWaveRectifier(), 0.1)
-    shwr = sim(StructuralHalfWaveRectifier(), 0.1)
+    ## shwr = sim(StructuralHalfWaveRectifier(), 0.1)
     v    = sim(Vanderpol(), 50.0)
     vwe  = sim(VanderpolWithEvents(), 10.0)
     
@@ -54,10 +54,10 @@ function runall()
     
     conc   = sim(Concentration(), 10.0)
     sconc  = sim(SimpleConcentration(), 10.0)
-    dde    = sim(DDE(), 100.0)
+    ## dde    = sim(DDE(), 100.0)
     
-    ic   = solve(InitialCondition())
-    mic  = solve(MkinInitialCondition())
+    ## ic   = solve(InitialCondition())
+    ## mic  = solve(MkinInitialCondition())
 end 
 
 end # module
