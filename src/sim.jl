@@ -17,12 +17,12 @@ arguments are supported (use one or the other after the first
 argument).
 
 ```julia
-sim(m::Model, tstop::Float64=1.0, Nsteps::Int=500, reltol::Float64=1e-4, abstol::Float64=1e-4, init::Symbol=:Ya_Ydp)
-sim(m::Model; tstop::Float64=1.0, Nsteps::Int=500, reltol::Float64=1e-4, abstol::Float64=1e-4, init::Symbol=:Ya_Ydp)
-sim(m::Sim, tstop::Float64=1.0, Nsteps::Int=500, reltol::Float64=1e-4, abstol::Float64=1e-4, init::Symbol=:Ya_Ydp)
-sim(m::Sim; tstop::Float64=1.0, Nsteps::Int=500, reltol::Float64=1e-4, abstol::Float64=1e-4, init::Symbol=:Ya_Ydp)
-sim(m::SimState, tstop::Float64=1.0, Nsteps::Int=500, reltol::Float64=1e-4, abstol::Float64=1e-4, init::Symbol=:Ya_Ydp)
-sim(m::SimState; tstop::Float64=1.0, Nsteps::Int=500, reltol::Float64=1e-4, abstol::Float64=1e-4, init::Symbol=:Ya_Ydp)
+sim(m::Model, tstop::Float64=1.0, Nsteps::Int=500, reltol::Float64=1e-4, abstol::Float64=1e-4, init::Symbol=:Ya_Ydp, alg::Bool=false)
+sim(m::Model; tstop::Float64=1.0, Nsteps::Int=500, reltol::Float64=1e-4, abstol::Float64=1e-4, init::Symbol=:Ya_Ydp, alg::Bool=false)
+sim(m::Sim, tstop::Float64=1.0, Nsteps::Int=500, reltol::Float64=1e-4, abstol::Float64=1e-4, init::Symbol=:Ya_Ydp, alg::Bool=false)
+sim(m::Sim; tstop::Float64=1.0, Nsteps::Int=500, reltol::Float64=1e-4, abstol::Float64=1e-4, init::Symbol=:Ya_Ydp, alg::Bool=false)
+sim(m::SimState, tstop::Float64=1.0, Nsteps::Int=500, reltol::Float64=1e-4, abstol::Float64=1e-4, init::Symbol=:Ya_Ydp, alg::Bool=false)
+sim(m::SimState; tstop::Float64=1.0, Nsteps::Int=500, reltol::Float64=1e-4, abstol::Float64=1e-4, init::Symbol=:Ya_Ydp, alg::Bool=false)
 ```
 
 ### Arguments
@@ -38,7 +38,7 @@ sim(m::SimState; tstop::Float64=1.0, Nsteps::Int=500, reltol::Float64=1e-4, abst
   * `:none` : no initialization
   * `:Ya_Ydp` :  given `Y_d`, calculate `Y_a` and `Y'_d` (the default)
   * `:Y` :  given `Y'`, calculate `Y`
-
+  * `alg` : indicates whether algebraic variables should be included in the error estimate (default is false)
 ### Returns
 
 * `::SimResult` : the simulation result
