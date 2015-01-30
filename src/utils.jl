@@ -180,6 +180,147 @@ end
 
 end
 
+########################################
+## PyPlot plotting                    ##
+########################################
+
+@comment """
+# PyPlot
+"""
+    
+@require PyPlot begin
+
+    @doc* """
+    Plot simulation result with PyPlot (must be installed and
+    loaded).
+    
+    ```julia
+    PyPlot.plot(z::SimResult,
+                columns = [1:length(z.colnames)];
+                title = "",
+                subplots = :auto,
+                newfigure::Bool = true,
+                legend = :auto)
+    ```
+    
+    ### Arguments
+    
+    * `z::SimResult` : the simulation result
+    * `columns` : columns to plot; defaults to all; can be Int,
+      String, Range, Arrays, or Regexs.
+
+    ### Keyword arguments
+    
+    * `title` : a string to print at the top of the plot
+    * `subplots` : whether to plot columns in subplots; options are:
+      * `true` : use subplots
+      * `false` : don't use subplots
+      * `:auto` : use subplots if column has a length less than or equal to 6
+    * `newfigure::Bool` : show a new figure
+    * `legend` : whether to show legends
+      * `true` : use legends
+      * `false` : don't use legends
+      * `:auto` : use legends if there is more than one column per subplot
+
+    ### Returns
+    
+    * `nothing`
+
+    ### Details
+
+    The `columns` argument allows you to specify which columns to plot and in which subplot. Options are:
+
+    * `Range` or `array` : if `subplot == true`, each entry in the array
+      is plotted in its own subplot. Arrays can contain Ints, Strings,
+      Tuples, Regexs, or Arrays.
+    * `Int` : column position
+    * `String` : column name
+    * `Regex` : expands based on column name matches
+
+    For three subplots, here is an example:
+
+    ```julia
+    plot(z,
+         ["V1",          # 1st subplot: column V1
+          ("Vx", "Vy"),  # 2nd subplot: columns Vx and Vy
+          r"^I.*"],      # 3rd subplot: all columns starting with I
+         subplots = true)
+    ```
+
+    ### Examples
+
+    ```julia
+    using Sims
+    z = sim(Sims.Examples.Lib.CauerLowPassOPV2(), 60.0)
+    
+    using PyPlot
+    plot(z)
+    plot(z, [1:length(z.colnames)])
+    plot(z, r".*", title = "CauerLowPassOPV")
+    plot(z, subplots = true, title = "subplots = true")
+    plot(z, 9:11, subplots = false, title = "subplots = false")
+    plot(z, r"n", title = "r\"n\"")
+    plot(z, r"n1", title = "r\"n1\"")
+    plot(z, 5:8, legend = false)
+    figure()
+    plot(z, 5:8, legend = false, newfigure = false)
+    plot(z, ["n8", "n9"], title = string(["n8", "n9"]))
+    plot(z, [("n8", "n9"), ("n10", "n11")], title = string([("n8", "n9"), ("n10", "n11")]))
+    plot(z, [r"n1", ("n9", "n10")], title = string([r"n1", ("n9", "n10")]))
+    
+    ```
+    
+    """ ->
+    function PyPlot.plot(z::SimResult,
+                         columns = [1:length(z.colnames)];
+                         title = "",
+                         subplots = :auto,
+                         newfigure::Bool = true,
+                         legend = :auto)
+        newfigure && PyPlot.figure()
+        columns = getcols(z, columns)
+        if subplots == :auto
+            subplots = length(columns) <= 6
+        end
+        @show columns
+        if !subplots
+            for c in columns
+                for i in c
+                    PyPlot.plot(z.y[:,1], z.y[:,i+1], label = z.colnames[i])
+                end
+            end
+            legend in [true, :auto] && PyPlot.legend(loc = "best")
+        else
+            PyPlot.subplots_adjust(hspace=0.001)
+            for i in 1:length(columns)
+                PyPlot.subplot(length(columns), 1, i)  #, sharex = true)
+                for j in columns[i]
+                    PyPlot.plot(z.y[:,1], z.y[:,j+1], label = z.colnames[j])
+                end
+                PyPlot.margins(0, 0.05)
+                if length(columns[i]) > 1 && legend in [true, :auto]
+                    PyPlot.legend(loc = "best")
+                else
+                    PyPlot.ylabel(z.colnames[columns[i]])
+                end
+                ## PyPlot.yaxis.set_label_coords(labelx, 0.5)
+            end
+        end
+        PyPlot.xlabel("Time, sec")
+        PyPlot.suptitle(title)
+    end
+    getcols(z::SimResult, x::Real) = x
+    getcols(z::SimResult, s::String) = indexin([s], z.colnames)[1]
+    getcols(z::SimResult, v::Union(Range, Vector, Set, Tuple)) = [getcols(z, x) for x in v]
+    function getcols(z::SimResult, r::Regex)
+        res = Int[]
+        for i in 1:length(z.colnames)
+            ismatch(r, z.colnames[i]) && push!(res, i)
+        end
+        length(res) == 1 ? res[1] : res
+    end
+end
+    
 @comment """
 # Miscellaneous
 """
