@@ -19,7 +19,7 @@ function runall()
     hh   = HodgkinHuxley()  # returns the hierarchical model
     tf = 500.0
     dt = 0.025
-    y = sunsim(hh, tstop = tf, Nsteps = int(tf/dt), reltol = 1e-6, abstol = 1e-6)
+    y = sim(hh, tstop = tf, Nsteps = int(tf/dt), reltol = 1e-6, abstol = 1e-6)
     
 end 
 

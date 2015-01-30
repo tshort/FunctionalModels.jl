@@ -21,7 +21,7 @@ use:
 ```julia
 using Sims
 m = Sims.Examples.Tiller.SecondOrderSystem()
-y = dasslsim(m, tstop = 5.0)
+y = sim(m, tstop = 5.0)
 
 using Winston
 wplot(y)
@@ -41,16 +41,16 @@ function runall()
     im   = sim(IntervalMeasure(), tstop)
     pc   = sim(PulseCounting(), tstop)
 
-    ## fs   = dasslsim(FlatSystem(), tstop)
-    ## bs   = dasslsim(BaseSystem(), tstop)
-    ## v1   = dasslsim(BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.01)), tstop)
-    ## v1a  = dasslsim(BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.036)), tstop)
-    ## v2   = dasslsim(BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.01),
-    ##                            Controller = PIDController(yMax=15, Td=0.1, k=20, Ti=0.1),
-    ##                            Actuator = LimitedActuator(delayTime=0.005, uMax=10)), tstop)
-    ## v2a  = dasslsim(BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.01),
-    ##                            Controller = PIDController(yMax=50, Td=0.01, k=4, Ti=0.07),
-    ##                            Actuator = LimitedActuator(delayTime=0.005, uMax=10)), tstop)
+    ## fs   = sim(FlatSystem(), tstop)
+    ## bs   = sim(BaseSystem(), tstop)
+    ## v1   = sim(BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.01)), tstop)
+    ## v1a  = sim(BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.036)), tstop)
+    ## v2   = sim(BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.01),
+    ##                       Controller = PIDController(yMax=15, Td=0.1, k=20, Ti=0.1),
+    ##                       Actuator = LimitedActuator(delayTime=0.005, uMax=10)), tstop)
+    ## v2a  = sim(BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.01),
+    ##                       Controller = PIDController(yMax=50, Td=0.01, k=4, Ti=0.07),
+    ##                       Actuator = LimitedActuator(delayTime=0.005, uMax=10)), tstop)
 end
 
 end # module
