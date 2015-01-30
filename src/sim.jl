@@ -94,7 +94,7 @@ using Winston
 wplot(y)
 ```
 """ ->
-sim = sunsim
+sim = dasslsim
 
 if !hasdassl
     sim = sunsim
