@@ -245,12 +245,12 @@ function setup_functions(sm::Sim)
             # to eval globally for two reasons: (1) performance and (2) so
             # cfunction could be used to set up Julia callbacks. This does
             # mean that the _sim_* functions are seen globally.
-            function $_sim_resid_name (t, y, yp, r)
+            function $_sim_resid_name (t, y, yp, r, history)
                  ##@show y
                  ## @show length(y)
                  ##@show p
                  a = $resid_thunk
-                 ## @show a
+                 ##@show a
                  ## @show length(a)
                  r[1:end] = a
                  nothing
@@ -262,7 +262,7 @@ function setup_functions(sm::Sim)
                  r[1:end] = a
                  nothing
             end
-            function $_sim_event_at_name (t, y, yp, r)
+            function $_sim_event_at_name (t, y, yp, r, history)
                  r[1:end] = $event_thunk
                  nothing
             end
@@ -339,7 +339,7 @@ function replace_unknowns(a::DerUnknown, sm::Sim)
     end
 end
 function replace_unknowns(a::PassedUnknown, sm::Sim)
-    a.ref
+    sm.unknown_idx_map[a.ref.sym]
 end
 function replace_unknowns{T}(a::Discrete{Reactive.Input{T}}, sm::Sim)
     push!(sm.discrete_inputs, a)    # Discrete inputs
