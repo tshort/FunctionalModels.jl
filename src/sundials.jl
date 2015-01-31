@@ -188,10 +188,19 @@ function sunsim(ss::SimState, tstop::Float64, Nsteps::Int, reltol::Float64, abst
                 eq = sm.eq
                 ss = create_simstate(create_sim(elaborate(eq)))
                 sm = ss.sm
+                new_neq = length(ss.y0)
 
-                ## restart the simulation:
-                reinit_sunsim (smem, ss, tret[1])
-                
+                ## restart the simulation: if the new system is of the
+                ## same size as the old one, just reinit, otherwise
+                ## create a new instance of the solver.
+                if neq == new_neq
+                    reinit_sunsim (smem, ss, tret[1])
+                else
+                    neq = new_neq
+                    smem = setup_sunsim(ss, reltol, abstol, alg)
+                    mem = smem.mem
+                end
+
                 nrt = int32(length(sm.F.event_pos))
                 jroot = fill(int32(0), nrt)
                 yidx = sm.outputs .!= ""
