@@ -528,6 +528,8 @@ function CGC(I)
 
     cai = Unknown (cai0, "cai")
 
+    I_stim = Discrete (0.0)
+
     I_Ca = Current ()
     I_K  = Current ()
     I_L  = Current ()
@@ -546,6 +548,7 @@ function CGC(I)
 
     I_Leak1  = Current ()
     I_Leak2  = Current ()
+
     
     # The following gives the return value which is a list of equations.
     # Expressions with Unknowns are kept as expressions. Regular
@@ -571,8 +574,14 @@ function CGC(I)
         I_Ca = I_CaHVA
         I_K = I_KA + I_KV + I_KCa + I_Kir  + I_KM
         I_L = I_Leak1 + I_Leak2
-        
-        der(v) = ((I * (100.0 / area)) - 1e3 * (I_Ca + I_K + I_Na + I_NaR + I_pNa + I_L)) / C_m
+
+        der(v) = ((I_stim * (100.0 / area)) - 1e3 * (I_Ca + I_K + I_Na + I_NaR + I_pNa + I_L)) / C_m
+
+        Event(MTime - 100.0,     # Start injecting current after 100 ms
+              Equation[
+                  reinit(I_stim, I)
+              ],
+              Equation[])
         
     end
 end
