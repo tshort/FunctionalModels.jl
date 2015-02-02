@@ -2,7 +2,7 @@
 ## Example of a chemical reaction     ##
 ########################################
 
-export Concentration
+export Concentration, SimpleConcentration
 
 
 @doc* """
