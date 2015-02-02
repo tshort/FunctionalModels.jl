@@ -63,7 +63,7 @@ See [sim](#sim) for the interface.
 """ ->
 function dasslsim(ss::SimState, tstop::Float64=1.0, Nsteps::Int=500, reltol::Float64=1e-4, abstol::Float64=1e-4, init::Symbol=:Ya_Ydp, alg::Bool = true)
     # tstop & Nsteps should be in options
-    sim_info("starting dasslsim()")
+    sim_info("starting dasslsim()", 1)
 
     sm = ss.sm
     for x in sm.discrete_inputs
@@ -170,7 +170,7 @@ function dasslsim(ss::SimState, tstop::Float64=1.0, Nsteps::Int=500, reltol::Flo
                     end
                 end
                 if ss.structural_change
-                    sim_info("Structural change event found at t = $(t[1]), restarting")
+                    sim_info("Structural change event found at t = $(t[1]), restarting", 2)
                     # Put t, y, and yp values back into original equations:
                     MTime.value = t[1]
                     # Reflatten equations
@@ -183,13 +183,13 @@ function dasslsim(ss::SimState, tstop::Float64=1.0, Nsteps::Int=500, reltol::Flo
                     simulate = setup_sim(ss, t[1], tstop, int(Nsteps * (tstop - t[1]) / tstop), reltol=reltol, abstol=abstol)
                     yidx = sm.outputs .!= ""
                 elseif any(jroot .!= 0)
-                    sim_info("event found at t = $(t[1]), restarting")
+                    sim_info("event found at t = $(t[1]), restarting", 2)
                     info[1] = 0
                     info[11] = initdassl[init]    # do/don't calc initial conditions
                 end
             end
         elseif idid[1] < 0 && idid[1] > -11
-            sim_info("RESTARTING")
+            sim_info("RESTARTING", 2)
             info[1] = 0
         else
             error("DASKR failed prematurely")

@@ -98,10 +98,32 @@ and functions.
 """
 
 sim_verbose = 1
-function sim_info(msgs...)
-    if sim_verbose > 0
-        apply(println,msgs)
+function sim_info(msgs, i)
+    if i <= sim_verbose
+        println(msgs)
     end
+end
+
+@doc* """
+Control the verbosity of output.
+
+```julia
+verbosity(i)
+```
+
+### Arguments
+
+* `i` : Int indicator with the following meanings:
+  * `i == 0` : don't print information
+  * `i == 1` : minimal info
+  * `i == 2` : all info, including events
+
+More options may be added in the future. This function is not
+exported, so you must qualify it as `Sims.verbosity(0)`.
+
+""" ->
+function verbosity(i)
+    global sim_verbose = i   
 end
 
 ########################################
@@ -1011,7 +1033,7 @@ reinit{T}(x::Discrete{Reactive.Input{T}}, y) = mexpr(:call, :(Reactive.push!), x
 reinit{T}(x::Parameter{Reactive.Input{T}}, y) = Reactive.push!(x.signal, y)
 
 function reinit(x, y)
-    sim_info("reinit: ", x[], " to ", y)
+    sim_info("reinit: $(x[]) to $y", 2)
     x[:] = y
 end
 
