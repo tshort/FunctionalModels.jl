@@ -193,13 +193,13 @@ function sunsim(ss::SimState, tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol =
                 ## restart the simulation: if the new system is of the
                 ## same size as the old one, just reinit, otherwise
                 ## create a new instance of the solver.
-                ## if neq == new_neq
-                ##     reinit_sunsim (smem, ss, tret[1])
-                ## else
+                if neq == new_neq
+                    reinit_sunsim (smem, ss, tret[1])
+                else
                     neq = new_neq
                     smem = setup_sunsim(ss, reltol, abstol, alg)
                     mem = smem.mem
-                ## end
+                end
 
                 nrt = int32(length(sm.F.event_pos))
                 jroot = fill(int32(0), nrt)
