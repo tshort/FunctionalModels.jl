@@ -292,7 +292,7 @@ end
 
 # adds a variable to the unknown_idx_map if it isn't already
 # there. 
-function add_var(v, sm) 
+function add_var(v::Unknown{DefaultUnknown,Normal}, sm) 
     if !haskey(sm.unknown_idx_map, v.sym)
         # Account for the length and fundamental size of the object
         len = length(v.value) * int(sizeof([v.value][1]) / 8)  

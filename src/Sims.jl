@@ -14,7 +14,9 @@ import Base.ifelse,
        Base.vcat
 
 ## Types
-export ModelType, UnknownCategory, Unknown, UnknownVariable, DefaultUnknown, DerUnknown, RefUnknown, 
+export ModelType, UnknownCategory, Unknown, UnknownVariable, DefaultUnknown, DerUnknown, RefUnknown,
+       Normal, Negative, Positive, NonNegative, NonPositive,
+       NegativeUnknown, PositiveUnknown, NonNegativeUnknown, NonPositiveUnknown,
        RefBranch, InitialEquation, Model, MExpr, Event, LeftVar, StructuralEvent,
        EquationSet, SimFunctions, Sim, SimState, SimResult
 

@@ -59,15 +59,15 @@ real value, especially for use as a type in a model argument. It may
 be parameterized by an UnknownCategory, like NumberOrUnknown{UVoltage}
 (the definition of an ElectricalNode).
 """ ->
-typealias NumberOrUnknown{T} Union(AbstractArray, Number, MExpr,
-                                   RefUnknown{T}, Unknown{T})
+typealias NumberOrUnknown{T,C} Union(AbstractArray, Number, MExpr,
+                                   RefUnknown{T}, Unknown{T,C})
 
 @doc """
 `Signal` is a typealias for `NumberOrUnknown{DefaultUnknown}`.
 
 Can be an Unknown, an AbstractArray, a Number, or an MExpr.
 """ ->
-typealias Signal NumberOrUnknown{DefaultUnknown}
+typealias Signal NumberOrUnknown{DefaultUnknown,Normal}
 ## typealias Signal Any
 
 ############################################
@@ -96,7 +96,7 @@ include arrays or complex values. Used commonly as a model arguments
 for nodes. This allows nodes to be Unknowns or fixed values (like a
 ground that's zero volts).
 """ ->
-typealias ElectricalNode NumberOrUnknown{UVoltage}
+typealias ElectricalNode NumberOrUnknown{UVoltage,Normal}
 
 @doc """
 `Voltage` is a typealias for `Unknown{UVoltage}`.
@@ -106,14 +106,14 @@ differences between nodes.
 
 Often used with `ElectricalNode` as a model argument.
 """ ->
-typealias Voltage Unknown{UVoltage}
+typealias Voltage Unknown{UVoltage,Normal}
 
 @doc """
 `Current` is a typealias for `Unknown{UCurrent}`.
 
 Electrical current with units of amperes. A flow variable.
 """ ->
-typealias Current Unknown{UCurrent}
+typealias Current Unknown{UCurrent,Normal}
 
 
 ############################################
@@ -153,21 +153,21 @@ A thermal node, either a Temperature (an Unknown) or a real value. Can
 include arrays. Used commonly as a model arguments for nodes. This
 allows nodes to be Unknowns or fixed values.
 """ ->
-typealias HeatPort NumberOrUnknown{UHeatPort}
+typealias HeatPort NumberOrUnknown{UHeatPort,Normal}
 
 @doc """
 `HeatFlow` is a typealias for `Unknown{UHeatFlow}`.
 
 Heat flow rate in units of watts.
 """ ->
-typealias HeatFlow Unknown{UHeatFlow}
+typealias HeatFlow Unknown{UHeatFlow,Normal}
 
 @doc """
 `Temperature` is a typealias for `Unknown{UHeatPort}`.
 
 A thermal potential, a Temperature (an Unknown) in units of kelvin.
 """ ->
-typealias Temperature Unknown{UHeatPort}
+typealias Temperature Unknown{UHeatPort,Normal}
 
 
 
@@ -194,14 +194,14 @@ type UTorque <: UnknownCategory; end
 
 The angle in radians.
 """ ->
-typealias Angle Unknown{UAngle}
+typealias Angle Unknown{UAngle,Normal}
 
 @doc """
 `Torque` is a typealias for `Unknown{UTorque}`.
 
 The torque in newton-meters.
 """ ->
-typealias Torque Unknown{UTorque}
+typealias Torque Unknown{UTorque,Normal}
 
 @doc """
 An UnknownCategory for angular velocity in radians/sec.
@@ -213,7 +213,7 @@ type UAngularVelocity <: UnknownCategory; end
 
 The angular velocity in radians/sec.
 """ ->
-typealias AngularVelocity Unknown{UAngularVelocity}
+typealias AngularVelocity Unknown{UAngularVelocity,Normal}
 
 @doc """
 An UnknownCategory for angular acceleration in radians/sec^2.
@@ -226,7 +226,7 @@ type UAngularAcceleration <: UnknownCategory; end
 
 The angular acceleration in radians/sec^2.
 """ ->
-typealias AngularAcceleration Unknown{UAngularAcceleration}
+typealias AngularAcceleration Unknown{UAngularAcceleration,Normal}
 
 # Mechanical node:
 
@@ -237,5 +237,5 @@ A rotational node, either an Angle (an Unknown) or a real value in
 radians. Can include arrays. Used commonly as a model argument for
 nodes. This allows nodes to be Unknowns or fixed values.  
 """ ->
-typealias Flange NumberOrUnknown{UAngle}
+typealias Flange NumberOrUnknown{UAngle,Normal}
 
