@@ -1,15 +1,21 @@
-language: julia
-os:
-    - linux
-    - osx
-julia:
-    - release
-    - nightly
+language: cpp
+compiler:
+    - gcc
 notifications:
     email: false
-script:
+env:
+    - JULIAVERSION="juliareleases" 
+    - JULIAVERSION="julianightlies"
+before_install:
+    - sudo add-apt-repository ppa:staticfloat/julia-deps -y
+    - sudo add-apt-repository ppa:staticfloat/${JULIAVERSION} -y
+    - sudo apt-get update -qq -y
+    - sudo apt-get install gfortran libpcre3-dev julia -y
+    - git config --global user.name "Travis User"
+    - git config --global user.email "travis@example.net"
     - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
-    - julia -e 'Pkg.clone(pwd()); Pkg.build("Sims")'
+script:
+    - julia -e 'Pkg.init(); Pkg.clone(pwd()); Pkg.build("Sims")'
     - julia -e 'Pkg.test("Sims", coverage=true)'
 after_success:
-    - if [ $TRAVIS_JULIA_VERSION = "nightly" ]; then julia -e 'cd(Pkg.dir("Sims")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'; fi
+    - julia -e 'cd(Pkg.dir("Sims")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
