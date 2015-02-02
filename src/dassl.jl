@@ -20,14 +20,15 @@ global __DF = Any[]
 @windows_only dllname = Pkg.dir() * "/Sims/deps/daskr$WORD_SIZE.dll"
 @unix_only dllname = Pkg.dir() * "/Sims/deps/daskr.so"
 
-hasdassl = isfile(dllname)
+hasdassl = true
 
-if !hasdassl
+try
+    global lib = dlopen(dllname)
+catch
+    hasdassl = false
     println("*********************************************")
-    println("Can't find daskr.so; dasslsim not available  ")
+    println("DASKR not available; dasslsim not available  ")
     println("*********************************************")
-else
-    const lib = dlopen(dllname)
 end    
 
 function dasslfun(t_in, y_in, yp_in, cj, delta_out, ires, rpar, ipar)
@@ -62,7 +63,7 @@ See [sim](#sim) for the interface.
 """ ->
 function dasslsim(ss::SimState, tstop::Float64=1.0, Nsteps::Int=500, reltol::Float64=1e-4, abstol::Float64=1e-4, init::Symbol=:Ya_Ydp, alg::Bool = true)
     # tstop & Nsteps should be in options
-    sim_info("starting sim()")
+    sim_info("starting dasslsim()")
 
     sm = ss.sm
     for x in sm.discrete_inputs
