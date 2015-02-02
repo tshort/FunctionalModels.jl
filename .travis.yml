@@ -5,7 +5,6 @@ notifications:
     email: false
 env:
     - JULIAVERSION="juliareleases" 
-    - JULIAVERSION="julianightlies"
 before_install:
     - sudo add-apt-repository ppa:staticfloat/julia-deps -y
     - sudo add-apt-repository ppa:staticfloat/${JULIAVERSION} -y
