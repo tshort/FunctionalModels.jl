@@ -97,5 +97,5 @@ wplot(y)
 sim = sunsim
 
 function defaultsim(f::Function)
-    sim = f
+    global sim = f
 end
