@@ -4,7 +4,6 @@ using Sims
 z = sim(Sims.Examples.Lib.CauerLowPassOPV2(), 60.0)
 
 using PyPlot
-figure()
 plot(z)
 plot(z, [1:length(z.colnames)])
 plot(z, r".*", title = "CauerLowPassOPV")
