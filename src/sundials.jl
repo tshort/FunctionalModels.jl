@@ -105,9 +105,9 @@ The solver that uses Sundials.
 
 See [sim](#sim) for the interface.
 """ ->
-function sunsim(ss::SimState, tstop::Float64, Nsteps::Int, reltol::Float64, abstol::Float64, init::Symbol, alg::Bool)
+function sunsim(ss::SimState, tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol = 1e-4, init = :Ya_Ydp, alg = true)
 
-    sim_info("starting sunsim()")
+    sim_info("starting sunsim()", 1)
 
     sm = ss.sm
     smem::SimSundials = setup_sunsim(ss, reltol, abstol, alg)
@@ -177,7 +177,7 @@ function sunsim(ss::SimState, tstop::Float64, Nsteps::Int, reltol::Float64, abst
                 flag = Sundials.IDACalcIC(mem, init == :Ya_Ydp ? Sundials.IDA_YA_YDP_INIT : Sundials.IDA_Y_INIT, tret[1] + sm.abstol)
             end
             if ss.structural_change
-                sim_info("structural change event found at t = $(t[1]), restarting")
+                sim_info("structural change event found at t = $(t[1]), restarting", 2)
                 
                 MTime.value = tret[1]
 
@@ -206,7 +206,7 @@ function sunsim(ss::SimState, tstop::Float64, Nsteps::Int, reltol::Float64, abst
                 yidx = sm.outputs .!= ""
                 
             elseif any(jroot .!= 0)
-                sim_info("event found at t = $(tret[1]), restarting")
+                sim_info("event found at t = $(tret[1]), restarting", 2)
             end
         ## elseif flag == Sundials.IDA_??
         ##     println("restarting")

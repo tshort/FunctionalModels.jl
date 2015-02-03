@@ -40,7 +40,7 @@ function runall()
     bpb  = sim(BreakingPendulumInBox(), 5.0)
     dmws = sim(DcMotorWithShaft(), 4.0)
     hwr  = sim(HalfWaveRectifier(), 0.1)
-    shwr = sim(StructuralHalfWaveRectifier(), 0.1)
+    shwr = sim(StructuralHalfWaveRectifier(), tstop = 0.1, alg = false)
     v    = sim(Vanderpol(), 50.0)
     vwe  = sim(VanderpolWithEvents(), 10.0)
     
