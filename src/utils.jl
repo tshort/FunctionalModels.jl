@@ -319,11 +319,13 @@ function initialize!(ss::SimState)
     n = length(ss.y0)
     JuMP.@defVar(m, y[1:n])
     JuMP.@defVar(m, yp[1:n])
+    JuMP.@defVar(m, t[1])
     eq = ss.sm.eq.initialequations
     exv = Sims.replace_unknowns(eq, sm)
     for i in 1:n
         JuMP.setValue(y[i], ss.y0[i])
         JuMP.setValue(yp[i], ss.yp0[i])
+        JuMP.setValue(t[1], 0.0)
         ## Add constraints for the fixed variables and derivatives
         if sm.yfixed[i]
             JuMP.@addConstraint(m, y[i] == ss.y0[i])
@@ -341,8 +343,8 @@ function initialize!(ss::SimState)
         ex = cleanexpr(ex)
         ## Add a constraint for each equation in the system
         ## kludgy way to run JuMP's macro!
-        eval(:( using Base.Operators; _f(y, yp, m) = JuMP.@addNLConstraint(m, $ex) ))
-        _f(y, yp, m)
+        eval(:( using Base.Operators; _f(y, yp, t, m) = JuMP.@addNLConstraint(m, $ex) ))
+        _f(y, yp, t, m)
     end
     global _m = m
     r = JuMP.solve(m)
