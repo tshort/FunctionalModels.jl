@@ -566,6 +566,6 @@ cell_s = create_sim(cell_f) # returns a "Sim" ready for simulation
 tf = 500.0
 dt = 0.025
 
-@time cell_yout = dasslsim(cell_s, tstop=tf, Nsteps=int(tf/dt), reltol=1e-1, abstol=1e-4)
+@time cell_yout = sunsim(cell_s, tstop=tf, Nsteps=int(tf/dt), reltol=1e-1, abstol=1e-4)
 
 
