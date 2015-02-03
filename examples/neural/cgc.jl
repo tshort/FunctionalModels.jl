@@ -246,7 +246,7 @@ function Kir_model(v,I_Kir)
 
     gbar_Kir  = 0.0009
 
-    d   = Unknown(value(alpha_d (v) / (alpha_d(v) + beta_d(v))))
+    d = Unknown(value(alpha_d (v) / (alpha_d(v) + beta_d(v))))
     g_Kir = Unknown (value(d * gbar_Kir))
     
     @equations begin
@@ -288,7 +288,7 @@ function KM_model(v,I_KM)
 
     n   = Unknown(value(alpha_n (v) / (alpha_n(v) + beta_n(v))))
     g_KM = Unknown (value(n * gbar_KM))
-
+    
     n_inf   = Unknown(value(1 / (alpha_n(v) + beta_n(v))))
     tau_n   = Unknown(value(1 / (1 + exp((-(v - V0_ninf)) / B_ninf))))
     
@@ -577,7 +577,7 @@ function CGC(I)
 
         der(v) = ((I_stim * (100.0 / area)) - 1e3 * (I_Ca + I_K + I_Na + I_NaR + I_pNa + I_L)) / C_m
 
-        Event(MTime - 100.0,     # Start injecting current after 100 ms
+        Event(MTime - 250.0,     # Start injecting current after 250 ms
               Equation[
                   reinit(I_stim, I)
               ],
@@ -593,10 +593,10 @@ cgc_s = create_sim(cgc_f) # returns a "Sim" ready for simulation
 
 # runs the simulation and returns
 # the result as an array plus column headings
-tf = 500.0
+tf = 1000.0
 dt = 0.025
 
-@time cgc_yout = sunsim(cgc_s, tstop=tf, Nsteps=int(tf/dt), reltol=1e-7, abstol=1e-7)
+@time cgc_yout = dasslsim(cgc_s, tstop=tf, Nsteps=int(tf/dt), reltol=1e-7, abstol=1e-7)
 
 ##@time cgc_yout = sim(cgc_s, tf, int(tf/dt))
 

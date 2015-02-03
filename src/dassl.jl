@@ -70,7 +70,6 @@ function dasslsim(ss::SimState, tstop::Float64=1.0, Nsteps::Int=500, reltol::Flo
         push!(x.signal, x.initialvalue)
     end
     ss.y[:] = ss.y0
-    @show ss.y
     ss.yp[:] = ss.yp0
     yidx = sm.outputs .!= ""
     ## yidx = map((s) -> s != "", sm.outputs)
@@ -80,6 +79,14 @@ function dasslsim(ss::SimState, tstop::Float64=1.0, Nsteps::Int=500, reltol::Flo
     tout = [tstep]
     idid = [int32(0)]
     info = fill(int32(0), 20)
+
+    constraints = float64(copy(sm.constraints))
+    constraints[constraints .< -2] = 0.0
+    constraints[constraints .> 2] = 0.0
+    has_constraints = any(x -> x < 0.0 || x > 0.0, constraints)
+    if has_constraints
+        info[10] = 3
+    end
     info[11] = initdassl[init]    # calc initial conditions (1 or 2) / don't calc (0)
     info[16] = alg ? 0 : 1    # == 1 to ignore algebraic variables in the error calculation
     info[18] = 2    # more initialization info
@@ -96,9 +103,18 @@ function dasslsim(ss::SimState, tstop::Float64=1.0, Nsteps::Int=500, reltol::Flo
         atol = [abstol]
         lrw = [int32(N[1]^3 + 9 * N[1] + 60 + 3 * nrt[1])] 
         rwork = fill(0.0, lrw[1])
-        liw = [int32(2*N[1] + 40)] 
+        if has_constraints
+            liw = [int32(3*N[1] + 40)]
+        else
+            liw = [int32(2*N[1] + 40)]
+        end
         iwork = fill(int32(0), liw[1])
-        iwork[40 + (1:N[1])] = sm.id
+        if has_constraints
+            iwork[40 + (1:N[1])] = constraints
+            iwork[40 + N[1] + (1:N[1])] = sm.id
+        else
+            iwork[40 + (1:N[1])] = sm.id
+        end
         jac = [int32(0)]
         psol = [int32(0)]
         jroot = fill(int32(0), max(nrt[1], 1))
@@ -139,7 +155,7 @@ function dasslsim(ss::SimState, tstop::Float64=1.0, Nsteps::Int=500, reltol::Flo
         end
     end
     yout = zeros(Nsteps, Ncol + 1)
-
+    
     for idx in 1:Nsteps
 
         (t,y,yp,jroot) = simulate(tout)

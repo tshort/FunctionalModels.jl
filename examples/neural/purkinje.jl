@@ -162,10 +162,10 @@ function CaBK_model(v,cai,I_CaBK)
     z_beta = Unknown(value(1 - zinf(cai)) / ztau)
     z = Unknown (1 / (1 + zk / cai0))
 
-    zO = Unknown(0.5)
-    zC = Unknown(0.5)
+    zO = NonNegativeUnknown(0.5)
+    zC = NonNegativeUnknown(0.5)
 
-    g_CaBK  = Unknown(value(m^3 * h * z^2 * gbar_CaBK))
+    g_CaBK  = NonNegativeUnknown(value(m^3 * h * z^2 * gbar_CaBK))
 
     z_reactions = parse_reactions (Any
                                    [
@@ -249,7 +249,7 @@ function K1_model(v,I_K1)
     tau_h = Unknown(value(htau(K1_v)))
     h = Unknown (value(hinf(K1_v)))
 
-    g_K1  = Unknown(value(m^3 * h * gbar_K1))
+    g_K1  = NonNegativeUnknown(value(m^3 * h * gbar_K1))
 
 
     @equations begin
@@ -294,7 +294,7 @@ function K2_model(v,I_K2)
     tau_m = Unknown(value(mtau(K2_v)))
     m = Unknown (value(minf(K2_v)))
     
-    g_K2  = Unknown(value(m^4 * gbar_K2))
+    g_K2  = NonNegativeUnknown(value(m^4 * gbar_K2))
 
     @equations begin
                                
@@ -333,7 +333,7 @@ function K3_model(v,I_K3)
     tau_m = Unknown(value(mtau(K3_v)))
     m = Unknown (value(minf(K3_v)))
     
-    g_K3  = Unknown(value(m^4 * gbar_K3))
+    g_K3  = NonNegativeUnknown(value(m^4 * gbar_K3))
 
     @equations begin
                                
@@ -414,19 +414,33 @@ function Narsg_model(v,I_Na)
     bi5 = (Coff * btfac * btfac * btfac * btfac)
     bin = (Ooff)
 
-    I1 = Unknown(0.012)
-    I2 = Unknown(0.023)
-    I3 = Unknown(0.03)
-    I4 = Unknown(0.03)
-    I5 = Unknown(0.1)
-    I6 = Unknown(5e-6)
-    C1 = Unknown(0.62)
-    C2 = Unknown(0.21)
-    C3 = Unknown(0.027)
-    C4 = Unknown(0.001)
-    C5 = Unknown(3.3e-5)
-    O  = Unknown(1.7e-4)
-    B  = Unknown(0.007)
+    #I1 = Unknown(0.012)
+    #I2 = Unknown(0.023)
+    #I3 = Unknown(0.03)
+    #I4 = Unknown(0.03)
+    #I5 = Unknown(0.1)
+    #I6 = Unknown(5e-6)
+    #C1 = Unknown(0.62)
+    #C2 = Unknown(0.21)
+    #C3 = Unknown(0.027)
+    #C4 = Unknown(0.001)
+    #C5 = Unknown(3.3e-5)
+    #O  = Unknown(1.7e-4)
+    #B  = Unknown(0.007)
+
+    I1 = NonNegativeUnknown()
+    I2 = NonNegativeUnknown()
+    I3 = NonNegativeUnknown()
+    I4 = NonNegativeUnknown()
+    I5 = NonNegativeUnknown()
+    I6 = NonNegativeUnknown()
+    C1 = NonNegativeUnknown(0.5)
+    C2 = NonNegativeUnknown(0.2)
+    C3 = NonNegativeUnknown(0.1)
+    C4 = NonNegativeUnknown(0.1)
+    C5 = NonNegativeUnknown(0.1)
+    O  = NonNegativeUnknown()
+    B  = NonNegativeUnknown()
     
     reaction = parse_reactions (Any [
                                      
@@ -450,7 +464,7 @@ function Narsg_model(v,I_Na)
                                      
                                      ])
     
-    g_Na = Unknown(value(O * gbar_Na))
+    g_Na = NonNegativeUnknown(value(O * gbar_Na))
     
     @equations begin
 
@@ -482,7 +496,7 @@ function Ih_model(v,Ih)
     E_Ih = -30
 
     m = Unknown(value(minf(v)))
-    g_Ih = Unknown(value(m * gbar_Ih))
+    g_Ih = NonNegativeUnknown(value(m * gbar_Ih))
     
     @equations begin
 
@@ -552,6 +566,6 @@ cell_s = create_sim(cell_f) # returns a "Sim" ready for simulation
 tf = 500.0
 dt = 0.025
 
-@time cell_yout = sunsim(cell_s, tstop=tf, Nsteps=int(tf/dt), reltol=1e-1, abstol=1e-4)
+@time cell_yout = dasslsim(cell_s, tstop=tf, Nsteps=int(tf/dt), reltol=1e-1, abstol=1e-4)
 
 

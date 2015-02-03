@@ -74,6 +74,12 @@ function setup_sunsim(ss::SimState, reltol::Float64, abstol::Float64, alg::Bool)
     id    = float64(copy(sm.id))
     id[id .< 0] = 0.0
     flag  = Sundials.IDASetId(mem, id)
+    constraints = float64(copy(sm.constraints))
+    constraints[constraints .< -2] = 0.0
+    constraints[constraints .> 2] = 0.0
+    if any(x -> x < 0.0 || x > 0.0, constraints)
+        flag  = Sundials.IDASetConstraints(mem, constraints)
+    end
     return SimSundials (mem, ss)
 end
 
