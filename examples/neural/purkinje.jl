@@ -9,6 +9,11 @@ using Sims
 using Sims.Lib
 using Winston
 
+type UConductance <: UnknownCategory
+end
+
+typealias Gate Unknown{DefaultUnknown,NonNegative}
+typealias Conductance Unknown{UConductance,NonNegative}
 
 
 const F = 96485.3
@@ -76,7 +81,7 @@ function CaP_model(v,cai,I_CaP)
     
     m_inf = Unknown(value(minf(v)))
     tau_m = Unknown(value(mtau(v)))
-    m = Unknown(value(minf(v)))
+    m = Gate(value(minf(v)))
 
     @equations begin
 
@@ -150,22 +155,22 @@ function CaBK_model(v,cai,I_CaBK)
 
     m_inf = Unknown(value(minf(CaBK_v)))
     tau_m = Unknown(value(mtau(CaBK_v)))
-    m = Unknown (value(minf(CaBK_v)))
+    m = Gate(value(minf(CaBK_v)))
     
     h_inf = Unknown(value(hinf(CaBK_v)))
     tau_h = Unknown(value(htau(CaBK_v)))
-    h = Unknown (value(hinf(CaBK_v)))
+    h = Gate(value(hinf(CaBK_v)))
 
     ztau = 1.0
     zk = 0.001
     z_alpha = Unknown(value(zinf(cai) / ztau))
     z_beta = Unknown(value(1 - zinf(cai)) / ztau)
-    z = Unknown (1 / (1 + zk / cai0))
+    z = Gate(1 / (1 + zk / cai0))
 
-    zO = NonNegativeUnknown(0.5)
-    zC = NonNegativeUnknown(0.5)
+    zO = Gate(0.5)
+    zC = Gate(0.5)
 
-    g_CaBK  = NonNegativeUnknown(value(m^3 * h * z^2 * gbar_CaBK))
+    g_CaBK  = Conductance(value(m^3 * h * z^2 * gbar_CaBK))
 
     z_reactions = parse_reactions (Any
                                    [
@@ -243,13 +248,13 @@ function K1_model(v,I_K1)
 
     m_inf = Unknown(value(minf(K1_v)))
     tau_m = Unknown(value(mtau(K1_v)))
-    m = Unknown (value(minf(K1_v)))
+    m = Gate(value(minf(K1_v)))
     
     h_inf = Unknown(value(hinf(K1_v)))
     tau_h = Unknown(value(htau(K1_v)))
-    h = Unknown (value(hinf(K1_v)))
+    h = Gate(value(hinf(K1_v)))
 
-    g_K1  = NonNegativeUnknown(value(m^3 * h * gbar_K1))
+    g_K1  = Conductance(value(m^3 * h * gbar_K1))
 
 
     @equations begin
@@ -292,9 +297,9 @@ function K2_model(v,I_K2)
 
     m_inf = Unknown(value(minf(K2_v)))
     tau_m = Unknown(value(mtau(K2_v)))
-    m = Unknown (value(minf(K2_v)))
+    m = Gate (value(minf(K2_v)))
     
-    g_K2  = NonNegativeUnknown(value(m^4 * gbar_K2))
+    g_K2  = Conductance(value(m^4 * gbar_K2))
 
     @equations begin
                                
@@ -331,9 +336,9 @@ function K3_model(v,I_K3)
 
     m_inf = Unknown(value(minf(K3_v)))
     tau_m = Unknown(value(mtau(K3_v)))
-    m = Unknown (value(minf(K3_v)))
+    m = Gate (value(minf(K3_v)))
     
-    g_K3  = NonNegativeUnknown(value(m^4 * gbar_K3))
+    g_K3  = Conductance(value(m^4 * gbar_K3))
 
     @equations begin
                                
@@ -428,19 +433,19 @@ function Narsg_model(v,I_Na)
     #O  = Unknown(1.7e-4)
     #B  = Unknown(0.007)
 
-    I1 = NonNegativeUnknown()
-    I2 = NonNegativeUnknown()
-    I3 = NonNegativeUnknown()
-    I4 = NonNegativeUnknown()
-    I5 = NonNegativeUnknown()
-    I6 = NonNegativeUnknown()
-    C1 = NonNegativeUnknown(0.5)
-    C2 = NonNegativeUnknown(0.2)
-    C3 = NonNegativeUnknown(0.1)
-    C4 = NonNegativeUnknown(0.1)
-    C5 = NonNegativeUnknown(0.1)
-    O  = NonNegativeUnknown()
-    B  = NonNegativeUnknown()
+    I1 = Gate()
+    I2 = Gate()
+    I3 = Gate()
+    I4 = Gate()
+    I5 = Gate()
+    I6 = Gate()
+    C1 = Gate(0.5)
+    C2 = Gate(0.2)
+    C3 = Gate(0.1)
+    C4 = Gate(0.1)
+    C5 = Gate(0.1)
+    O  = Gate()
+    B  = Gate()
     
     reaction = parse_reactions (Any [
                                      
@@ -464,7 +469,7 @@ function Narsg_model(v,I_Na)
                                      
                                      ])
     
-    g_Na = NonNegativeUnknown(value(O * gbar_Na))
+    g_Na = Conductance(value(O * gbar_Na))
     
     @equations begin
 
@@ -495,8 +500,8 @@ function Ih_model(v,Ih)
     gbar_Ih = 0.0001
     E_Ih = -30
 
-    m = Unknown(value(minf(v)))
-    g_Ih = NonNegativeUnknown(value(m * gbar_Ih))
+    m = Gate(value(minf(v)))
+    g_Ih = Conductance(value(m * gbar_Ih))
     
     @equations begin
 
@@ -566,6 +571,6 @@ cell_s = create_sim(cell_f) # returns a "Sim" ready for simulation
 tf = 500.0
 dt = 0.025
 
-@time cell_yout = sunsim(cell_s, tstop=tf, Nsteps=int(tf/dt), reltol=1e-1, abstol=1e-4)
+@time cell_yout = sunsim(cell_s, tstop=tf, Nsteps=int(tf/dt), reltol=1e-1, abstol=1e-4, alg=false)
 
 

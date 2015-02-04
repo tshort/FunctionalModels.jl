@@ -13,6 +13,12 @@ using Sims.Lib
 using Winston
 
 
+type UConductance <: UnknownCategory
+end
+
+typealias Gate Unknown{DefaultUnknown,NonNegative}
+typealias Conductance Unknown{UConductance,NonNegative}
+
 function sigm (x, y)
     return 1.0 / (exp (x / y) + 1)
 end
@@ -95,9 +101,9 @@ function CaHVA_model(v,I_CaHVA)
 	return (Q10 * Abeta_u * exp((v - V0beta_u) / Kbeta_u))
     end
 
-    s = Unknown (value(alpha_s(v) / (alpha_s(v) + beta_s(v))))
-    u = Unknown (value(alpha_u(v) / (alpha_u(v) + beta_u(v))))
-    g_CaHVA = Unknown (value(s^2 * u * gbar_CaHVA))
+    s = Gate (value(alpha_s(v) / (alpha_s(v) + beta_s(v))))
+    u = Gate (value(alpha_u(v) / (alpha_u(v) + beta_u(v))))
+    g_CaHVA = Conductance (value(s^2 * u * gbar_CaHVA))
     
     @equations begin
         der(s) =  alpha_s(v) * (1 - s) - beta_s(v) * s
@@ -153,8 +159,8 @@ function KA_model(v,I_KA)
 	(Q10 * Abeta_b * sigm((v - V0beta_b), Kbeta_b))
     end
 
-    a = Unknown(value(1 / (1 + exp ((v - V0_ainf) / K_ainf))))
-    b = Unknown(value(1 / (1 + exp ((v - V0_binf) / K_binf))))
+    a = Gate(value(1 / (1 + exp ((v - V0_ainf) / K_ainf))))
+    b = Gate(value(1 / (1 + exp ((v - V0_binf) / K_binf))))
 
     a_inf   = Unknown(value(1 / (1 + exp ((v - V0_ainf) / K_ainf))))
     b_inf   = Unknown(value(1 / (1 + exp ((v - V0_binf) / K_binf))))
@@ -162,7 +168,7 @@ function KA_model(v,I_KA)
     tau_a   = Unknown(value(1 / (alpha_a (v) + beta_a (v))))
     tau_b   = Unknown(value(1 / (alpha_b (v) + beta_b (v))))
 
-    g_KA = Unknown (value(a^3 * b * gbar_KA))
+    g_KA = Conductance (value(a^3 * b * gbar_KA))
 
     @equations begin
 
@@ -208,8 +214,8 @@ function KCa_model(v,cai,I_KCa)
 
     gbar_KCa  = 0.003
 
-    c = Unknown(value(alpha_c (v, cai) / (alpha_c (v, cai) + beta_c (v, cai))))
-    g_KCa = Unknown (value(c * gbar_KCa))
+    c = Gate(value(alpha_c (v, cai) / (alpha_c (v, cai) + beta_c (v, cai))))
+    g_KCa = Conductance (value(c * gbar_KCa))
     
     @equations begin
         der(c) =  alpha_c(v, cai) * (1 - c) - beta_c(v, cai) * c
@@ -246,8 +252,8 @@ function Kir_model(v,I_Kir)
 
     gbar_Kir  = 0.0009
 
-    d = Unknown(value(alpha_d (v) / (alpha_d(v) + beta_d(v))))
-    g_Kir = Unknown (value(d * gbar_Kir))
+    d = Gate(value(alpha_d (v) / (alpha_d(v) + beta_d(v))))
+    g_Kir = Conductance (value(d * gbar_Kir))
     
     @equations begin
         der(d) =  alpha_d(v) * (1 - d) - beta_d(v) * d
@@ -286,8 +292,8 @@ function KM_model(v,I_KM)
 	(Q10 * Abeta_n * exp((v - V0beta_n) / Kbeta_n) )
     end
 
-    n   = Unknown(value(alpha_n (v) / (alpha_n(v) + beta_n(v))))
-    g_KM = Unknown (value(n * gbar_KM))
+    n   = Gate(value(alpha_n (v) / (alpha_n(v) + beta_n(v))))
+    g_KM = Conductance (value(n * gbar_KM))
     
     n_inf   = Unknown(value(1 / (alpha_n(v) + beta_n(v))))
     tau_n   = Unknown(value(1 / (1 + exp((-(v - V0_ninf)) / B_ninf))))
@@ -331,8 +337,8 @@ function KV_model(v,I_KV)
 	(Q10 * Abeta_n * exp((v - V0beta_n) / Kbeta_n) )
     end
 
-    n   = Unknown(value(alpha_n (v) / (alpha_n (v) + beta_n (v))))
-    g_KV = Unknown (value(n^4 * gbar_KV))
+    n   = Gate(value(alpha_n (v) / (alpha_n (v) + beta_n (v))))
+    g_KV = Conductance (value(n^4 * gbar_KV))
     
     @equations begin
         der(n) =  alpha_n(v) * (1 - n) - beta_n(v) * n
@@ -384,9 +390,9 @@ function Na_model(v,I_Na)
 	(Q10 * Abeta_h / (1 + exp((v - V0beta_h) / Kbeta_h) ))
     end
     
-    m   = Unknown(value(alpha_m (v) / (alpha_m(v) + beta_m(v))))
-    h   = Unknown(value(alpha_h (v) / (alpha_h(v) + beta_h(v))))
-    g_Na = Unknown (value(m^3 * h * gbar_Na))
+    m   = Gate(value(alpha_m (v) / (alpha_m(v) + beta_m(v))))
+    h   = Gate(value(alpha_h (v) / (alpha_h(v) + beta_h(v))))
+    g_Na = Conductance (value(m^3 * h * gbar_Na))
     
     @equations begin
         der(m) =  alpha_m(v) * (1 - m) - beta_m(v) * m
@@ -441,9 +447,9 @@ function NaR_model(v,I_NaR)
     
     gbar_NaR  = 0.0005
     
-    s   = Unknown(value(alpha_s (v) / (alpha_s(v) + beta_s(v))))
-    f   = Unknown(value(alpha_f (v) / (alpha_f(v) + beta_f(v))))
-    g_NaR = Unknown (value(s * f * gbar_NaR))
+    s   = Gate(value(alpha_s (v) / (alpha_s(v) + beta_s(v))))
+    f   = Gate(value(alpha_f (v) / (alpha_f(v) + beta_f(v))))
+    g_NaR = Conductance (value(s * f * gbar_NaR))
     
     @equations begin
         der(s) =  alpha_s(v) * (1 - s) - beta_s(v) * s
@@ -482,8 +488,8 @@ function pNa_model(v,I_pNa)
 	(Q10 * Abeta_m * linoid ( (v - V0beta_m), Kbeta_m) )
     end
     
-    m   = Unknown(value(1 / (1 + exp ((- (v - V0_minf)) / B_minf))))
-    g_pNa = Unknown (value(m * gbar_pNa))
+    m   = Gate(value(1 / (1 + exp ((- (v - V0_minf)) / B_minf))))
+    g_pNa = Conductance (value(m * gbar_pNa))
 
     m_inf   = Unknown(value(1 / (1 + exp((- (v - V0_minf)) / B_minf))))
     tau_m   = Unknown(value(5 / (alpha_m(v) + beta_m(v))))
@@ -596,7 +602,7 @@ cgc_s = create_sim(cgc_f) # returns a "Sim" ready for simulation
 tf = 1000.0
 dt = 0.025
 
-@time cgc_yout = dasslsim(cgc_s, tstop=tf, Nsteps=int(tf/dt), reltol=1e-7, abstol=1e-7)
+@time cgc_yout = sunsim(cgc_s, tstop=tf, Nsteps=int(tf/dt), reltol=1e-6, abstol=1e-6)
 
 ##@time cgc_yout = sim(cgc_s, tf, int(tf/dt))
 

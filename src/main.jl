@@ -268,30 +268,6 @@ Unknown(label::String = "", value = 0.0, fixed::Bool = false, save_history::Bool
     Unknown{DefaultUnknown,Normal}(value, label, fixed, save_history)
 Unknown(;value = 0.0, label::String = "", fixed::Bool = false, save_history::Bool = true) =
     Unknown{DefaultUnknown,Normal}(value, label, fixed, save_history)
-PositiveUnknown(value = 0.0, label::String = "", fixed::Bool = false, save_history::Bool = true) =
-    Unknown{DefaultUnknown,Positive}(value, label, fixed, save_history)
-PositiveUnknown(label::String = "", value = 0.0, fixed::Bool = false, save_history::Bool = true) =
-    Unknown{DefaultUnknown,Positive}(value, label, fixed, save_history)
-PositiveUnknown(;value = 0.0, label::String = "", fixed::Bool = false, save_history::Bool = true) =
-    Unknown{DefaultUnknown,Positive}(value, label, fixed, save_history)
-NegativeUnknown(value = 0.0, label::String = "", fixed::Bool = false, save_history::Bool = true) =
-    Unknown{DefaultUnknown,Negative}(value, label, fixed, save_history)
-NegativeUnknown(label::String = "", value = 0.0, fixed::Bool = false, save_history::Bool = true) =
-    Unknown{DefaultUnknown,Negative}(value, label, fixed, save_history)
-NegativeUnknown(;value = 0.0, label::String = "", fixed::Bool = false, save_history::Bool = true) =
-    Unknown{DefaultUnknown,Negative}(value, label, fixed, save_history)
-NonPositiveUnknown(value = 0.0, label::String = "", fixed::Bool = false, save_history::Bool = true) =
-    Unknown{DefaultUnknown,NonPositive}(value, label, fixed, save_history)
-NonPositiveUnknown(label::String = "", value = 0.0, fixed::Bool = false, save_history::Bool = true) =
-    Unknown{DefaultUnknown,NonPositive}(value, label, fixed, save_history)
-NonPositiveUnknown(;value = 0.0, label::String = "", fixed::Bool = false, save_history::Bool = true) =
-    Unknown{DefaultUnknown,NonPositive}(value, label, fixed, save_history)
-NonNegativeUnknown(value = 0.0, label::String = "", fixed::Bool = false, save_history::Bool = true) =
-    Unknown{DefaultUnknown,NonNegative}(value, label, fixed, save_history)
-NonNegativeUnknown(label::String = "", value = 0.0, fixed::Bool = false, save_history::Bool = true) =
-    Unknown{DefaultUnknown,NonNegative}(value, label, fixed, save_history)
-NonNegativeUnknown(;value = 0.0, label::String = "", fixed::Bool = false, save_history::Bool = true) =
-    Unknown{DefaultUnknown,NonNegative}(value, label, fixed, save_history)
 
 
 
