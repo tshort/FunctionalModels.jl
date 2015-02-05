@@ -180,15 +180,29 @@ Categories of constraints on Unknowns; used to create positive, negative, etc., 
 """ ->
 abstract UnknownConstraint
 
-
+@doc """
+Indicates no constraint is imposed.
+""" ->
 type Normal <: UnknownConstraint
 end
+@doc """
+Indicates unknowns of this type must be constrained to negative values.
+""" ->
 type Negative <: UnknownConstraint
 end
+@doc """
+Indicates unknowns of this type must be constrained to positive or zero values.
+""" ->
 type NonNegative <: UnknownConstraint
 end
+@doc """
+Indicates unknowns of this type must be constrained to positive values.
+""" ->
 type Positive <: UnknownConstraint
 end
+@doc """
+Indicates unknowns of this type must be constrained to negative or zero values.
+""" ->
 type NonPositive <: UnknownConstraint
 end
 
