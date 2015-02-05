@@ -477,6 +477,15 @@ function initialize!(ss::SimState)
         if sm.ypfixed[i]
             JuMP.@addConstraint(m, yp[i] == ss.yp0[i])
         end
+        if (sm.constraints[i] == 2)
+            JuMP.@addConstraint(m, y[i] >= 0.0)
+        elseif (sm.constraints[i] == 1)
+            JuMP.@addConstraint(m, y[i] >= 0.0)
+        elseif (sm.constraints[i] == -1)
+            JuMP.@addConstraint(m, y[i] <= 0.0)
+        elseif (sm.constraints[i] == -2)
+            JuMP.@addConstraint(m, y[i] <= 0.0)
+        end
         ex = exv[i]
         if Meta.isexpr(ex, :call) && ex.args[1] == :(-) && length(ex.args) == 3
             ex.args[1] = :(==)
