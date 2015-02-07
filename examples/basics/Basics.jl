@@ -33,6 +33,7 @@ include("vanderpol.jl")
 include("vanderpol_with_events.jl")
 include("vanderpol_with_parameter.jl")
 include("concentration.jl")
+include("concentration_with_constraints.jl")
 include("dde.jl")
 
 function runall()
@@ -54,6 +55,8 @@ function runall()
     
     conc   = sim(Concentration(), 10.0)
     sconc  = sim(SimpleConcentration(), 10.0)
+    concc  = sim(ConcentrationWithConstraints(), 10.0)
+    sconcc = sim(SimpleConcentrationWithConstraints(), 10.0)
     dde    = sim(DDE(tau=15.0), tstop=250.0, alg=true)
     
     ic   = solve(InitialCondition())

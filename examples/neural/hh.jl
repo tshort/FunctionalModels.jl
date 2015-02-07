@@ -2,6 +2,12 @@
 
 export HodgkinHuxley
 
+type UConductance <: UnknownCategory
+end
+
+typealias Gate Unknown{DefaultUnknown,NonNegative}
+typealias Conductance Unknown{UConductance,NonNegative}
+
 
 I       =   10.0
 C_m     =    1.0
@@ -48,12 +54,12 @@ to Conduction and Excitation in Nerve" Journal of Physiology 117:
 function HodgkinHuxley()
 
     v   = Voltage(-65.0, "v")   
-    m   = Unknown(0.052, "m")
-    h   = Unknown(0.596, "h")
-    n   = Unknown(0.317, "n")
+    m   = Gate(0.052, "m")
+    h   = Gate(0.596, "h")
+    n   = Gate(0.317, "n")
 
-    g_Na = Unknown()
-    g_K  = Unknown()
+    g_Na = Conductance()
+    g_K  = Conductance()
 
     I_Na = Current()
     I_K  = Current()
