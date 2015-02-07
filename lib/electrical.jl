@@ -353,7 +353,13 @@ function Inductor(n1::ElectricalNode, n2::ElectricalNode; L::Signal = 1.0)
 end
 
 @doc* """
-TBD
+To be done...
+
+SaturatingInductor as implemented in the Modelica Standard Library
+depends on a Discrete value that is not fixed. This is not currently
+supported. Only Unknowns can currently be solved during initial
+conditions.
+
 """ ->
 function SaturatingInductor(n1::ElectricalNode, n2::ElectricalNode, 
                             Inom = 1.0,
@@ -368,7 +374,7 @@ function SaturatingInductor(n1::ElectricalNode, n2::ElectricalNode,
     Psi = Unknown(vals, "psi")
     Lact = Unknown(value(Linf), "Lact")
     ## Lact = Unknown(vals)
-    # initial equation equivalent (uses John Myles White's optim package):
+    # initial equation equivalent (uses John Myles White's Optim package):
     Ipar = optimize(Ipar -> ((Lnom - Linf) - (Lzer - Linf)*Ipar[1]/Inom*(pi/2-atan2(Ipar[1],Inom))) ^ 2, [Inom]).minimum[1]
     println("Ipar: ", Ipar)
     @equations begin
@@ -682,11 +688,11 @@ function IdealGTOThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discret
     i = Current(vals)
     v = Voltage(vals)
     s = Unknown(vals)  # dummy variable
-    off = Discrete(true)  # on/off state of each switch
-    addhook!(fire, reinit(off, !fire))
+    snegative = Discrete(value(s) < 0.0)  
+    off = @liftd :snegative | !:fire
     @equations begin
         Branch(n1, n2, v, i)
-        Event(-s, reinit(off, true)) 
+        BoolEvent(snegative, -s)
         v = s .* ifelse(off, 1.0, Ron) + Vknee
         i = s .* ifelse(off, Goff, 1.0) + Goff .* Vknee
     end
@@ -834,13 +840,13 @@ end
 @doc* """
 TBD
 """ ->
-function ControlledIdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Signal,
+function ControlledIdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control,
                                       level = 0.0,  Ron = 1e-5,  Goff = 1e-5)
     vals = compatible_values(n1, n2)
     i = Current(vals)
     v = Voltage(vals)
     s = Unknown(vals)  # dummy variable
-    openswitch = Discrete(fill(true, length(vals)))  # on/off state of diode
+    openswitch = Discrete(true)  # on/off state of diode
     @equations begin
         Branch(n1, n2, v, i)
         BoolEvent(openswitch, control - level)  # openswitch becomes false when control goes below level
@@ -848,7 +854,7 @@ function ControlledIdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, co
         i = s .* ifelse(openswitch, Goff, 1.0)
     end
 end
-function ControlledIdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Signal;
+function ControlledIdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control;
                                       level = 0.0,  Ron = 1e-5,  Goff = 1e-5)
     ControlledIdealOpeningSwitch(n1, n2, control, level, Ron, Goff)
 end
@@ -857,11 +863,11 @@ end
 @doc* """
 TBD
 """ ->
-function ControlledIdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Signal,
+function ControlledIdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control,
                                       level = 0.0,  Ron = 1e-5,  Goff = 1e-5)
     ControlledIdealOpeningSwitch(n1, n2, level, control, Ron, Goff) # note that level and control are swapped
 end
-function ControlledIdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Signal;
+function ControlledIdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control;
                                       level = 0.0,  Ron = 1e-5,  Goff = 1e-5)
     ControlledIdealClosingSwitch(n1, n2, control, level, Ron, Goff)
 end
@@ -909,9 +915,9 @@ This model is the same as ControlledOpenerWithArc, but the switch
 is closed when `control > level`. 
 
 ```julia
-ControlledOpenerWithArc(n1::ElectricalNode, n2::ElectricalNode, control::Signal,
+ControlledOpenerWithArc(n1::ElectricalNode, n2::ElectricalNode, control,
                         level = 0.5,  Ron = 1e-5,  Goff = 1e-5,  V0 = 30.0,  dVdt = 10e3,  Vmax = 60.0)
-ControlledOpenerWithArc(n1::ElectricalNode, n2::ElectricalNode, control::Signal;
+ControlledOpenerWithArc(n1::ElectricalNode, n2::ElectricalNode, control;
                         level = 0.5,  Ron = 1e-5,  Goff = 1e-5,  V0 = 30.0,  dVdt = 10e3,  Vmax = 60.0)
 ```
 
@@ -930,14 +936,14 @@ ControlledOpenerWithArc(n1::ElectricalNode, n2::ElectricalNode, control::Signal;
 * `dVdt` : Arc voltage slope [V/s], default = 10e3
 * `Vmax` : Max. arc voltage [V], default = 60.0
 """ ->
-function ControlledOpenerWithArc(n1::ElectricalNode, n2::ElectricalNode, control::Signal,
+function ControlledOpenerWithArc(n1::ElectricalNode, n2::ElectricalNode, control,
                                  level = 0.5,  Ron = 1e-5,  Goff = 1e-5,  V0 = 30.0,  dVdt = 10e3,  Vmax = 60.0)
-    i = Current("i")
-    v = Voltage()
+    i = Current()
+    v = Voltage(value(n1) - value(n2))
     on = Discrete(false)  # on/off state of switch
+    off = @liftd !:on
     quenched = Discrete(true)  # whether the arc is quenched or not
     tSwitch = Discrete(0.0)  # time of last open initiation
-    ipositive = Discrete(true)  # whether the current is positive
     @equations begin
         Branch(n1, n2, v, i)
         Event(level - control,
@@ -950,13 +956,11 @@ function ControlledOpenerWithArc(n1::ElectricalNode, n2::ElectricalNode, control
         Event(i,
               Equation[
                   reinit(i, 0.0)
-                  reinit(ipositive, true)
-                  ifelse(!quenched, reinit(quenched, true))
+                  ifelse(!quenched & off, reinit(quenched, true))
               ],
               Equation[
                   reinit(i, 0.0)
-                  reinit(ipositive, false)
-                  ifelse(!quenched, reinit(quenched, true))
+                  ifelse(!quenched & off, reinit(quenched, true))
               ])
         ifelse(on,
                v - Ron .* i,
@@ -965,7 +969,7 @@ function ControlledOpenerWithArc(n1::ElectricalNode, n2::ElectricalNode, control
                       v - min(Vmax, V0 + dVdt .* (MTime - tSwitch))) .* sign(i))
     end
 end
-function ControlledOpenerWithArc(n1::ElectricalNode, n2::ElectricalNode, control::Signal;
+function ControlledOpenerWithArc(n1::ElectricalNode, n2::ElectricalNode, control;
                                  level = 0.5,  Ron = 1e-5,  Goff = 1e-5,  V0 = 30.0,  dVdt = 10e3,  Vmax = 60.0)
     ControlledOpenerWithArc(n1, n2, control, level, Ron, Goff, V0, dVdt, Vmax)
 end
@@ -975,9 +979,9 @@ This model is the same as ControlledOpenerWithArc, but the switch
 is closed when `control > level`. 
 
 ```julia
-ControlledCloserWithArc(n1::ElectricalNode, n2::ElectricalNode, control::Signal,
+ControlledCloserWithArc(n1::ElectricalNode, n2::ElectricalNode, control,
                         level = 0.5,  Ron = 1e-5,  Goff = 1e-5,  V0 = 30.0,  dVdt = 10e3,  Vmax = 60.0)
-ControlledCloserWithArc(n1::ElectricalNode, n2::ElectricalNode, control::Signal;
+ControlledCloserWithArc(n1::ElectricalNode, n2::ElectricalNode, control;
                         level = 0.5,  Ron = 1e-5,  Goff = 1e-5,  V0 = 30.0,  dVdt = 10e3,  Vmax = 60.0)
 ```
 
@@ -996,11 +1000,11 @@ ControlledCloserWithArc(n1::ElectricalNode, n2::ElectricalNode, control::Signal;
 * `dVdt` : Arc voltage slope [V/s], default = 10e3
 * `Vmax` : Max. arc voltage [V], default = 60.0
 """ ->
-function ControlledCloserWithArc(n1::ElectricalNode, n2::ElectricalNode, control::Signal,
+function ControlledCloserWithArc(n1::ElectricalNode, n2::ElectricalNode, control,
                                  level = 0.5,  Ron = 1e-5,  Goff = 1e-5,  V0 = 30.0,  dVdt = 10e3,  Vmax = 60.0)
     ControlledOpenerWithArc(n1, n2, level, control, Ron, Goff, V0, dVdt, Vmax)
 end
-function ControlledCloserWithArc(n1::ElectricalNode, n2::ElectricalNode, control::Signal;
+function ControlledCloserWithArc(n1::ElectricalNode, n2::ElectricalNode, control;
                                  level = 0.5,  Ron = 1e-5,  Goff = 1e-5,  V0 = 30.0,  dVdt = 10e3,  Vmax = 60.0)
     ControlledCloserWithArc(n1, n2, control, level, Ron, Goff, V0, dVdt, Vmax)
 end
@@ -1141,13 +1145,27 @@ function HeatingDiode(n1::ElectricalNode, n2::ElectricalNode,
     vals = compatible_values(n1, n2)
     i = Current(vals)
     v = Voltage(vals)
+    powerloss = Unknown(value(i) * value(v))
+    vt_t = Unknown(1.0)
+    aux = Unknown()
+    auxp = Unknown()
+    id = Unknown()
     k = 1.380662e-23  # Boltzmann's constant, J/K
     q = 1.6021892e-19 # Electron charge, As
+    exlin(x, maxexp) = ifelse(x > maxexp, exp(maxexp)*(1 + x - maxexp), exp(x))
     @equations begin
         Branch(n1, n2, v, i)
-        i = ifelse(v ./ Vt > Maxexp,
-                   Ids .* exp(Maxexp) .* (1 + v ./ Vt - Maxexp) - 1 + v ./ R,
-                   Ids .* (exp(v ./ Vt) - 1) + v ./ R)
+        if isa(T, Temperature)
+            Equation[
+                RefBranch(T, -powerloss)
+                powerloss - i * v
+            ] 
+        end
+        vt_t = k * T / q
+        id = exlin(v / (N * vt_t), Maxexp) - 1
+        aux * N * vt_t = (T / TNOM - 1) * EG 
+        auxp = exp(aux)
+        i = Ids * id * (T / TNOM) ^ (XTI / N) * auxp + v / R
     end
 end
 function HeatingDiode(n1::ElectricalNode, n2::ElectricalNode; 

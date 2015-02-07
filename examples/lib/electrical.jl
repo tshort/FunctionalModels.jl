@@ -336,7 +336,6 @@ capacitor is loaded.
 [LBL doc link](http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.HeatingRectifier)
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.HeatingRectifier)
 
-NOTE: CURRENTLY UNFINISHED
 """ ->
 function HeatingRectifier()
     n1 = Voltage("n1")
@@ -346,11 +345,11 @@ function HeatingRectifier()
     g = 0.0
     Equation[
         SineVoltage(n1, g, 1.0, 1.0)
-        HeatingDiode(n1, n2, hp1, morejunkXX)
+        HeatingDiode(n1, n2, T = hp1)
         Capacitor(n2, g, 1.0)
         Resistor(n2, g, 1.0)
         ThermalConductor(hp1, hp2, 10.0)
-        HeatCapacitor(hp2, 20 + 273.15)
+        HeatCapacitor(hp2, 1)
     ]
 end
 
@@ -399,19 +398,16 @@ ideal no-load voltage, thus making easier initial transient.
 [LBL doc link](http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.Rectifier)
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.Rectifier)
 
-NOTE: CURRENTLY BROKEN
 """ ->
 function Rectifier()
     n = Voltage("n")
     VAC = 400.0
-    n1 = Voltage(VAC .* sqrt(2/3) .* sin([0,-2pi/3, 2pi/3]), "Vs")
-    n2 = Voltage(VAC .* sqrt(2/3) .* sin([0,-2pi/3, 2pi/3]), "Vl")
-    ## np = Voltage("Vp")
-    ## nn = Voltage("Vn")
+    n1 = Voltage(VAC .* sqrt(2/3) .* sin([0,-2pi/3, 2pi/3]))
+    n2 = Voltage(VAC .* sqrt(2/3) .* sin([0,-2pi/3, 2pi/3]))
     np = Voltage( VAC*sqrt(2)/2, "Vp")
     nn = Voltage(-VAC*sqrt(2)/2, "Vn")
     nout = Voltage("Vout")
-    g = 0.0
+    g = Voltage()   # source floating neutral 
     f = 50.0
     LAC = 60e-6
     Ron = 1e-3
@@ -420,21 +416,19 @@ function Rectifier()
     CDC = 15e-3
     IDC = 500.0
     Equation[
-        SineVoltage(n1, g, VAC .* sqrt(2/3), f, [0.0, -2pi/3, 2pi/3])
+        SineVoltage(n1[1], g, VAC .* sqrt(2/3), f,  0.0)
+        SineVoltage(n1[2], g, VAC .* sqrt(2/3), f, -2pi/3)
+        SineVoltage(n1[3], g, VAC .* sqrt(2/3), f,  2pi/3)
         Inductor(n1, n2, LAC)
-        ## Resistor(n2, np, 1e3)
-        ## Resistor(n2, nn, 1e3)
         IdealDiode(n2[1], np, Vknee, Ron, Goff)
         IdealDiode(n2[2], np, Vknee, Ron, Goff)
         IdealDiode(n2[3], np, Vknee, Ron, Goff)
         IdealDiode(nn, n2[1], Vknee, Ron, Goff)
         IdealDiode(nn, n2[2], Vknee, Ron, Goff)
         IdealDiode(nn, n2[3], Vknee, Ron, Goff)
-        ## Capacitor(np, nn, CDC)
-        Capacitor(np, g, 2 * CDC)
-        Capacitor(nn, g, 2 * CDC)
-        ## SignalCurrent(np, nn, IDC)
-        Resistor(np, nn, 400 / IDC)
+        Capacitor(np, 0.0, 2 * CDC)
+        Capacitor(nn, 0.0, 2 * CDC)
+        SignalCurrent(np, nn, IDC)
     ]
 end
 
@@ -585,25 +579,24 @@ switching.
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.ControlledSwitchWithArc)
 """ ->
 function ControlledSwitchWithArc()
-    a1 = Voltage("a1")
+    a1 = Voltage()
     a2 = Voltage("a2")
     a3 = Voltage("a3")
-    b1 = Voltage("b1")
+    b1 = Voltage()
     b2 = Voltage("b2")
     b3 = Voltage("b3")
-    vs = Voltage("vs")
+    vs = Voltage()
     g = 0.0
     Equation[
         SineVoltage(vs, g, 1.0, 1.0)
-        SignalVoltage(a1, g, 50.0)
-        ControlledIdealClosingSwitch(a1, a2, vs, 0.5, 1e-5, 1e-5)
-        Inductor(a2, a3, 0.1)
-        Resistor(a3, g, 1.0)
-        ## SignalVoltage(b1, g, 50.0)
-        ## ## ControlledCloserWithArc(b1, b2, vs, 0.5, 1e-5, 1e-5, 30.0, 1e4, 60.0)
-        ## ControlledCloserWithArc(b1, b2, vs, 0.5, 1e-5, 1e-5, 60.0, 1e-2, 60.0)
-        ## Inductor(b2, b3, 0.1)
-        ## Resistor(b3, g, 1.0)
+        ## SignalVoltage(a1, g, 50.0)
+        ## ControlledIdealClosingSwitch(a1, a2, vs, 0.5, 1e-5, 1e-5)
+        ## Inductor(a2, a3, 0.1)
+        ## Resistor(a3, g, 1.0)
+        SignalVoltage(b1, g, 50.0)
+        ControlledCloserWithArc(b1, b2, vs, V0 = 30.0, dVdt = 10000.0, Vmax = 60.0)
+        Inductor(b2, b3, 0.1)
+        Resistor(b3, g, 1.0)
     ]
 end
 
@@ -652,7 +645,7 @@ function CharacteristicThyristors()
         BooleanPulse(sig, width = 20.0, period = 1.0, startTime = 0.15)
         SineVoltage(n1, g, 10.0, 1.0, -0.006) 
         IdealThyristor(n1, n2, sig, 5.0)
-        ## IdealGTOThyristor(n1, n3, sig, 0.0)
+        IdealGTOThyristor(n1, n3, sig, 0.0)
         BoolEvent(sig, MTime - 1.25)  
         Resistor(n2, g, 1e-3)
         Resistor(n3, g, 1e-3)
@@ -723,11 +716,13 @@ function run_electrical_examples()
     hr    = sim(HeatingResistor(), 5.0)
     svr   = sim(ShowVariableResistor(), 6.2832)
     ct    = sim(CharacteristicThyristors(), 2.0)
+    s     = create_simstate(HeatingRectifier())
+    initialize!(s)
+    hr    = sim(s, 5.0)
+    r     = sim(Rectifier(), tstop = 0.1, alg = false)
+    cswa  = sunsim(ControlledSwitchWithArc(), tstop = 6.0, alg = false) # doesn't solve with DASSL
     ## -- Broken examples --
-    ## hr    = sim(HeatingRectifier(), 5.0)
-    ## r     = sim(Rectifier(), 0.1)
     ## ssi   = sim(ShowSaturatingInductor(), 6.2832)
-    ## cswa  = sim(ControlledSwitchWithArc(), 6)
 end
 
 

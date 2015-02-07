@@ -98,10 +98,32 @@ and functions.
 """
 
 sim_verbose = 1
-function sim_info(msgs...)
-    if sim_verbose > 0
-        apply(println,msgs)
+function sim_info(msgs, i)
+    if i <= sim_verbose
+        println(msgs)
     end
+end
+
+@doc* """
+Control the verbosity of output.
+
+```julia
+verbosity(i)
+```
+
+### Arguments
+
+* `i` : Int indicator with the following meanings:
+  * `i == 0` : don't print information
+  * `i == 1` : minimal info
+  * `i == 2` : all info, including events
+
+More options may be added in the future. This function is not
+exported, so you must qualify it as `Sims.verbosity(0)`.
+
+""" ->
+function verbosity(i)
+    global sim_verbose = i   
 end
 
 ########################################
@@ -151,6 +173,37 @@ abstract UnknownCategory
 The default UnknownCategory.
 """ ->
 type DefaultUnknown <: UnknownCategory
+end
+
+@doc """
+Categories of constraints on Unknowns; used to create positive, negative, etc., constraints.
+""" ->
+abstract UnknownConstraint
+
+@doc """
+Indicates no constraint is imposed.
+""" ->
+type Normal <: UnknownConstraint
+end
+@doc """
+Indicates unknowns of this type must be constrained to negative values.
+""" ->
+type Negative <: UnknownConstraint
+end
+@doc """
+Indicates unknowns of this type must be constrained to positive or zero values.
+""" ->
+type NonNegative <: UnknownConstraint
+end
+@doc """
+Indicates unknowns of this type must be constrained to positive values.
+""" ->
+type Positive <: UnknownConstraint
+end
+@doc """
+Indicates unknowns of this type must be constrained to negative or zero values.
+""" ->
+type NonPositive <: UnknownConstraint
 end
 
 @doc """
@@ -208,7 +261,7 @@ Unknown{T}(s::Symbol, x)
   a * b + b^2
 ```
 """ ->
-type Unknown{T<:UnknownCategory} <: UnknownVariable
+type Unknown{T<:UnknownCategory,C<:UnknownConstraint} <: UnknownVariable
     sym::Symbol
     value         # holds initial values (and type info)
     label::String
@@ -224,11 +277,11 @@ type Unknown{T<:UnknownCategory} <: UnknownVariable
         new(sym, value, label, fixed, save_history)
 end
 Unknown(value = 0.0, label::String = "", fixed::Bool = false, save_history::Bool = true) =
-    Unknown{DefaultUnknown}(value, label, fixed, save_history)
+    Unknown{DefaultUnknown,Normal}(value, label, fixed, save_history)
 Unknown(label::String = "", value = 0.0, fixed::Bool = false, save_history::Bool = true) =
-    Unknown{DefaultUnknown}(value, label, fixed, save_history)
+    Unknown{DefaultUnknown,Normal}(value, label, fixed, save_history)
 Unknown(;value = 0.0, label::String = "", fixed::Bool = false, save_history::Bool = true) =
-    Unknown{DefaultUnknown}(value, label, fixed, save_history)
+    Unknown{DefaultUnknown,Normal}(value, label, fixed, save_history)
 
 
 
@@ -612,7 +665,7 @@ compatible_values(num::Number, u::UnknownVariable) = length(value(u)) > length(n
 @doc """
 The model time - a special unknown variable.
 """ ->
-const MTime = Unknown{DefaultUnknown}(:time, 0.0, "", false, false)
+const MTime = Unknown{DefaultUnknown,Normal}(:time, 0.0, "", false, false)
 
 
 @doc """
@@ -1011,7 +1064,7 @@ reinit{T}(x::Discrete{Reactive.Input{T}}, y) = mexpr(:call, :(Reactive.push!), x
 reinit{T}(x::Parameter{Reactive.Input{T}}, y) = Reactive.push!(x.signal, y)
 
 function reinit(x, y)
-    sim_info("reinit: ", x[], " to ", y)
+    sim_info("reinit: $(x[]) to $y", 2)
     x[:] = y
 end
 

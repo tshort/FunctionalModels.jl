@@ -3,9 +3,15 @@
 ## Modular implementation of the Hodgkin-Huxley neuron model.
 ##
 
-using Sims
+using Sims, Sims.Lib
 using Winston
 
+type UConductance <: UnknownCategory
+end
+
+typealias Gate Unknown{DefaultUnknown,NonNegative}
+typealias Conductance Unknown{UConductance,NonNegative}
+                         
 I       =   10.0
 C_m     =    1.0
 E_Na    =   50.0
@@ -35,10 +41,10 @@ function Na_model(v,I_Na)
         return (1.0 / (1.0 + (exp (- (v + 35.0) / 10.0))))
     end
 
-    m   = Unknown(0.052, "m")
-    h   = Unknown(0.596, "h")
+    m   = Gate(0.052, "m")
+    h   = Gate(0.596, "h")
 
-    g_Na = Unknown ()
+    g_Na = Conductance ()
     
     # The following gives the return value which is a list of equations.
     # Expressions with Unknowns are kept as expressions. Regular
@@ -66,8 +72,8 @@ function K_model(v,I_K)
         return (0.125 * (exp ((- (v + 65)) / 80)))
     end  	                   
 
-    n   = Unknown(0.317, "n")
-    g_K = Unknown ()
+    n   = Gate(0.317, "n")
+    g_K = Conductance ()
 
     @equations begin
         der(n) = (anf(v) * (1 - n)) - (bnf(v) * n)
@@ -88,11 +94,11 @@ end
     
 function HodgkinHuxley()
 
-    v   = Unknown(-65.0, "v")   
+    v   = Voltage(-65.0, "v")   
 
-    I_Na = Unknown ()
-    I_K  = Unknown ()
-    I_L  = Unknown ()
+    I_Na = Current ()
+    I_K  = Current ()
+    I_L  = Current ()
     
     # The following gives the return value which is a list of equations.
     # Expressions with Unknowns are kept as expressions. Regular
