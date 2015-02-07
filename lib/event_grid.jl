@@ -30,6 +30,11 @@ Interpolated event grid (requires Grid library).
 EventGrid(events, tf, dt)
 ```
 
+Given a vector with event times and a sampling step, creates a
+continuous interpolated function that has a negative value between
+events, and crosses zero at each event time.
+The function `grid_input` can be used to detect events in model equations.
+
 ### Arguments
 
 * `event` : Vector of event times
