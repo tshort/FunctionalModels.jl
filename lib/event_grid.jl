@@ -45,6 +45,7 @@ The function `grid_input` can be used to detect events in model equations.
 
 ```julia
 
+## Events occur at t = 1.0, 2.0, 3.0 
 input = EventGrid([1.0,2.0,3.0],tstop,0.1)
 
 Event(grid_input(input),
