@@ -222,11 +222,19 @@ In addition to a value, Unknowns can carry additional metadata,
 including an identification symbol and a label. In the future, unit
 information may be added.
 
-Unknowns can also have type parameters. For example, `Voltage` is
-defined as `Unknown{UVoltage}` in the standard library. The `UVoltage`
-type parameter is a marker to distinguish those Unknown from
-others. Users can add their own Unknown types. Different Unknown types
-makes it easier to dispatch on model arguments.
+Unknowns can also have type parameters. Two parameters are provided:
+
+* `T`: type of unknown; several are defined in Sims.Lib, including
+  `UVoltage` and `UAngularVelocity`.
+
+* `C`: contstraint on the unknown; possibilities include `Normal` (the
+  default), `Positive`, `NonNegative`, ``Negative`, and `NonPositive`.
+
+As an example, `Voltage` is defined as `Unknown{UVoltage,Normal}` in
+the standard library. The `UVoltage` type parameter is a marker to
+distinguish those Unknown from others. Users can add their own Unknown
+types. Different Unknown types makes it easier to dispatch on model
+arguments.
 
 ```julia
 Unknown(s::Symbol, x, label::String, fixed::Bool)
@@ -237,14 +245,14 @@ Unknown(x, label::String)
 Unknown(label::String)
 Unknown(s::Symbol, x, fixed::Bool)
 Unknown(s::Symbol, x)
-Unknown{T}(s::Symbol, x, label::String, fixed::Bool)
-Unknown{T}()
-Unknown{T}(x)
-Unknown{T}(s::Symbol, label::String)
-Unknown{T}(x, label::String)
-Unknown{T}(label::String)
-Unknown{T}(s::Symbol, x, fixed::Bool)
-Unknown{T}(s::Symbol, x)
+Unknown{T,C}(s::Symbol, x, label::String, fixed::Bool)
+Unknown{T,C}()
+Unknown{T,C}(x)
+Unknown{T,C}(s::Symbol, label::String)
+Unknown{T,C}(x, label::String)
+Unknown{T,C}(label::String)
+Unknown{T,C}(s::Symbol, x, fixed::Bool)
+Unknown{T,C}(s::Symbol, x)
 ```
 
 ### Arguments
