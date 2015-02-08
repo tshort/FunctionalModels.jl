@@ -848,9 +848,9 @@ end
 name(a::PassedUnknown) = a.ref.label != "" ? a.ref.label : symname(a.ref.sym)
 value(a::PassedUnknown) = value(a.ref)
 
-
+# vectorized version of _interp
 function _interp(x, t)
-    res = zero(t)
+    res = zero(value(t))
     for i in 1:length(res)
         if t[i] < 0.0 continue end
         idx = searchsortedfirst(x.t, t[i])
@@ -865,6 +865,21 @@ function _interp(x, t)
     end
     res
 end
+## function _interp(x::Unknown, t)
+##     # assumes that tvec is sorted from low to high
+##     if length(x.t) == 0 || t < 0.0 return zero(x.value) end
+##     idx = searchsortedfirst(x.t, t)
+##     if idx == 1
+##         return x.x[1]
+##     elseif idx > length(x.t) 
+##         return x.x[end]
+##     else
+##         return (t - x.t[idx-1]) / (x.t[idx] - x.t[idx-1]) .* (x.x[idx] - x.x[idx-1]) + x.x[idx-1]
+##     end
+## end
+## function _interp(x, t)
+##     t > 0.0 ? x : 0.0
+## end
 
 
 @doc* """
@@ -891,10 +906,7 @@ function delay(x::Unknown, val)
     x.save_history = true
     x.t = [0.0]
     x.x = [x.value]
-    MExpr(:(Sims._interp($(PassedUnknown(x)), t[1] - $(val))))
-    ## mexpr(:call, :(Sims._interp),
-    ##       PassedUnknown(x),
-    ##       :(t[1] - $(val)))
+    MExpr(:(Sims._interp($(PassedUnknown(x)), $MTime - $val)))
 end
 
 
