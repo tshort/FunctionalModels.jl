@@ -187,13 +187,25 @@ function setup_functions(sm::Sim)
     # Set up a master function with variable declarations and 
     # functions that have access to those variables.
     #
+    function fixeq(x, eq)
+        j = 1
+        res = Any[]
+        for i in 1:length(x)
+            n = length(value(eq[i]))
+            idx = n == 1 ? j : j:j+n-1
+            push!(res, :( r[$idx] = to_real($(x[i])) ))
+            j += n
+        end
+        res
+    end
     # The following is a code block (thunk) for insertion into
     # the residual calculation function.
-    resid_thunk = Expr(:call, :(Sims.vcat_real), eq_block...)
-    # Same but for the root crossing function:
-    event_thunk = Expr(:call, :(Sims.vcat_real), ev_block...)
+    resid_thunk = Expr(:block, fixeq(eq_block, sm.eq.equations)...)
     # Same but for the initial equations:
-    init_thunk = Expr(:call, :(Sims.vcat_real), in_block...)
+    init_thunk = Expr(:block, fixeq(in_block, sm.eq.initialequations)...)
+    # Same but for the root crossing function:
+    event_thunk = Expr(:block, fixeq(ev_block, sm.eq.events)...)
+    ## event_thunk = Expr(:call, :(Sims.vcat_real), ev_block...)
 
     # Helpers to convert an array of expressions into a single expression.
     to_thunk{T}(ex::Vector{T}) = reduce((x,y) -> :($x;$y), :(), ex)
@@ -235,23 +247,13 @@ function setup_functions(sm::Sim)
     expr = quote
             # Note: this was originally a closure, but it was converted
             # to eval globally for two reasons: (1) performance and (2) so
-            # cfunction could be used to set up Julia callbacks. This does
-            # mean that the _sim_* functions are seen globally.
+            # cfunction could be used to set up Julia callbacks.
             function $_sim_resid_name (t, y, yp, r)
-                 ##@show y
-                 ## @show length(y)
-                 ##@show p
-                 a = $resid_thunk
-                 ##@show a
-                 ## @show length(a)
-                 r[1:end] = a
+                 $resid_thunk
                  nothing
             end
             function $_sim_init_name (t, y, yp, r)
-                 a = $init_thunk
-                 ##@show a
-                 ##dump(a)
-                 r[1:end] = a
+                 $init_thunk
                  nothing
             end
             function $_sim_event_at_name (t, y, yp, r)
@@ -370,17 +372,6 @@ end
 function replace_unknowns(a::LeftVar, sm::Sim)
     var = replace_unknowns(a.var, sm)
     :(sub($(var.args[2]), $(var.args[3]):$(var.args[3])))
-end
-
-#
-# vcat_real is like vcat, but each element is converted to real with
-# to_real.
-#
-vcat_real(X::Any...) = [ to_real(X[i]) for i=1:length(X) ]
-function vcat_real(X::Any...)
-    ## println(X[1])
-    res = map(to_real, X)
-    vcat(res...)
 end
 
 
