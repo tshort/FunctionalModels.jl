@@ -447,7 +447,7 @@ function Narsg_model(v,I_Na)
     O  = Gate()
     B  = Gate()
     
-    reaction = parse_reactions (Any [
+    z_reactions = parse_reactions (Any [
                                      
                                      [ :⇄ C1 C2 f01 b01 ]
                                      [ :⇄ C2 C3 f02 b02 ]
@@ -468,14 +468,14 @@ function Narsg_model(v,I_Na)
                                      [ :⇄ I5 I6 f1n b1n ]
                                      
                                      ])
-    
+    conservation = Unknown()
     g_Na = Conductance(value(O * gbar_Na))
     
     @equations begin
 
-        reaction
+        z_reactions
 
-        ## TODO:  1 = (I1 + I2 + I3 + I4 + I5 + I6 + C1 + C2 + C3 + C4 + C5 + O + B)
+        conservation = (I1 + I2 + I3 + I4 + I5 + I6 + C1 + C2 + C3 + C4 + C5 + O + B) - 1
         
         g_Na  = O * gbar_Na
 	      

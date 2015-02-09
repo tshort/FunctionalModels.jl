@@ -588,6 +588,12 @@ function CGC(I)
                   reinit(I_stim, I)
               ],
               Equation[])
+
+        Event(MTime - 800.0,     # Stop injecting current after 800 ms
+              Equation[
+                  reinit(I_stim, 0.0)
+              ],
+              Equation[])
         
     end
 end
@@ -606,4 +612,4 @@ dt = 0.025
 
 ##@time cgc_yout = sim(cgc_s, tf, int(tf/dt))
 
-plot (cgc_yout.y[:,1], cgc_yout.y[:,3])
+wplot (cgc_yout)
