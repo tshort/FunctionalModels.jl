@@ -248,7 +248,7 @@ function setup_functions(sm::Sim)
             # Note: this was originally a closure, but it was converted
             # to eval globally for two reasons: (1) performance and (2) so
             # cfunction could be used to set up Julia callbacks.
-            function $_sim_resid_name (t, y, yp, r, history)
+            function $_sim_resid_name (t, y, yp, r)
                  $resid_thunk
                  nothing
             end
