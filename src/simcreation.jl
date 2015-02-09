@@ -42,12 +42,14 @@ normally created with `create_sim(eqs)`.
 type Sim
     eq::EquationSet           # the input
     F::SimFunctions
+    constraints::Array{Int, 1} # indicates the constraints on a variable or 0 for no constraint
     id::Array{Int, 1}         # indicates whether a variable is algebraic or differential
     yfixed::Array{Bool, 1}    # indicates whether a variable is fixed
     ypfixed::Array{Bool, 1}   # indicates whether a derivative is fixed
     outputs::Array{ASCIIString, 1} # output labels
     unknown_idx_map::Dict     # symbol => index into y (or yp)
     discrete_inputs::Set      # Discrete variables
+    constraint_map::Dict      # symbol => constraint type
     y_map::Dict               # sym => Unknown variable 
     yp_map::Dict              # sym => DerUnknown variable 
     varnum::Int               # variable indicator position that's incremented
@@ -56,10 +58,6 @@ type Sim
     Sim(eq::EquationSet) = new(eq)
 end
 
-type SimStateHistory
-    t::Dict # time
-    x::Dict # variable values
-end
 
 @doc """
 The top level type for holding all simulation objects needed for
@@ -73,7 +71,6 @@ type SimState
     y::Array{Float64, 1}      # state vector
     yp::Array{Float64, 1}     # derivatives vector
     structural_change::Bool
-    history::SimStateHistory
     sm::Sim # reference to a Sim
 end
 
@@ -99,6 +96,7 @@ function create_sim(eq::EquationSet)
     sm = Sim(eq)
     sm.varnum = 1
     sm.unknown_idx_map = Dict()
+    sm.constraint_map = Dict()
     sm.discrete_inputs = Set()
     sm.y_map = Dict()
     sm.yp_map = Dict()
@@ -107,6 +105,7 @@ function create_sim(eq::EquationSet)
     
     sm.outputs = fill_from_map("", N_unknowns, sm.y_map, x -> x.label)
     sm.id = fill_from_map(-1, N_unknowns, sm.yp_map, x -> 1)
+    sm.constraints = fill_from_map(0, N_unknowns, sm.constraint_map, x -> x)
     sm.yfixed = fill_from_map(true, N_unknowns, sm.y_map, x -> x.fixed)
     sm.ypfixed = fill_from_map(true, N_unknowns, sm.yp_map, x -> x.fixed)
     sm.abstol = 1e-4
@@ -146,14 +145,7 @@ function create_simstate (sm::Sim)
     y0 = copy(y)
     yp0 = copy(yp)
     structural_change = false
-    history = SimStateHistory (Dict(),Dict())
-    for (k,v) in sm.y_map
-        if v.save_history
-            history.t[k] = Any[]
-            history.x[k] = Any[]
-        end
-    end
-    ss = SimState(t,y0,yp0,y,yp,structural_change,history,sm)
+    ss = SimState(t,y0,yp0,y,yp,structural_change,sm)
     
     ss
 end
@@ -264,7 +256,7 @@ function setup_functions(sm::Sim)
                  $init_thunk
                  nothing
             end
-            function $_sim_event_at_name (t, y, yp, r, history)
+            function $_sim_event_at_name (t, y, yp, r)
                  r[1:end] = $event_thunk
                  nothing
             end
@@ -292,15 +284,36 @@ function setup_functions(sm::Sim)
     F
 end
 
-# adds a variable to the unknown_idx_map if it isn't already
-# there. 
-function add_var(v, sm) 
+
+## Adds the constraint type for the given variable
+function add_constraint (v::Unknown{DefaultUnknown,Normal}, sm)
+    sm.constraint_map[sm.unknown_idx_map[v.sym]] = 0
+end
+function add_constraint (v::Unknown{DefaultUnknown,NonNegative}, sm)
+    sm.constraint_map[sm.unknown_idx_map[v.sym]] = 1
+end
+function add_constraint (v::Unknown{DefaultUnknown,NonPositive}, sm)
+    sm.constraint_map[sm.unknown_idx_map[v.sym]] = -1
+end
+function add_constraint (v::Unknown{DefaultUnknown,Negative}, sm)
+    sm.constraint_map[sm.unknown_idx_map[v.sym]] = -2
+end
+function add_constraint (v::Unknown{DefaultUnknown,Positive}, sm)
+    sm.constraint_map[sm.unknown_idx_map[v.sym]] = 2
+end
+function add_constraint (v::UnknownVariable, sm)
+    sm.constraint_map[sm.unknown_idx_map[v.sym]] = 0
+end
+
+## Adds a variable to the unknown_idx_map if it isn't already there. 
+function add_var(v::UnknownVariable, sm) 
     if !haskey(sm.unknown_idx_map, v.sym)
         # Account for the length and fundamental size of the object
         len = length(v.value) * int(sizeof([v.value][1]) / 8)  
         idx = len == 1 ? sm.varnum : (sm.varnum:(sm.varnum + len - 1))
         sm.unknown_idx_map[v.sym] = idx
         sm.varnum = sm.varnum + len
+        add_constraint(v, sm)
     end
 end
 
@@ -341,7 +354,8 @@ function replace_unknowns(a::DerUnknown, sm::Sim)
     end
 end
 function replace_unknowns(a::PassedUnknown, sm::Sim)
-    sm.unknown_idx_map[a.ref.sym]
+    a.ref
+    ## sm.unknown_idx_map[a.ref.sym]
 end
 function replace_unknowns{T}(a::Discrete{Reactive.Input{T}}, sm::Sim)
     push!(sm.discrete_inputs, a)    # Discrete inputs

@@ -176,6 +176,37 @@ type DefaultUnknown <: UnknownCategory
 end
 
 @doc """
+Categories of constraints on Unknowns; used to create positive, negative, etc., constraints.
+""" ->
+abstract UnknownConstraint
+
+@doc """
+Indicates no constraint is imposed.
+""" ->
+type Normal <: UnknownConstraint
+end
+@doc """
+Indicates unknowns of this type must be constrained to negative values.
+""" ->
+type Negative <: UnknownConstraint
+end
+@doc """
+Indicates unknowns of this type must be constrained to positive or zero values.
+""" ->
+type NonNegative <: UnknownConstraint
+end
+@doc """
+Indicates unknowns of this type must be constrained to positive values.
+""" ->
+type Positive <: UnknownConstraint
+end
+@doc """
+Indicates unknowns of this type must be constrained to negative or zero values.
+""" ->
+type NonPositive <: UnknownConstraint
+end
+
+@doc """
 An Unknown represents variables to be solved in Sims. An `Unknown` is
 a symbolic type. When used in Julia expressions, Unknowns combine into
 `MExpr`s which are symbolic representations of equations.
@@ -191,11 +222,19 @@ In addition to a value, Unknowns can carry additional metadata,
 including an identification symbol and a label. In the future, unit
 information may be added.
 
-Unknowns can also have type parameters. For example, `Voltage` is
-defined as `Unknown{UVoltage}` in the standard library. The `UVoltage`
-type parameter is a marker to distinguish those Unknown from
-others. Users can add their own Unknown types. Different Unknown types
-makes it easier to dispatch on model arguments.
+Unknowns can also have type parameters. Two parameters are provided:
+
+* `T`: type of unknown; several are defined in Sims.Lib, including
+  `UVoltage` and `UAngularVelocity`.
+
+* `C`: contstraint on the unknown; possibilities include `Normal` (the
+  default), `Positive`, `NonNegative`, ``Negative`, and `NonPositive`.
+
+As an example, `Voltage` is defined as `Unknown{UVoltage,Normal}` in
+the standard library. The `UVoltage` type parameter is a marker to
+distinguish those Unknown from others. Users can add their own Unknown
+types. Different Unknown types makes it easier to dispatch on model
+arguments.
 
 ```julia
 Unknown(s::Symbol, x, label::String, fixed::Bool)
@@ -206,14 +245,14 @@ Unknown(x, label::String)
 Unknown(label::String)
 Unknown(s::Symbol, x, fixed::Bool)
 Unknown(s::Symbol, x)
-Unknown{T}(s::Symbol, x, label::String, fixed::Bool)
-Unknown{T}()
-Unknown{T}(x)
-Unknown{T}(s::Symbol, label::String)
-Unknown{T}(x, label::String)
-Unknown{T}(label::String)
-Unknown{T}(s::Symbol, x, fixed::Bool)
-Unknown{T}(s::Symbol, x)
+Unknown{T,C}(s::Symbol, x, label::String, fixed::Bool)
+Unknown{T,C}()
+Unknown{T,C}(x)
+Unknown{T,C}(s::Symbol, label::String)
+Unknown{T,C}(x, label::String)
+Unknown{T,C}(label::String)
+Unknown{T,C}(s::Symbol, x, fixed::Bool)
+Unknown{T,C}(s::Symbol, x)
 ```
 
 ### Arguments
@@ -230,27 +269,29 @@ Unknown{T}(s::Symbol, x)
   a * b + b^2
 ```
 """ ->
-type Unknown{T<:UnknownCategory} <: UnknownVariable
+type Unknown{T<:UnknownCategory,C<:UnknownConstraint} <: UnknownVariable
     sym::Symbol
     value         # holds initial values (and type info)
     label::String
     fixed::Bool
     save_history::Bool
-    Unknown(;value = 0.0, label::String = "", fixed::Bool = false, save_history::Bool = false) =
-        new(gensym(), value, label, fixed, save_history)
-    Unknown(value = 0.0, label::String = "", fixed::Bool = false, save_history::Bool = false) =
-        new(gensym(), value, label, fixed, save_history)
-    Unknown(label::String = "", value = 0.0, fixed::Bool = false, save_history::Bool = false) =
-        new(gensym(), value, label, fixed, save_history)
-    Unknown(sym::Symbol, value = 0.0, label::String = "", fixed::Bool = false, save_history::Bool = false) =
-        new(sym, value, label, fixed, save_history)
+    t::Array{Any,1}
+    x::Array{Any,1}
+    Unknown(;value = 0.0, label::String = "", fixed::Bool = false) =
+        new(gensym(), value, label, fixed, false, Float64[], Float64[])
+    Unknown(value = 0.0, label::String = "", fixed::Bool = false) =
+        new(gensym(), value, label, fixed, false, Float64[], Float64[])
+    Unknown(label::String = "", value = 0.0, fixed::Bool = false) =
+        new(gensym(), value, label, fixed, false, Float64[], Float64[])
+    Unknown(sym::Symbol, value = 0.0, label::String = "", fixed::Bool = false) =
+        new(sym, value, label, fixed, false, Float64[], Float64[])
 end
-Unknown(value = 0.0, label::String = "", fixed::Bool = false, save_history::Bool = true) =
-    Unknown{DefaultUnknown}(value, label, fixed, save_history)
-Unknown(label::String = "", value = 0.0, fixed::Bool = false, save_history::Bool = true) =
-    Unknown{DefaultUnknown}(value, label, fixed, save_history)
-Unknown(;value = 0.0, label::String = "", fixed::Bool = false, save_history::Bool = true) =
-    Unknown{DefaultUnknown}(value, label, fixed, save_history)
+Unknown(value = 0.0, label::String = "", fixed::Bool = false) =
+    Unknown{DefaultUnknown,Normal}(value, label, fixed)
+Unknown(label::String = "", value = 0.0, fixed::Bool = false) =
+    Unknown{DefaultUnknown,Normal}(value, label, fixed)
+Unknown(;value = 0.0, label::String = "", fixed::Bool = false) =
+    Unknown{DefaultUnknown,Normal}(value, label, fixed)
 
 
 
@@ -634,7 +675,7 @@ compatible_values(num::Number, u::UnknownVariable) = length(value(u)) > length(n
 @doc """
 The model time - a special unknown variable.
 """ ->
-const MTime = Unknown{DefaultUnknown}(:time, 0.0, "", false, false)
+const MTime = Unknown{DefaultUnknown,Normal}(:time, 0.0, "", false)
 
 
 @doc """
@@ -807,40 +848,38 @@ end
 name(a::PassedUnknown) = a.ref.label != "" ? a.ref.label : symname(a.ref.sym)
 value(a::PassedUnknown) = value(a.ref)
 
-# version vectorized on t:
-## function _interp(index, ts, xs, t)
-##     tsv = ts[index]
-##     xsv = xs[index]
-##     res = zero(t)
-##     for i in 1:length(res)
-##         if t[i] < 0.0 continue end
-##         idx = searchsortedfirst(tsv, t[i])
-##         if idx > length(res) continue end
-##         if idx == 1
-##             res[i] = xsv[1][i]
-##         elseif idx > length(tsv) 
-##             res[i] = xsv[end][i]
-##         else
-##             res[i] = (t[i] - tsv[idx-1]) / (tsv[idx] - tsv[idx-1]) .* (xsv[idx][i] - xsv[idx-1][i]) + xsv[idx-1][i]
-##         end
-##     end
-##     res
-## end
-
-function _interp(index, ts, xs, t)
-    tsv = ts[index]
-    xsv = xs[index]
-    # assumes that tvec is sorted from low to high
-    if length(tsv) == 0 || t < 0.0 return zero(t) end
-    idx = searchsortedfirst(tsv, t)
-    if idx == 1
-        return xsv[1]
-    elseif idx > length(tsv) 
-        return xsv[end]
-    else
-        return (t - tsv[idx-1]) / (tsv[idx] - tsv[idx-1]) .* (xsv[idx] - xsv[idx-1]) + xsv[idx-1]
+# vectorized version of _interp
+function _interp(x, t)
+    res = zero(value(t))
+    for i in 1:length(res)
+        if t[i] < 0.0 continue end
+        idx = searchsortedfirst(x.t, t[i])
+        if idx > length(res) continue end
+        if idx == 1
+            res[i] = x.x[1][i]
+        elseif idx > length(x.t) 
+            res[i] = x.x[end][i]
+        else
+            res[i] = (t[i] - x.t[idx-1]) / (x.t[idx] - x.t[idx-1]) .* (x.x[idx][i] - x.x[idx-1][i]) + x.x[idx-1][i]
+        end
     end
+    res
 end
+## function _interp(x::Unknown, t)
+##     # assumes that tvec is sorted from low to high
+##     if length(x.t) == 0 || t < 0.0 return zero(x.value) end
+##     idx = searchsortedfirst(x.t, t)
+##     if idx == 1
+##         return x.x[1]
+##     elseif idx > length(x.t) 
+##         return x.x[end]
+##     else
+##         return (t - x.t[idx-1]) / (x.t[idx] - x.t[idx-1]) .* (x.x[idx] - x.x[idx-1]) + x.x[idx-1]
+##     end
+## end
+## function _interp(x, t)
+##     t > 0.0 ? x : 0.0
+## end
 
 
 @doc* """
@@ -865,11 +904,9 @@ delay(x::Unknown, val)
 """ ->
 function delay(x::Unknown, val)
     x.save_history = true
-    mexpr(:call, :(Sims._interp),
-          PassedUnknown(x),
-          :(history.t),
-          :(history.x),
-          :(t[1] - $(val)))
+    x.t = [0.0]
+    x.x = [x.value]
+    MExpr(:(Sims._interp($(PassedUnknown(x)), $MTime - $val)))
 end
 
 

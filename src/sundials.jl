@@ -24,23 +24,21 @@ end
 
 function daefun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userdata_ptr::Ptr{Void})
     ss::SimState = unsafe_pointer_to_objref(userdata_ptr)
-    history::SimStateHistory = ss.history
     sm::Sim = ss.sm
     y  = Sundials.asarray(y) 
     yp = Sundials.asarray(yp) 
     r  = Sundials.asarray(r)
-    sm.F.resid(t, y, yp, r, history)
+    sm.F.resid(t, y, yp, r)
     return int32(0)   # indicates normal return
 end
 
 function rootfun(t::Float64, y::N_Vector, yp::N_Vector, g::Ptr{Sundials.realtype}, userdata_ptr::Ptr{Void})
     ss::SimState = unsafe_pointer_to_objref(userdata_ptr)
-    history::SimStateHistory = ss.history
     sm::Sim = ss.sm
     y  = Sundials.asarray(y) 
     yp = Sundials.asarray(yp) 
     g  = Sundials.asarray(g, (length(sm.F.event_pos),))
-    sm.F.event_at(t, y, yp, g, history)
+    sm.F.event_at(t, y, yp, g)
     return int32(0)   # indicates normal return
 end
 
@@ -74,6 +72,12 @@ function setup_sunsim(ss::SimState, reltol::Float64, abstol::Float64, alg::Bool)
     id    = float64(copy(sm.id))
     id[id .< 0] = 0.0
     flag  = Sundials.IDASetId(mem, id)
+    constraints = float64(copy(sm.constraints))
+    constraints[constraints .< -2] = 0.0
+    constraints[constraints .> 2] = 0.0
+    if any(x -> x < 0.0 || x > 0.0, constraints)
+        flag  = Sundials.IDASetConstraints(mem, constraints)
+    end
     return SimSundials (mem, ss)
 end
 
@@ -134,13 +138,7 @@ function sunsim(ss::SimState, tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol =
     neq   = length(ss.y0)
     rtest = zeros(neq)
 
-    sm.F.resid(tstart, ss.y, ss.yp, rtest, ss.history)
-    for (k,v) in sm.y_map
-        if v.save_history
-            push!(ss.history.t[k], tret[1])
-            push!(ss.history.x[k], ss.y[k])
-        end
-    end
+    sm.F.resid(tstart, ss.y, ss.yp, rtest)
 
     mem = smem.mem
     
@@ -159,8 +157,8 @@ function sunsim(ss::SimState, tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol =
         if flag == Sundials.IDA_SUCCESS
             for (k,v) in sm.y_map
                 if v.save_history
-                    push!(ss.history.t[k], tret[1])
-                    push!(ss.history.x[k], ss.y[k])
+                    push!(v.t, tret[1])
+                    push!(v.x, ss.y[k])
                 end
             end
             continue
