@@ -58,10 +58,6 @@ type Sim
     Sim(eq::EquationSet) = new(eq)
 end
 
-type SimStateHistory
-    t::Dict # time
-    x::Dict # variable values
-end
 
 @doc """
 The top level type for holding all simulation objects needed for
@@ -75,7 +71,6 @@ type SimState
     y::Array{Float64, 1}      # state vector
     yp::Array{Float64, 1}     # derivatives vector
     structural_change::Bool
-    history::SimStateHistory
     sm::Sim # reference to a Sim
 end
 
@@ -150,14 +145,7 @@ function create_simstate (sm::Sim)
     y0 = copy(y)
     yp0 = copy(yp)
     structural_change = false
-    history = SimStateHistory (Dict(),Dict())
-    for (k,v) in sm.y_map
-        if v.save_history
-            history.t[k] = Any[]
-            history.x[k] = Any[]
-        end
-    end
-    ss = SimState(t,y0,yp0,y,yp,structural_change,history,sm)
+    ss = SimState(t,y0,yp0,y,yp,structural_change,sm)
     
     ss
 end
@@ -249,7 +237,7 @@ function setup_functions(sm::Sim)
             # to eval globally for two reasons: (1) performance and (2) so
             # cfunction could be used to set up Julia callbacks. This does
             # mean that the _sim_* functions are seen globally.
-            function $_sim_resid_name (t, y, yp, r, history)
+            function $_sim_resid_name (t, y, yp, r)
                  ##@show y
                  ## @show length(y)
                  ##@show p
@@ -266,7 +254,7 @@ function setup_functions(sm::Sim)
                  r[1:end] = a
                  nothing
             end
-            function $_sim_event_at_name (t, y, yp, r, history)
+            function $_sim_event_at_name (t, y, yp, r)
                  r[1:end] = $event_thunk
                  nothing
             end
@@ -364,7 +352,8 @@ function replace_unknowns(a::DerUnknown, sm::Sim)
     end
 end
 function replace_unknowns(a::PassedUnknown, sm::Sim)
-    sm.unknown_idx_map[a.ref.sym]
+    a.ref
+    ## sm.unknown_idx_map[a.ref.sym]
 end
 function replace_unknowns{T}(a::Discrete{Reactive.Input{T}}, sm::Sim)
     push!(sm.discrete_inputs, a)    # Discrete inputs

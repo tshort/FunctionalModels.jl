@@ -418,7 +418,7 @@ check(m::Model) = check(create_sim(elaborate(m)))
 ## Model initiation                   ##
 ########################################
 
-import JuMP
+import JuMP, ReverseDiffSparse
 
 @doc* """
 Experimental function to initialize models.
