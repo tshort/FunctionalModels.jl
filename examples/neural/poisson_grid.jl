@@ -14,5 +14,5 @@ function PoissonGrid(lambda,tf,dt,scale)
     p  = Poisson(lambda*tf)
     events = float(cumsum(rand(p,int(round(float((tf / scale) / (lambda * tf)))))))
 
-    return EventGrid(events,float(tf/scale),float(dt/scale))
+    return make_grid(events,float(dt/scale))
 end

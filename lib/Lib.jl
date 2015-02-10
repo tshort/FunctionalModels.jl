@@ -37,7 +37,7 @@ export Inertia, Disc, Spring, BranchHeatPort, Damper, SpringDamper,
 ## Chemical kinetics
 export ReactionSystem, ReactionEquation, parse_reactions
 ## Event grids
-export EventGrid, grid_input
+export make_grid, grid_input
 
 # load standard Sims libraries
 include("types.jl")

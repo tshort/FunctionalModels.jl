@@ -27,18 +27,19 @@ Interpolated event grid (requires Grid library).
 
 ```julia
 
-EventGrid(events, tf, dt)
+make_grid(events, dt)
+
+grid_input(grid)
 ```
 
-Given a vector with event times and a sampling step, creates a
-continuous interpolated function that has a negative value between
-events, and crosses zero at each event time.
-The function `grid_input` can be used to detect events in model equations.
+Given a vector with event times sorted in ascending order and a
+sampling step, creates a continuous interpolated function that has a
+negative value between events, and crosses zero at each event time.
+The function grid_input can be used to detect events in model equations.
 
 ### Arguments
 
-* `event` : Vector of event times
-* `tf` : grid end time
+* `events` : Vector of event times
 * `dt` : event grid sampling time
 
 ### Example
@@ -46,7 +47,8 @@ The function `grid_input` can be used to detect events in model equations.
 ```julia
 
 ## Events occur at t = 1.0, 2.0, 3.0 
-input = EventGrid([1.0,2.0,3.0],tstop,0.1)
+
+input = make_grid([1.0,2.0,3.0],0.1)
 
 Event(grid_input(input),
       Equation[
@@ -57,11 +59,11 @@ Event(grid_input(input),
 ```
 """ ->
 
-function EventGrid(events,tf,dt)
+function make_grid(events,dt)
     
     g0 = InterpGrid(events, 0.0, InterpNearest)
 
-    x = 0.0:dt:tf
+    x = 0.0:dt:events[end]
     y = map (x -> let v = search_grid (g0, x); grid_point (x,v) end, x)
 
     g = CoordInterpGrid (x,y,BCperiodic,InterpQuadratic)
@@ -70,7 +72,8 @@ function EventGrid(events,tf,dt)
 end
 
 
-grid_input(g::CoordInterpGrid) = mexpr(:call,getindex,g,MTime)
+grid_input(g) = mexpr(:call,getindex,g,MTime)
+
 
     
 end
