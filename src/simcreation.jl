@@ -205,7 +205,6 @@ function setup_functions(sm::Sim)
     init_thunk = Expr(:block, fixeq(in_block, sm.eq.initialequations)...)
     # Same but for the root crossing function:
     event_thunk = Expr(:block, fixeq(ev_block, sm.eq.events)...)
-    ## event_thunk = Expr(:call, :(Sims.vcat_real), ev_block...)
 
     # Helpers to convert an array of expressions into a single expression.
     to_thunk{T}(ex::Vector{T}) = reduce((x,y) -> :($x;$y), :(), ex)
@@ -257,7 +256,7 @@ function setup_functions(sm::Sim)
                  nothing
             end
             function $_sim_event_at_name (t, y, yp, r)
-                 r[1:end] = $event_thunk
+                 $event_thunk
                  nothing
             end
             $_sim_event_pos_array_name = $ev_pos_thunk

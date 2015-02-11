@@ -27,3 +27,5 @@ end
 println("== run other tests")
 println("= simulations")
 include("simulations.jl")
+println("= miscellaneous")
+include("miscellaneous.jl")
