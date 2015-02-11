@@ -1,13 +1,13 @@
 
 ## Modular integrate-and-fire model with synaptic dynamics.
 
+using Grid ## for interpolating input values
+
 using Sims
 using Sims.Lib
 using Winston
-using Grid ## for interpolating input values
 using SIUnits
 using SIUnits.ShortUnits
-
 
 include ("poisson_grid.jl")
 
@@ -35,11 +35,6 @@ gsmax = 0.1
 taus  = 2.5
 f     = -100.0
 s0    = 0.5
-
-
-##getindex(g::InterpGrid, x::Unknown) = mexpr(:quote,g[value(x)])
-
-grid_input(g::CoordInterpGrid) = mexpr(:call,getindex,g,MTime)
 
 
 function LeakyIaF(V,Isyn)
@@ -108,7 +103,7 @@ tf = 100.0 * ms
 dt = 0.025 * ms
 lambda = 50.0 * Hz
 
-input = poisson_grid(lambda,tf,dt,ms)
+input = PoissonGrid(lambda,tf,dt,ms)
 
 iaf   = Circuit(input)
 
@@ -120,4 +115,6 @@ iaf_s = create_sim(iaf_f) # returns a "Sim" ready for simulation
 @time iaf_yout = sunsim(iaf_s, tstop=tf / ms, Nsteps=int(tf/dt), reltol=1e-7, abstol=1e-7)
 
 plot (iaf_yout.y[:,1], iaf_yout.y[:,2])
+
+
 
