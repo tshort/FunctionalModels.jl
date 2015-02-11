@@ -36,6 +36,8 @@ export Inertia, Disc, Spring, BranchHeatPort, Damper, SpringDamper,
        IdealGear, SpeedSensor, AccSensor, SignalTorque
 ## Chemical kinetics
 export ReactionSystem, ReactionEquation, parse_reactions
+## Event grids
+export make_grid, grid_input
 
 # load standard Sims libraries
 include("types.jl")
@@ -46,5 +48,6 @@ include("powersystems.jl")
 include("heat_transfer.jl")
 include("rotational.jl")
 include("kinetic.jl")
+include("event_grid.jl")
 
 end # module Lib

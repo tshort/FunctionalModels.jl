@@ -50,7 +50,7 @@ function runall()
     fst   = sim(First())
     
     ## Blocks
-    pidc  = sim(PID_Controller(), 4.0)
+    pidc  = sim(PID_Controller(), tstop = 4.0, alg = false)
 end
 
 end # module
