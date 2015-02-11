@@ -106,7 +106,7 @@ function CaHVA_model(v,I_CaHVA)
     
     @equations begin
         der(s) =  alpha_s(v) * (1 - s) - beta_s(v) * s
-        der(u) =  alpha_u(v) * (1 - s) - beta_u(v) * s
+        der(u) =  alpha_u(v) * (1 - u) - beta_u(v) * u
 
         g_CaHVA  = s^2 * u * gbar_CaHVA
 	      
