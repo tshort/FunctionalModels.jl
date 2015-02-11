@@ -10,8 +10,7 @@
 
 using Sims
 using Sims.Lib
-using Winston
-
+using Gaston
 
 type UConductance <: UnknownCategory
 end
@@ -583,15 +582,14 @@ function CGC(I)
 
         der(v) = ((I_stim * (100.0 / area)) - 1e3 * (I_Ca + I_K + I_Na + I_NaR + I_pNa + I_L)) / C_m
 
-        Event(MTime - 250.0,     # Start injecting current after 250 ms
-              Equation[
-                  reinit(I_stim, I)
-              ],
-              Equation[])
-
         Event(MTime - 800.0,     # Stop injecting current after 800 ms
               Equation[
                   reinit(I_stim, 0.0)
+              ],
+              Equation[])
+        Event(MTime - 250.0,     # Start injecting current after 250 ms
+              Equation[
+                  reinit(I_stim, I)
               ],
               Equation[])
         
@@ -611,5 +609,5 @@ dt = 0.025
 @time cgc_yout = sunsim(cgc_s, tstop=tf, Nsteps=int(tf/dt), reltol=1e-6, abstol=1e-6)
 
 ##@time cgc_yout = sim(cgc_s, tf, int(tf/dt))
+plot (cgc_yout.y[:,1],cgc_yout.y[:,3])
 
-wplot (cgc_yout)
