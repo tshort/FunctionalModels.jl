@@ -10,7 +10,7 @@
 
 using Sims
 using Sims.Lib
-using Winston
+using Gaston
 
 
 type UConductance <: UnknownCategory
@@ -58,7 +58,7 @@ const E_Na  = 87.39
 
 
 ## Calcium concentration dynamics
-const cai0  = 5e-5
+const cai0  = 50e-6
 const cao   = 2.0
 
 function Ca_model(cai,I_Ca)
@@ -139,13 +139,25 @@ function CaHVA_model(v,I_CaHVA,E_Ca)
 	return (Q10 * Abeta_u * exp((v - V0beta_u) / Kbeta_u))
     end
 
-    s = Gate (value(alpha_s(v) / (alpha_s(v) + beta_s(v))))
-    u = Gate (value(alpha_u(v) / (alpha_u(v) + beta_u(v))))
+    s_inf = Unknown(value(alpha_s(v)/(alpha_s(v) + beta_s(v))))
+    u_inf = Unknown(value(alpha_u(v)/(alpha_u(v) + beta_u(v))))
+    tau_s = Unknown(value(1 / (alpha_s (v) + beta_s (v))))
+    tau_u = Unknown(value(1 / (alpha_u (v) + beta_u (v))))
+    
+    s = Gate (value(s_inf))
+    u = Gate (value(u_inf))
+
     g_CaHVA = Conductance (value(s^2 * u * gbar_CaHVA))
     
     @equations begin
-        der(s) =  alpha_s(v) * (1 - s) - beta_s(v) * s
-        der(u) =  alpha_u(v) * (1 - s) - beta_u(v) * s
+
+        der(s) =  (s_inf - s) / tau_s
+        der(u) =  (u_inf - u) / tau_u
+
+        s_inf = alpha_s(v)/(alpha_s(v) + beta_s(v))
+        u_inf = alpha_u(v)/(alpha_u(v) + beta_u(v))
+        tau_s = 1 / (alpha_s (v) + beta_s (v))
+        tau_u = 1 / (alpha_u (v) + beta_u (v))
 
         g_CaHVA  = s^2 * u * gbar_CaHVA
 	      
@@ -841,17 +853,17 @@ end
 
 function CGoC(I)
 
-    v = Voltage (-65.0, "v")   
+    v = Voltage (-75.0, "v")   
 
     cai = Unknown (cai0, "cai")
-    ca2i = Unknown (cai0, "ca2i")
+    ca2i = Unknown (cai0)
     E_Ca = Unknown ()
     E_Ca2 = Unknown ()
     
     I_stim = Discrete (0.0)
 
     I_Ca  = Current ()
-    I_Ca2 = Current ("I_Ca2")
+    I_Ca2 = Current ()
     I_K   = Current ()
     I_L   = Current ()
     I_H   = Current ()
@@ -906,29 +918,25 @@ function CGoC(I)
         I_L = I_Leak
         I_H = I_HCN1 + I_HCN2
         
-        der(v) = ((I_stim * (100.0 / area)) - 1e3 * (I_Ca + I_Ca2 + I_K + I_Na + I_NaR + I_pNa + I_H )) / C_m
-
-        Event(MTime - 250.0,     # Start injecting current after 250 ms
-              Equation[
-                   reinit(I_stim, I)
-               ],
-               Equation[])
+        der(v) = ((I * (100.0 / area)) - 1e3 * (I_Ca + I_Ca2 + I_K + I_Na + I_NaR + I_pNa + I_H + I_Leak )) / C_m
 
     end
 end
 
 
-cgoc   = CGoC(0.0)  # returns the hierarchical model
+cgoc   = CGoC(1000.0)  # returns the hierarchical model
 cgoc_f = elaborate(cgoc)    # returns the flattened model
 cgoc_s = create_sim(cgoc_f) # returns a "Sim" ready for simulation
 
 # runs the simulation and returns
 # the result as an array plus column headings
-tf = 1500.0
+tf = 5000.0
 dt = 0.025
 
-@time cgoc_yout = sunsim(cgoc_s, tstop=tf, Nsteps=int(tf/dt), reltol=1e-6, abstol=1e-6)
+@time cgoc_yout = sunsim(cgoc_s, tstop=tf, Nsteps=int(tf/dt), reltol=1e-6, abstol=1e-6, alg=false)
 
 ##@time cgoc_yout = sim(cgoc_s, tf, int(tf/dt))
 
-wplot (cgoc_yout)
+plot (cgoc_yout.y[:,1],cgoc_yout.y[:,3])
+      ##cgoc_yout.y[:,1],cgoc_yout.y[:,4],
+      ##cgoc_yout.y[:,1],cgoc_yout.y[:,5])
