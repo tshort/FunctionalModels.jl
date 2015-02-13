@@ -7,7 +7,7 @@
 
 using Sims
 using Sims.Lib
-using Winston
+using Gaston
 
 type UConductance <: UnknownCategory
 end
@@ -177,7 +177,7 @@ function CaBK_model(v,cai,I_CaBK)
                                     [ :-> zO zC z_alpha ]
                                     [ :-> zC zO z_beta ]
                                    ])
-    ## TODO: conservation equation zO + zC = 1
+    conservation = Unknown()
 
     @equations begin
                                
@@ -194,6 +194,7 @@ function CaBK_model(v,cai,I_CaBK)
         z_beta  = (1 - zinf(cai)) / ztau
 
         z_reactions
+        conservation = (zO + zC) - 1
         
         z = zO
         
@@ -572,5 +573,9 @@ tf = 500.0
 dt = 0.025
 
 @time cell_yout = sunsim(cell_s, tstop=tf, Nsteps=int(tf/dt), reltol=1e-1, abstol=1e-4, alg=false)
+plot (cell_yout.y[:,1], cell_yout.y[:,2])
+
+
+
 
 
