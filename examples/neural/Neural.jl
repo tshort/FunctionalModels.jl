@@ -18,6 +18,9 @@ include("adex.jl")
 include("hh.jl")
 include("fhn.jl")
 include("iaf.jl")
+include("izhfs.jl")
+include("ekc.jl")
+include("ml.jl")
 
 function run(model; dt = 0.025, tf = 100.0, reltol = 1e-6, abstol = 1e-6)
     y = sunsim(model, tstop = tf, Nsteps = int(tf/dt), reltol = reltol, abstol = abstol)
@@ -37,6 +40,15 @@ function runall()
 
     adex = AdEx()
     y = sunsim(adex, tf=80.0)
+    
+    izhfs = IzhikevichFS()
+    y = sunsim(izhfs, tf=80.0)
+    
+    ekc = ErmentroutKopell()
+    y = sunsim(ekc, tf=250.0)
+    
+    ml = MorrisLecar()
+    y = sunsim(ml, tf=250.0)
     
 end 
 

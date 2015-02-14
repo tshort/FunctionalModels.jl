@@ -5,7 +5,7 @@
 export AdEx
 
 function AdEx(;
-              Isyn  =  210.0,
+              Isyn  =  Parameter(210.0),
 
               C     = 200.0,
               gL    =  10.0,
@@ -19,14 +19,13 @@ function AdEx(;
               b = 100.0,
               tau_w = 120.0,
               
-              Vr = -46.0)
+              Vr = -46.0,
+              V::Unknown = Unknown(Vr, "V")
+              )
 
-    V   = Unknown(Vr, "V")   
-    W   = Unknown(Vr, "W")   
     
-    # The following gives the return value which is a list of equations.
-    # Expressions with Unknowns are kept as expressions. Regular
-    # variables are evaluated immediately (like normal).
+    W   = Unknown(Vr, "W")
+    
     @equations begin
         der(V) = (( ((- gL) * (V - EL)) +
                    (gL * Delta * (exp ((V - VT) / Delta))) +

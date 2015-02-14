@@ -22,7 +22,7 @@ transmission line simulating nerve axon. Proc. IRE. 50:2061–2070.
 """ ->
 function FitzHughNagumo(;
                         Iext = Parameter(0.5),
-                        tau = Parameter(12.5),
+                        tau  = Parameter(12.5),
                         a = 0.7,
                         b = 0.8,
                         v::Unknown = Unknown("v")
