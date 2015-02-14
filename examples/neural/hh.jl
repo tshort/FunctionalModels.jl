@@ -1,4 +1,8 @@
 
+########################################
+## Hidgkin-Huxley neuron model        ##
+########################################
+
 
 export HodgkinHuxley
 
@@ -9,11 +13,6 @@ typealias Gate Unknown{DefaultUnknown,NonNegative}
 typealias Conductance Unknown{UConductance,NonNegative}
 
 
-I       =   10.0
-C_m     =    1.0
-E_Na    =   50.0
-E_K     =  -77.0
-E_L     =  -54.4
 
 ## Rate functions
 
@@ -33,7 +32,6 @@ function bhf (v)
     return (1.0 / (1.0 + (exp (- (v + 35.0) / 10.0))))
 end
 
-
 function anf (v)
     return (0.01 * (v + 55) / (1 - (exp ((- (v + 55)) / 10))))
 end
@@ -51,9 +49,21 @@ flow and leakage ion flow. (Hodgkin, A. L. and Huxley, A. F. (1952)
 to Conduction and Excitation in Nerve" Journal of Physiology 117:
 500-544)
 """ ->
-function HodgkinHuxley()
+function HodgkinHuxley(;
+                       I = Parameter(10.0),
+                       C_m = Parameter(1.0),
 
-    v   = Voltage(-65.0, "v")   
+                       gbar_Na = Parameter(120.0),
+                       gbar_K  = Parameter(36.0),
+                       g_L     = Parameter(0.3),
+
+                       E_Na    = Parameter(50.0),
+                       E_K     = Parameter(-77.0),
+                       E_L     = Parameter(-54.4),
+
+                       v   = Voltage(-65.0, "v")   
+                       )
+    
     m   = Gate(0.052, "m")
     h   = Gate(0.596, "h")
     n   = Gate(0.317, "n")
@@ -64,14 +74,10 @@ function HodgkinHuxley()
     I_Na = Current()
     I_K  = Current()
     I_L  = Current()
-
-    gbar_Na = Parameter(120.0)
-    gbar_K  = Parameter(36.0)
-    g_L     = Parameter(0.3)
     
     # The following gives the return value which is a list of equations.
     # Expressions with Unknowns are kept as expressions. Regular
-    # variables are evaluated immediately (like normal).
+    # variables are evaluated immediately.
     @equations begin
 
         der(v) = (I - (I_Na + I_K + I_L)) / C_m

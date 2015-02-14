@@ -1,27 +1,32 @@
-using Sims
-using Winston
-
 
 ########################################
 ## FitzHugh-Nagumo neuron model       ##
 ########################################
 
-tend = 110.0
+export FitzHughNagumo
 
-a = 0.7
-b = 0.8
-tau = 12.5
 
-#
-# A device model is a function that returns a list of equations or
-# other devices that also return lists of equations. The equations
-# each are assumed equal to zero. So,
-#    der(y) = x + 1
-# Should be entered as:
-#    der(y) - (x+1)
-#
+@doc* """
+The FitzHugh-Nagumo model is a two-dimensional simplification of the
+Hodgkin-Huxley model of spike generation.  It consists of two state
+variables: a voltage-like variable with a nonlinearity that allows
+regenerative self-excitation via positive feedback, and a recovery
+variable with a linear dynamics that provides slower negative
+feedback.
 
-function FitzHughNagumo(Iext)
+FitzHugh R. (1961) Impulses and physiological states in theoretical
+models of nerve membrane. Biophysical J. 1:445–466
+
+Nagumo J., Arimoto S., and Yoshizawa S. (1962) An active pulse
+transmission line simulating nerve axon. Proc. IRE. 50:2061–2070.
+""" ->
+function FitzHughNagumo()
+
+    a = 0.7
+    b = 0.8
+    tau = Parameter(12.5)
+    Iext = Parameter(0.5)
+    
     v = Unknown("v")   
     w = Unknown("w")        
     @equations begin
@@ -29,16 +34,3 @@ function FitzHughNagumo(Iext)
         der(w) = (v + a - b * w) / tau
     end
 end
-
-v   = FitzHughNagumo(0.5)       # returns the hierarchical model
-v_f = elaborate(v)    # returns the flattened model
-v_s = create_sim(v_f) # returns a "Sim" ready for simulation
-
-tf = 200.0
-dt = 0.025
-
-# runs the simulation and returns
-# the result as an array plus column headings
-@time v_yout = sunsim(v_s, tstop=tf, Nsteps=int(tf/dt), reltol=1e-7, abstol=1e-7)
-
-plot (v_yout.y[:,1], v_yout.y[:,2])

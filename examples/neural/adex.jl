@@ -1,25 +1,25 @@
+##########################################################
+## Adaptive exponential integrate-and-fire neuron model ##
+##########################################################
 
-## Adaptive exponential integrate-and-fire neuron.
+export AdEx
 
-using Sims
-using Winston
+function AdEx(;
+              Isyn  =  210.0,
 
-C     = 200.0 
-gL    =  10.0 
-EL    = -58.0 
-VT    = -50.0 
-Delta = 2.0 
-theta = 0.0 
-trefractory = 0.25
+              C     = 200.0,
+              gL    =  10.0,
+              EL    = -58.0,
+              VT    = -50.0,
+              Delta = 2.0,
+              theta = 0.0,
+              trefractory = 0.25,
 
-a     =   2.0 
-tau_w =  120.0 
-b     =  100.0 
-Vr    = -46.0 
-
-Isyn  =  210.0
-
-function AdEx()
+              a = 2.0,
+              b = 100.0,
+              tau_w = 120.0,
+              
+              Vr = -46.0)
 
     V   = Unknown(Vr, "V")   
     W   = Unknown(Vr, "W")   
@@ -42,17 +42,3 @@ function AdEx()
      end
     
 end
-
-adex   = AdEx()      # returns the hierarchical model
-adex_f = elaborate(adex)    # returns the flattened model
-adex_s = create_sim(adex_f) # returns a "Sim" ready for simulation
-
-tf = 80.0
-dt = 0.025
-
-# runs the simulation and returns
-# the result as an array plus column headings
-adex_yout = sunsim(adex_s, tstop=tf, Nsteps=int(tf/dt), reltol=1e-7, abstol=1e-7)
-
-plot (adex_yout.y[:,1], adex_yout.y[:,2])
-

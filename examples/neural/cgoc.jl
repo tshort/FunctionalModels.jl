@@ -924,7 +924,7 @@ function CGoC(I)
 end
 
 
-cgoc   = CGoC(1000.0)  # returns the hierarchical model
+cgoc   = CGoC(100.0)  # returns the hierarchical model
 cgoc_f = elaborate(cgoc)    # returns the flattened model
 cgoc_s = create_sim(cgoc_f) # returns a "Sim" ready for simulation
 
