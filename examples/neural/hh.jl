@@ -13,34 +13,6 @@ typealias Gate Unknown{DefaultUnknown,NonNegative}
 typealias Conductance Unknown{UConductance,NonNegative}
 
 
-
-## Rate functions
-
-function amf (v)
-    return (0.1 * (v + 40) / (1.0 - exp (- (v + 40) / 10)))
-end
-
-function bmf (v)
-    return (4.0 * exp (- (v + 65) / 18))
-end
-
-function ahf (v)
-    return (0.07 * (exp (- (v + 65.0) / 20.0)))
-end
-
-function bhf (v)
-    return (1.0 / (1.0 + (exp (- (v + 35.0) / 10.0))))
-end
-
-function anf (v)
-    return (0.01 * (v + 55) / (1 - (exp ((- (v + 55)) / 10))))
-end
-
-function bnf (v)
-    return (0.125 * (exp ((- (v + 65)) / 80)))
-end  	                   
-
-
 @doc* """
 This model is used to calculate the membrane potential of a
 neuron. The calculation is based on sodium ion flow, potassium ion
@@ -50,19 +22,28 @@ to Conduction and Excitation in Nerve" Journal of Physiology 117:
 500-544)
 """ ->
 function HodgkinHuxley(;
-                       I = Parameter(10.0),
-                       C_m = Parameter(1.0),
+                       I   = Parameter(10.0),
 
                        gbar_Na = Parameter(120.0),
                        gbar_K  = Parameter(36.0),
                        g_L     = Parameter(0.3),
 
-                       E_Na    = Parameter(50.0),
-                       E_K     = Parameter(-77.0),
-                       E_L     = Parameter(-54.4),
+                       E_Na    = 50.0,
+                       E_K     = -77.0,
+                       E_L     = -54.4,
 
-                       v   = Voltage(-65.0, "v")   
+                       C_m = 1.0,
+
+                       v::Unknown  = Voltage(-65.0, "v")   
                        )
+
+    ## Rate functions
+    amf (v) = (0.1 * (v + 40) / (1.0 - exp (- (v + 40) / 10)))
+    bmf (v) = (4.0 * exp (- (v + 65) / 18))
+    ahf (v) = (0.07 * (exp (- (v + 65.0) / 20.0)))
+    bhf (v) = (1.0 / (1.0 + (exp (- (v + 35.0) / 10.0))))
+    anf (v) = (0.01 * (v + 55) / (1 - (exp ((- (v + 55)) / 10))))
+    bnf (v) = (0.125 * (exp ((- (v + 65)) / 80)))
     
     m   = Gate(0.052, "m")
     h   = Gate(0.596, "h")

@@ -20,14 +20,13 @@ models of nerve membrane. Biophysical J. 1:445–466
 Nagumo J., Arimoto S., and Yoshizawa S. (1962) An active pulse
 transmission line simulating nerve axon. Proc. IRE. 50:2061–2070.
 """ ->
-function FitzHughNagumo()
-
-    a = 0.7
-    b = 0.8
-    tau = Parameter(12.5)
-    Iext = Parameter(0.5)
-    
-    v = Unknown("v")   
+function FitzHughNagumo(;
+                        Iext = Parameter(0.5),
+                        tau = Parameter(12.5),
+                        a = 0.7,
+                        b = 0.8,
+                        v::Unknown = Unknown("v")
+                        )
     w = Unknown("w")        
     @equations begin
         der(v) = v - (v^3 / 3)  - w + Iext

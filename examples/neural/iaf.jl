@@ -5,16 +5,16 @@ export LeakyIaF
 A simple integrate-and-fire model example to illustrate
 integrating over discontinuities.
 """ ->
-function LeakyIaF()
+function LeakyIaF(;
+                  gL     = Parameter(0.2),
+                  vL     = Parameter(-70.0),
+                  Isyn   = Parameter(20.0),
+                  C      = Parameter(1.0),
+                  theta  = Parameter(25.0),
+                  vreset = Parameter(-65.0),
 
-    gL     = Parameter(0.2)
-    vL     = Parameter(-70.0)
-    Isyn   = Parameter(20.0)
-    C      = Parameter(1.0)
-    theta  = Parameter(25.0)
-    vreset = Parameter(-65.0)
-    
-    v   = Unknown(vreset, "v")   
+                  v::Unknown  = Voltage(vreset, "v")
+                  )
     
     # The following gives the return value which is a list of equations.
     # Expressions with Unknowns are kept as expressions. Regular
