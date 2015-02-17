@@ -1,31 +1,13 @@
 
-using Sims
-using Sims.Lib
-using Gaston
+################################
+## Wang-Buzsaki neuron model
+################################
 
-## Wang, X.-J. and Buzsaki G. (1996) Gamma oscillations by synaptic
-## inhibition in a hippocampal interneuronal network.
-## J. Neurosci. 16, 6402-6413.
+module WangBuzsaki
 
-type UConductance <: UnknownCategory
-end
-
-typealias Gate Unknown{DefaultUnknown,NonNegative}
-typealias Conductance Unknown{UConductance,NonNegative}
-
-# Parameter values
-
-I = 0.5
-
-diam = 5.6419
-L = 5.6419
-area = pi * L * diam
-
-C_m = 1
-
-const E_Na = 55
-const E_K  = -90
-const E_L  = -65
+using Sims, Sims.Lib
+using Sims.Examples.Neural, Sims.Examples.Neural.Lib
+using Docile
 
         
 minf(v)=am(v)/(am(v)+bm(v))
@@ -39,15 +21,33 @@ an(v)=0.01*(v+34.0)/(1.0-exp(-(v+34.0)/10.0))
 bn(v)=0.125*exp(-(v+44.0)/80.0)
 
 
-function WB(I)
+@doc* """
+Wang, X.-J. and Buzsaki G. (1996) Gamma oscillations by synaptic
+inhibition in a hippocampal interneuronal network.
+J. Neurosci. 16, 6402-6413.
+""" ->
+function Main(;
+              I = 0.5,
 
-    v   = Unknown(-20.0, "v")
-    h   = Unknown(0.283, "h")
-    n   = Unknown(0.265, "n")
+              diam = 5.6419,
+              L = 5.6419,
 
-    gbar_Na = Parameter(0.035)
-    gbar_K  = Parameter(0.009)
-    g_L     = Parameter(0.0001)
+              C_m = 1,
+
+              gbar_Na = 0.035,
+              gbar_K  = 0.009,
+              g_L     = 0.0001,
+
+              E_Na = 55,
+              E_K  = -90,
+              E_L  = -65,
+              
+              v::Unknown = Voltage(-20.0, "v"))
+
+    area = pi * L * diam
+    
+    h   = Gate(0.283)
+    n   = Gate(0.265)
 
     I_Na = Current()
     I_K  = Current()
@@ -58,7 +58,7 @@ function WB(I)
     
     @equations begin
 
-        der(v) = ((I * (100.0 / area)) - 1e3 * (I_K + I_Na + I_L)) / C_m
+        C_m * der(v) = ((I * (100.0 / area)) - 1e3 * (I_K + I_Na + I_L))
 
         der(n) = 5.0 * (an(v)*(1-n) - bn(v)*n)
         der(h) = 5.0 * (ah(v)*(1-h) - bh(v)*h)
@@ -69,22 +69,8 @@ function WB(I)
         I_Na = g_Na * (v - E_Na)
         I_K  = g_K  * (v - E_K)
         I_L  = g_L  * (v - E_L)
-
         
     end
 end
 
-
-
-wb   = WB(I)  # returns the hierarchical model
-wb_f = elaborate(wb)    # returns the flattened model
-wb_s = create_sim(wb_f) # returns a "Sim" ready for simulation
-
-# runs the simulation and returns
-# the result as an array plus column headings
-tf = 500.0
-dt = 0.025
-
-@time wb_yout = sunsim(wb_s, tstop=tf, Nsteps=int(tf/dt), reltol=1e-4, abstol=1e-4)
-
-plot (wb_yout.y[:,1], wb_yout.y[:,2])
+end # module WangBuzsaki

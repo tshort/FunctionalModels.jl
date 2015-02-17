@@ -1,54 +1,31 @@
-using Sims
-using Winston
-
 
 ########################################
 ## Hindmarsh-Rose neuron model        ##
 ########################################
 
-a = 1.0
-b = 3.0
-c = 1.0
-d = 5.0
+export HindmarshRose
 
-r = 1e-3
-s = 4.0
-xr = -8/5
+function HindmarshRose(; I = 0.1,
+                       
+                       a = 1.0,
+                       b = 3.0,
+                       c = 1.0,
+                       d = 5.0,
 
-function phi_(x)
-    return -a * x ^ 3 + b * x ^ 2
-end
+                       r = 1e-3,
+                       s = 4.0,
+                       xr = -8/5)
 
-function psi(x)
-    return c - d * x^2
-end
+    phi_(x) = -a * x ^ 3 + b * x ^ 2
+    psi(x)  = c - d * x^2
 
-#
-# A device model is a function that returns a list of equations or
-# other devices that also return lists of equations. The equations
-# each are assumed equal to zero. So,
-#    der(y) = x + 1
-# Should be entered as:
-#    der(y) - (x+1)
-#
-
-function HindmarshRose(I)
     x = Unknown(-1.0,"x")   
     y = Unknown("y")        
-    z = Unknown("z")        
+    z = Unknown("z")
+    
     @equations begin
         der(x) = y + phi_(x) - z + I 
         der(y) = psi(x) - y
         der(z) = r * (s * (x - xr) - z)
     end
 end
-
-v   = HindmarshRose(0.1)       # returns the hierarchical model
-v_f = elaborate(v)    # returns the flattened model
-v_s = create_sim(v_f) # returns a "Sim" ready for simulatio
-
-tf = 500.0
-dt = 0.025
-v_yout = sunsim(v_s, tstop=tf, Nsteps=int(tf/dt), reltol=1e-7, abstol=1e-7)
-
-plot (v_yout.y[:,1], v_yout.y[:,2])

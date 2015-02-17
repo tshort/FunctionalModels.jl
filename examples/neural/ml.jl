@@ -1,8 +1,10 @@
 
+
 ############################
 # Morris-Lecar neuron model.
 ############################
   	                   
+export MorrisLecar
 
 
 function MorrisLecar(;

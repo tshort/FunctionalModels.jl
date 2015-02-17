@@ -1,6 +1,9 @@
-## Two state kinetic scheme synapse described by rise time tauA, and
-## decay time constant tauB.  Decay time must be greater than rise
-## time.
+
+@doc* """
+Two state kinetic scheme synapse described by rise time tauA, and
+decay time constant tauB.  Decay time must be greater than rise
+time.
+""" ->
 
 function K2Syn(tauA,tauB,g,w,input)
 

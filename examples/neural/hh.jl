@@ -1,16 +1,11 @@
 
-########################################
-## Hidgkin-Huxley neuron model        ##
-########################################
+using Sims.Examples.Neural.Lib
 
+########################################
+## Hodgkin-Huxley neuron model        ##
+########################################
 
 export HodgkinHuxley
-
-type UConductance <: UnknownCategory
-end
-
-typealias Gate Unknown{DefaultUnknown,NonNegative}
-typealias Conductance Unknown{UConductance,NonNegative}
 
 
 @doc* """
@@ -61,7 +56,7 @@ function HodgkinHuxley(;
     # variables are evaluated immediately.
     @equations begin
 
-        der(v) = (I - (I_Na + I_K + I_L)) / C_m
+        C_m * der(v) = (I - (I_Na + I_K + I_L))
         der(m) = (amf(v) * (1 - m)) - (bmf(v) * m)
         der(h) = (ahf(v) * (1 - h)) - (bhf(v) * h)
         der(n) = (anf(v) * (1 - n)) - (bnf(v) * n)

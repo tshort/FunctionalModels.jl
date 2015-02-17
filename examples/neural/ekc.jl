@@ -1,8 +1,10 @@
 
+
 ##########################################################
 ## Ermentrout-Kopell canonical neuron model.
 ##########################################################
 
+export ErmentroutKopell
 
 function ErmentroutKopell(;
                           alpha = 0.012,
