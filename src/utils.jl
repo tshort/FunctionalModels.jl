@@ -301,7 +301,7 @@ end
     """ ->
     function gplot(sm::SimResult)
         N = length(sm.colnames)
-        figure()
+        Gaston.figure()
         c = Gaston.CurveConf()
         a = Gaston.AxesConf()
         a.title = ""

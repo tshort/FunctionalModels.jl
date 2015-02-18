@@ -1,27 +1,27 @@
 
-## Simple integrate-and-fire example to illustrate integrating over
-## discontinuities.
+export LeakyIaF
 
-using Sims
-using Winston
+@doc* """
+A simple integrate-and-fire model example to illustrate
+integrating over discontinuities.
+""" ->
+function LeakyIaF(;
+                  Isyn   = Parameter(20.0),
+                  gL     = Parameter(0.2),
+                  vL     = Parameter(-70.0),
+                  C      = Parameter(1.0),
+                  theta  = Parameter(25.0),
+                  vreset = -65.0,
 
-gL     = 0.2 
-vL     = -70.0 
-Isyn   = 20.0 
-C      = 1.0 
-theta  = 25.0 
-vreset = -65.0 
-trefractory = 5.0 
-
-function LeakyIaF()
-
-    v   = Unknown(vreset, "v")   
+                  v::Unknown  = Voltage(vreset, "v")
+                  )
     
     # The following gives the return value which is a list of equations.
     # Expressions with Unknowns are kept as expressions. Regular
     # variables are evaluated immediately (like normal).
     @equations begin
-        der(v) = ( ((- gL) * (v - vL)) + Isyn) / C
+
+        C * der(v) = ( ((- gL) * (v - vL)) + Isyn)
 
         Event(v-theta,
              Equation[
@@ -32,17 +32,3 @@ function LeakyIaF()
      end
     
 end
-
-iaf   = LeakyIaF()      # returns the hierarchical model
-iaf_f = elaborate(iaf)    # returns the flattened model
-iaf_s = create_sim(iaf_f) # returns a "Sim" ready for simulation
-
-tf = 100.0
-dt = 0.025
-
-# runs the simulation and returns
-# the result as an array plus column headings
-iaf_yout = sunsim(iaf_s, tstop=tf, Nsteps=int(tf/dt))
-
-plot (iaf_yout.y[:,1], iaf_yout.y[:,2])
-

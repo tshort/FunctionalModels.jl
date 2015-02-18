@@ -1,10 +1,17 @@
 
-using Sims
-using Sims.Lib
-using Winston
+###########################################
+## Pinsky-Rinzel CA3 pyramidal neuron model 
+###########################################
 
-# Pinsky-Rinzel CA3 neuron model
-# Intrinsic and Network Rhythmogenesis in a Reduced Traub Model for CA3 Neurons
+module PinskyRinzel
+
+export Soma, Dendrite, Circuit
+
+using Sims, Sims.Lib
+using Sims.Examples.Neural, Sims.Examples.Neural.Lib
+using Sims.Examples.Neural.HodgkinHuxleyModule 
+using Docile
+
 
 # Parameter values
 J     = 0.75
@@ -26,10 +33,8 @@ betaqd =  0.001
 gc = 2.1
 As = 0.5
 Ad = 1-As
-Cm = 3  
+Cm = 3
 
-
-# Pyramidal cell functions
 
 function alphams (v)
     return 0.32*(-46.9-v)/(exp((-46.9-v)/4.0)-1.0)
@@ -81,34 +86,45 @@ end
 
 
 function Soma(V,I)
-   h = Unknown ("h")
-   n = Unknown ("n")
+    INa  = Current ("INa")
+    IKdr = Current ("IKdr")
+    
+    h = Gate ()
+    n = Gate ()
 
    @equations begin
-       der(V) = (-gLs * (V - VL) - gNa * (Minfs(V)^2) * h * (V - VNa) - gKdr * n * (V - VK) + I + J/As) / Cm
+       Cm * der(V) = (-gLs * (V - VL) - INa - IKdr + I + J/As)
        der(h) = alphahs(V) - (alphahs(V) + betahs(V)) * h
        der(n) = alphans(V) - (alphans(V) + betans(V)) * n
+
+       INa = gNa * (Minfs(V)^2) * h * (V - VNa)
+       IKdr = gKdr * n * (V - VK)
    end
 end
 
 
 function Dendrite(V,I)
-    ICad  = Unknown ("ICad")
-    IKahp = Unknown ("IKahp")
-    IK    = Unknown ("IK")
+
+    ICad  = Current ("ICad")
+    IKahp = Current ("IKahp")
+    IK    = Current ("IK")
     Cad   = Unknown ("Cad")
-    s     = Unknown ("s")
-    c     = Unknown ("c")
-    q     = Unknown ("q")
-    chid  = Unknown ("chid")
-    alphaqd = Unknown ("alphaqd")
+    
+    s     = Gate ()
+    c     = Gate ()
+    q     = Gate ()
+    
+    chid  = Unknown ()
+    alphaqd = Unknown ()
 
     @equations begin
-        der(V)  = (-gLd * (V - VL) - ICad - IKahp - IK + I) / Cm
+
+        Cm * der(V)  = (-gLd * (V - VL) - ICad - IKahp - IK + I)
         der(s)  = alphasd(V) - (alphasd(V) + betasd(V))*s
         der(c)  = alphacd(V) - (alphacd(V) + betacd(V))*c
         der(q)  = alphaqd - (alphaqd + betaqd) * q
         der(Cad) = -0.13 * ICad - 0.075 * Cad
+        
         ICad     = gCa * s * s * (V - VCa)
         IKahp    = gKahp * q * (V - VK)
         IK       = gKC * c * chid * (V - VK)
@@ -119,19 +135,16 @@ function Dendrite(V,I)
 end
 
 
-function Connect(I,g,n1,n2)
-   @equations begin
-       g * I = n2 - n1
-   end
-end
-
-
-function PRCircuit()
+@doc* """
+Intrinsic and Network Rhythmogenesis in a Reduced Traub Model for CA3 Neurons.
+""" ->
+function Circuit()
+    
     Is  = Current("Is")
     Id  = Current("Id")
     Vs  = Voltage(-60.0,"Vs")
     Vd  = Voltage(-60.0,"Vd")
-    V
+
     @equations begin
         Soma(Vs,Is)
         Dendrite(Vd,Id)
@@ -140,16 +153,4 @@ function PRCircuit()
     end
 end
 
-pr   = PRCircuit()  # returns the hierarchical model
-pr_f = elaborate(pr)    # returns the flattened model
-pr_s = create_sim(pr_f) # returns a "Sim" ready for simulation
-
-tf = 5000.0
-dt = 0.025
-
-# runs the simulation and returns
-# the result as an array plus column headings
-@time pr_yout = sunsim(pr_s, tstop=tf, Nsteps=int(tf/dt), reltol=1e-7, abstol=1e-7)
-
-plot (pr_yout.y[:,1], pr_yout.y[:,2])
-
+end # module PR

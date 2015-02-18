@@ -1,23 +1,13 @@
-##
-## Model of a cerebellar granule cell from the paper:
-##
-## _Theta-Frequency Bursting and Resonance in Cerebellar Granule Cells:
-## Experimental Evidence and Modeling of a Slow K+-Dependent
-## Mechanism_.  E. D'Angelo, T. Nieus, A. Maffei, S. Armano, P. Rossi,
-## V. Taglietti, A. Fontana and G. Naldi.
-##
 
+###########################################
+## Cerebellar granule cell neuron model 
+###########################################
 
-using Sims
-using Sims.Lib
-using Winston
+module CGC
 
-
-type UConductance <: UnknownCategory
-end
-
-typealias Gate Unknown{DefaultUnknown,NonNegative}
-typealias Conductance Unknown{UConductance,NonNegative}
+using Sims, Sims.Lib
+using Sims.Examples.Neural, Sims.Examples.Neural.Lib
+using Docile
 
 function sigm (x, y)
     return 1.0 / (exp (x / y) + 1)
@@ -27,28 +17,10 @@ function linoid (x, y)
     return ifelse (abs (x / y) < 1e-6, (y * (1 - ((x/y) / 2))), (x / (exp (x/y) - 1)))
 end
 
-F = 96485.3
-
-celsius = 30
-C_m = 1.0
-
-## Soma dimensions
-
-L = 11.8
-diam = 11.8
-area = pi * L * diam
-
-## Reversal potentials
-
-E_Ca = 129.33
-E_K  = -84.69
-E_Na  = 87.39
-
-
 ## Calcium concentration dynamics
-cai0  = 1e-4
+const cai0  = 1e-4
 
-function Ca_model(cai,I_Ca)
+function CaConcentration(cai,I_Ca)
 
     depth = 0.2
     cao   = 2.0
@@ -61,9 +33,9 @@ function Ca_model(cai,I_Ca)
     end
 end
 
-## High-voltage activated calcium current 
+## High-voltage activated calcium conductance 
 
-function CaHVA_model(v,I_CaHVA)
+function CaHVAConductance(celsius,v,gbar,g)
 
     Q10 = 3^((celsius - 20) / 10)
 
@@ -83,7 +55,6 @@ function CaHVA_model(v,I_CaHVA)
     Kbeta_u = 83.33
     V0beta_u = -48
 
-    gbar_CaHVA  = 0.00046
 
     function alpha_s (v)
 	return (Q10 * Aalpha_s * exp((v - V0alpha_s) / Kalpha_s))
@@ -103,21 +74,18 @@ function CaHVA_model(v,I_CaHVA)
 
     s = Gate (value(alpha_s(v) / (alpha_s(v) + beta_s(v))))
     u = Gate (value(alpha_u(v) / (alpha_u(v) + beta_u(v))))
-    g_CaHVA = Conductance (value(s^2 * u * gbar_CaHVA))
     
     @equations begin
         der(s) =  alpha_s(v) * (1 - s) - beta_s(v) * s
-        der(u) =  alpha_u(v) * (1 - s) - beta_u(v) * s
+        der(u) =  alpha_u(v) * (1 - u) - beta_u(v) * u
 
-        g_CaHVA  = s^2 * u * gbar_CaHVA
-	      
-        I_CaHVA  = g_CaHVA  * (v - E_Ca)
+        g  = s^2 * u * gbar
     end
 end
 
 ## KA current
 
-function KA_model(v,I_KA)
+function KAConductance(celsius,v,gbar,g)
 
     Q10 = 3^((celsius - 20) / 10)
 
@@ -141,8 +109,6 @@ function KA_model(v,I_KA)
     V0_binf   = -78.8
     K_binf    = 8.4
 
-    gbar_KA = 0.004
-			 
     function alpha_a(v)
 	return (Q10 * Aalpha_a * sigm((v - V0alpha_a), Kalpha_a))
     end
@@ -168,8 +134,6 @@ function KA_model(v,I_KA)
     tau_a   = Unknown(value(1 / (alpha_a (v) + beta_a (v))))
     tau_b   = Unknown(value(1 / (alpha_b (v) + beta_b (v))))
 
-    g_KA = Conductance (value(a^3 * b * gbar_KA))
-
     @equations begin
 
         der(a) =  (a_inf - a) / tau_a
@@ -180,9 +144,7 @@ function KA_model(v,I_KA)
 	b_inf = (1 / (1 + exp ((v - V0_binf) / K_binf)))
 	tau_b = (1 / (alpha_b (v) + beta_b (v)) )
 
-        g_KA  = a^3 * b * gbar_KA
-	      
-        I_KA  = g_KA  * (v - E_K)
+        g  = a^3 * b * gbar
 
     end
 end
@@ -190,7 +152,7 @@ end
 
 ## Calcium-modulated potassium current
 
-function KCa_model(v,cai,I_KCa)
+function KCaConductance(celsius,v,cai,gbar,g)
 
     Q10 = 3^((celsius - 30) / 10)
 		 
@@ -212,24 +174,19 @@ function KCa_model(v,cai,I_KCa)
 	(Q10 * Abeta_c / (1 + (cai / (Bbeta_c * exp (v / Kbeta_c))) ))
     end
 
-    gbar_KCa  = 0.003
-
     c = Gate(value(alpha_c (v, cai) / (alpha_c (v, cai) + beta_c (v, cai))))
-    g_KCa = Conductance (value(c * gbar_KCa))
     
     @equations begin
         der(c) =  alpha_c(v, cai) * (1 - c) - beta_c(v, cai) * c
 
-        g_KCa  = c * gbar_KCa
-	      
-        I_KCa  = g_KCa  * (v - E_K)
+        g  = c * gbar
     end
     
 end
 
 ## Kir current
 
-function Kir_model(v,I_Kir)
+function KirConductance(celsius,v,gbar,g)
 
     Q10 = 3^((celsius - 20) / 10)
 
@@ -250,24 +207,19 @@ function Kir_model(v,I_Kir)
 	(Q10 * Abeta_d * exp((v - V0beta_d) / Kbeta_d) )
     end
 
-    gbar_Kir  = 0.0009
-
     d = Gate(value(alpha_d (v) / (alpha_d(v) + beta_d(v))))
-    g_Kir = Conductance (value(d * gbar_Kir))
     
     @equations begin
         der(d) =  alpha_d(v) * (1 - d) - beta_d(v) * d
 
-        g_Kir  = d * gbar_Kir
-	      
-        I_Kir  = g_Kir  * (v - E_K)
+        g  = d * gbar
     end
     
 end
 
 ## KM current
 
-function KM_model(v,I_KM)
+function KMConductance(celsius,v,gbar,g)
 
     Q10 = 3^((celsius - 22) / 10)
 
@@ -282,8 +234,6 @@ function KM_model(v,I_KM)
     V0_ninf  = -30
     B_ninf = 6
 
-    gbar_KM  = 0.00035
-
     function alpha_n (v)
 	(Q10 * Aalpha_n * exp((v - V0alpha_n) / Kalpha_n) )
     end
@@ -293,7 +243,6 @@ function KM_model(v,I_KM)
     end
 
     n   = Gate(value(alpha_n (v) / (alpha_n(v) + beta_n(v))))
-    g_KM = Conductance (value(n * gbar_KM))
     
     n_inf   = Unknown(value(1 / (alpha_n(v) + beta_n(v))))
     tau_n   = Unknown(value(1 / (1 + exp((-(v - V0_ninf)) / B_ninf))))
@@ -304,9 +253,7 @@ function KM_model(v,I_KM)
         tau_n = 1 / (alpha_n(v) + beta_n(v))
 	n_inf = 1 / (1 + exp((-(v - V0_ninf)) / B_ninf))
 
-        g_KM  = n * gbar_KM
-	      
-        I_KM  = g_KM  * (v - E_K)
+        g  = n * gbar
     end
     
 end
@@ -314,7 +261,7 @@ end
 
 ## KV current
 
-function KV_model(v,I_KV)
+function KVConductance(celsius,v,gbar,g)
 
     Q10 = 3^((celsius - 6.3) / 10)
 
@@ -327,7 +274,6 @@ function KV_model(v,I_KV)
     Kbeta_n = -80
     V0beta_n = -35
     
-    gbar_KV  = 0.003
 
     function alpha_n(v) 
 	(Q10 * Aalpha_n * linoid ((v - V0alpha_n), Kalpha_n))
@@ -338,21 +284,18 @@ function KV_model(v,I_KV)
     end
 
     n   = Gate(value(alpha_n (v) / (alpha_n (v) + beta_n (v))))
-    g_KV = Conductance (value(n^4 * gbar_KV))
     
     @equations begin
         der(n) =  alpha_n(v) * (1 - n) - beta_n(v) * n
 
-        g_KV  = n^4 * gbar_KV
-	      
-        I_KV  = g_KV  * (v - E_K)
+        g  = n^4 * gbar
     end
     
 end
 
 
 ## Sodium current
-function Na_model(v,I_Na)
+function NaConductance(celsius,v,gbar,g)
 
     Q10 = 3^((celsius - 20) / 10)
     
@@ -372,8 +315,6 @@ function Na_model(v,I_Na)
     Kbeta_h = -5
     V0beta_h = -11
 
-    gbar_Na  = 0.013
-    
     function alpha_m (v)	
 	(Q10 * Aalpha_m * linoid((v - V0alpha_m), Kalpha_m) )
     end
@@ -392,22 +333,19 @@ function Na_model(v,I_Na)
     
     m   = Gate(value(alpha_m (v) / (alpha_m(v) + beta_m(v))))
     h   = Gate(value(alpha_h (v) / (alpha_h(v) + beta_h(v))))
-    g_Na = Conductance (value(m^3 * h * gbar_Na))
     
     @equations begin
         der(m) =  alpha_m(v) * (1 - m) - beta_m(v) * m
         der(h) =  alpha_h(v) * (1 - h) - beta_h(v) * h
 
-        g_Na  = m^3 * h * gbar_Na
-	      
-        I_Na  = g_Na  * (v - E_Na)
+        g  = m^3 * h * gbar
     end
 end
 
 
 ## NaR current
 
-function NaR_model(v,I_NaR)
+function NaRConductance(celsius,v,gbar,g)
 
     Q10 = 3^((celsius - 20) / 10)
 
@@ -445,27 +383,23 @@ function NaR_model(v,I_NaR)
 	(Q10 * Abeta_f * exp( ( v - V0beta_f ) / Kbeta_f )  )
     end
     
-    gbar_NaR  = 0.0005
     
     s   = Gate(value(alpha_s (v) / (alpha_s(v) + beta_s(v))))
     f   = Gate(value(alpha_f (v) / (alpha_f(v) + beta_f(v))))
-    g_NaR = Conductance (value(s * f * gbar_NaR))
     
     @equations begin
         der(s) =  alpha_s(v) * (1 - s) - beta_s(v) * s
         der(f) =  alpha_f(v) * (1 - f) - beta_f(v) * f
 
-        g_NaR  = s * f * gbar_NaR
-	      
-        I_NaR  = g_NaR  * (v - E_Na)
+        g  = s * f * gbar
     end
 end
 
 
 
-## pNa current
+## pNa conductance
 
-function pNa_model(v,I_pNa)
+function pNaConductance(celsius,v,gbar,g)
 
     Q10 = 3^((celsius - 30) / 10)
     
@@ -478,7 +412,6 @@ function pNa_model(v,I_pNa)
     V0_minf   = -42
     B_minf    = 5
     
-    gbar_pNa  = 2e-5
 
     function alpha_m (v)
 	(Q10 * Aalpha_m * linoid( (v - V0alpha_m), Kalpha_m))
@@ -489,7 +422,6 @@ function pNa_model(v,I_pNa)
     end
     
     m   = Gate(value(1 / (1 + exp ((- (v - V0_minf)) / B_minf))))
-    g_pNa = Conductance (value(m * gbar_pNa))
 
     m_inf   = Unknown(value(1 / (1 + exp((- (v - V0_minf)) / B_minf))))
     tau_m   = Unknown(value(5 / (alpha_m(v) + beta_m(v))))
@@ -501,38 +433,71 @@ function pNa_model(v,I_pNa)
 	m_inf =  (1 / (1 + exp((- (v - V0_minf)) / B_minf)))
 	tau_m =  (5 / (alpha_m(v) + beta_m(v)))
 
-        g_pNa  = m * gbar_pNa
-	      
-        I_pNa  = g_pNa  * (v - E_Na)
+        g  = m * gbar
     end
 end
 
-## Leak currents
 
-g_Leak1  = 5.68e-5
-E_Leak1 = -16.5
+@doc* """
+Model of a cerebellar granule cell soma from the paper:
 
-g_Leak2  = 3e-5
-E_Leak2 = -65
+_Theta-Frequency Bursting and Resonance in Cerebellar Granule Cells:
+Experimental Evidence and Modeling of a Slow K+-Dependent
+Mechanism_.  E. D'Angelo, T. Nieus, A. Maffei, S. Armano, P. Rossi,
+V. Taglietti, A. Fontana and G. Naldi.
+""" ->
 
+function Soma(;
+              I = 0.01875,
 
-function Lkg1_model(v,I_Leak1)
-   @equations begin
-       I_Leak1  = g_Leak1  * (v - E_Leak1)
-   end
-end
+              celsius = 30,
+              C_m = 1e-3,
 
-function Lkg2_model(v,I_Leak2)
-   @equations begin
-       I_Leak2  = g_Leak2  * (v - E_Leak2)
-   end
-end
+              ## Soma dimensions
 
-function CGC(I)
+              L = 11.8,
+              diam = 11.8,
 
-    v   = Voltage (-70.0, "v")   
+              ## Reversal potentials
+
+              E_Ca = 129.33,
+              E_K  = -84.69,
+              E_Na  = 87.39,
+              E_Leak1 = -16.5,
+              E_Leak2 = -65,
+
+              ## Maximal conductances
+              
+              gbar_CaHVA = 0.00046,
+              gbar_KA  = 0.004,
+              gbar_KCa = 0.003,
+              gbar_Kir = 0.0009,
+              gbar_KM  = 0.00035,
+              gbar_KV  = 0.003,
+              gbar_Na  = 0.013,
+              gbar_NaR = 0.0005,
+              gbar_pNa  = 2e-5,
+              g_Leak1  = 5.68e-5,
+              g_Leak2  = 3e-5,
+              
+              v::Unknown  = Voltage (-70.0, "v")   
+              )
+
+    area = pi * L * diam
 
     cai = Unknown (cai0, "cai")
+
+    g_CaHVA = Conductance ()
+
+    g_KCa  = Conductance ()
+    g_KA   = Conductance ()
+    g_KV   = Conductance ()
+    g_KM   = Conductance ()
+    g_Kir  = Conductance ()
+
+    g_Na   = Conductance ()
+    g_NaR  = Conductance ()
+    g_pNa  = Conductance ()
 
     I_stim = Discrete (0.0)
 
@@ -554,56 +519,57 @@ function CGC(I)
 
     I_Leak1  = Current ()
     I_Leak2  = Current ()
-
     
     # The following gives the return value which is a list of equations.
     # Expressions with Unknowns are kept as expressions. Regular
     # variables are evaluated immediately (like normal).
     @equations begin
 
-        Ca_model(cai,I_Ca)
-        CaHVA_model(v,I_CaHVA)
+        MembranePotential(v, Equation[-(I_stim * (100.0 / area)),I_Na,I_NaR,I_pNa,I_K,I_Ca,I_L], C_m)
 
-        KA_model(v,I_KA)
-        KV_model(v,I_KV)
-        KCa_model(v,cai,I_KCa)
-        Kir_model(v,I_Kir)
-        KM_model(v,I_KM)
+        CaConcentration(cai,I_Ca)
+        CaHVAConductance(celsius,v,gbar_CaHVA,g_CaHVA)
 
-        Na_model(v,I_Na)
-        NaR_model(v,I_NaR)
-        pNa_model(v,I_pNa)
+        KAConductance(celsius,v,gbar_KA,g_KA)
+        KVConductance(celsius,v,gbar_KV,g_KV)
+        KCaConductance(celsius,v,cai,gbar_KCa,g_KCa)
+        KirConductance(celsius,v,gbar_Kir,g_Kir)
+        KMConductance(celsius,v,gbar_KM,g_KM)
 
-        Lkg1_model(v,I_Leak1)
-        Lkg2_model(v,I_Leak2)
+        NaConductance(celsius,v,gbar_Na,g_Na)
+        NaRConductance(celsius,v,gbar_NaR,g_NaR)
+        pNaConductance(celsius,v,gbar_pNa,g_pNa)
 
         I_Ca = I_CaHVA
         I_K = I_KA + I_KV + I_KCa + I_Kir  + I_KM
         I_L = I_Leak1 + I_Leak2
 
-        der(v) = ((I_stim * (100.0 / area)) - 1e3 * (I_Ca + I_K + I_Na + I_NaR + I_pNa + I_L)) / C_m
+        OhmicCurrent (v, I_CaHVA, g_CaHVA, E_Ca)
+        OhmicCurrent (v, I_Na, g_Na, E_Na)
+        OhmicCurrent (v, I_NaR, g_NaR, E_Na)
+        OhmicCurrent (v, I_pNa, g_pNa, E_Na)
+        OhmicCurrent (v, I_KA, g_KA, E_K)
+        OhmicCurrent (v, I_KV, g_KV, E_K)
+        OhmicCurrent (v, I_KM, g_KM, E_K)
+        OhmicCurrent (v, I_KCa, g_KCa, E_K)
+        OhmicCurrent (v, I_Kir, g_Kir, E_K)
 
+        OhmicCurrent (v, I_Leak1, g_Leak1, E_Leak1)
+        OhmicCurrent (v, I_Leak2, g_Leak2, E_Leak2)
+        
         Event(MTime - 250.0,     # Start injecting current after 250 ms
               Equation[
                   reinit(I_stim, I)
+              ],
+              Equation[])
+
+        Event(MTime - 800.0,     # Stop injecting current after 800 ms
+              Equation[
+                  reinit(I_stim, 0.0)
               ],
               Equation[])
         
     end
 end
 
-
-cgc   = CGC(18.75)  # returns the hierarchical model
-cgc_f = elaborate(cgc)    # returns the flattened model
-cgc_s = create_sim(cgc_f) # returns a "Sim" ready for simulation
-
-# runs the simulation and returns
-# the result as an array plus column headings
-tf = 1000.0
-dt = 0.025
-
-@time cgc_yout = sunsim(cgc_s, tstop=tf, Nsteps=int(tf/dt), reltol=1e-6, abstol=1e-6)
-
-##@time cgc_yout = sim(cgc_s, tf, int(tf/dt))
-
-plot (cgc_yout.y[:,1], cgc_yout.y[:,3])
+end # module CGC

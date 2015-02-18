@@ -1,55 +1,20 @@
-##
-## Model of a cerebellar Purkinje cell from the paper:
-##
-## Cerebellar Purkinje Cell: resurgent Na current and high frequency
-## firing (Khaliq et al 2003).
-##
 
-using Sims
-using Sims.Lib
-using Winston
+###########################################
+## Cerebellar Purkinje neuron model 
+###########################################
 
-type UConductance <: UnknownCategory
-end
+module Purkinje
 
-typealias Gate Unknown{DefaultUnknown,NonNegative}
-typealias Conductance Unknown{UConductance,NonNegative}
-
-
-const F = 96485.3
-const R =  8.3145
-
-function ghk (v, ci, co)
-    let T = 22.0 + 273.19
-        Z = 2.0
-        E = (1e-3) * v
-        k0 = ((Z * (F * E)) / (R * T))
-        k1 = exp (- k0)
-        k2 = ((Z ^ 2) * (E * (F ^ 2))) / (R * T)
-        return (1e-6) * (ifelse (abs (1 - k1) < 1e-6,
-                                 (Z * F * (ci - (co * k1)) * (1 - k0)),
-                                 (k2 * (ci - (co * k1)) / (1 - k1))))
-    end
-end
-
-const C_m = 1.0
-
-## Soma dimensions
-
-const L = 20.0
-const diam = 20.0
-const area = pi * L * diam
-
-## Reversal potentials
-const E_Na = 60
-const E_K = -88
+using Sims, Sims.Lib
+using Sims.Examples.Neural, Sims.Examples.Neural.Lib
+using Docile
 
 
 ## Calcium concentration dynamics
 const cai0 = 1e-4
 const cao   = 2.4
 
-function Ca_model(cai,I_Ca)
+function CaConcentration(cai,I_Ca)
 
     depth = 0.1
     beta  = 1.0
@@ -61,8 +26,8 @@ function Ca_model(cai,I_Ca)
     end
 end
 
-## HH P-type Calcium current
-function CaP_model(v,cai,I_CaP)
+## HH P-type Calcium permeability
+function CaPPermeability(v,cai,pcabar,p)
               
     function minf (v)
         let cv = -19.0
@@ -77,7 +42,6 @@ function CaP_model(v,cai,I_CaP)
                          (0.00026367 + (0.1278 * exp (0.10327 * v))))))
     end
 
-    pcabar  = 0.00005
     
     m_inf = Unknown(value(minf(v)))
     tau_m = Unknown(value(mtau(v)))
@@ -90,8 +54,7 @@ function CaP_model(v,cai,I_CaP)
 	m_inf =  minf(v)
 	tau_m =  mtau(v)
 
-        I_CaP  = m * pcabar * ghk(v,cai,cao)
-        
+        p  = m * pcabar
     end
 
 end
@@ -99,8 +62,7 @@ end
 
     
 ## BK-type Purkinje calcium-activated potassium current
-function CaBK_model(v,cai,I_CaBK)
-
+function CaBKConductance(v,cai,gbar,g)
     
     function minf (v) 
         let vh = -28.9
@@ -151,8 +113,6 @@ function CaBK_model(v,cai,I_CaBK)
     
     CaBK_v = (v + 5)
 
-    gbar_CaBK  = 0.007
-
     m_inf = Unknown(value(minf(CaBK_v)))
     tau_m = Unknown(value(mtau(CaBK_v)))
     m = Gate(value(minf(CaBK_v)))
@@ -170,14 +130,12 @@ function CaBK_model(v,cai,I_CaBK)
     zO = Gate(0.5)
     zC = Gate(0.5)
 
-    g_CaBK  = Conductance(value(m^3 * h * z^2 * gbar_CaBK))
-
     z_reactions = parse_reactions (Any
                                    [
                                     [ :-> zO zC z_alpha ]
                                     [ :-> zC zO z_beta ]
                                    ])
-    ## TODO: conservation equation zO + zC = 1
+    conservation = Unknown()
 
     @equations begin
                                
@@ -194,18 +152,17 @@ function CaBK_model(v,cai,I_CaBK)
         z_beta  = (1 - zinf(cai)) / ztau
 
         z_reactions
+        conservation = (zO + zC) - 1
         
         z = zO
         
-        g_CaBK  = m^3 * h * z^2 * gbar_CaBK
+        g  = m^3 * h * z^2 * gbar
 	      
-        I_CaBK  = g_CaBK  * (v - E_K)
-
     end
 end
 
 ## HH TEA-sensitive Purkinje potassium current
-function K1_model(v,I_K1)
+function K1Conductance(v,gbar,g)
     
     function minf (v)
         let mivh = -24
@@ -244,7 +201,6 @@ function K1_model(v,I_K1)
     
     K1_v = (v + 11)
 
-    gbar_K1  = 0.004
 
     m_inf = Unknown(value(minf(K1_v)))
     tau_m = Unknown(value(mtau(K1_v)))
@@ -253,9 +209,6 @@ function K1_model(v,I_K1)
     h_inf = Unknown(value(hinf(K1_v)))
     tau_h = Unknown(value(htau(K1_v)))
     h = Gate(value(hinf(K1_v)))
-
-    g_K1  = Conductance(value(m^3 * h * gbar_K1))
-
 
     @equations begin
                                
@@ -268,15 +221,13 @@ function K1_model(v,I_K1)
         h_inf = hinf(K1_v)
         tau_h = htau(K1_v)
         
-        g_K1  = m^3 * h * gbar_K1
+        g  = m^3 * h * gbar
 	      
-        I_K1  = g_K1  * (v - E_K)
-
     end
 end
 
 ## HH Low TEA-sensitive Purkinje potassium current
-function K2_model(v,I_K2)
+function K2Conductance(v,gbar,g)
     
     function minf (v)
         let mivh = -24
@@ -293,14 +244,11 @@ function K2_model(v,I_K2)
     
     K2_v = (v + 11)
 
-    gbar_K2  = 0.002
 
     m_inf = Unknown(value(minf(K2_v)))
     tau_m = Unknown(value(mtau(K2_v)))
     m = Gate (value(minf(K2_v)))
     
-    g_K2  = Conductance(value(m^4 * gbar_K2))
-
     @equations begin
                                
         der(m) =  (m_inf - m) / tau_m
@@ -308,16 +256,14 @@ function K2_model(v,I_K2)
         m_inf = minf(K2_v)
         tau_m = mtau(K2_v)
         
-        g_K2  = m^4 * gbar_K2
-	      
-        I_K2  = g_K2  * (v - E_K)
+        g  = m^4 * gbar
 
     end
 end
 
 
 ## HH slow TEA-insensitive Purkinje potassium current
-function K3_model(v,I_K3)
+function K3Conductance(v,gbar,g)
     
     function minf (v)
         let mivh = -16.5
@@ -332,14 +278,10 @@ function K3_model(v,I_K3)
     
     K3_v = (v + 11)
 
-    gbar_K3  = 0.004
-
     m_inf = Unknown(value(minf(K3_v)))
     tau_m = Unknown(value(mtau(K3_v)))
     m = Gate (value(minf(K3_v)))
     
-    g_K3  = Conductance(value(m^4 * gbar_K3))
-
     @equations begin
                                
         der(m) =  (m_inf - m) / tau_m
@@ -347,15 +289,12 @@ function K3_model(v,I_K3)
         m_inf = minf(K3_v)
         tau_m = mtau(K3_v)
         
-        g_K3  = m^4 * gbar_K3
-	      
-        I_K3  = g_K3  * (v - E_K)
-
+        g  = m^4 * gbar
     end
 end
 
 ## Resurgent sodium current
-function Narsg_model(v,I_Na)
+function NarsgConductance(v,gbar,g)
 
     const Con   = 0.005
     const Coff  = 0.5
@@ -378,7 +317,6 @@ function Narsg_model(v,I_Na)
     const x5 = 1e12
     const x6 = -25
 
-    gbar_Na  = 0.015
                          
     f01 = (4.0 * alpha * exp (v / x1))
     f02 = (3.0 * alpha * exp (v / x1))
@@ -419,20 +357,6 @@ function Narsg_model(v,I_Na)
     bi5 = (Coff * btfac * btfac * btfac * btfac)
     bin = (Ooff)
 
-    #I1 = Unknown(0.012)
-    #I2 = Unknown(0.023)
-    #I3 = Unknown(0.03)
-    #I4 = Unknown(0.03)
-    #I5 = Unknown(0.1)
-    #I6 = Unknown(5e-6)
-    #C1 = Unknown(0.62)
-    #C2 = Unknown(0.21)
-    #C3 = Unknown(0.027)
-    #C4 = Unknown(0.001)
-    #C5 = Unknown(3.3e-5)
-    #O  = Unknown(1.7e-4)
-    #B  = Unknown(0.007)
-
     I1 = Gate()
     I2 = Gate()
     I3 = Gate()
@@ -447,7 +371,7 @@ function Narsg_model(v,I_Na)
     O  = Gate()
     B  = Gate()
     
-    reaction = parse_reactions (Any [
+    z_reactions = parse_reactions (Any [
                                      
                                      [ :⇄ C1 C2 f01 b01 ]
                                      [ :⇄ C2 C3 f02 b02 ]
@@ -468,27 +392,23 @@ function Narsg_model(v,I_Na)
                                      [ :⇄ I5 I6 f1n b1n ]
                                      
                                      ])
-    
-    g_Na = Conductance(value(O * gbar_Na))
+    conservation = Unknown()
     
     @equations begin
 
-        reaction
+        z_reactions
 
-        ## TODO:  1 = (I1 + I2 + I3 + I4 + I5 + I6 + C1 + C2 + C3 + C4 + C5 + O + B)
+        conservation = (I1 + I2 + I3 + I4 + I5 + I6 + C1 + C2 + C3 + C4 + C5 + O + B) - 1
         
-        g_Na  = O * gbar_Na
+        g  = O * gbar
 	      
-        I_Na  = g_Na  * (v - E_Na)
-
     end
 
 end
 
 
-function Ih_model(v,Ih)
+function IhConductance(v,gbar,g)
               
-                        
     function minf (v)
         1.0 / (1.0 + exp ((v + 90.1) / 9.9))
     end
@@ -497,42 +417,69 @@ function Ih_model(v,Ih)
         (1e3) * (0.19 + 0.72 * exp (- (((v - (-81.5)) / 11.9) ^ 2)))
     end
 
-    gbar_Ih = 0.0001
-    E_Ih = -30
 
     m = Gate(value(minf(v)))
-    g_Ih = Conductance(value(m * gbar_Ih))
     
     @equations begin
 
         der(m) =  (minf(v) - m) / mtau(v)
 
-        g_Ih = m * gbar_Ih
-        Ih  = g_Ih  * (v - E_Ih)
+        g = m * gbar
    end
     
 end
 
 
-function Leak_model(v,I_Leak)
 
-    g_Leak  = 5e-5
-    E_Leak = -65
+@doc* """
+Model of a cerebellar Purkinje cell from the paper:
 
-    @equations begin
-       I_Leak  = g_Leak  * (v - E_Leak)
-   end
-end
+Cerebellar Purkinje Cell: resurgent Na current and high frequency
+firing (Khaliq et al 2003).
+""" ->
 
+function Soma(;
+              I   = 0.01,
+              C_m = 1e-3,
 
-function Purkinje(I)
+              celsius = 22.0,
+              
+              ## Soma dimensions
+              L = 20.0,
+              diam = 20.0,
+              area = pi * L * diam,
 
-    v   = Voltage (-65.0, "v")   
+              ## Reversal potentials
+              E_Na   = 60,
+              E_K    = -88,
+              E_Ih   = -30,
+              E_Leak = -65,
+
+              pcabar    = 0.00005,
+              gbar_CaBK = 0.007,
+              gbar_K1   = 0.004,
+              gbar_K2   = 0.002,
+              gbar_K3   = 0.004,
+              gbar_Ih   = 0.0001,
+              gbar_Na   = 0.015,
+              g_Leak    = 5e-5,
+
+              v::Unknown = Voltage (-65.0, "v"))
+    
     cai = Unknown (cai0, "cai")
+
+    p_CaP  = Unknown ()
+    g_CaBK = Conductance ()
+    g_K1   = Conductance ()
+    g_K2   = Conductance ()
+    g_K3   = Conductance ()
+    g_Na   = Conductance ()
+    g_Ih   = Conductance ()
 
     I_Ca    = Current ()
     I_CaP   = Current ()
     I_CaBK  = Current ()
+    I_K     = Current ()
     I_K1    = Current ()
     I_K2    = Current ()
     I_K3    = Current ()
@@ -545,32 +492,31 @@ function Purkinje(I)
     # variables are evaluated immediately (like normal).
     @equations begin
 
-        Ca_model(cai,I_Ca)
-        CaP_model(v,cai,I_CaP)
-        CaBK_model(v,cai,I_CaBK)
-        K1_model(v,I_K1)
-        K2_model(v,I_K2)
-        K2_model(v,I_K3)
-        Narsg_model(v,I_Na)
-        Ih_model(v,Ih)
-        Leak_model(v,I_Leak)
+        MembranePotential(v, Equation[-(I * (100.0 / area)),I_Leak,Ih,I_Na,I_K,I_Ca], C_m)
+
+        CaConcentration(cai,I_Ca)
+        CaPPermeability(v,cai,pcabar,p_CaP)
+        CaBKConductance(v,cai,gbar_CaBK,g_CaBK)
+        K1Conductance(v,gbar_K1,g_K1)
+        K2Conductance(v,gbar_K2,g_K2)
+        K2Conductance(v,gbar_K3,g_K3)
+        NarsgConductance(v,gbar_Na,g_Na)
+        IhConductance(v,gbar_Ih,g_Ih)
 
         I_Ca = I_CaP
-        der(v) = ((I * (100.0 / area)) - 1e3 * (I_Leak + Ih + I_Na + I_K1 + I_K2 + I_K3 + I_CaBK + I_Ca)) / C_m
+        I_K  = I_K1 + I_K2 + I_K3 + I_CaBK
+
+        GHKCurrent (celsius, v, I_CaP, p_CaP, cai, cao, 2.0)
+        OhmicCurrent (v, I_CaBK, g_CaBK, E_K)
+        OhmicCurrent (v, I_K1, g_K1, E_K)
+        OhmicCurrent (v, I_K2, g_K2, E_K)
+        OhmicCurrent (v, I_K3, g_K3, E_K)
+        OhmicCurrent (v, I_Na, g_Na, E_Na)
+        OhmicCurrent (v, Ih, g_Ih, E_Ih)
+        OhmicCurrent (v, I_Leak, g_Leak, E_Leak)
         
     end
 end
 
-
-cell   = Purkinje(5.0)  # returns the hierarchical model
-cell_f = elaborate(cell)    # returns the flattened model
-cell_s = create_sim(cell_f) # returns a "Sim" ready for simulation
-
-# runs the simulation and returns
-# the result as an array plus column headings
-tf = 500.0
-dt = 0.025
-
-@time cell_yout = sunsim(cell_s, tstop=tf, Nsteps=int(tf/dt), reltol=1e-1, abstol=1e-4, alg=false)
-
+end # module Purkinje
 
