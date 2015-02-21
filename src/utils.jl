@@ -322,6 +322,39 @@ end
 
 end
 
+########################################
+## AxisArrays                         ##
+########################################
+
+    
+@require AxisArrays begin
+
+    @comment """
+    # AxisArrays
+    """
+    
+    @doc """
+    Convert to an AxisArray.
+    
+    ```julia
+    AxisArrays.AxisArray(x::SimResult)
+    ```
+    
+    ### Arguments
+    
+    * `x::SimResult` : a simulation result
+
+    ### Returns
+    
+    * `::AxisArray` : a two-dimensional AxisArray with the row axis
+      named `:time` and columns with simulation results and a
+      categorical column axis with string signal names.
+
+    """ ->
+    AxisArrays.AxisArray(x::SimResult) =
+        AxisArrays.AxisArray(x.y[:, 2:end], (x.y[:, 1], x.colnames), (:time, :col))
+
+end
 
 
 @comment """
