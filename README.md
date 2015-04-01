@@ -28,7 +28,7 @@ example. The problem with causal modeling is that it is difficult to
 build up models from components.
 
 The highest profile noncausal modeling tools are in the
-[Modelica](www.modelica.org) family. The MathWorks company also has
+[Modelica](https://www.modelica.org/) family. The MathWorks company also has
 Simscape that uses Matlab notation. Modelica is an object-oriented,
 open language with multiple implementations. It is a large, complex,
 powerful language with an extensive standard library of components.
