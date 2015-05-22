@@ -9,7 +9,7 @@ export RLModel, PiModel, ModalModel
 # Power systems
 """
 
-@doc* """
+@doc+ """
 Three-phase RL line model
 
 See also sister models: PiModel and ModalModal.
@@ -43,7 +43,7 @@ function RLModel()
     ]
 end
 
-@doc* """
+@doc+ """
 Three-phase Pi line model
 
 See also sister models: RLModel and ModalModal.
@@ -94,7 +94,7 @@ end
 ## s = create_sim(f)
 ## y = sim(s, 0.1)
 
-@doc* """
+@doc+ """
 Three-phase modal line model
 
 See also sister models: PiModel and RLModal.

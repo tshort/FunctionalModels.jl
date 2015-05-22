@@ -22,7 +22,7 @@ approach is generally cleaner.
 """
 
 
-@doc* """
+@doc+ """
 Sensor comparison for a rotational example
 
 http://book.xogeny.com/components/architectures/sensor_comparison/
@@ -51,7 +51,7 @@ end
 ## wplot(y)
 
 
-@doc* """
+@doc+ """
 Basic plant for the example
 """ ->
 function BasicPlant(phi1 = Angle(), phi2 = Angle())
@@ -63,7 +63,7 @@ function BasicPlant(phi1 = Angle(), phi2 = Angle())
     end
 end
 
-@doc* """
+@doc+ """
 Ideal sensor for angular velocity
 """ ->
 function IdealSensor(phi, signal)
@@ -72,7 +72,7 @@ function IdealSensor(phi, signal)
     end
 end
 
-@doc* """
+@doc+ """
 Sample-and-hold velocity sensor
 """ ->
 function SampleHoldSensor(phi, signal, sampletime)
@@ -88,7 +88,7 @@ end
 ## Create a closure to handle samplerate adjustments
 SampleHoldSensor(; sampletime = 1.0) = (phi, signal) -> SampleHoldSensor(phi, signal, sampletime)
 
-@doc* """
+@doc+ """
 Ideal actuator
 """ ->
 function IdealActuator(phi, tau)
@@ -97,7 +97,7 @@ function IdealActuator(phi, tau)
     end
 end
 
-@doc* """
+@doc+ """
 Actuator with lag and saturation
 """ ->
 function LimitedActuator(phi, tau, delayTime, uMax)
@@ -112,7 +112,7 @@ function LimitedActuator(phi, tau, delayTime, uMax)
 end
 LimitedActuator(; delayTime = 0.0, uMax = Inf) = (phi, tau) -> LimitedActuator(phi, tau, delayTime, uMax)
 
-@doc* """
+@doc+ """
 Proportional controller
 """ ->
 function ProportionalController(setpoint, measured, command, k)
@@ -122,7 +122,7 @@ function ProportionalController(setpoint, measured, command, k)
 end
 ProportionalController(; k = 20.0) = (setpoint, measured, command) -> ProportionalController(setpoint, measured, command, k)
     
-@doc* """
+@doc+ """
 PID controller
 """ ->
 function PIDController(setpoint, measured, command, k, Ti, Td, yMax)
@@ -133,7 +133,7 @@ end
 PIDController(; k = 1.0, Ti = 1.0, Td = 1.0, yMax = Inf) = (setpoint, measured, command) -> PIDController(setpoint, measured, command, k, Ti, Td, yMax)
 
 
-@doc* """
+@doc+ """
 Base system with replaceable components
 
 This is the same example as [FlatSystem](#flatsystem), but `Plant`,

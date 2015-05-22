@@ -24,7 +24,7 @@ export CauerLowPassAnalog,
        CharacteristicThyristors,
        run_electrical_examples
 
-@doc* """
+@doc+ """
 Cauer low-pass filter with analog components
 
 The example Cauer Filter is a low-pass-filter of the fifth order. It
@@ -64,7 +64,7 @@ end
 # y = sim(CauerLowPassAnalog(), 60.0)
 # _ex1 = copy(_ex)
 
-@doc* """
+@doc+ """
 Cauer low-pass filter with operational amplifiers
 
 The example Cauer Filter is a low-pass-filter of the fifth order. It
@@ -117,7 +117,7 @@ function CauerLowPassOPV()
     ]
 end
 
-@doc* """
+@doc+ """
 Cauer low-pass filter with operational amplifiers (alternate implementation)
 
 The example Cauer Filter is a low-pass-filter of the fifth order. It
@@ -194,7 +194,7 @@ end
 # # _ex2 = copy(_ex)
 
 
-@doc* """
+@doc+ """
 Characteristic of ideal diodes
 
 Three examples of ideal diodes are shown:
@@ -252,7 +252,7 @@ end
 # y = sim(s, 1.0)
 
 
-@doc* """
+@doc+ """
 Chua's circuit
 
 Chua's circuit is a simple nonlinear circuit which shows chaotic
@@ -299,7 +299,7 @@ end
 ## y = sim(s, 1.0)
 
 
-@doc* """
+@doc+ """
 Heating resistor
 
 This is a very simple circuit consisting of a voltage source and a
@@ -325,7 +325,7 @@ function HeatingResistor()
 end
 
 
-@doc* """
+@doc+ """
 Heating rectifier
 
 The heating rectifier shows a heat flow always if the electrical
@@ -386,7 +386,7 @@ function Rectifier()
     ]
 end
 
-@doc* """
+@doc+ """
 B6 diode bridge
 
 The rectifier example shows a B6 diode bridge fed by a three phase
@@ -441,7 +441,7 @@ end
 
 
 
-@doc* """
+@doc+ """
 Simple demo to show behaviour of SaturatingInductor component
 
 This simple circuit uses the saturating inductor which has a changing
@@ -525,7 +525,7 @@ end
 ## y | dump
 
 
-@doc* """
+@doc+ """
 Simple demo of a VariableResistor model
 
 It is a simple test circuit for the VariableResistor. The
@@ -564,7 +564,7 @@ end
 
 
 
-@doc* """
+@doc+ """
 Comparison of controlled switch models both with and without arc
 
 This example is to compare the behaviour of switch models with and without an electric arc taking into consideration.
@@ -622,7 +622,7 @@ end
 ## s = create_sim(f)
 ## y = sim(s, .1)
 
-@doc* """
+@doc+ """
 Characteristic of ideal thyristors
 
 Two examples of thyristors are shown: the ideal thyristor and the
@@ -658,7 +658,7 @@ end
 function docutil()
     
     template = """
-        @doc* \"\"\"
+        @doc+ \"\"\"
         --LABEL--
 
         ![diagram](http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica.Electrical.Analog.Examples.--NAME--D.png)

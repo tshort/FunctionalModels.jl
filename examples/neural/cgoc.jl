@@ -648,7 +648,7 @@ function NaRConductance(celsius,v,gbar,g)
 end
 
 
-@doc* """
+@doc+ """
 Model of a cerebellar Golgi cell from the paper:
 
 _Computational reconstruction of pacemaking and intrinsic

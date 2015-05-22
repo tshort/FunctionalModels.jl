@@ -29,7 +29,7 @@ conditions, are given in Kelvin.
 ## Basic
 ########################################
 
-@doc* """
+@doc+ """
 Lumped thermal element storing heat
 
 ```julia
@@ -81,7 +81,7 @@ function HeatCapacitor(hp::HeatPort, C::Signal)
 end
 
 
-@doc* """
+@doc+ """
 Lumped thermal element transporting heat without storing it
 
 ```julia
@@ -147,7 +147,7 @@ function ThermalConductor(port_a::HeatPort, port_b::HeatPort, G::Signal)
 end
 
 
-@doc* """
+@doc+ """
 Lumped thermal element for heat convection
 
 ```julia
@@ -233,7 +233,7 @@ function Convection(port_a::HeatPort, port_b::HeatPort, Gc::Signal)
 end
 
 
-@doc* """
+@doc+ """
 
 ```julia
 BodyRadiation(port_a::HeatPort, port_b::HeatPort, Gr::Signal)
@@ -325,7 +325,7 @@ function BodyRadiation(port_a::HeatPort, port_b::HeatPort, Gr::Signal)
 end
 
 
-@doc* """
+@doc+ """
 This is a model to collect the heat flows from m heatports to one
 single heatport.
 
@@ -358,7 +358,7 @@ end
 """
 
 
-@doc* """
+@doc+ """
 Fixed temperature boundary condition in Kelvin
 
 This model defines a fixed temperature T at its port in Kelvin, i.e.,
@@ -412,7 +412,7 @@ PrescribedTemperature = FixedTemperature
 
 
 
-@doc* """
+@doc+ """
 Fixed heat flow boundary condition
 
 This model allows a specified amount of heat flow rate to be

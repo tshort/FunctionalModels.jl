@@ -22,7 +22,7 @@ using Requires
         x - v
     end
     
-@doc* """
+@doc+ """
 Interpolated event grid (requires Grid library).
 
 ```julia

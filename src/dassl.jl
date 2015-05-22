@@ -56,7 +56,7 @@ end
 
 initdassl = @compat Dict(:none => 0, :Ya_Ydp => 1, :Y => 2)
 
-@doc* """
+@doc+ """
 The solver that uses DASKR, a variant of DASSL.
 
 See [sim](#sim) for the interface.

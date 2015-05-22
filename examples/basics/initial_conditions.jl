@@ -13,7 +13,7 @@
 export InitialCondition, MkinInitialCondition
 
 
-@doc* """
+@doc+ """
 A basic test of solving for initial conditions for two simultaineous
 equations.
 """ ->
@@ -25,7 +25,7 @@ function InitialCondition()
      end
 end
 
-@doc* """
+@doc+ """
 A basic test of solving for initial conditions for two simultaineous
 equations.
 """ ->

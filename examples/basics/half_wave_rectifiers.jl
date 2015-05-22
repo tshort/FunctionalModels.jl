@@ -49,7 +49,7 @@ function ClosedDiode(n1, n2)
 end
 
 
-@doc* """
+@doc+ """
 A half-wave rectifier. The diode uses Events to toggle switching.
 
 See F. E. Cellier and E. Kofman, *Continuous System Simulation*,
@@ -72,7 +72,7 @@ end
 
 
 
-@doc* """
+@doc+ """
 This is the same circuit used in
 Sims.Examples.Basics.HalfWaveRectifier, but a structurally variable
 diode is used instead of a diode that uses Events.

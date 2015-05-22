@@ -7,7 +7,7 @@ export ConcentrationWithConstraints, SimpleConcentrationWithConstraints
 typealias Species Unknown{DefaultUnknown,NonNegative}
 
 
-@doc* """
+@doc+ """
 A pair of forward and reverse reactions.
 The reactions start with an initial concentration of A, A0,
 and an initial concentration of 0 for B at time t=0.
@@ -23,7 +23,7 @@ function ConcentrationWithConstraints(; A0 = 0.25, rateA = 0.333, rateB = 0.16)
     return ReactionSystem (X, S, R, K)
 end
 
-@doc* """
+@doc+ """
 A pair of forward and reverse reactions, using the simple reaction syntax.
 The reactions start with an initial concentration of A, A0,
 and an initial concentration of 0 for B at time t=0.

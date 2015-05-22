@@ -438,7 +438,7 @@ function pNaConductance(celsius,v,gbar,g)
 end
 
 
-@doc* """
+@doc+ """
 Model of a cerebellar granule cell soma from the paper:
 
 _Theta-Frequency Bursting and Resonance in Cerebellar Granule Cells:

@@ -6,7 +6,7 @@
 export FitzHughNagumo
 
 
-@doc* """
+@doc+ """
 The FitzHugh-Nagumo model is a two-dimensional simplification of the
 Hodgkin-Huxley model of spike generation.  It consists of two state
 variables: a voltage-like variable with a nonlinearity that allows

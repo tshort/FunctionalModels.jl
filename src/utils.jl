@@ -20,7 +20,7 @@ Many of these optionally depend on other packages.
     
 @require PyPlot begin
 
-    @doc* """
+    @doc+ """
     Plot simulation result with PyPlot (must be installed and
     loaded).
     
@@ -188,7 +188,7 @@ end
 
 @require Gadfly begin
 
-    @doc* """
+    @doc+ """
     Plot the simulation result with Gadfly (must be installed and
     loaded).
     
@@ -235,7 +235,7 @@ end
             a
     end
     
-    @doc* """
+    @doc+ """
     Plot the simulation result with Winston (must be installed and
     loaded).
     
@@ -280,7 +280,7 @@ end
     # Gaston plotting
     """
     
-    @doc* """
+    @doc+ """
 
     Plot the simulation result with Gaston (must be installed and
     loaded).
@@ -420,7 +420,7 @@ end
 ## Model checks                       ##
 ########################################
 
-@doc* """
+@doc+ """
 Prints the number of equations and the number of unknowns.
 
 ```julia
@@ -453,7 +453,7 @@ check(m::Model) = check(create_sim(elaborate(m)))
 
 import JuMP, ReverseDiffSparse
 
-@doc* """
+@doc+ """
 Experimental function to initialize models.
 
 ```julia

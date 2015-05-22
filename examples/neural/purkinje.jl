@@ -431,7 +431,7 @@ end
 
 
 
-@doc* """
+@doc+ """
 Model of a cerebellar Purkinje cell from the paper:
 
 Cerebellar Purkinje Cell: resurgent Na current and high frequency

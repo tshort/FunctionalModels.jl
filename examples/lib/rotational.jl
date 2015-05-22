@@ -12,7 +12,7 @@ export First
 # Rotational
 """
 
-@doc* """
+@doc+ """
 First example: simple drive train
 
 The drive train consists of a motor inertia which is driven by a
