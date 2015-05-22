@@ -29,7 +29,7 @@ type EquationSet
 end
 
 
-@doc* """
+@doc+ """
 `elaborate` is the main elaboration function that returns
 a flattened model representation that can be used by `sim`.
 

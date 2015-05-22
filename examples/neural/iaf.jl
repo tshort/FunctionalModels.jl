@@ -1,7 +1,7 @@
 
 export LeakyIaF
 
-@doc* """
+@doc+ """
 A simple integrate-and-fire model example to illustrate
 integrating over discontinuities.
 """ ->

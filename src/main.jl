@@ -104,7 +104,7 @@ function sim_info(msgs, i)
     end
 end
 
-@doc* """
+@doc+ """
 Control the verbosity of output.
 
 ```julia
@@ -295,7 +295,7 @@ Unknown(;value = 0.0, label::String = "", fixed::Bool = false) =
 
 
 
-@doc* """
+@doc+ """
 Is the object an UnknownVariable?
 """ ->
 is_unknown(x) = isa(x, UnknownVariable)
@@ -328,7 +328,7 @@ end
 DerUnknown(u::Unknown) = DerUnknown(u.sym, 0.0, false, u)
 
 
-@doc* """
+@doc+ """
 Represents the derivative of an Unknown.
 
 ```julia
@@ -379,7 +379,7 @@ type MExpr <: ModelType
     ex::Expr
 end
 
-@doc* """
+@doc+ """
 Create MExpr's (model expressions). Analogous to `expr` in Base.
 
 This is also useful for wrapping user-defined functions where
@@ -564,7 +564,7 @@ size(u::UnknownVariable, i) = size(value(u), i)
 hcat(x::ModelType...) = mexpr(:call, :hcat, x...)
 vcat(x::ModelType...) = mexpr(:call, :vcat, x...)
 
-@doc* """
+@doc+ """
 The value of an object or UnknownVariable.
 
 ```julia
@@ -600,7 +600,7 @@ function symname(s::Symbol)
     length(s) > 3 && s[1:2] == "##" ? "`" * s[3:end] * "`" : s
 end
 
-@doc* """
+@doc+ """
 The name of an UnknownVariable.
 
 ```julia
@@ -627,7 +627,7 @@ name(a::Unknown) = a.label != "" ? a.label : symname(a.sym)
 name(a::DerUnknown) = a.parent.label != "" ? "der("*a.parent.label*")" : "der("*symname(a.parent.sym)*")"
 name(a::RefUnknown) = a.u.label != "" ? a.u.label : symname(a.u.sym)
 
-@doc* """
+@doc+ """
 A helper functions to return the base value from an Unknown to use
 when creating other Unknowns. It is especially useful for taking two
 model arguments and creating a new Unknown compatible with both
@@ -740,7 +740,7 @@ type RefBranch <: ModelType
 end
 
 
-@doc* """
+@doc+ """
 A helper Model to connect a branch between two different nodes and
 specify potential between nodes and the flow between nodes.
 
@@ -882,7 +882,7 @@ end
 ## end
 
 
-@doc* """
+@doc+ """
 A Model specifying a delay to an Unknown.
 
 Internally, Unknowns that are delayed store past history. This is
@@ -1028,7 +1028,7 @@ Reactive.push!{T}(x::Discrete{Reactive.Input{T}}, y) = mexpr(:call, :(Reactive.p
 Reactive.push!{T}(x::Parameter{Reactive.Input{T}}, y) = Reactive.push!(x.signal, y)
 
 
-@doc* """
+@doc+ """
 `reinit` is used in Event responses to redefine variables. 
 
 ```julia
@@ -1240,7 +1240,7 @@ function replace_syms(e::Expr, varnames)
     end
 end
 
-@doc* """
+@doc+ """
 An `UnknownReactive` based on the previous value of `x` (normally prior to an event).
 
 See also [Event](#event).
@@ -1306,7 +1306,7 @@ Event(condition::ModelType, p::Expr) = Event(condition, p, Equation[])
 
 
 
-@doc* """
+@doc+ """
 BoolEvent is a helper for attaching an event to a boolean variable.
 In conjunction with `ifelse`, this allows constructs like Modelica's
 if blocks.
@@ -1349,7 +1349,7 @@ end
 
 
 
-@doc* """
+@doc+ """
 A function allowing if-then-else action for objections and expressions.
 
 Note that when this is used in a model, it does not trigger an

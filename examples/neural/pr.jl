@@ -135,7 +135,7 @@ function Dendrite(V,I)
 end
 
 
-@doc* """
+@doc+ """
 Intrinsic and Network Rhythmogenesis in a Reduced Traub Model for CA3 Neurons.
 """ ->
 function Circuit()

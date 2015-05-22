@@ -70,7 +70,7 @@ function FlexibleShaft(flangeA::Flange, flangeB::Flange, n::Int)
     result
 end
 
-@doc* """
+@doc+ """
 A DC motor with a flexible shaft. The shaft is made of multiple
 elements. These are collected together algorithmically.
 

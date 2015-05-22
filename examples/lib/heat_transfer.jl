@@ -11,7 +11,7 @@ export TwoMasses, Motor
 # Heat transfer
 """
 
-@doc* """
+@doc+ """
 Simple conduction demo
 
 This example demonstrates the thermal response of two masses
@@ -39,7 +39,7 @@ function TwoMasses()
 end
 
 
-@doc* """
+@doc+ """
 Second order thermal model of a motor
 
 ![diagram](http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica.Thermal.HeatTransfer.Examples.MotorD.png)

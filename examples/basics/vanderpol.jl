@@ -18,7 +18,7 @@ export Vanderpol
 #    der(y) - (x+1)
 #
 
-@doc* """
+@doc+ """
 The Van Der Pol oscillator is a simple problem with two equations
 and two unknowns.
 """ ->

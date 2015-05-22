@@ -74,7 +74,7 @@ type SimState
     sm::Sim # reference to a Sim
 end
 
-@doc* """
+@doc+ """
 `create_sim` converts a model to a Sim.
 
 ```julia
@@ -115,7 +115,7 @@ function create_sim(eq::EquationSet)
 end
 create_sim(m::Model) = create_sim(elaborate(m))
 
-@doc* """
+@doc+ """
 `create_simstate` converts a Sim is the main conversion function that
 returns a SimState, a simulation object with state history.
 

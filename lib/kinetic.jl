@@ -7,7 +7,7 @@
 # Chemical kinetics
 """
 
-@doc* """
+@doc+ """
 Chemical kinetic reaction system
 
 ```julia
@@ -116,7 +116,7 @@ end
 ##
 ##
     
-@doc* """
+@doc+ """
 Parses reactions of the form
 
 ```julia

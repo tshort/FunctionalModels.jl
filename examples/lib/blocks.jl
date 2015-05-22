@@ -12,7 +12,7 @@ export PID_Controller
 """
 
 
-@doc* """
+@doc+ """
 Demonstrates the usage of a Continuous.LimPID controller
 
 

@@ -39,7 +39,7 @@ function Pendulum(x,y,vx,vy)
     end
 end
 
-@doc* """
+@doc+ """
 An extension of Sims.Examples.Basics.BreakingPendulum.
 
 Floors and a wall are added. These are handled by `Events` in the

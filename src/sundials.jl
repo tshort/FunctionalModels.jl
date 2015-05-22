@@ -104,7 +104,7 @@ function reinit_sunsim(smem::SimSundials, ss::SimState, t)
 end
 
 
-@doc* """
+@doc+ """
 The solver that uses Sundials.
 
 See [sim](#sim) for the interface.

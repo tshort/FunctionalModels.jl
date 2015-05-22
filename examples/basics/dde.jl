@@ -4,7 +4,7 @@
 
 export DDE
 
-@doc* """
+@doc+ """
 An example of a delayed feedback system.
 """ ->
 function DDE(; tau=3.0)

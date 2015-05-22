@@ -31,7 +31,7 @@ function Pendulum(x,y,vx,vy)
     end
 end
 
-@doc* """
+@doc+ """
 Models a pendulum that breaks at 5 secs. This model uses a
 StructuralEvent to switch between `Pendulum` mode and `FreeFall` mode.
 

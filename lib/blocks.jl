@@ -24,7 +24,7 @@ These components are modeled after the `Modelica.Blocks.*` library.
 """
 
 
-@doc* """
+@doc+ """
 Output the integral of the input signals
 
 ```julia
@@ -54,7 +54,7 @@ end
 Integrator(u::Signal, y::Signal; k = 1.0, y_start = 0.0) = Integrator(u, y, k, y_start)
 
 
-@doc* """
+@doc+ """
 Approximated derivative block
 
 This blocks defines the transfer function between the input `u` and
@@ -112,7 +112,7 @@ Derivative(u::Signal, y::Signal;
 
 
 
-@doc* """
+@doc+ """
 First order transfer function block (= 1 pole)
 
 This blocks defines the transfer function between the input u=inPort.signal and the output y=outPort.signal element-wise as first order system:
@@ -163,7 +163,7 @@ FirstOrder(u::Signal, y::Signal;
            y_start = 0.0) = FirstOrder(u, T, k, y_start)
 
            
-@doc* """
+@doc+ """
 PID controller with limited output, anti-windup compensation and setpoint weighting
 
 ![diagram](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica.Blocks.Continuous.LimPIDD.png)
@@ -295,7 +295,7 @@ function LimPID(u_s::Signal, u_m::Signal, y::Signal;
 end
 
 
-@doc* """
+@doc+ """
 Linear state space system
 
 Modelica.Blocks.Continuous.StateSpace
@@ -384,7 +384,7 @@ StateSpace(u::Signal, y::Signal;
 
 
 
-@doc* """
+@doc+ """
 Linear transfer function
 
 This block defines the transfer function between the input
@@ -468,7 +468,7 @@ TransferFunction(u::Signal, y::Signal;
 
 
 
-@doc* """
+@doc+ """
 Limit the range of a signal
 
 The Limiter block passes its input signal as output signal as long as
@@ -509,7 +509,7 @@ Limiter(u::Signal, y::Signal;
 VariableLimiter = Limiter
 
 
-@doc* """
+@doc+ """
 Generate step signals of type Real
 
 ```julia
@@ -547,7 +547,7 @@ Step(y::Signal;
      startTime = 0.0) = Step(y, height, offset, startTime)
 
 
-@doc* """
+@doc+ """
 Provide a region of zero output
 
 The DeadZone block defines a region of zero output.
@@ -590,7 +590,7 @@ DeadZone(u::Signal, y::Signal;
          uMin = -uMax) = DeadZone(u, y, uMax, uMin)
 
 
-@doc* """
+@doc+ """
 Generate a Discrete boolean pulse signal
 
 ```julia

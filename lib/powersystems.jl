@@ -24,7 +24,7 @@ const epsilon_0 = 1 / (mue_0 * c * c)
 SeriesImpedance = ShuntAdmittance = Array{Complex128, 2}
 
 
-@doc* """
+@doc+ """
 R-L line model
 
 ```julia
@@ -44,7 +44,7 @@ function RLLine(n1::ElectricalNode, n2::ElectricalNode, Z::SeriesImpedance, len:
 end
 
 
-@doc* """
+@doc+ """
 PI line model
 
 ```julia
@@ -69,7 +69,7 @@ function PiLine(n1::ElectricalNode, n2::ElectricalNode, Z::SeriesImpedance, Y::S
     end
 end
 
-@doc* """
+@doc+ """
 Modal line model
 
 ```julia
