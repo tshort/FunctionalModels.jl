@@ -17,8 +17,13 @@
 
 global __DF = Any[]
 
-@windows_only dllname = Pkg.dir() * "/Sims/deps/daskr$WORD_SIZE.dll"
-@unix_only dllname = Pkg.dir() * "/Sims/deps/daskr.so"
+@static if is_windows()
+     dllname = Pkg.dir() * "/Sims/deps/daskr$WORD_SIZE.dll"
+elseif is_unix() 
+     dllname = Pkg.dir() * "/Sims/deps/daskr.so"
+end
+
+println(dllname)
 
 hasdassl = true
 
@@ -131,10 +136,10 @@ function dasslsim(ss::SimState, tstop::Float64=1.0, Nsteps::Int=500, reltol::Flo
         ipar = [int32(length(ss.y0)), nrt[1], index]
          
         # Set up the callback.
-        callback = cfunction(dasslfun, Nothing,
+        callback = cfunction(dasslfun, Void,
                              (Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, Ptr{Float64},
                               Ptr{Int32}, Ptr{Float64}, Ptr{Int32}))
-        rt = cfunction(dasslrootfun, Nothing,
+        rt = cfunction(dasslrootfun, Void,
                        (Ptr{Int32}, Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, Ptr{Int32},
                         Ptr{Float64}, Ptr{Float64}, Ptr{Int32}))
         (tout) -> begin

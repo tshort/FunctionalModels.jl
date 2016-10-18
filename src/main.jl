@@ -960,7 +960,7 @@ Without arguments, `Discrete()` uses an initial value of 0.0.
 ### Details
 
 `Discrete` is the main input type for discrete variables. By default,
-it wraps a `Reactive.Input` type. `Discrete` variables support data
+it wraps a `Reactive.Signal` type. `Discrete` variables support data
 flow using Reactive.jl. Use `reinit` to update Discrete variables. Use
 `lift` to create additional `UnknownReactive` types that depend on the
 `Discrete` input. Use `foldl` for actions that remember state. For
@@ -972,9 +972,9 @@ type Discrete{T <: Reactive.Signal} <: UnknownReactive{T}
     signal::T
     initialvalue
 end
-Discrete(x::Reactive.SignalSource) = Discrete(x, zero(x))
-Discrete(initialval) = Discrete(Reactive.Input(initialval), initialval)
-Discrete() = Discrete(Reactive.Input(0.0), 0.0)
+Discrete(x::Reactive.Signal) = Discrete(x, zero(x))
+Discrete(initialval) = Discrete(Reactive.Signal(initialval), initialval)
+Discrete() = Discrete(Reactive.Signal(0.0), 0.0)
 
 @doc """
 An `UnknownReactive` type that is useful for passing parameters at the
@@ -1018,14 +1018,14 @@ vwp3 = sim(ss, 10.0) # should be the same as vwp1
 type Parameter{T <: Reactive.Signal} <: UnknownReactive{T}
     signal::T
 end
-Parameter(x = 0.0) = Parameter(Reactive.Input(x))
+Parameter(x = 0.0) = Parameter(Reactive.Signal(x))
 
 name(a::UnknownReactive) = "discrete"
 value{T}(x::UnknownReactive{T}) = Reactive.value(x.signal)
 signal(x::UnknownReactive) = x.signal
 
-Reactive.push!{T}(x::Discrete{Reactive.Input{T}}, y) = mexpr(:call, :(Reactive.push!), x.signal, y)
-Reactive.push!{T}(x::Parameter{Reactive.Input{T}}, y) = Reactive.push!(x.signal, y)
+Reactive.push!{T}(x::Discrete{Reactive.Signal{T}}, y) = mexpr(:call, :(Reactive.push!), x.signal, y)
+Reactive.push!{T}(x::Parameter{Reactive.Signal{T}}, y) = Reactive.push!(x.signal, y)
 
 
 @doc+ """
@@ -1066,8 +1066,8 @@ end
 See also [IdealThyristor](../../lib/electrical/#idealthyristor) in the standard library.
 
 """ ->
-reinit{T}(x::Discrete{Reactive.Input{T}}, y) = mexpr(:call, :(Reactive.push!), x.signal, y)
-reinit{T}(x::Parameter{Reactive.Input{T}}, y) = Reactive.push!(x.signal, y)
+reinit{T}(x::Discrete{Reactive.Signal{T}}, y) = mexpr(:call, :(Reactive.push!), x.signal, y)
+reinit{T}(x::Parameter{Reactive.Signal{T}}, y) = Reactive.push!(x.signal, y)
 
 function reinit(x, y)
     sim_info("reinit: $(x[]) to $y", 2)
@@ -1470,7 +1470,7 @@ type StructuralEvent <: ModelType
     default
     new_relation::Function
     activated::Bool       # Indicates whether the event condition has fired
-    pos_response::Union(Nothing,Function)
+    pos_response::Union{Void,Function}
     # A procedure that will be invoked with the model states and parameters when
     # the condition crosses zero positively.
 end

@@ -78,7 +78,7 @@ function setup_sunsim(ss::SimState, reltol::Float64, abstol::Float64, alg::Bool)
     if any(x -> x < 0.0 || x > 0.0, constraints)
         flag  = Sundials.IDASetConstraints(mem, constraints)
     end
-    return SimSundials (mem, ss)
+    return SimSundials(mem, ss)
 end
 
 function reinit_sunsim(smem::SimSundials, ss::SimState, t)
@@ -192,7 +192,7 @@ function sunsim(ss::SimState, tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol =
                 ## same size as the old one, just reinit, otherwise
                 ## create a new instance of the solver.
                 if neq == new_neq
-                    reinit_sunsim (smem, ss, tret[1])
+                    reinit_sunsim(smem, ss, tret[1])
                 else
                     neq = new_neq
                     smem = setup_sunsim(ss, reltol, abstol, alg)

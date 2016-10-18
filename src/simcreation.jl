@@ -32,7 +32,7 @@ type SimFunctions
                                 #   negative root crossing is detected.
 end
 SimFunctions(resid::Function, event_at::Function,
-             event_pos::Vector{None}, event_neg::Vector{None}) = 
+             event_pos::Vector{Void}, event_neg::Vector{Void}) = 
     SimFunctions(resid, event_at, Function[], Function[], Function[])
 
 @doc """
@@ -46,7 +46,7 @@ type Sim
     id::Array{Int, 1}         # indicates whether a variable is algebraic or differential
     yfixed::Array{Bool, 1}    # indicates whether a variable is fixed
     ypfixed::Array{Bool, 1}   # indicates whether a derivative is fixed
-    outputs::Array{ASCIIString, 1} # output labels
+    outputs::Array{String, 1} # output labels
     unknown_idx_map::Dict     # symbol => index into y (or yp)
     discrete_inputs::Set      # Discrete variables
     constraint_map::Dict      # symbol => constraint type
@@ -135,7 +135,7 @@ create_simstate(sm::Sim)
 
 * `::Sim` : a simulation object
 """ ->
-function create_simstate (sm::Sim)
+function create_simstate(sm::Sim)
 
     N_unknowns = sm.varnum - 1
 
@@ -233,11 +233,11 @@ function setup_functions(sm::Sim)
     ev_pos_thunk = length(ev_pos_array) > 0 ? Expr(:call, :vcat, ev_pos_array...) : Function[]
     ev_neg_thunk = length(ev_neg_array) > 0 ? Expr(:call, :vcat, ev_neg_array...) : Function[]
 
-    _sim_resid_name = gensym ("_sim_resid")
-    _sim_init_name = gensym ("_sim_init")
-    _sim_event_at_name = gensym ("_sim_event_at")
-    _sim_event_pos_array_name = gensym ("_sim_event_pos_array")
-    _sim_event_neg_array_name = gensym ("_sim_event_neg_array")
+    _sim_resid_name = gensym("_sim_resid")
+    _sim_init_name = gensym("_sim_init")
+    _sim_event_at_name = gensym("_sim_event_at")
+    _sim_event_pos_array_name = gensym("_sim_event_pos_array")
+    _sim_event_neg_array_name = gensym("_sim_event_neg_array")
     
     #
     # The framework for the master function defined. Each "thunk" gets
@@ -247,15 +247,15 @@ function setup_functions(sm::Sim)
             # Note: this was originally a closure, but it was converted
             # to eval globally for two reasons: (1) performance and (2) so
             # cfunction could be used to set up Julia callbacks.
-            function $_sim_resid_name (t, y, yp, r)
+            function $_sim_resid_name(t, y, yp, r)
                  $resid_thunk
                  nothing
             end
-            function $_sim_init_name (t, y, yp, r)
+            function $_sim_init_name(t, y, yp, r)
                  $init_thunk
                  nothing
             end
-            function $_sim_event_at_name (t, y, yp, r)
+            function $_sim_event_at_name(t, y, yp, r)
                  $event_thunk
                  nothing
             end
@@ -285,22 +285,22 @@ end
 
 
 ## Adds the constraint type for the given variable
-function add_constraint (v::Unknown{DefaultUnknown,Normal}, sm)
+function add_constraint(v::Unknown{DefaultUnknown,Normal}, sm)
     sm.constraint_map[sm.unknown_idx_map[v.sym]] = 0
 end
-function add_constraint (v::Unknown{DefaultUnknown,NonNegative}, sm)
+function add_constraint(v::Unknown{DefaultUnknown,NonNegative}, sm)
     sm.constraint_map[sm.unknown_idx_map[v.sym]] = 1
 end
-function add_constraint (v::Unknown{DefaultUnknown,NonPositive}, sm)
+function add_constraint(v::Unknown{DefaultUnknown,NonPositive}, sm)
     sm.constraint_map[sm.unknown_idx_map[v.sym]] = -1
 end
-function add_constraint (v::Unknown{DefaultUnknown,Negative}, sm)
+function add_constraint(v::Unknown{DefaultUnknown,Negative}, sm)
     sm.constraint_map[sm.unknown_idx_map[v.sym]] = -2
 end
-function add_constraint (v::Unknown{DefaultUnknown,Positive}, sm)
+function add_constraint(v::Unknown{DefaultUnknown,Positive}, sm)
     sm.constraint_map[sm.unknown_idx_map[v.sym]] = 2
 end
-function add_constraint (v::UnknownVariable, sm)
+function add_constraint(v::UnknownVariable, sm)
     sm.constraint_map[sm.unknown_idx_map[v.sym]] = 0
 end
 
@@ -356,7 +356,7 @@ function replace_unknowns(a::PassedUnknown, sm::Sim)
     a.ref
     ## sm.unknown_idx_map[a.ref.sym]
 end
-function replace_unknowns{T}(a::Discrete{Reactive.Input{T}}, sm::Sim)
+function replace_unknowns{T}(a::Discrete{Reactive.Signal{T}}, sm::Sim)
     push!(sm.discrete_inputs, a)    # Discrete inputs
     :(value($a))
 end
@@ -380,6 +380,6 @@ A type holding simulation results from `sim`, `dasslsim`, or
 """ ->
 type SimResult
     y::Array{Float64, 2}
-    colnames::Array{ASCIIString, 1}
+    colnames::Array{String, 1}
 end
 getindex(x::SimResult, idx...) = SimResult(x.y[:,idx...], x.colnames[idx...])

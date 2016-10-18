@@ -59,8 +59,8 @@ real value, especially for use as a type in a model argument. It may
 be parameterized by an UnknownCategory, like NumberOrUnknown{UVoltage}
 (the definition of an ElectricalNode).
 """ ->
-typealias NumberOrUnknown{T,C} Union(AbstractArray, Number, MExpr,
-                                     RefUnknown{T}, Unknown{T,C})
+typealias NumberOrUnknown{T,C} Union{AbstractArray, Number, MExpr,
+                                     RefUnknown{T}, Unknown{T,C}}
 
 @doc """
 `Signal` is a typealias for `NumberOrUnknown{DefaultUnknown}`.

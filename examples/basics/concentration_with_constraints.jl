@@ -20,7 +20,7 @@ function ConcentrationWithConstraints(; A0 = 0.25, rateA = 0.333, rateB = 0.16)
     R = [ 0 1; 1 0 ] ## stoichiometric coefficients for products
     K = [rateA , rateB] ## reaction rates
     
-    return ReactionSystem (X, S, R, K)
+    return ReactionSystem(X, S, R, K)
 end
 
 @doc+ """
@@ -33,10 +33,10 @@ function SimpleConcentrationWithConstraints(; A0 = 0.25, rateA = 0.333, rateB = 
     A = Species("A", A0)
     B = Species("B", 0.0)
     
-    reactions = Any [
+    reactions = Any[
                      [ :-> A B rateA ]
                      [ :-> B A rateB ]
                     ]
 
-    return parse_reactions (reactions)
+    return parse_reactions(reactions)
 end

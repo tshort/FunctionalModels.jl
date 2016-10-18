@@ -378,37 +378,13 @@ FixedTemperature(port::HeatPort, T::Signal)
 * `T::Signal` : temperature at port [K]
 
 """ ->
+
 function FixedTemperature(port::HeatPort, T::Signal)
     Q_flow = HeatFlow(compatible_values(port, T))
     @equations begin
         Branch(port, T, 0.0, Q_flow)
     end
 end
-
-@doc """
-Variable temperature boundary condition in Kelvin
-
-This model represents a variable temperature boundary condition. The
-temperature in [K] is given as input signal T to the model. The effect
-is that an instance of this model acts as an infinite reservoir able
-to absorb or generate as much energy as required to keep the
-temperature at the specified value.
-
-(Note that despite the name, the temperature can be fixed or
-variable. FixedTemperature and PrescribedTemperature are identical;
-naming is for Modelica compatibility.)
-
-```julia
-PrescribedTemperature(port::HeatPort, T::Signal)
-```
-
-### Arguments
-
-* `port::HeatPort` : heat port [K]
-* `T::Signal` : temperature at port [K]
-
-""" ->
-PrescribedTemperature = FixedTemperature
 
 
 
