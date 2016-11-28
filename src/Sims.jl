@@ -41,6 +41,7 @@ export Branch, BoolEvent
 using Docile
 @document
 using Compat
+import Compat.view
         
 
 include("main.jl")
