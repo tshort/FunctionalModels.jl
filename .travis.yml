@@ -8,4 +8,4 @@ os:
 notifications:
   email: false
 after_success:
-- julia -e 'cd(Pkg.dir("DataFramesMeta")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
+- julia -e 'cd(Pkg.dir("Sims")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
