@@ -6,7 +6,7 @@
 export FitzHughNagumo
 
 
-@doc+ """
+"""
 The FitzHugh-Nagumo model is a two-dimensional simplification of the
 Hodgkin-Huxley model of spike generation.  It consists of two state
 variables: a voltage-like variable with a nonlinearity that allows
@@ -19,7 +19,7 @@ models of nerve membrane. Biophysical J. 1:445–466
 
 Nagumo J., Arimoto S., and Yoshizawa S. (1962) An active pulse
 transmission line simulating nerve axon. Proc. IRE. 50:2061–2070.
-""" ->
+"""
 function FitzHughNagumo(;
                         Iext = Parameter(0.5),
                         tau  = Parameter(12.5),

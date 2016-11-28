@@ -20,13 +20,13 @@ Many of these optionally depend on other packages.
     
 @require PyPlot begin
 
-    @doc+ """
+    """
     Plot simulation result with PyPlot (must be installed and
     loaded).
     
     ```julia
     PyPlot.plot(z::SimResult,
-                columns = [1:length(z.colnames)];
+                columns = collect(1:length(z.colnames));
                 title = "",
                 subplots = :auto,
                 newfigure::Bool = true,
@@ -100,9 +100,9 @@ Many of these optionally depend on other packages.
     
     ```
     
-    """ ->
+    """
     function PyPlot.plot(z::SimResult,
-                         columns = [1:length(z.colnames)];
+                         columns = collect(1:length(z.colnames));
                          title = "",
                          subplots = :auto,
                          newfigure::Bool = true,
@@ -140,7 +140,7 @@ Many of these optionally depend on other packages.
         PyPlot.suptitle(title)
     end
     getcols(z::SimResult, x::Real) = x
-    getcols(z::SimResult, s::String) = indexin([s], z.colnames)[1]
+    getcols(z::SimResult, s::AbstractString) = indexin([s], z.colnames)[1]
     getcols(z::SimResult, v::Union(Range, Vector, Set, Tuple)) = [getcols(z, x) for x in v]
     function getcols(z::SimResult, r::Regex)
         res = Int[]
@@ -162,7 +162,7 @@ end
     
 @require DataFrames begin
 
-    @doc """
+    """
     Convert to a DataFrame.
     
     ```julia
@@ -177,7 +177,7 @@ end
     
     * `::DataFrame` : a DataFrame with the first column as `:time` and
       remaining columns with simulation results.
-    """ ->
+    """
     function Base.convert(::Type{DataFrames.DataFrame}, x::SimResult)
         df = convert(DataFrames.DataFrame, x.y)
         DataFrames.names!(df, [:time, map(symbol, x.colnames)])
@@ -188,7 +188,7 @@ end
 
 @require Gadfly begin
 
-    @doc+ """
+    """
     Plot the simulation result with Gadfly (must be installed and
     loaded).
     
@@ -203,7 +203,7 @@ end
     ### Returns
     
     * A Gadfly object
-    """ ->
+    """
     function Gadfly.plot(x::SimResult)
         Gadfly.plot(DataFrames.melt(convert(DataFrames.DataFrame, x), :time),
                     x = :time, y = :value, color = :variable, Gadfly.Geom.line)
@@ -235,19 +235,19 @@ end
             a
     end
     
-    @doc+ """
+    """
     Plot the simulation result with Winston (must be installed and
     loaded).
     
     ```julia
-    wplot(sm::SimResult, filename::String, args...)
+    wplot(sm::SimResult, filename::AbstractString, args...)
     wplot(sm::SimResult)
     ```
     
     ### Arguments
     
     * `sm::SimResult` : the simulation result
-    * `filename::ASCIIString` : the filename
+    * `filename::String` : the filename
     * `args...` : extra arguments passed to `Winston.file()`
 
     If `filename` is not give, plot interactively.
@@ -255,8 +255,8 @@ end
     ### Returns
     
     * A Winston object
-    """ ->
-    function wplot(sm::SimResult, filename::String, args...)
+    """
+    function wplot(sm::SimResult, filename::AbstractString, args...)
             a = _wplot(sm)
             Winston.file(a, filename, args...)
             a
@@ -280,25 +280,25 @@ end
     # Gaston plotting
     """
     
-    @doc+ """
+    """
 
     Plot the simulation result with Gaston (must be installed and
     loaded).
     
     ```julia
     gplot(sm::SimResult)
-    gplot(sm::SimResult, filename::ASCIIString)
+    gplot(sm::SimResult, filename::String)
     ```
     
     ### Arguments
     
     * `sm::SimResult` : the simulation result
-    * `filename::ASCIIString` : the filename
+    * `filename::String` : the filename
     
     ### Returns
     
     * `::Void`  (??)
-    """ ->
+    """
     function gplot(sm::SimResult)
         N = length(sm.colnames)
         Gaston.figure()
@@ -314,7 +314,7 @@ end
         end
         Gaston.llplot()
     end
-    function gplot(sm::SimResult, filename::ASCIIString)
+    function gplot(sm::SimResult, filename::String)
         Gaston.set_filename(filename)
         gplot(sm)
         Gaston.printfigure("pdf")
@@ -333,7 +333,7 @@ end
     # AxisArrays
     """
     
-    @doc """
+    """
     Convert to an AxisArray.
     
     ```julia
@@ -350,7 +350,7 @@ end
       named `:time` and columns with simulation results and a
       categorical column axis with string signal names.
 
-    """ ->
+    """
     AxisArrays.AxisArray(x::SimResult) =
         AxisArrays.AxisArray(x.y[:, 2:end], (x.y[:, 1], x.colnames), (:time, :col))
 
@@ -375,7 +375,7 @@ end
 #   x = Unknown(3.0, "some val") 
 #
 
-@doc """
+"""
 A macro to ease entry of many unknowns.
 
 ```julia
@@ -395,7 +395,7 @@ For `symbol(
 
 Creates one or more Unknowns
 
-""" ->
+"""
 macro unknown(args...)
     blk = Expr(:block)
     for arg in args
@@ -420,7 +420,7 @@ end
 ## Model checks                       ##
 ########################################
 
-@doc+ """
+"""
 Prints the number of equations and the number of unknowns.
 
 ```julia
@@ -436,7 +436,7 @@ check(x)
 * `Nvar` : Number of floating point variables
 * `Neq` : Number of equations
 
-""" ->
+"""
 function check(s::Sim)
     Nvar = length(s.y0)
     Neq = length(s.F.resid_check(Nvar))
@@ -453,7 +453,7 @@ check(m::Model) = check(create_sim(elaborate(m)))
 
 import JuMP, ReverseDiffSparse
 
-@doc+ """
+"""
 Experimental function to initialize models.
 
 ```julia
@@ -489,7 +489,7 @@ better approach might be to fully flatten the model.
 `initialize!` only runs at the beginning of simulations. It does not
 run after Events.
 
-""" ->
+"""
 function initialize!(ss::SimState)
     sm    = ss.sm
     m = JuMP.Model()

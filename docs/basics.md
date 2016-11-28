@@ -13,7 +13,7 @@ parts, the definition of Unknown is:
 type Unknown{T<:UnknownCategory} <: UnknownVariable
     sym::Symbol
     value         # holds initial values (and type info)
-    label::String 
+    label::AbstractString 
 end
 ```
 

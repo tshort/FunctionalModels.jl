@@ -7,10 +7,10 @@
 export VanderpolWithEvents
 
 
-@doc """
+"""
 An extension of Sims.Examples.Basics.Vanderpol. Events are triggered
 every 2 sec that change the quantity `mu`.
-""" ->
+"""
 function VanderpolWithEvents()
     y = Unknown(value = 1.0, label = "y", fixed = true)   
     x = Unknown("x")

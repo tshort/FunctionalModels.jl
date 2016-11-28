@@ -305,13 +305,13 @@ EquationSet
           parent: Unknown{DefaultUnknown} 
             sym: Symbol ##8244
             value: Float64 0.7853981633974483
-            label: ASCIIString ""
+            label: String ""
             fixed: Bool false
             save_history: Bool false
         3: Unknown{DefaultUnknown} 
           sym: Symbol ##8245
           value: Float64 0.0
-          label: ASCIIString ""
+          label: String ""
           fixed: Bool false
           save_history: Bool false
       typ: Any
@@ -326,13 +326,13 @@ EquationSet
           parent: Unknown{DefaultUnknown} 
             sym: Symbol ##8240
             value: Float64 0.7071067811865476
-            label: ASCIIString "x"
+            label: String "x"
             fixed: Bool false
             save_history: Bool true
         3: Unknown{DefaultUnknown} 
           sym: Symbol ##8242
           value: Float64 0.0
-          label: ASCIIString ""
+          label: String ""
           fixed: Bool false
           save_history: Bool false
       typ: Any
@@ -348,7 +348,7 @@ EquationSet
           parent: Unknown{DefaultUnknown} 
             sym: Symbol ##8245
             value: Float64 0.0
-            label: ASCIIString ""
+            label: String ""
             fixed: Bool false
             save_history: Bool false
         3: Expr 
@@ -363,7 +363,7 @@ EquationSet
                 2: Unknown{DefaultUnknown} 
                   sym: Symbol ##8244
                   value: Float64 0.7853981633974483
-                  label: ASCIIString ""
+                  label: String ""
                   fixed: Bool false
                   save_history: Bool false
               typ: Any
@@ -381,13 +381,13 @@ EquationSet
           parent: Unknown{DefaultUnknown} 
             sym: Symbol ##8244
             value: Float64 0.7853981633974483
-            label: ASCIIString ""
+            label: String ""
             fixed: Bool false
             save_history: Bool false
         3: Unknown{DefaultUnknown} 
           sym: Symbol ##8245
           value: Float64 0.0
-          label: ASCIIString ""
+          label: String ""
           fixed: Bool false
           save_history: Bool false
       typ: Any
@@ -402,13 +402,13 @@ EquationSet
           parent: Unknown{DefaultUnknown} 
             sym: Symbol ##8240
             value: Float64 0.7071067811865476
-            label: ASCIIString "x"
+            label: String "x"
             fixed: Bool false
             save_history: Bool true
         3: Unknown{DefaultUnknown} 
           sym: Symbol ##8242
           value: Float64 0.0
-          label: ASCIIString ""
+          label: String ""
           fixed: Bool false
           save_history: Bool false
       typ: Any
@@ -424,7 +424,7 @@ EquationSet
           parent: Unknown{DefaultUnknown} 
             sym: Symbol ##8245
             value: Float64 0.0
-            label: ASCIIString ""
+            label: String ""
             fixed: Bool false
             save_history: Bool false
         3: Expr 
@@ -439,7 +439,7 @@ EquationSet
                 2: Unknown{DefaultUnknown} 
                   sym: Symbol ##8244
                   value: Float64 0.7853981633974483
-                  label: ASCIIString ""
+                  label: String ""
                   fixed: Bool false
                   save_history: Bool false
               typ: Any
@@ -453,7 +453,7 @@ EquationSet
         2: Unknown{DefaultUnknown} 
           sym: Symbol time
           value: Float64 0.0
-          label: ASCIIString ""
+          label: String ""
           fixed: Bool false
           save_history: Bool false
         3: Float64 1.8

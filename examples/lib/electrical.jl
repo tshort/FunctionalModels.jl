@@ -24,7 +24,7 @@ export CauerLowPassAnalog,
        CharacteristicThyristors,
        run_electrical_examples
 
-@doc+ """
+"""
 Cauer low-pass filter with analog components
 
 The example Cauer Filter is a low-pass-filter of the fifth order. It
@@ -36,7 +36,7 @@ pulse response is calculated.
 
 [LBL doc link](http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CauerLowPassAnalog)
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CauerLowPassAnalog)
-""" ->
+"""
 function CauerLowPassAnalog()
     n1 = Voltage("n1")
     n2 = Voltage("n2")
@@ -64,7 +64,7 @@ end
 # y = sim(CauerLowPassAnalog(), 60.0)
 # _ex1 = copy(_ex)
 
-@doc+ """
+"""
 Cauer low-pass filter with operational amplifiers
 
 The example Cauer Filter is a low-pass-filter of the fifth order. It
@@ -76,7 +76,7 @@ voltage. The pulse response is calculated.
 
 [LBL doc link](http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CauerLowPassOPV)
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CauerLowPassOPV)
-""" ->
+"""
 function CauerLowPassOPV()
     n = Voltage(zeros(11), "n")
     g = 0.0
@@ -117,7 +117,7 @@ function CauerLowPassOPV()
     ]
 end
 
-@doc+ """
+"""
 Cauer low-pass filter with operational amplifiers (alternate implementation)
 
 The example Cauer Filter is a low-pass-filter of the fifth order. It
@@ -129,7 +129,7 @@ voltage. The pulse response is calculated.
 
 [LBL doc link](http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CauerLowPassOPV)
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CauerLowPassOPV)
-""" ->
+"""
 function CauerLowPassOPV2()
     n1 = Voltage("n1")
     n2 = Voltage("n2")
@@ -194,7 +194,7 @@ end
 # # _ex2 = copy(_ex)
 
 
-@doc+ """
+"""
 Characteristic of ideal diodes
 
 Three examples of ideal diodes are shown:
@@ -212,7 +212,7 @@ proportional to n1.
 
 [LBL doc link](http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CharacteristicIdealDiodes)
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CharacteristicIdealDiodes)
-""" ->
+"""
 function CharacteristicIdealDiodes()
     s1 = Voltage("s1")
     s2 = Voltage("s2")
@@ -252,7 +252,7 @@ end
 # y = sim(s, 1.0)
 
 
-@doc+ """
+"""
 Chua's circuit
 
 Chua's circuit is a simple nonlinear circuit which shows chaotic
@@ -267,7 +267,7 @@ voltages).
 
 [LBL doc link](http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.ChuaCircuit)
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.ChuaCircuit)
-""" ->
+"""
 function ChuaCircuit()
     n1 = Voltage("n1")
     n2 = Voltage("n2")
@@ -299,7 +299,7 @@ end
 ## y = sim(s, 1.0)
 
 
-@doc+ """
+"""
 Heating resistor
 
 This is a very simple circuit consisting of a voltage source and a
@@ -310,7 +310,7 @@ environment via its heatPort.
 
 [LBL doc link](http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.HeatingResistor)
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.HeatingResistor)
-""" ->
+"""
 function HeatingResistor()
     n1 = Voltage("n1")
     hp1 = Temperature("hp1")
@@ -325,7 +325,7 @@ function HeatingResistor()
 end
 
 
-@doc+ """
+"""
 Heating rectifier
 
 The heating rectifier shows a heat flow always if the electrical
@@ -336,7 +336,7 @@ capacitor is loaded.
 [LBL doc link](http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.HeatingRectifier)
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.HeatingRectifier)
 
-""" ->
+"""
 function HeatingRectifier()
     n1 = Voltage("n1")
     n2 = Voltage("n2")
@@ -386,7 +386,7 @@ function Rectifier()
     ]
 end
 
-@doc+ """
+"""
 B6 diode bridge
 
 The rectifier example shows a B6 diode bridge fed by a three phase
@@ -398,7 +398,7 @@ ideal no-load voltage, thus making easier initial transient.
 [LBL doc link](http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.Rectifier)
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.Rectifier)
 
-""" ->
+"""
 function Rectifier()
     n = Voltage("n")
     VAC = 400.0
@@ -441,7 +441,7 @@ end
 
 
 
-@doc+ """
+"""
 Simple demo to show behaviour of SaturatingInductor component
 
 This simple circuit uses the saturating inductor which has a changing
@@ -453,7 +453,7 @@ inductivity.
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.ShowSaturatingInductor)
 
 NOTE: CURRENTLY BROKEN
-""" ->
+"""
 function ShowSaturatingInductor()
     n1 = Voltage("V")
     g = 0.0
@@ -525,7 +525,7 @@ end
 ## y | dump
 
 
-@doc+ """
+"""
 Simple demo of a VariableResistor model
 
 It is a simple test circuit for the VariableResistor. The
@@ -536,7 +536,7 @@ current monitors
 
 [LBL doc link](http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.ShowVariableResistor)
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.ShowVariableResistor)
-""" ->
+"""
 function ShowVariableResistor()
     n = Voltage("Vs")
     n1 = Voltage("n1")
@@ -564,7 +564,7 @@ end
 
 
 
-@doc+ """
+"""
 Comparison of controlled switch models both with and without arc
 
 This example is to compare the behaviour of switch models with and without an electric arc taking into consideration.
@@ -577,7 +577,7 @@ switching.
 
 [LBL doc link](http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.ControlledSwitchWithArc)
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.ControlledSwitchWithArc)
-""" ->
+"""
 function ControlledSwitchWithArc()
     a1 = Voltage()
     a2 = Voltage("a2")
@@ -622,7 +622,7 @@ end
 ## s = create_sim(f)
 ## y = sim(s, .1)
 
-@doc+ """
+"""
 Characteristic of ideal thyristors
 
 Two examples of thyristors are shown: the ideal thyristor and the
@@ -632,7 +632,7 @@ ideal GTO thyristor with Vknee=5.
 
 [LBL doc link](http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CharacteristicThyristors)
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CharacteristicThyristors)
-""" ->
+"""
 function CharacteristicThyristors()
     n1 = Voltage("n1")
     n2 = Voltage("n2")
@@ -716,10 +716,10 @@ function run_electrical_examples()
     hr    = sim(HeatingResistor(), 5.0)
     svr   = sim(ShowVariableResistor(), 6.2832)
     ct    = sim(CharacteristicThyristors(), 2.0)
-    s     = create_simstate(HeatingRectifier())
-    initialize!(s)
-    hr    = sim(s, 5.0)
-    r     = sim(Rectifier(), tstop = 0.1, alg = false)
+    # s     = create_simstate(HeatingRectifier())
+    # initialize!(s)
+    # hr    = sim(s, 5.0)
+    # r     = sim(Rectifier(), tstop = 0.1, alg = false)
     cswa  = sunsim(ControlledSwitchWithArc(), tstop = 6.0, alg = false) # doesn't solve with DASSL
     ## -- Broken examples --
     ## ssi   = sim(ShowSaturatingInductor(), 6.2832)

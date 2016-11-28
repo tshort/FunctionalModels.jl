@@ -648,7 +648,7 @@ function NaRConductance(celsius,v,gbar,g)
 end
 
 
-@doc+ """
+"""
 Model of a cerebellar Golgi cell from the paper:
 
 _Computational reconstruction of pacemaking and intrinsic
@@ -656,7 +656,7 @@ electroresponsiveness in cerebellar Golgi cells_
 Sergio M. Solinas, Lia Forti, Elisabetta Cesana, Jonathan Mapelli,
 Erik De Schutter and Egidio D`Angelo,
 Frontiers in Cellular Neuroscience 2:2 (2008)
-""" ->
+"""
 
 function Soma(;
               I = 0.0,

@@ -56,11 +56,11 @@ end
 
 initdassl = @compat Dict(:none => 0, :Ya_Ydp => 1, :Y => 2)
 
-@doc+ """
+"""
 The solver that uses DASKR, a variant of DASSL.
 
 See [sim](#sim) for the interface.
-""" ->
+"""
 function dasslsim(ss::SimState, tstop::Float64=1.0, Nsteps::Int=500, reltol::Float64=1e-4, abstol::Float64=1e-4, init::Symbol=:Ya_Ydp, alg::Bool = true)
     # tstop & Nsteps should be in options
     sim_info("starting dasslsim()", 1)

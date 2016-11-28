@@ -39,12 +39,12 @@ function Pendulum(x,y,vx,vy)
     end
 end
 
-@doc+ """
+"""
 An extension of Sims.Examples.Basics.BreakingPendulum.
 
 Floors and a wall are added. These are handled by `Events` in the
 `FreeFall` model. Velocities are reversed to bounce the ball.
-""" ->
+"""
 function BreakingPendulumInBox()
     x = Unknown(cos(pi/4), "x")
     y = Unknown(-cos(pi/4), "y")

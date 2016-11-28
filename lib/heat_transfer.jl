@@ -29,7 +29,7 @@ conditions, are given in Kelvin.
 ## Basic
 ########################################
 
-@doc+ """
+"""
 Lumped thermal element storing heat
 
 ```julia
@@ -71,7 +71,7 @@ starting temperature [K]. You really can't used that here as in
 Modelica. You need to define the starting temperature at the top level
 for the HeatPort you define.
 
-""" ->
+"""
 function HeatCapacitor(hp::HeatPort, C::Signal)
     Q_flow = HeatFlow(compatible_values(hp))
     @equations begin
@@ -81,7 +81,7 @@ function HeatCapacitor(hp::HeatPort, C::Signal)
 end
 
 
-@doc+ """
+"""
 Lumped thermal element transporting heat without storing it
 
 ```julia
@@ -136,7 +136,7 @@ Typical values for k at 20 degC in W/(m.K):
       wood         0.1 ... 0.2
 ```
 
-""" ->
+"""
 function ThermalConductor(port_a::HeatPort, port_b::HeatPort, G::Signal)
     dT = Temperature(value(port_a) - value(port_b))
     Q_flow = HeatFlow(compatible_values(port_a, port_b))
@@ -147,7 +147,7 @@ function ThermalConductor(port_a::HeatPort, port_b::HeatPort, G::Signal)
 end
 
 
-@doc+ """
+"""
 Lumped thermal element for heat convection
 
 ```julia
@@ -222,7 +222,7 @@ Transfer, 8th edition, McGraw-Hill, 1997, p.270):
       Re < 5e5 and 0.6 < Pr < 50
 ```
 
-""" ->
+"""
 function Convection(port_a::HeatPort, port_b::HeatPort, Gc::Signal)
     dT = Temperature(value(port_a) - value(port_b))
     Q_flow = HeatFlow(compatible_values(port_a, port_b))
@@ -233,7 +233,7 @@ function Convection(port_a::HeatPort, port_b::HeatPort, Gc::Signal)
 end
 
 
-@doc+ """
+"""
 
 ```julia
 BodyRadiation(port_a::HeatPort, port_b::HeatPort, Gr::Signal)
@@ -313,7 +313,7 @@ inner to the outer cylinder):**
        e2: Emission value of outer cylinder (0..1)
 ```
 
-""" ->
+"""
 function BodyRadiation(port_a::HeatPort, port_b::HeatPort, Gr::Signal)
     Q_flow = HeatFlow(compatible_values(port_a, port_b))
     sigma = 5.67037321e-8
@@ -325,7 +325,7 @@ function BodyRadiation(port_a::HeatPort, port_b::HeatPort, Gr::Signal)
 end
 
 
-@doc+ """
+"""
 This is a model to collect the heat flows from m heatports to one
 single heatport.
 
@@ -338,7 +338,7 @@ ThermalCollector(port_a::HeatPort, port_b::HeatPort)
 * `port_a::HeatPort` : heat port [K]
 * `port_b::HeatPort` : heat port [K]
 
-""" ->
+"""
 function ThermalCollector(port_a::HeatPort, port_b::HeatPort)
     # This ends up being a short circuit.
     Q_flow = HeatFlow(compatible_values(port_a, port_b))
@@ -358,7 +358,7 @@ end
 """
 
 
-@doc+ """
+"""
 Fixed temperature boundary condition in Kelvin
 
 This model defines a fixed temperature T at its port in Kelvin, i.e.,
@@ -377,7 +377,7 @@ FixedTemperature(port::HeatPort, T::Signal)
 * `port::HeatPort` : heat port [K]
 * `T::Signal` : temperature at port [K]
 
-""" ->
+"""
 function FixedTemperature(port::HeatPort, T::Signal)
     Q_flow = HeatFlow(compatible_values(port, T))
     @equations begin
@@ -385,7 +385,7 @@ function FixedTemperature(port::HeatPort, T::Signal)
     end
 end
 
-@doc """
+"""
 Variable temperature boundary condition in Kelvin
 
 This model represents a variable temperature boundary condition. The
@@ -407,12 +407,12 @@ PrescribedTemperature(port::HeatPort, T::Signal)
 * `port::HeatPort` : heat port [K]
 * `T::Signal` : temperature at port [K]
 
-""" ->
-PrescribedTemperature = FixedTemperature
+"""
+const PrescribedTemperature = FixedTemperature
 
 
 
-@doc+ """
+"""
 Fixed heat flow boundary condition
 
 This model allows a specified amount of heat flow rate to be
@@ -443,7 +443,7 @@ FixedHeatFlow(port::HeatPort, Q_flow::Signal; T_ref::Signal = 293.15, alpha::Sig
 * `T_ref::Signal` : reference temperature [K]
 * `alpha::Signal` : temperature coefficient of heat flow rate [1/K]
 
-""" ->
+"""
 function FixedHeatFlow(port::HeatPort, Q_flow::Signal, T_ref::Signal = 293.15, alpha::Signal = 0.0)
     Q_flow = HeatFlow(compatible_values(port, T))
     @equations begin
@@ -453,7 +453,7 @@ end
 FixedHeatFlow(port::HeatPort, Q_flow::Signal; T_ref::Signal = 293.15, alpha::Signal = 0.0) =
     FixedHeatFlow(port, Q_flow, T_ref, alpha)
     
-@doc """
+"""
 Prescribed heat flow boundary condition
 
 This model allows a specified amount of heat flow rate to be
@@ -484,7 +484,7 @@ PrescribedHeatFlow(port::HeatPort, Q_flow::Signal; T_ref::Signal = 293.15, alpha
 * `T_ref::Signal` : reference temperature [K]
 * `alpha::Signal` : temperature coefficient of heat flow rate [1/K]
 
-""" ->
-PrescribedHeatFlow = FixedHeatFlow
+"""
+const PrescribedHeatFlow = FixedHeatFlow
 
 

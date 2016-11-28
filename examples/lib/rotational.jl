@@ -12,7 +12,7 @@ export First
 # Rotational
 """
 
-@doc+ """
+"""
 First example: simple drive train
 
 The drive train consists of a motor inertia which is driven by a
@@ -29,7 +29,7 @@ housing on one side via component Fixed.
 
 [LBL doc link](http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Mechanics_Rotational_Examples.html#Modelica.Mechanics.Rotational.Examples.First)
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Mechanics_Rotational_Examples.html#Modelica.Mechanics.Rotational.Examples.First)
-""" ->
+"""
 function First()
     n1 = Angle("n1")
     n2 = Angle("n2")

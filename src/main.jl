@@ -36,7 +36,7 @@
 # 
 #   David Broman. Meta-Languages and Semantics for Equation-Based
 #   Modeling and Simulation. PhD thesis, Thesis No 1333. Department of
-#   Computer and Information Science, Linköping University, Sweden,
+#   Computer and Information Science, Linkï¿½ping University, Sweden,
 #   2010.
 #   http://www.bromans.com/david/publ/thesis-2010-david-broman.pdf
 #
@@ -104,7 +104,7 @@ function sim_info(msgs, i)
     end
 end
 
-@doc+ """
+"""
 Control the verbosity of output.
 
 ```julia
@@ -121,7 +121,7 @@ verbosity(i)
 More options may be added in the future. This function is not
 exported, so you must qualify it as `Sims.verbosity(0)`.
 
-""" ->
+"""
 function verbosity(i)
     global sim_verbose = i   
 end
@@ -153,60 +153,60 @@ end
 # (like the der method).
 # 
 
-@doc """
+"""
 The main overall abstract type in Sims.
-""" ->
+"""
 abstract ModelType
 
-@doc """
+"""
 An abstract type for variables to be solved. Examples include Unknown,
 DerUnknown, and Parameter.
-""" ->
+"""
 abstract UnknownVariable <: ModelType
 
-@doc """
+"""
 Categories of Unknown types; used to subtype Unknowns.
-""" ->
+"""
 abstract UnknownCategory
 
-@doc """
+"""
 The default UnknownCategory.
-""" ->
+"""
 type DefaultUnknown <: UnknownCategory
 end
 
-@doc """
+"""
 Categories of constraints on Unknowns; used to create positive, negative, etc., constraints.
-""" ->
+"""
 abstract UnknownConstraint
 
-@doc """
+"""
 Indicates no constraint is imposed.
-""" ->
+"""
 type Normal <: UnknownConstraint
 end
-@doc """
+"""
 Indicates unknowns of this type must be constrained to negative values.
-""" ->
+"""
 type Negative <: UnknownConstraint
 end
-@doc """
+"""
 Indicates unknowns of this type must be constrained to positive or zero values.
-""" ->
+"""
 type NonNegative <: UnknownConstraint
 end
-@doc """
+"""
 Indicates unknowns of this type must be constrained to positive values.
-""" ->
+"""
 type Positive <: UnknownConstraint
 end
-@doc """
+"""
 Indicates unknowns of this type must be constrained to negative or zero values.
-""" ->
+"""
 type NonPositive <: UnknownConstraint
 end
 
-@doc """
+"""
 An Unknown represents variables to be solved in Sims. An `Unknown` is
 a symbolic type. When used in Julia expressions, Unknowns combine into
 `MExpr`s which are symbolic representations of equations.
@@ -237,20 +237,20 @@ types. Different Unknown types makes it easier to dispatch on model
 arguments.
 
 ```julia
-Unknown(s::Symbol, x, label::String, fixed::Bool)
+Unknown(s::Symbol, x, label::AbstractString, fixed::Bool)
 Unknown()
 Unknown(x)
-Unknown(s::Symbol, label::String)
-Unknown(x, label::String)
-Unknown(label::String)
+Unknown(s::Symbol, label::AbstractString)
+Unknown(x, label::AbstractString)
+Unknown(label::AbstractString)
 Unknown(s::Symbol, x, fixed::Bool)
 Unknown(s::Symbol, x)
-Unknown{T,C}(s::Symbol, x, label::String, fixed::Bool)
+Unknown{T,C}(s::Symbol, x, label::AbstractString, fixed::Bool)
 Unknown{T,C}()
 Unknown{T,C}(x)
-Unknown{T,C}(s::Symbol, label::String)
-Unknown{T,C}(x, label::String)
-Unknown{T,C}(label::String)
+Unknown{T,C}(s::Symbol, label::AbstractString)
+Unknown{T,C}(x, label::AbstractString)
+Unknown{T,C}(label::AbstractString)
 Unknown{T,C}(s::Symbol, x, fixed::Bool)
 Unknown{T,C}(s::Symbol, x)
 ```
@@ -259,7 +259,7 @@ Unknown{T,C}(s::Symbol, x)
 
 * `s::Symbol` : identification symbol, defaults to `gensym()`
 * `x` : initial value and type information, defaults to 0.0
-* `label::String` : labeling string, defaults to ""
+* `label::AbstractString` : labeling string, defaults to ""
 
 ### Examples
 
@@ -268,40 +268,40 @@ Unknown{T,C}(s::Symbol, x)
   b = Unknown(3.0, "len")
   a * b + b^2
 ```
-""" ->
+"""
 type Unknown{T<:UnknownCategory,C<:UnknownConstraint} <: UnknownVariable
     sym::Symbol
     value         # holds initial values (and type info)
-    label::String
+    label::AbstractString
     fixed::Bool
     save_history::Bool
     t::Array{Any,1}
     x::Array{Any,1}
-    Unknown(;value = 0.0, label::String = "", fixed::Bool = false) =
+    Unknown(;value = 0.0, label::AbstractString = "", fixed::Bool = false) =
         new(gensym(), value, label, fixed, false, Float64[], Float64[])
-    Unknown(value = 0.0, label::String = "", fixed::Bool = false) =
+    Unknown(value, label::AbstractString = "", fixed::Bool = false) =
         new(gensym(), value, label, fixed, false, Float64[], Float64[])
-    Unknown(label::String = "", value = 0.0, fixed::Bool = false) =
+    Unknown(label::AbstractString, value = 0.0, fixed::Bool = false) =
         new(gensym(), value, label, fixed, false, Float64[], Float64[])
-    Unknown(sym::Symbol, value = 0.0, label::String = "", fixed::Bool = false) =
+    Unknown(sym::Symbol, value = 0.0, label::AbstractString = "", fixed::Bool = false) =
         new(sym, value, label, fixed, false, Float64[], Float64[])
 end
-Unknown(value = 0.0, label::String = "", fixed::Bool = false) =
+Unknown(value, label::AbstractString = "", fixed::Bool = false) =
     Unknown{DefaultUnknown,Normal}(value, label, fixed)
-Unknown(label::String = "", value = 0.0, fixed::Bool = false) =
+Unknown(label::AbstractString, value = 0.0, fixed::Bool = false) =
     Unknown{DefaultUnknown,Normal}(value, label, fixed)
-Unknown(;value = 0.0, label::String = "", fixed::Bool = false) =
+Unknown(;value = 0.0, label::AbstractString = "", fixed::Bool = false) =
     Unknown{DefaultUnknown,Normal}(value, label, fixed)
 
 
 
-@doc+ """
+"""
 Is the object an UnknownVariable?
-""" ->
+"""
 is_unknown(x) = isa(x, UnknownVariable)
 
 
-@doc """
+"""
 An UnknownVariable representing the derivitive of an Unknown, normally
 created with `der(x)`.
 
@@ -317,18 +317,18 @@ a = Unknown()
 der(a) + 1
 typeof(der(a))
 ```
-""" ->
+"""
 type DerUnknown <: UnknownVariable
     sym::Symbol
     value        # holds initial values
     fixed::Bool
     parent::Unknown
-    # label::String    # Do we want this? 
+    # label::AbstractString    # Do we want this? 
 end
 DerUnknown(u::Unknown) = DerUnknown(u.sym, 0.0, false, u)
 
 
-@doc+ """
+"""
 Represents the derivative of an Unknown.
 
 ```julia
@@ -347,7 +347,7 @@ der(x::Unknown, val)
 a = Unknown()
 der(a) + 1
 ```
-""" ->
+"""
 der(x::Unknown) = DerUnknown(x.sym, compatible_values(x), false, x)
 der(x::Unknown, val) = DerUnknown(x.sym, val, true, x)
 der(x) = 0.0
@@ -355,7 +355,7 @@ der(x) = 0.0
 show(io::IO, a::UnknownVariable) = print(io::IO, "<<", name(a), ",", value(a), ">>")
 
 
-@doc """
+"""
 Represents expressions used in models.
 
 ```julia
@@ -374,12 +374,12 @@ b = Unknown()
 d = a + sin(b)
 typeof(d)
 ```
-""" ->
+"""
 type MExpr <: ModelType
     ex::Expr
 end
 
-@doc+ """
+"""
 Create MExpr's (model expressions). Analogous to `expr` in Base.
 
 This is also useful for wrapping user-defined functions where
@@ -407,7 +407,7 @@ d = a + sin(b)
 typeof(d)
 myfun(x) = mexpr(:call, :myfun, x)
 ```
-""" ->
+"""
 mexpr(head::Symbol, args::ANY...) = MExpr(Expr(head, args...))
 
 
@@ -417,9 +417,8 @@ mexpr(head::Symbol, args::ANY...) = MExpr(Expr(head, args...))
 
 
 unary_functions = [:(+), :(-), :(!),
-                   :abs, :sign, :acos, :acosh, :asin,
-                   :asinh, :atan, :atanh, :sin, :sinh,
-                   :cos, :cosh, :tan, :tanh, :ceil, :floor,
+                   :abs, :sign, 
+                   :ceil, :floor,
                    :round, :trunc, :exp, :exp2, :expm1, :log, :log10, :log1p,
                    :log2, :sqrt, :gamma, :lgamma, :digamma,
                    :erf, :erfc, 
@@ -435,12 +434,12 @@ unary_functions = [:(+), :(-), :(!),
                    ## :colmeans, :colmedians, :colstds, :colvars,
                    ## :colffts, :colnorms,
                    :any, :all,
-                   :iceil,  :ifloor, :itrunc, :iround,
                    :angle,
                    :sin,    :cos,    :tan,    :cot,    :sec,   :csc,
                    :sinh,   :cosh,   :tanh,   :coth,   :sech,  :csch,
                    :asin,   :acos,   :atan,   :acot,   :asec,  :acsc,
                    :acoth,  :asech,  :acsch,  :sinc,   :cosc,
+                   :acosh,  :asinh,  :atanh,
                    :transpose, :ctranspose]
 
 binary_functions = [:(.==), :(!=), :(.!=), :isless, 
@@ -465,12 +464,12 @@ import Base.(^)
 
 for f in binary_functions
     ## @eval import Base.(f)
-    eval(Expr(:toplevel, Expr(:import, :Base, f)))
-    @eval ($f)(x::ModelType, y::ModelType) = mexpr(:call, $(Expr(:quote, f)), _expr(x), _expr(y))
-    @eval ($f)(x::ModelType, y::Number) = mexpr(:call, $(Expr(:quote, f)), _expr(x), y)
-    @eval ($f)(x::ModelType, y::AbstractArray) = mexpr(:call, $(Expr(:quote, f)), _expr(x), y)
-    @eval ($f)(x::Number, y::ModelType) = mexpr(:call, $(Expr(:quote, f)), x, _expr(y))
-    @eval ($f)(x::AbstractArray, y::ModelType) = mexpr(:call, $(Expr(:quote, f)), x, _expr(y))
+    # eval(Expr(:toplevel, Expr(:import, :Base, f)))
+    @eval (Base.$f)(x::ModelType, y::ModelType) = mexpr(:call, $(Expr(:quote, f)), _expr(x), _expr(y))
+    @eval (Base.$f)(x::ModelType, y::Number) = mexpr(:call, $(Expr(:quote, f)), _expr(x), y)
+    @eval (Base.$f)(x::ModelType, y::AbstractArray) = mexpr(:call, $(Expr(:quote, f)), _expr(x), y)
+    @eval (Base.$f)(x::Number, y::ModelType) = mexpr(:call, $(Expr(:quote, f)), x, _expr(y))
+    @eval (Base.$f)(x::AbstractArray, y::ModelType) = mexpr(:call, $(Expr(:quote, f)), x, _expr(y))
 end 
 
 for f in unary_functions
@@ -478,9 +477,9 @@ for f in unary_functions
     eval(Expr(:toplevel, Expr(:import, :Base, f)))
 
     # Define separate method to get rid of 'ambiguous definition' warnings in base/floatfuncs.jl
-    @eval ($f)(x::ModelType, arg::Integer) = mexpr(:call, $(Expr(:quote, f)), _expr(x), arg)
+    # @eval (Base.$f)(x::ModelType, arg::Integer) = mexpr(:call, $(Expr(:quote, f)), _expr(x), arg)
 
-    @eval ($f)(x::ModelType, args...) = mexpr(:call, $(Expr(:quote, f)), _expr(x), map(_expr, args)...)
+    @eval (Base.$f)(x::ModelType, args...) = mexpr(:call, $(Expr(:quote, f)), _expr(x), map(_expr, args)...)
 end
 
 # Non-Base functions:
@@ -493,7 +492,7 @@ end
 ## Equation & Mode                    ##
 ########################################
 
-@doc """
+"""
 Equations are used in Models. Right now, Equation is defined as `Any`,
 but that may change.  Normally, Equations are of type Unknown,
 DerUnknown, MExpr, or Array{Equation} (for nesting models).
@@ -513,11 +512,11 @@ function Vanderpol()
 end
 dump( Vanderpol() )
 ```
-""" ->
+"""
 const Equation = Any
 
 
-@doc """
+"""
 Represents a vector of Equations. For now, `Equation` equals `Any`, but
 in the future, it may only include ModelType's.
 
@@ -537,13 +536,13 @@ end
 dump( Vanderpol() )
 x = sim(Vanderpol(), 50.0)
 ```
-""" ->
+"""
 const Model = Vector{Equation}
 
 
 # Add array access capability for Unknowns:
 
-@doc """
+"""
 An UnknownVariable used to allow Arrays as Unknowns. Normally created
 with `getindex`. Defined methods include:
 
@@ -552,7 +551,7 @@ with `getindex`. Defined methods include:
 * size
 * hcat
 * vcat
-""" ->
+"""
 type RefUnknown{T<:UnknownCategory} <: UnknownVariable
     u::Unknown{T}
     idx
@@ -564,7 +563,7 @@ size(u::UnknownVariable, i) = size(value(u), i)
 hcat(x::ModelType...) = mexpr(:call, :hcat, x...)
 vcat(x::ModelType...) = mexpr(:call, :vcat, x...)
 
-@doc+ """
+"""
 The value of an object or UnknownVariable.
 
 ```julia
@@ -587,7 +586,7 @@ expressions, except to grab an immediate value.
 ```julia
 v = Voltage(value(n1) - value(n2))
 ```
-""" ->
+"""
 value(x) = x
 value(x::Model) = map(value, x)
 value(x::UnknownVariable) = x.value
@@ -600,7 +599,7 @@ function symname(s::Symbol)
     length(s) > 3 && s[1:2] == "##" ? "`" * s[3:end] * "`" : s
 end
 
-@doc+ """
+"""
 The name of an UnknownVariable.
 
 ```julia
@@ -613,7 +612,7 @@ name(a::UnknownVariable)
 
 ### Returns
 
-* `s::String` : either the label of the Unknown or if that's blank,
+* `s::AbstractString` : either the label of the Unknown or if that's blank,
   the symbol name of the Unknown.
 
 ### Examples
@@ -622,12 +621,12 @@ name(a::UnknownVariable)
 a = Unknown("var1")
 name(a)
 ```
-""" ->
+"""
 name(a::Unknown) = a.label != "" ? a.label : symname(a.sym)
 name(a::DerUnknown) = a.parent.label != "" ? "der("*a.parent.label*")" : "der("*symname(a.parent.sym)*")"
 name(a::RefUnknown) = a.u.label != "" ? a.u.label : symname(a.u.sym)
 
-@doc+ """
+"""
 A helper functions to return the base value from an Unknown to use
 when creating other Unknowns. It is especially useful for taking two
 model arguments and creating a new Unknown compatible with both
@@ -659,7 +658,7 @@ a = Unknown()
 b = Unknown([1., 0.])
 y = Unknown(compatible_values(a,b)) # Initialized to [0.0, 0.0].
 ```
-""" ->
+"""
 compatible_values(x,y) = length(x) > length(y) ? zero(x) : zero(y)
 compatible_values(x) = zero(x)
 compatible_values(u::UnknownVariable) = value(u) .* 0.0
@@ -672,13 +671,13 @@ compatible_values(num::Number, u::UnknownVariable) = length(value(u)) > length(n
 
 
 
-@doc """
+"""
 The model time - a special unknown variable.
-""" ->
+"""
 const MTime = Unknown{DefaultUnknown,Normal}(:time, 0.0, "", false)
 
 
-@doc """
+"""
 A special ModelType to specify branch flows into nodes. When the model
 is flattened, equations are created to zero out branch flows into
 nodes. 
@@ -733,14 +732,14 @@ function SignalCurrent(n1::ElectricalNode, n2::ElectricalNode, I::Signal)
     end
 end
 ```
-""" ->
+"""
 type RefBranch <: ModelType
     n     # This is the reference node.
     i     # This is the flow variable that goes with this reference.
 end
 
 
-@doc+ """
+"""
 A helper Model to connect a branch between two different nodes and
 specify potential between nodes and the flow between nodes.
 
@@ -786,7 +785,7 @@ function Resistor(n1::ElectricalNode, n2::ElectricalNode, R::Signal)
     end
 end
 ```
-""" ->
+"""
 function Branch(n1, n2, v, i)
     Equation[
         RefBranch(n1, i)
@@ -801,7 +800,7 @@ end
 ## Initial equations                  ##
 ########################################
 
-@doc """
+"""
 A ModelType describing initial equations. Current support is limited
 and may be broken. There are no tests. The idea is that the equations
 provided will only be used during the initial solution.
@@ -816,7 +815,7 @@ InitialEquation(eqs)
 * `eqs::Array{Equation}` : a vector of equations, each to be equated
   to zero during the initial equation solution.
 
-""" ->
+"""
 type InitialEquation
     eq
 end
@@ -831,7 +830,7 @@ end
 ########################################
 
 
-@doc """
+"""
 An UnknownVariable used as a helper for the `delay` function.  It is
 an identity unknown, but it doesn't replace with a reference to the y
 array.
@@ -841,7 +840,7 @@ PassedUnknown(ref::UnknownVariable)
 ### Arguments
 
 * `ref::UnknownVariable` : an Unknown
-""" ->
+"""
 type PassedUnknown <: UnknownVariable
     ref
 end
@@ -882,7 +881,7 @@ end
 ## end
 
 
-@doc+ """
+"""
 A Model specifying a delay to an Unknown.
 
 Internally, Unknowns that are delayed store past history. This is
@@ -901,7 +900,7 @@ delay(x::Unknown, val)
 
 * `::MExpr` : a delayed Unknown
 
-""" ->
+"""
 function delay(x::Unknown, val)
     x.save_history = true
     x.t = [0.0]
@@ -916,7 +915,7 @@ end
 ########################################
 
 
-@doc """
+"""
 An abstract type representing Unknowns that use the Reactive.jl
 package. The main types included are `Discrete` and
 `Parameter`. `Discrete` is normally used as inputs inside of models
@@ -933,10 +932,10 @@ Many of the methods from Reactive.jl are supported, including `lift`,
 `sampleon`, and `merge`. Use `reinit` to reinitialize a Discrete or a
 Parameter (equivalent to `Reactive.push!`).
 
-""" ->
+"""
 abstract UnknownReactive{T} <: UnknownVariable
 
-@doc """
+"""
 Discrete is a type for discrete variables. These are only changed
 during events. They are not used by the integrator. Because they are
 not used by the integrator, almost any type can be used as a discrete
@@ -960,23 +959,23 @@ Without arguments, `Discrete()` uses an initial value of 0.0.
 ### Details
 
 `Discrete` is the main input type for discrete variables. By default,
-it wraps a `Reactive.Input` type. `Discrete` variables support data
+it wraps a `Reactive.Signal` type. `Discrete` variables support data
 flow using Reactive.jl. Use `reinit` to update Discrete variables. Use
 `lift` to create additional `UnknownReactive` types that depend on the
 `Discrete` input. Use `foldl` for actions that remember state. For
 more information on *Reactive Programming*, see the
 [Reactive.jl](http://julialang.org/Reactive.jl/) package.
 
-""" ->
+"""
 type Discrete{T <: Reactive.Signal} <: UnknownReactive{T}
     signal::T
     initialvalue
 end
-Discrete(x::Reactive.SignalSource) = Discrete(x, zero(x))
-Discrete(initialval) = Discrete(Reactive.Input(initialval), initialval)
-Discrete() = Discrete(Reactive.Input(0.0), 0.0)
+# Discrete(x::Reactive.SignalSource) = Discrete(x, zero(x))
+Discrete(initialval) = Discrete(Reactive.Signal(initialval), initialval)
+Discrete() = Discrete(Reactive.Signal(0.0), 0.0)
 
-@doc """
+"""
 An `UnknownReactive` type that is useful for passing parameters at the
 top level.
 
@@ -1014,21 +1013,21 @@ reinit(mu, 1.0)
 vwp3 = sim(ss, 10.0) # should be the same as vwp1
 ```
 
-""" ->
+"""
 type Parameter{T <: Reactive.Signal} <: UnknownReactive{T}
     signal::T
 end
-Parameter(x = 0.0) = Parameter(Reactive.Input(x))
+Parameter(x = 0.0) = Parameter(Reactive.Signal(x))
 
 name(a::UnknownReactive) = "discrete"
 value{T}(x::UnknownReactive{T}) = Reactive.value(x.signal)
 signal(x::UnknownReactive) = x.signal
 
-Reactive.push!{T}(x::Discrete{Reactive.Input{T}}, y) = mexpr(:call, :(Reactive.push!), x.signal, y)
-Reactive.push!{T}(x::Parameter{Reactive.Input{T}}, y) = Reactive.push!(x.signal, y)
+Reactive.push!{T}(x::Discrete{Reactive.Signal{T}}, y) = mexpr(:call, :(Reactive.push!), x.signal, y)
+Reactive.push!{T}(x::Parameter{Reactive.Signal{T}}, y) = Reactive.push!(x.signal, y)
 
 
-@doc+ """
+"""
 `reinit` is used in Event responses to redefine variables. 
 
 ```julia
@@ -1065,19 +1064,19 @@ end
 
 See also [IdealThyristor](../../lib/electrical/#idealthyristor) in the standard library.
 
-""" ->
-reinit{T}(x::Discrete{Reactive.Input{T}}, y) = mexpr(:call, :(Reactive.push!), x.signal, y)
-reinit{T}(x::Parameter{Reactive.Input{T}}, y) = Reactive.push!(x.signal, y)
+"""
+reinit{T}(x::Discrete{Reactive.Signal{T}}, y) = mexpr(:call, :(Reactive.push!), x.signal, y)
+reinit{T}(x::Parameter{Reactive.Signal{T}}, y) = Reactive.push!(x.signal, y)
 
 function reinit(x, y)
     sim_info("reinit: $(x[]) to $y", 2)
     x[:] = y
 end
 
-@doc """
+"""
 A helper type needed to mark unknowns as left-side variables in
 assignments during event responses.
-""" ->
+"""
 type LeftVar <: ModelType
     var
 end
@@ -1089,7 +1088,7 @@ reinit(x::RefUnknown, y) = reinit(LeftVar(x), y)
 reinit(x::DerUnknown, y) = reinit(LeftVar(x), y)
 
 
-@doc """
+"""
 Create a new UnknownReactive type that links to existing
 UnknownReactive types (like Discrete and Parameter).
 
@@ -1141,7 +1140,7 @@ model, so it's more like a macro; `a * b` will be evaluated every time
 in the residual calculation. The advantage of the `a * b` approach is
 that the expression can include Unknowns.
 
-""" ->
+"""
 Reactive.lift{T}(f::Function, input::UnknownReactive{T}, inputs::UnknownReactive{T}...) = Parameter(Reactive.lift(f, input.signal, [input.signal for input in inputs]...))
 
 Reactive.lift{T}(f::Function, t::Type, input::UnknownReactive{T}, inputs::UnknownReactive{T}...) = Parameter(Reactive.lift(f, t, input.signal, [input.signal for input in inputs]...))
@@ -1157,7 +1156,7 @@ Reactive.keepwhen(test::UnknownReactive{Signal{Bool}}, v0, s::UnknownReactive) =
 
 
 
-@doc """
+"""
 "Fold over time" -- an UnknownReactive updated based on stored state
 and additional inputs.
 
@@ -1184,13 +1183,13 @@ foldl(f::Function, v0, inputs::UnknownReactive{T}...)
 
 See the definition of [pre](#pre) for an example.
 
-""" ->
+"""
 Reactive.foldl{T,S}(f,v0::T, signal::UnknownReactive{S}, signals::UnknownReactive{S}...) =
     Parameter(Reactive.foldl(f, v0, signal.signal, [s.signal for s in signals]...))
 
 
 
-@doc """
+"""
 A helper for an expression of UnknownReactive variables
 
 ```julia
@@ -1218,7 +1217,7 @@ z = @liftd :x & !:y
 z2 = lift((x, y) -> x & !y, x, y)
 ```
 
-""" ->
+"""
 macro liftd(ex)
     varnames = Any[]
     body = replace_syms(ex, varnames)
@@ -1240,7 +1239,7 @@ function replace_syms(e::Expr, varnames)
     end
 end
 
-@doc+ """
+"""
 An `UnknownReactive` based on the previous value of `x` (normally prior to an event).
 
 See also [Event](#event).
@@ -1257,14 +1256,14 @@ pre(x::UnknownReactive)
 
 * `::UnknownReactive`
 
-""" ->
+"""
 function pre{T}(x::UnknownReactive{T})
     Reactive.lift(x -> x[1],
          Reactive.foldl((a,b) -> (a[2], b), (zero(Sims.value(x)), Sims.value(x)), x))
 end
 
     
-@doc """
+"""
 Event is the main type used for hybrid modeling. It contains a
 condition for root finding and model expressions to process after
 positive and negative root crossings are detected.
@@ -1288,7 +1287,7 @@ Event(condition::ModelType, pos_response, neg_response)
 
 See [IdealThyristor](../../lib/electrical/#idealthyristor) in the standard library.
 
-""" ->
+"""
 type Event <: ModelType
     condition::ModelType   # An expression used for the event detection. 
     pos_response::Model    # An expression indicating what to do when
@@ -1306,7 +1305,7 @@ Event(condition::ModelType, p::Expr) = Event(condition, p, Equation[])
 
 
 
-@doc+ """
+"""
 BoolEvent is a helper for attaching an event to a boolean variable.
 In conjunction with `ifelse`, this allows constructs like Modelica's
 if blocks.
@@ -1331,7 +1330,7 @@ BoolEvent(d::Discrete, condition::ModelType)
 See [IdealDiode](../../lib/electrical/#idealdiode) and
 [Limiter](../../lib/blocks/#limiter) in the standard library.
 
-""" ->
+"""
 function BoolEvent{T}(d::Discrete{T}, condition::ModelType)
     lend = length(value(d))
     lencond = length(value(condition))
@@ -1349,7 +1348,7 @@ end
 
 
 
-@doc+ """
+"""
 A function allowing if-then-else action for objections and expressions.
 
 Note that when this is used in a model, it does not trigger an
@@ -1376,7 +1375,7 @@ ifelse(x, y, z)
 See [DeadZone](../../lib/electrical/#deadzone) and
 [Limiter](../../lib/blocks/#limiter) in the standard library.
 
-""" ->
+"""
 ifelse(x::ModelType, y, z) = mexpr(:call, :ifelse, x, y, z)
 ifelse(x::ModelType, y) = mexpr(:call, :ifelse, x, y)
 ## ifelse(x::Bool, y, z) = x ? y : z
@@ -1397,7 +1396,7 @@ ifelse(x::MExpr, y::MExpr) = mexpr(:call, :ifelse, x.ex, y.ex)
 ## Types for Structural Dynamics      ##
 ########################################
 
-@doc """
+"""
 StructuralEvent defines a type for elements that change the structure
 of the model. An event is created where the condition crosses zero.
 When the event is triggered, the model is re-flattened after replacing
@@ -1464,13 +1463,13 @@ end
 
 p_y = sim(BreakingPendulum(), 6.0)  
 ```
-""" ->
+"""
 type StructuralEvent <: ModelType
     condition::ModelType  # Expression indicating a zero crossing for event detection.
     default
     new_relation::Function
     activated::Bool       # Indicates whether the event condition has fired
-    pos_response::Union(Nothing,Function)
+    pos_response::Union{Void,Function}
     # A procedure that will be invoked with the model states and parameters when
     # the condition crosses zero positively.
 end
@@ -1507,7 +1506,7 @@ to_real(x::Array{Float64}) = x[:]
 ##     end
 ##     res
 ## end
-to_real(x) = reinterpret(Float64, [x][:])
+to_real(x) = reinterpret(Float64, collect(x)[:])
 
 
 
@@ -1515,7 +1514,7 @@ to_real(x) = reinterpret(Float64, [x][:])
 ## @equations macro                   ##
 ########################################
 
-@doc """
+"""
 A helper to make writing Models a little easier. It allows the use of
 `=` in model equations.
 
@@ -1555,7 +1554,7 @@ function Vanderpol2()
     end
 end
 ```
-""" ->
+"""
 macro equations(args)
     esc(equations_helper(args))
 end

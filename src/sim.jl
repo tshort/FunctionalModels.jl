@@ -5,7 +5,7 @@ Various functions for simulations and building simulation objects from models.
 """
 
 
-@doc """
+"""
 `sim` is the name of the default solver used to simulate Sims models
 and also shows the generic simulation API for available solvers
 (currently `dasslsim` and `sunsim`). The default solver is currently
@@ -93,7 +93,7 @@ y = sunsim(v, 50.0)
 using Winston
 wplot(y)
 ```
-""" ->
+"""
 sim = sunsim
 
 function defaultsim(f::Function)
