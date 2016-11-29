@@ -92,7 +92,7 @@ Derivative(u::Signal, y::Signal; T = 1.0, k = 1.0, x_start = 0.0, y_start = 0.0)
 
 """
 function Derivative(u::Signal, y::Signal, 
-                    T = 1.0,   # pole's time constant
+                    T,         # pole's time constant
                     k = 1.0,   # Gain
                     x_start = 0.0, # initial value of state
                     y_start = 0.0) # output initial value
@@ -149,7 +149,7 @@ FirstOrder(u::Signal, y::Signal; T = 1.0, k = 1.0, y_start = 0.0)
 
 """
 function FirstOrder(u::Signal, y::Signal,
-                    T = 1.0,       # pole's time constant
+                    T,             # pole's time constant
                     k = 1.0,       # Gain
                     y_start = 0.0) # output initial value
     y.value = y_start
@@ -246,7 +246,7 @@ this controller, the following practical aspects are included:
 
 """
 function LimPID(u_s::Signal, u_m::Signal, y::Signal, 
-                controllerType = "PID",
+                controllerType,
                 k = 1.0,      # Gain of controller
                 Ti = 1.0,     # Time constant fo the Integrator block, s 
                 Td = 1.0,     # Time constant fo the Derivative block, s 
@@ -366,7 +366,7 @@ NOTE: untested / probably broken
 
 """
 function StateSpace(u::Signal, y::Signal, 
-                    A = [1.0],
+                    A,
                     B = [1.0],
                     C = [1.0],
                     D = [0.0])
@@ -431,7 +431,7 @@ TransferFunction(u::Signal, y::Signal; b = [1], a = [1])
 
 """
 function TransferFunction(u::Signal, y::Signal, 
-                          b = [1],  # Numerator; 2*s + 3 is specified as [2,3]
+                          b,        # Numerator; 2*s + 3 is specified as [2,3]
                           a = [1])  # Denominator
     na = length(a)
     nb = length(b)
@@ -492,7 +492,7 @@ Limiter(u::Signal, y::Signal; uMax = 1.0, uMin = -uMax)
 
 """
 function Limiter(u::Signal, y::Signal, 
-                 uMax = 1.0,
+                 uMax,
                  uMin = -uMax)
     clamped_pos = Discrete(false)
     clamped_neg = Discrete(false)
@@ -530,7 +530,7 @@ Step(y::Signal; height = 1.0, offset = 0.0, startTime = 0.0)
 
 """
 function Step(y::Signal, 
-              height = 1.0,
+              height,
               offset = 0.0, 
               startTime = 0.0)
     ymag = Discrete(offset)
@@ -573,7 +573,7 @@ DeadZone(u::Signal, y::Signal; uMax = 1.0, uMin = -uMax)
 
 """
 function DeadZone(u::Signal, y::Signal, 
-                  uMax = 1.0,
+                  uMax,
                   uMin = -uMax)
     pos = Discrete(false)
     neg = Discrete(false)
@@ -609,7 +609,7 @@ BooleanPulse(y; width = 50.0, period = 1.0, startTime = 0.0)
 * `startTime` : time instant of the first pulse [sec]
 
 """
-function BooleanPulse(x, width = 50.0, period = 1.0, startTime = 0.0)
+function BooleanPulse(x, width, period = 1.0, startTime = 0.0)
     BoolEvent(x, ifelse(MTime > startTime,
                         trianglewave(MTime - startTime, width, period),
                         -1.0))
@@ -618,7 +618,7 @@ BooleanPulse(x; width = 50.0, period = 1.0, startTime = 0.0) =
     BooleanPulse(x, width, period, startTime)
     
 
-function Pulse(d, amplitude = 1.0, width = 50.0, period = 1.0, offset = 0.0, startTime = 0.0)
+function Pulse(d, amplitude, width = 50.0, period = 1.0, offset = 0.0, startTime = 0.0)
     @equations begin
         Event(ifelse(MTime > startTime,
                      trianglewave(MTime - startTime, width, period),

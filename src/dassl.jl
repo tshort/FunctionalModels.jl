@@ -17,8 +17,11 @@
 
 global __DF = Any[]
 
-@windows_only dllname = Pkg.dir() * "/Sims/deps/daskr$WORD_SIZE.dll"
-@unix_only dllname = Pkg.dir() * "/Sims/deps/daskr.so"
+if is_windows()
+    const dllname = Pkg.dir() * "/Sims/deps/daskr$(Sys.WORD_SIZE).dll"
+elseif is_linux()
+    const dllname = Pkg.dir() * "/Sims/deps/daskr.so"
+end
 
 hasdassl = true
 
@@ -61,7 +64,7 @@ The solver that uses DASKR, a variant of DASSL.
 
 See [sim](#sim) for the interface.
 """
-function dasslsim(ss::SimState, tstop::Float64=1.0, Nsteps::Int=500, reltol::Float64=1e-4, abstol::Float64=1e-4, init::Symbol=:Ya_Ydp, alg::Bool = true)
+function dasslsim(ss::SimState, tstop::Float64, Nsteps::Int=500, reltol::Float64=1e-4, abstol::Float64=1e-4, init::Symbol=:Ya_Ydp, alg::Bool = true)
     # tstop & Nsteps should be in options
     sim_info("starting dasslsim()", 1)
 
@@ -216,17 +219,17 @@ end
 dasslsim(ss::SimState; tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol = 1e-4, init = :Ya_Ydp, alg = true) =
     dasslsim(ss, tstop, Nsteps, reltol, abstol, init, alg)
     
-dasslsim(m::Model, tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol = 1e-4, init = :Ya_Ydp, alg = true) =
+dasslsim(m::Model, tstop,       Nsteps = 500, reltol = 1e-4, abstol = 1e-4, init = :Ya_Ydp, alg = true) =
     dasslsim(create_simstate(m), tstop, Nsteps, reltol, abstol, init, alg)
 dasslsim(m::Model; tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol = 1e-4, init = :Ya_Ydp, alg = true) =
     dasslsim(create_simstate(m), tstop, Nsteps, reltol, abstol, init, alg)
     
-dasslsim(sm::Sim, tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol = 1e-4, init = :Ya_Ydp, alg = true) =
+dasslsim(sm::Sim, tstop,       Nsteps = 500, reltol = 1e-4, abstol = 1e-4, init = :Ya_Ydp, alg = true) =
     dasslsim(create_simstate(sm), tstop, Nsteps, reltol, abstol, init, alg)
 dasslsim(sm::Sim; tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol = 1e-4, init = :Ya_Ydp, alg = true) =
     dasslsim(create_simstate(sm), tstop, Nsteps, reltol, abstol, init, alg)
 
-dasslsim(e::EquationSet, tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol = 1e-4, init = :Ya_Ydp, alg = true) =
+dasslsim(e::EquationSet, tstop, Nsteps = 500, reltol = 1e-4, abstol = 1e-4, init = :Ya_Ydp, alg = true) =
     dasslsim(create_simstate(e), tstop, Nsteps, reltol, abstol, init, alg)
 dasslsim(e::EquationSet; tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol = 1e-4, init = :Ya_Ydp, alg = true) =
     dasslsim(create_simstate(e), tstop, Nsteps, reltol, abstol, init, alg)

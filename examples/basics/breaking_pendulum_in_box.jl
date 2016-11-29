@@ -6,7 +6,7 @@
 
 export BreakingPendulumInBox
 
-function FreeFall(x,y,vx,vy)
+function FreeFallinBox(x,y,vx,vy)
     @equations begin
         der(x) = vx
         der(y) = vy
@@ -24,7 +24,7 @@ function FreeFall(x,y,vx,vy)
     end
 end
 
-function Pendulum(x,y,vx,vy)
+function PenduluminBox(x,y,vx,vy)
     len = sqrt(x.value^2 + y.value^2)
     phi0 = atan2(x.value, -y.value) 
     phi = Unknown(phi0)
@@ -52,8 +52,8 @@ function BreakingPendulumInBox()
     vy = Unknown()
     Equation[
     StructuralEvent(MTime - 1.8,     # when time hits 1.8 sec, switch to FreeFall
-        Pendulum(x,y,vx,vy),
-        () -> FreeFall(x,y,vx,vy))
+        PenduluminBox(x,y,vx,vy),
+        () -> FreeFallinBox(x,y,vx,vy))
     ]
 end
 

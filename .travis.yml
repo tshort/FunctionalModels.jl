@@ -4,6 +4,9 @@ julia:
   - 0.5
 os:
   - linux
+addons:
+  apt_packages:
+    - gfortran
 notifications:
   email: false
 after_success:

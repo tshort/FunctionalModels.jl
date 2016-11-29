@@ -1,3 +1,4 @@
+# __precompile__()
 
 module Sims
 
@@ -23,10 +24,12 @@ export ModelType, UnknownCategory, Unknown, UnknownVariable, DefaultUnknown, Der
 export UnknownReactive, Discrete, Parameter
 
 ## Specials
-export MTime, @init, @unknown, @liftd
+export MTime, @unknown, @liftd
+
 ## Methods
 export Equation, @equations, is_unknown, der, delay, mexpr, compatible_values, reinit, ifelse, pre,
        basetypeof, from_real, to_real,
+       lift, 
        gplot, wplot,
        check, sim_verbose, 
        elaborate, create_sim, create_simstate, sim, sunsim, dasslsim, solve,

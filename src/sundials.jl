@@ -109,7 +109,7 @@ The solver that uses Sundials.
 
 See [sim](#sim) for the interface.
 """
-function sunsim(ss::SimState, tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol = 1e-4, init = :Ya_Ydp, alg = true)
+function sunsim(ss::SimState, tstop, Nsteps = 500, reltol = 1e-4, abstol = 1e-4, init = :Ya_Ydp, alg = true)
 
     sim_info("starting sunsim()", 1)
 
@@ -219,17 +219,17 @@ end
 sunsim(ss::SimState; tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol = 1e-4, init = :Ya_Ydp, alg = true) =
     sunsim(ss, tstop, Nsteps, reltol, abstol, init, alg)
     
-sunsim(m::Model, tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol = 1e-4, init = :Ya_Ydp, alg = true) =
+sunsim(m::Model, tstop,       Nsteps = 500, reltol = 1e-4, abstol = 1e-4, init = :Ya_Ydp, alg = true) =
     sunsim(create_simstate(m), tstop, Nsteps, reltol, abstol, init, alg)
 sunsim(m::Model; tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol = 1e-4, init = :Ya_Ydp, alg = true) =
     sunsim(create_simstate(m), tstop, Nsteps, reltol, abstol, init, alg)
     
-sunsim(sm::Sim, tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol = 1e-4, init = :Ya_Ydp, alg = true) =
+sunsim(sm::Sim, tstop,       Nsteps = 500, reltol = 1e-4, abstol = 1e-4, init = :Ya_Ydp, alg = true) =
     sunsim(create_simstate(sm), tstop, Nsteps, reltol, abstol, init, alg)
 sunsim(sm::Sim; tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol = 1e-4, init = :Ya_Ydp, alg = true) =
     sunsim(create_simstate(sm), tstop, Nsteps, reltol, abstol, init, alg)
 
-sunsim(e::EquationSet, tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol = 1e-4, init = :Ya_Ydp, alg = true) =
+sunsim(e::EquationSet, tstop,       Nsteps = 500, reltol = 1e-4, abstol = 1e-4, init = :Ya_Ydp, alg = true) =
     sunsim(create_simstate(e), tstop, Nsteps, reltol, abstol, init, alg)
 sunsim(e::EquationSet; tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol = 1e-4, init = :Ya_Ydp, alg = true) =
     sunsim(create_simstate(e), tstop, Nsteps, reltol, abstol, init, alg)
