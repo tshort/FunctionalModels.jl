@@ -26,7 +26,7 @@ end
 hasdassl = true
 
 try
-    global lib = dlopen(dllname)
+    global lib = Libdl.dlopen(dllname)
 catch
     hasdassl = false
     println("*********************************************")
@@ -35,24 +35,24 @@ catch
 end    
 
 function dasslfun(t_in, y_in, yp_in, cj, delta_out, ires, rpar, ipar)
-    n = Int(pointer_to_array(ipar, (3,)))
+    n = convert(Array{Int}, unsafe_wrap(Array, ipar, (3,)))
     index = n[3]
     df = __DF[index]
-    t = pointer_to_array(t_in, (1,))
-    y = pointer_to_array(y_in, (n[1],))
-    yp = pointer_to_array(yp_in, (n[1],))
-    delta = pointer_to_array(delta_out, (n[1],))
+    t = unsafe_wrap(Array, t_in, (1,))
+    y = unsafe_wrap(Array, y_in, (n[1],))
+    yp = unsafe_wrap(Array, yp_in, (n[1],))
+    delta = unsafe_wrap(Array, delta_out, (n[1],))
     df.resid(t, y, yp, delta)
     return nothing
 end
 function dasslrootfun(neq, t_in, y_in, yp_in, nrt, rval_out, rpar, ipar)
-    n = Int(pointer_to_array(ipar, (3,)))
+    n = convert(Array{Int}, unsafe_wrap(Array, ipar, (3,)))
     index = n[3]
     df = __DF[index]
-    t = pointer_to_array(t_in, (1,))
-    y = pointer_to_array(y_in, (n[1],))
-    yp = pointer_to_array(yp_in, (n[1],))
-    rval = pointer_to_array(rval_out, (n[2],))
+    t = unsafe_wrap(Array, t_in, (1,))
+    y = unsafe_wrap(Array, y_in, (n[1],))
+    yp = unsafe_wrap(Array, yp_in, (n[1],))
+    rval = unsafe_wrap(Array, rval_out, (n[2],))
     df.event_at(t, y, yp, rval) 
     return nothing
 end
@@ -83,7 +83,7 @@ function dasslsim(ss::SimState, tstop::Float64, Nsteps::Int=500, reltol::Float64
     idid = [Int32(0)]
     info = fill(Int32(0), 20)
 
-    constraints = Int32(copy(sm.constraints))
+    constraints = convert(Array{Int32}, copy(sm.constraints))
     constraints[constraints .< -2] = 0
     constraints[constraints .> 2] = 0
     has_constraints = any(x -> x < 0 || x > 0, constraints)
@@ -118,10 +118,6 @@ function dasslsim(ss::SimState, tstop::Float64, Nsteps::Int=500, reltol::Float64
         else
             iwork[40 + (1:N[1])] = sm.id
         end
-        @show constraints
-        @show iwork
-        @show iwork[40 + (1:N[1])]
-        @show iwork[40 + N[1] + (1:N[1])]
         jac = [Int32(0)]
         psol = [Int32(0)]
         jroot = fill(Int32(0), max(nrt[1], 1))
@@ -134,10 +130,10 @@ function dasslsim(ss::SimState, tstop::Float64, Nsteps::Int=500, reltol::Float64
         ipar = [Int32(length(ss.y0)), nrt[1], index]
          
         # Set up the callback.
-        callback = cfunction(dasslfun, Nothing,
+        callback = cfunction(dasslfun, Void,
                              (Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, Ptr{Float64},
                               Ptr{Int32}, Ptr{Float64}, Ptr{Int32}))
-        rt = cfunction(dasslrootfun, Nothing,
+        rt = cfunction(dasslrootfun, Void,
                        (Ptr{Int32}, Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, Ptr{Int32},
                         Ptr{Float64}, Ptr{Float64}, Ptr{Int32}))
         (tout) -> begin
@@ -214,7 +210,7 @@ function dasslsim(ss::SimState, tstop::Float64, Nsteps::Int=500, reltol::Float64
             break
         end
     end
-    SimResult(yout, [sm.outputs[yidx]])
+    SimResult(yout, collect(sm.outputs[yidx]))
 end
 dasslsim(ss::SimState; tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol = 1e-4, init = :Ya_Ydp, alg = true) =
     dasslsim(ss, tstop, Nsteps, reltol, abstol, init, alg)

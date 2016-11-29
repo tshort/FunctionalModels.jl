@@ -14,8 +14,8 @@ function initfun(u::N_Vector, r::N_Vector, userdata_ptr::Ptr{Void})
 
     n  = length(ss.y0)
     nu = int(Sundials.nvlength(u))
-    y  = pointer_to_array(Sundials.N_VGetArrayPointer_Serial(u), (n,))
-    yp = nu - n > 0 ? pointer_to_array(Sundials.N_VGetArrayPointer_Serial(u) + n, (nu - n,)) : []
+    y  = unsafe_wrap(Array, Sundials.N_VGetArrayPointer_Serial(u), (n,))
+    yp = nu - n > 0 ? unsafe_wrap(Array, Sundials.N_VGetArrayPointer_Serial(u) + n, (nu - n,)) : Float64[]
     r  = Sundials.asarray(r)
     sm.F.init(ss.t[1], y, yp, r)
     
