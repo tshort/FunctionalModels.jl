@@ -28,14 +28,16 @@ function getcols(z::SimResult, r::Regex)
     length(res) == 1 ? res[1] : res
 end
 
-Plots.@recipe function f(x::SimResult; columns = collect(1:length(z.colnames)))
-    columns = getcols(z, columns)
-    linecolor   --> :blue 
+Plots.@recipe function f(x::SimResult; columns = collect(1:length(x.colnames)))
+    columns = getcols(x, columns)
+    n = length(columns)
     xguide      --> "Time, sec"
-    label       --> x.colnames[columns]
+    legend      --> false,
+    label       --> reshape(x.colnames[columns], (1,n))
+    title       --> reshape(x.colnames[columns], (1,n))
+    layout      --> (n,1)
     x := x.y[:, 1]
-    y := x.y[:, 1+columns]
-    ()
+    x.y[:, 1+columns]
 end
 
 # """
