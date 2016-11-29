@@ -3,6 +3,7 @@ Compat
 Docile
 Ipopt
 JuMP
+Plots
 Reactive
 Reexport
 Sundials
