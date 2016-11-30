@@ -8,14 +8,14 @@ using Sims.Examples.Neural.Lib
 export HodgkinHuxley
 
 
-@doc+ """
+"""
 This model is used to calculate the membrane potential of a
 neuron. The calculation is based on sodium ion flow, potassium ion
 flow and leakage ion flow. (Hodgkin, A. L. and Huxley, A. F. (1952)
 "A Quantitative Description of Membrane Current and its Application
 to Conduction and Excitation in Nerve" Journal of Physiology 117:
 500-544)
-""" ->
+"""
 function HodgkinHuxley(;
                        I   = Parameter(10.0),
 

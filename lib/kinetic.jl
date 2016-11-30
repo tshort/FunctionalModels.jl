@@ -7,7 +7,7 @@
 # Chemical kinetics
 """
 
-@doc+ """
+"""
 Chemical kinetic reaction system
 
 ```julia
@@ -36,7 +36,7 @@ function concentration()
     R = [ [0, 1] [1, 0] ] ## stoichiometric coefficients for products
     K = [rateA , rateB] ## reaction rates
     
-    return ReactionSystem (X, S, R, K)
+    return ReactionSystem(X, S, R, K)
 
 end
 y = sim(concentration())
@@ -59,20 +59,20 @@ function simpleConcentration()
                      [ :-> B A rateB ]
                    ]
 
-    return parse_reactions (reactions)
+    return parse_reactions(reactions)
 end
 
 y = sim(simpleConcentration())
 ```
-""" ->
+"""
 
-function ReactionEquation (M,F,X,j)
+function ReactionEquation(M,F,X,j)
     r = size(M,1) ## number of reactions
-    Equation[der(X[j]) - sum(filter (x -> !(x == 0.0),
-                                     [ (M[i,j] == 0 ? 0.0 : M[i,j] * F[i]) for i in 1:r]))]
+    Equation[der(X[j]) - sum(filter(x -> !(x == 0.0),
+                                     [(M[i,j] == 0 ? 0.0 : M[i,j] * F[i]) for i in 1:r]))]
 end
 
-function reaction_flux (K,S,X)
+function reaction_flux(K,S,X)
 
     function f(S,X,i,j)
         if S[i,j] == 0.0
@@ -91,24 +91,24 @@ function reaction_flux (K,S,X)
     
     for i = 1:r
         ## (reaction rate) * (reactant concentrations)
-        F[i] = K[i] * prod (filter(x -> !(x == 1.0),
+        F[i] = K[i] * prod(filter(x -> !(x == 1.0),
                                    [ f(S,X,i,j) for j = 1:n]))
     end
 
     F
 end
     
-function ReactionSystem (X, ## state vector
-                         S,  ## stoichiometric coefficients for reactants
-                         R,  ## stoichiometric coefficients for products
-                         K)  ## reaction rates
+function ReactionSystem(X, ## state vector
+                        S,  ## stoichiometric coefficients for reactants
+                        R,  ## stoichiometric coefficients for products
+                        K)  ## reaction rates
     assert(typeof(S) == typeof(R))
     assert(size(K,1) == size(S,1))
     assert(size(X,1) == size(S,2))
     M = (R - S) ## stoichiometric matrix
     n = size(M,2) ## number of species
     r = size(M,1) ## number of reactions
-    F = reaction_flux (K,S,X)
+    F = reaction_flux(K,S,X)
     return Equation[ ReactionEquation(M,F,X,i) for i=1:n ]
 end
 
@@ -116,7 +116,7 @@ end
 ##
 ##
     
-@doc+ """
+"""
 Parses reactions of the form
 
 ```julia
@@ -143,11 +143,11 @@ Any[ :⇄ a b rate1 rate2 ]
                      [ :⇄ A B rateA rateB ]
                    ]
 
-    parse_reactions (reactions)
+    parse_reactions(reactions)
 ```
 
-""" ->
-function parse_reactions (V)
+"""
+function parse_reactions(V)
 
     X = Any[] ## species
     K = Any[] ## reaction rates
@@ -239,7 +239,7 @@ function parse_reactions (V)
               
     end
 
-    return ReactionSystem (X,S,R,K)
+    return ReactionSystem(X,S,R,K)
 end
 
 

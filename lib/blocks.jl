@@ -24,11 +24,11 @@ These components are modeled after the `Modelica.Blocks.*` library.
 """
 
 
-@doc+ """
+"""
 Output the integral of the input signals
 
 ```julia
-Integrator(u::Signal, y::Signal, k = 1.0, y_start = 0.0)
+Integrator(u::Signal, y::Signal, k,       y_start = 0.0)
 Integrator(u::Signal, y::Signal; k = 1.0, y_start = 0.0) # keyword arg version
 ```
 
@@ -42,9 +42,9 @@ Integrator(u::Signal, y::Signal; k = 1.0, y_start = 0.0) # keyword arg version
 * `k` : integrator gains
 * `y_start` : output initial value
 
-""" ->
+"""
 function Integrator(u::Signal, y::Signal, 
-                    k = 1.0,       # Gain
+                    k,             # Gain
                     y_start = 0.0) # output initial value
     y.value = y_start
     @equations begin
@@ -54,7 +54,7 @@ end
 Integrator(u::Signal, y::Signal; k = 1.0, y_start = 0.0) = Integrator(u, y, k, y_start)
 
 
-@doc+ """
+"""
 Approximated derivative block
 
 This blocks defines the transfer function between the input `u` and
@@ -90,9 +90,9 @@ Derivative(u::Signal, y::Signal; T = 1.0, k = 1.0, x_start = 0.0, y_start = 0.0)
 * `k` : gains
 * `T` : Time constants [sec]
 
-""" ->
+"""
 function Derivative(u::Signal, y::Signal, 
-                    T = 1.0,   # pole's time constant
+                    T,         # pole's time constant
                     k = 1.0,   # Gain
                     x_start = 0.0, # initial value of state
                     y_start = 0.0) # output initial value
@@ -112,7 +112,7 @@ Derivative(u::Signal, y::Signal;
 
 
 
-@doc+ """
+"""
 First order transfer function block (= 1 pole)
 
 This blocks defines the transfer function between the input u=inPort.signal and the output y=outPort.signal element-wise as first order system:
@@ -147,9 +147,9 @@ FirstOrder(u::Signal, y::Signal; T = 1.0, k = 1.0, y_start = 0.0)
 * `k` : gains
 * `T` : Time constants [sec]
 
-""" ->
+"""
 function FirstOrder(u::Signal, y::Signal,
-                    T = 1.0,       # pole's time constant
+                    T,             # pole's time constant
                     k = 1.0,       # Gain
                     y_start = 0.0) # output initial value
     y.value = y_start
@@ -163,7 +163,7 @@ FirstOrder(u::Signal, y::Signal;
            y_start = 0.0) = FirstOrder(u, T, k, y_start)
 
            
-@doc+ """
+"""
 PID controller with limited output, anti-windup compensation and setpoint weighting
 
 ![diagram](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica.Blocks.Continuous.LimPIDD.png)
@@ -244,9 +244,9 @@ this controller, the following practical aspects are included:
   example, it is useful to set the setpoint weight wd for the
   derivative part to zero, if steps may occur in the setpoint signal.
 
-""" ->
+"""
 function LimPID(u_s::Signal, u_m::Signal, y::Signal, 
-                controllerType = "PID",
+                controllerType,
                 k = 1.0,      # Gain of controller
                 Ti = 1.0,     # Time constant fo the Integrator block, s 
                 Td = 1.0,     # Time constant fo the Derivative block, s 
@@ -295,7 +295,7 @@ function LimPID(u_s::Signal, u_m::Signal, y::Signal;
 end
 
 
-@doc+ """
+"""
 Linear state space system
 
 Modelica.Blocks.Continuous.StateSpace
@@ -364,9 +364,9 @@ StateSpace(u::Signal, y::Signal; A = [1.0], B = [1.0], C = [1.0], D = [0.0])
 
 NOTE: untested / probably broken
 
-""" ->
+"""
 function StateSpace(u::Signal, y::Signal, 
-                    A = [1.0],
+                    A,
                     B = [1.0],
                     C = [1.0],
                     D = [0.0])
@@ -384,7 +384,7 @@ StateSpace(u::Signal, y::Signal;
 
 
 
-@doc+ """
+"""
 Linear transfer function
 
 This block defines the transfer function between the input
@@ -429,9 +429,9 @@ TransferFunction(u::Signal, y::Signal; b = [1], a = [1])
 * `b` : Numerator coefficients of transfer function
 * `a` : Denominator coefficients of transfer function
 
-""" ->
+"""
 function TransferFunction(u::Signal, y::Signal, 
-                          b = [1],  # Numerator; 2*s + 3 is specified as [2,3]
+                          b,        # Numerator; 2*s + 3 is specified as [2,3]
                           a = [1])  # Denominator
     na = length(a)
     nb = length(b)
@@ -468,7 +468,7 @@ TransferFunction(u::Signal, y::Signal;
 
 
 
-@doc+ """
+"""
 Limit the range of a signal
 
 The Limiter block passes its input signal as output signal as long as
@@ -490,9 +490,9 @@ Limiter(u::Signal, y::Signal; uMax = 1.0, uMin = -uMax)
 * `uMax` : upper limits of signals
 * `uMin` : lower limits of signals
 
-""" ->
+"""
 function Limiter(u::Signal, y::Signal, 
-                 uMax = 1.0,
+                 uMax,
                  uMin = -uMax)
     clamped_pos = Discrete(false)
     clamped_neg = Discrete(false)
@@ -509,7 +509,7 @@ Limiter(u::Signal, y::Signal;
 VariableLimiter = Limiter
 
 
-@doc+ """
+"""
 Generate step signals of type Real
 
 ```julia
@@ -528,9 +528,9 @@ Step(y::Signal; height = 1.0, offset = 0.0, startTime = 0.0)
 * `offset` : offsets of output signals
 * `startTime` : output = offset for time < startTime [s]
 
-""" ->
+"""
 function Step(y::Signal, 
-              height = 1.0,
+              height,
               offset = 0.0, 
               startTime = 0.0)
     ymag = Discrete(offset)
@@ -547,7 +547,7 @@ Step(y::Signal;
      startTime = 0.0) = Step(y, height, offset, startTime)
 
 
-@doc+ """
+"""
 Provide a region of zero output
 
 The DeadZone block defines a region of zero output.
@@ -571,9 +571,9 @@ DeadZone(u::Signal, y::Signal; uMax = 1.0, uMin = -uMax)
 * `uMax` : upper limits of signals
 * `uMin` : lower limits of signals
 
-""" ->
+"""
 function DeadZone(u::Signal, y::Signal, 
-                  uMax = 1.0,
+                  uMax,
                   uMin = -uMax)
     pos = Discrete(false)
     neg = Discrete(false)
@@ -590,7 +590,7 @@ DeadZone(u::Signal, y::Signal;
          uMin = -uMax) = DeadZone(u, y, uMax, uMin)
 
 
-@doc+ """
+"""
 Generate a Discrete boolean pulse signal
 
 ```julia
@@ -608,8 +608,8 @@ BooleanPulse(y; width = 50.0, period = 1.0, startTime = 0.0)
 * `period` : time for one period [sec]
 * `startTime` : time instant of the first pulse [sec]
 
-""" ->
-function BooleanPulse(x, width = 50.0, period = 1.0, startTime = 0.0)
+"""
+function BooleanPulse(x, width, period = 1.0, startTime = 0.0)
     BoolEvent(x, ifelse(MTime > startTime,
                         trianglewave(MTime - startTime, width, period),
                         -1.0))
@@ -618,7 +618,7 @@ BooleanPulse(x; width = 50.0, period = 1.0, startTime = 0.0) =
     BooleanPulse(x, width, period, startTime)
     
 
-function Pulse(d, amplitude = 1.0, width = 50.0, period = 1.0, offset = 0.0, startTime = 0.0)
+function Pulse(d, amplitude, width = 50.0, period = 1.0, offset = 0.0, startTime = 0.0)
     @equations begin
         Event(ifelse(MTime > startTime,
                      trianglewave(MTime - startTime, width, period),

@@ -1,10 +1,10 @@
 
 export LeakyIaF
 
-@doc+ """
+"""
 A simple integrate-and-fire model example to illustrate
 integrating over discontinuities.
-""" ->
+"""
 function LeakyIaF(;
                   Isyn   = Parameter(20.0),
                   gL     = Parameter(0.2),

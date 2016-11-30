@@ -431,12 +431,12 @@ end
 
 
 
-@doc+ """
+"""
 Model of a cerebellar Purkinje cell from the paper:
 
 Cerebellar Purkinje Cell: resurgent Na current and high frequency
 firing (Khaliq et al 2003).
-""" ->
+"""
 
 function Soma(;
               I   = 0.01,

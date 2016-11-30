@@ -21,11 +21,11 @@ an(v)=0.01*(v+34.0)/(1.0-exp(-(v+34.0)/10.0))
 bn(v)=0.125*exp(-(v+44.0)/80.0)
 
 
-@doc+ """
+"""
 Wang, X.-J. and Buzsaki G. (1996) Gamma oscillations by synaptic
 inhibition in a hippocampal interneuronal network.
 J. Neurosci. 16, 6402-6413.
-""" ->
+"""
 function Main(;
               I = 0.5,
 

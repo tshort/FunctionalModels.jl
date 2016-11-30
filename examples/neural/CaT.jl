@@ -48,11 +48,11 @@ function CaTConductance(v,gbar,g)
 end
 
 
-@doc+ """
+"""
 Wang, X., Rinzel, J. and Rogawski, M. (1992) "A model of the
 T--type calcium current and the low threshold spike in thalamic
 neurons". J. Neurophys. 66: 839-850
-""" ->
+"""
     
 function Soma(;
               I    = 85.0,

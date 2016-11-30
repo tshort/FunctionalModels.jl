@@ -4,13 +4,13 @@
 
 export DDE
 
-@doc+ """
+"""
 An example of a delayed feedback system.
-""" ->
+"""
 function DDE(; tau=3.0)
 
     function f(x)
-        1 / (1 + exp (-x))
+        1 / (1 + exp(-x))
     end
     
     b   = 4.8

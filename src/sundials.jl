@@ -14,12 +14,12 @@ function initfun(u::N_Vector, r::N_Vector, userdata_ptr::Ptr{Void})
 
     n  = length(ss.y0)
     nu = int(Sundials.nvlength(u))
-    y  = pointer_to_array(Sundials.N_VGetArrayPointer_Serial(u), (n,))
-    yp = nu - n > 0 ? pointer_to_array(Sundials.N_VGetArrayPointer_Serial(u) + n, (nu - n,)) : []
+    y  = unsafe_wrap(Array, Sundials.N_VGetArrayPointer_Serial(u), (n,))
+    yp = nu - n > 0 ? unsafe_wrap(Array, Sundials.N_VGetArrayPointer_Serial(u) + n, (nu - n,)) : Float64[]
     r  = Sundials.asarray(r)
     sm.F.init(ss.t[1], y, yp, r)
     
-    return int32(0)   # indicates normal return
+    return Int32(0)   # indicates normal return
 end
 
 function daefun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userdata_ptr::Ptr{Void})
@@ -29,7 +29,7 @@ function daefun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userdata_ptr
     yp = Sundials.asarray(yp) 
     r  = Sundials.asarray(r)
     sm.F.resid(t, y, yp, r)
-    return int32(0)   # indicates normal return
+    return Int32(0)   # indicates normal return
 end
 
 function rootfun(t::Float64, y::N_Vector, yp::N_Vector, g::Ptr{Sundials.realtype}, userdata_ptr::Ptr{Void})
@@ -39,7 +39,7 @@ function rootfun(t::Float64, y::N_Vector, yp::N_Vector, g::Ptr{Sundials.realtype
     yp = Sundials.asarray(yp) 
     g  = Sundials.asarray(g, (length(sm.F.event_pos),))
     sm.F.event_at(t, y, yp, g)
-    return int32(0)   # indicates normal return
+    return Int32(0)   # indicates normal return
 end
 
 function solve(ss::SimState) # initial conditions
@@ -68,17 +68,17 @@ function setup_sunsim(ss::SimState, reltol::Float64, abstol::Float64, alg::Bool)
     flag  = Sundials.IDASStolerances(mem, reltol, abstol)
     flag  = Sundials.IDASetSuppressAlg(mem, alg ? 0 : 1)
     flag  = Sundials.IDADense(mem, neq)
-    flag  = Sundials.IDARootInit(mem, int32(length(sm.F.event_pos)), rootfun)
-    id    = float64(copy(sm.id))
+    flag  = Sundials.IDARootInit(mem, Int32(length(sm.F.event_pos)), rootfun)
+    id    = float(copy(sm.id))
     id[id .< 0] = 0.0
     flag  = Sundials.IDASetId(mem, id)
-    constraints = float64(copy(sm.constraints))
+    constraints = float(copy(sm.constraints))
     constraints[constraints .< -2] = 0.0
     constraints[constraints .> 2] = 0.0
     if any(x -> x < 0.0 || x > 0.0, constraints)
         flag  = Sundials.IDASetConstraints(mem, constraints)
     end
-    return SimSundials (mem, ss)
+    return SimSundials(mem, ss)
 end
 
 function reinit_sunsim(smem::SimSundials, ss::SimState, t)
@@ -91,8 +91,8 @@ function reinit_sunsim(smem::SimSundials, ss::SimState, t)
     neq   = length(ss.y0)
     
     flag  = Sundials.IDASetUserData(mem, ss)
-    flag  = Sundials.IDARootInit(mem, int32(length(sm.F.event_pos)), rootfun)
-    id    = float64(copy(sm.id))
+    flag  = Sundials.IDARootInit(mem, Int32(length(sm.F.event_pos)), rootfun)
+    id    = float(copy(sm.id))
     id[id .< 0] = 0
     flag  = Sundials.IDASetId(mem, id)
 
@@ -104,12 +104,12 @@ function reinit_sunsim(smem::SimSundials, ss::SimState, t)
 end
 
 
-@doc+ """
+"""
 The solver that uses Sundials.
 
 See [sim](#sim) for the interface.
-""" ->
-function sunsim(ss::SimState, tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol = 1e-4, init = :Ya_Ydp, alg = true)
+"""
+function sunsim(ss::SimState, tstop, Nsteps = 500, reltol = 1e-4, abstol = 1e-4, init = :Ya_Ydp, alg = true)
 
     sim_info("starting sunsim()", 1)
 
@@ -132,8 +132,8 @@ function sunsim(ss::SimState, tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol =
     yout = zeros(Nsteps, Ncol + 1)
     t = tstep
     tret = [0.0]
-    nrt = int32(length(sm.F.event_pos))
-    jroot = fill(int32(0), nrt)
+    nrt = Int32(length(sm.F.event_pos))
+    jroot = fill(Int32(0), nrt)
 
     neq   = length(ss.y0)
     rtest = zeros(neq)
@@ -192,15 +192,15 @@ function sunsim(ss::SimState, tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol =
                 ## same size as the old one, just reinit, otherwise
                 ## create a new instance of the solver.
                 if neq == new_neq
-                    reinit_sunsim (smem, ss, tret[1])
+                    reinit_sunsim(smem, ss, tret[1])
                 else
                     neq = new_neq
                     smem = setup_sunsim(ss, reltol, abstol, alg)
                     mem = smem.mem
                 end
 
-                nrt = int32(length(sm.F.event_pos))
-                jroot = fill(int32(0), nrt)
+                nrt = Int32(length(sm.F.event_pos))
+                jroot = fill(Int32(0), nrt)
                 yidx = sm.outputs .!= ""
                 
             elseif any(jroot .!= 0)
@@ -213,23 +213,23 @@ function sunsim(ss::SimState, tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol =
             break
         end
     end
-    SimResult(yout, [sm.outputs[yidx]])
+    SimResult(yout, sm.outputs[yidx])
 end
 
 sunsim(ss::SimState; tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol = 1e-4, init = :Ya_Ydp, alg = true) =
     sunsim(ss, tstop, Nsteps, reltol, abstol, init, alg)
     
-sunsim(m::Model, tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol = 1e-4, init = :Ya_Ydp, alg = true) =
+sunsim(m::Model, tstop,       Nsteps = 500, reltol = 1e-4, abstol = 1e-4, init = :Ya_Ydp, alg = true) =
     sunsim(create_simstate(m), tstop, Nsteps, reltol, abstol, init, alg)
 sunsim(m::Model; tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol = 1e-4, init = :Ya_Ydp, alg = true) =
     sunsim(create_simstate(m), tstop, Nsteps, reltol, abstol, init, alg)
     
-sunsim(sm::Sim, tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol = 1e-4, init = :Ya_Ydp, alg = true) =
+sunsim(sm::Sim, tstop,       Nsteps = 500, reltol = 1e-4, abstol = 1e-4, init = :Ya_Ydp, alg = true) =
     sunsim(create_simstate(sm), tstop, Nsteps, reltol, abstol, init, alg)
 sunsim(sm::Sim; tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol = 1e-4, init = :Ya_Ydp, alg = true) =
     sunsim(create_simstate(sm), tstop, Nsteps, reltol, abstol, init, alg)
 
-sunsim(e::EquationSet, tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol = 1e-4, init = :Ya_Ydp, alg = true) =
+sunsim(e::EquationSet, tstop,       Nsteps = 500, reltol = 1e-4, abstol = 1e-4, init = :Ya_Ydp, alg = true) =
     sunsim(create_simstate(e), tstop, Nsteps, reltol, abstol, init, alg)
 sunsim(e::EquationSet; tstop = 1.0, Nsteps = 500, reltol = 1e-4, abstol = 1e-4, init = :Ya_Ydp, alg = true) =
     sunsim(create_simstate(e), tstop, Nsteps, reltol, abstol, init, alg)

@@ -10,14 +10,14 @@
 # follows Hydra's SymTab structure.
 #
 
-@doc """
+"""
 A representation of a flattened model, normally created with
 `elaborate(model)`. `sim` uses an elaborated model for simulations.
 
 Contains the hierarchical equations, flattened equations, flattened
 initial equations, events, event response functions, and a map of
 Unknown nodes.
-""" ->
+"""
 type EquationSet
     model             # The active model, a hierachichal set of equations.
     equations         # A flat list of equations.
@@ -29,7 +29,7 @@ type EquationSet
 end
 
 
-@doc+ """
+"""
 `elaborate` is the main elaboration function that returns
 a flattened model representation that can be used by `sim`.
 
@@ -66,7 +66,7 @@ a StructuralEvent triggers, the entire model is elaborated again.
 The first step is to replace StructuralEvents that have activated
 with their new_relation in model. Then, the rest of the EquationSet
 is reflattened using `model` as the starting point.
-""" ->
+"""
 elaborate(a::Model) = elaborate(EquationSet(a, Equation[], Equation[], Equation[], Equation[], Equation[], Dict()))
 
 function elaborate(x::EquationSet)

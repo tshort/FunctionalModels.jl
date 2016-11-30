@@ -1,20 +1,13 @@
-language: cpp
-compiler:
-    - gcc
+language: julia
+julia:
+  - 0.4
+  - 0.5
+os:
+  - linux
+addons:
+  apt_packages:
+    - gfortran
 notifications:
-    email: false
-env:
-    - JULIAVERSION="juliareleases" 
-before_install:
-    - sudo add-apt-repository ppa:staticfloat/julia-deps -y
-    - sudo add-apt-repository ppa:staticfloat/${JULIAVERSION} -y
-    - sudo apt-get update -qq -y
-    - sudo apt-get install gfortran libpcre3-dev julia -y
-    - git config --global user.name "Travis User"
-    - git config --global user.email "travis@example.net"
-    - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
-script:
-    - julia -e 'Pkg.init(); Pkg.clone(pwd()); Pkg.build("Sims")'
-    - julia -e 'Pkg.test("Sims", coverage=true)'
+  email: false
 after_success:
-    - julia -e 'cd(Pkg.dir("Sims")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
+- julia -e 'cd(Pkg.dir("Sims")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'

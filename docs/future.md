@@ -61,8 +61,8 @@ packed with more information. For example, a node voltage may become:
 ```julia
 type ElectricalNode
     v::Unknown
-    description::String
-    unit::String # physical units
+    description::AbstractString
+    unit::AbstractString # physical units
     X::Float64   # graphical coordinate
     Y::Float64   # graphical coordinate
 end
@@ -124,11 +124,11 @@ Some ways to improve on what's above are:
 type MyType
     male::Bool      # converted to checkbox
     radius::Float64
-    name::String
+    name::AbstractString
     state::Choices(["AL", "AK", "AZ"])  # not sure if this will work
 end
 
-MyType(::SIMS_PARAMETERS, male::Bool, radius::Float64, name::String, state::Choices) = {
+MyType(::SIMS_PARAMETERS, male::Bool, radius::Float64, name::AbstractString, state::Choices) = {
     {"Male", "Tab1"}
     {"Conductor radius, m", "Tab1"}
     {"Name", "Tab2"}

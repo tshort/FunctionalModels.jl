@@ -18,10 +18,10 @@ export Vanderpol
 #    der(y) - (x+1)
 #
 
-@doc+ """
+"""
 The Van Der Pol oscillator is a simple problem with two equations
 and two unknowns.
-""" ->
+"""
 function Vanderpol()
     y = Unknown(1.0, "y")   # The 1.0 is the initial value. "y" is for plotting.
     x = Unknown("x")        # The initial value is zero if not given.

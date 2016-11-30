@@ -12,7 +12,7 @@ export PID_Controller
 """
 
 
-@doc+ """
+"""
 Demonstrates the usage of a Continuous.LimPID controller
 
 
@@ -40,7 +40,7 @@ This is a simple drive train controlled by a PID controller:
 
 [LBL doc link](http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Blocks_Examples.html#Modelica.Blocks.Examples.PID_Controller)
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Blocks_Examples.html#Modelica.Blocks.Examples.PID_Controller)
-""" ->
+"""
 function PID_Controller()
     n1 = Angle()
     n2 = Angle()
