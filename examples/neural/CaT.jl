@@ -13,15 +13,15 @@ using Docile
 
 function CaTConductance(v,gbar,g)
 
-    ralpha = Unknown ()
-    rbeta  = Unknown ()
+    ralpha = Unknown()
+    rbeta  = Unknown()
 
-    salpha = Unknown ()
-    sbeta  = Unknown ()
+    salpha = Unknown()
+    sbeta  = Unknown()
 
-    bd     = Unknown ()
-    dalpha = Unknown ()
-    dbeta  = Unknown ()
+    bd     = Unknown()
+    dalpha = Unknown()
+    dbeta  = Unknown()
 
     r   = Gate()
     d   = Gate()
@@ -72,32 +72,32 @@ function Soma(;
               gbar_K   = 0.36,
               g_L      = 0.0001666,
 
-              v = Voltage (-65.0, "v"))
+              v = Voltage(-65.0, "v"))
     
     area = pi * L * diam
     
-    I_Na   = Current ("I_Na")
-    I_K    = Current ("I_K")
-    I_L    = Current ("I_L")
-    I_CaT  = Current ("I_CaT")
+    I_Na   = Current("I_Na")
+    I_K    = Current("I_K")
+    I_L    = Current("I_L")
+    I_CaT  = Current("I_CaT")
 
-    g_Na  = Conductance ()
-    g_K   = Conductance ()
-    g_CaT = Conductance ()
+    g_Na  = Conductance()
+    g_K   = Conductance()
+    g_CaT = Conductance()
 
     @equations begin
 
         MembranePotential(v, Equation[-I * (1.0 / area),I_Na,I_K,I_CaT,I_L], C_m)
 
-        HodgkinHuxleyModule.NaConductance (v, gbar_Na, g_Na)
-        HodgkinHuxleyModule.KConductance (v, gbar_K, g_K)
+        HodgkinHuxleyModule.NaConductance(v, gbar_Na, g_Na)
+        HodgkinHuxleyModule.KConductance(v, gbar_K, g_K)
 
         CaTConductance(v, gbar_CaT, g_CaT)
 
-        OhmicCurrent (v, I_Na, g_Na, E_Na)
-        OhmicCurrent (v, I_K, g_K, E_K)
-        OhmicCurrent (v, I_L, g_L, E_L)
-        OhmicCurrent (v, I_CaT, g_CaT, E_Ca)
+        OhmicCurrent(v, I_Na, g_Na, E_Na)
+        OhmicCurrent(v, I_K, g_K, E_K)
+        OhmicCurrent(v, I_L, g_L, E_L)
+        OhmicCurrent(v, I_CaT, g_CaT, E_Ca)
 
     end
 end

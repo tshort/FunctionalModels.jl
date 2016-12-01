@@ -9,12 +9,12 @@ using Sims, Sims.Lib
 using Sims.Examples.Neural, Sims.Examples.Neural.Lib
 using Docile
 
-function sigm (x, y)
-    return 1.0 / (exp (x / y) + 1)
+function sigm(x, y)
+    return 1.0 / (exp(x / y) + 1)
 end
 
-function linoid (x, y) 
-    return ifelse (abs (x / y) < 1e-6, (y * (1 - ((x/y) / 2))), (x / (exp (x/y) - 1)))
+function linoid(x, y) 
+    return ifelse(abs(x / y) < 1e-6, (y * (1 - ((x/y) / 2))), (x / (exp(x/y) - 1)))
 end
 
 ## Calcium concentration dynamics
@@ -56,24 +56,24 @@ function CaHVAConductance(celsius,v,gbar,g)
     V0beta_u = -48
 
 
-    function alpha_s (v)
+    function alpha_s(v)
 	return (Q10 * Aalpha_s * exp((v - V0alpha_s) / Kalpha_s))
     end
 
-    function beta_s (v)
+    function beta_s(v)
 	return (Q10 * Abeta_s * exp((v - V0beta_s) / Kbeta_s))
     end
 
-    function alpha_u (v)
+    function alpha_u(v)
 	return (Q10 * Aalpha_u * exp((v - V0alpha_u) / Kalpha_u))
     end
 
-    function beta_u (v)
+    function beta_u(v)
 	return (Q10 * Abeta_u * exp((v - V0beta_u) / Kbeta_u))
     end
 
-    s = Gate (value(alpha_s(v) / (alpha_s(v) + beta_s(v))))
-    u = Gate (value(alpha_u(v) / (alpha_u(v) + beta_u(v))))
+    s = Gate(value(alpha_s(v) / (alpha_s(v) + beta_s(v))))
+    u = Gate(value(alpha_u(v) / (alpha_u(v) + beta_u(v))))
     
     @equations begin
         der(s) =  alpha_s(v) * (1 - s) - beta_s(v) * s
@@ -125,24 +125,24 @@ function KAConductance(celsius,v,gbar,g)
 	(Q10 * Abeta_b * sigm((v - V0beta_b), Kbeta_b))
     end
 
-    a = Gate(value(1 / (1 + exp ((v - V0_ainf) / K_ainf))))
-    b = Gate(value(1 / (1 + exp ((v - V0_binf) / K_binf))))
+    a = Gate(value(1 / (1 + exp((v - V0_ainf) / K_ainf))))
+    b = Gate(value(1 / (1 + exp((v - V0_binf) / K_binf))))
 
-    a_inf   = Unknown(value(1 / (1 + exp ((v - V0_ainf) / K_ainf))))
-    b_inf   = Unknown(value(1 / (1 + exp ((v - V0_binf) / K_binf))))
+    a_inf   = Unknown(value(1 / (1 + exp((v - V0_ainf) / K_ainf))))
+    b_inf   = Unknown(value(1 / (1 + exp((v - V0_binf) / K_binf))))
 
-    tau_a   = Unknown(value(1 / (alpha_a (v) + beta_a (v))))
-    tau_b   = Unknown(value(1 / (alpha_b (v) + beta_b (v))))
+    tau_a   = Unknown(value(1 / (alpha_a(v) + beta_a(v))))
+    tau_b   = Unknown(value(1 / (alpha_b(v) + beta_b(v))))
 
     @equations begin
 
         der(a) =  (a_inf - a) / tau_a
         der(b) =  (b_inf - b) / tau_b
 
-        a_inf = (1 / (1 + exp ((v - V0_ainf) / K_ainf)))
-	tau_a = (1 / (alpha_a (v) + beta_a (v)) )
-	b_inf = (1 / (1 + exp ((v - V0_binf) / K_binf)))
-	tau_b = (1 / (alpha_b (v) + beta_b (v)) )
+        a_inf = (1 / (1 + exp((v - V0_ainf) / K_ainf)))
+	tau_a = (1 / (alpha_a(v) + beta_a(v)) )
+	b_inf = (1 / (1 + exp((v - V0_binf) / K_binf)))
+	tau_b = (1 / (alpha_b(v) + beta_b(v)) )
 
         g  = a^3 * b * gbar
 
@@ -166,15 +166,15 @@ function KCaConductance(celsius,v,cai,gbar,g)
 
     Kbeta_c = -11.765
 
-    function alpha_c (v, cai)
+    function alpha_c(v, cai)
 	(Q10 * Aalpha_c / (1 + (Balpha_c * exp(v / Kalpha_c) / cai)))
     end
 		 
-    function beta_c (v, cai)
-	(Q10 * Abeta_c / (1 + (cai / (Bbeta_c * exp (v / Kbeta_c))) ))
+    function beta_c(v, cai)
+	(Q10 * Abeta_c / (1 + (cai / (Bbeta_c * exp(v / Kbeta_c))) ))
     end
 
-    c = Gate(value(alpha_c (v, cai) / (alpha_c (v, cai) + beta_c (v, cai))))
+    c = Gate(value(alpha_c(v, cai) / (alpha_c(v, cai) + beta_c(v, cai))))
     
     @equations begin
         der(c) =  alpha_c(v, cai) * (1 - c) - beta_c(v, cai) * c
@@ -199,15 +199,15 @@ function KirConductance(celsius,v,gbar,g)
     Kbeta_d = 35.714
     V0beta_d = -83.94
    
-    function alpha_d (v)
+    function alpha_d(v)
 	(Q10 * Aalpha_d * exp((v - V0alpha_d) / Kalpha_d))
     end
 			 
-    function beta_d (v)
+    function beta_d(v)
 	(Q10 * Abeta_d * exp((v - V0beta_d) / Kbeta_d) )
     end
 
-    d = Gate(value(alpha_d (v) / (alpha_d(v) + beta_d(v))))
+    d = Gate(value(alpha_d(v) / (alpha_d(v) + beta_d(v))))
     
     @equations begin
         der(d) =  alpha_d(v) * (1 - d) - beta_d(v) * d
@@ -234,15 +234,15 @@ function KMConductance(celsius,v,gbar,g)
     V0_ninf  = -30
     B_ninf = 6
 
-    function alpha_n (v)
+    function alpha_n(v)
 	(Q10 * Aalpha_n * exp((v - V0alpha_n) / Kalpha_n) )
     end
 
-    function beta_n (v)
+    function beta_n(v)
 	(Q10 * Abeta_n * exp((v - V0beta_n) / Kbeta_n) )
     end
 
-    n   = Gate(value(alpha_n (v) / (alpha_n(v) + beta_n(v))))
+    n   = Gate(value(alpha_n(v) / (alpha_n(v) + beta_n(v))))
     
     n_inf   = Unknown(value(1 / (alpha_n(v) + beta_n(v))))
     tau_n   = Unknown(value(1 / (1 + exp((-(v - V0_ninf)) / B_ninf))))
@@ -276,14 +276,14 @@ function KVConductance(celsius,v,gbar,g)
     
 
     function alpha_n(v) 
-	(Q10 * Aalpha_n * linoid ((v - V0alpha_n), Kalpha_n))
+	(Q10 * Aalpha_n * linoid((v - V0alpha_n), Kalpha_n))
     end
     
-    function beta_n (v) 
+    function beta_n(v) 
 	(Q10 * Abeta_n * exp((v - V0beta_n) / Kbeta_n) )
     end
 
-    n   = Gate(value(alpha_n (v) / (alpha_n (v) + beta_n (v))))
+    n   = Gate(value(alpha_n(v) / (alpha_n(v) + beta_n(v))))
     
     @equations begin
         der(n) =  alpha_n(v) * (1 - n) - beta_n(v) * n
@@ -315,24 +315,24 @@ function NaConductance(celsius,v,gbar,g)
     Kbeta_h = -5
     V0beta_h = -11
 
-    function alpha_m (v)	
+    function alpha_m(v)	
 	(Q10 * Aalpha_m * linoid((v - V0alpha_m), Kalpha_m) )
     end
 
-    function beta_m (v)
+    function beta_m(v)
 	(Q10 * Abeta_m * exp((v - V0beta_m) / Kbeta_m) )
     end
 
-    function alpha_h (v)
+    function alpha_h(v)
 	(Q10 * Aalpha_h * exp((v - V0alpha_h) / Kalpha_h) )
     end
 				
-    function beta_h (v)
+    function beta_h(v)
 	(Q10 * Abeta_h / (1 + exp((v - V0beta_h) / Kbeta_h) ))
     end
     
-    m   = Gate(value(alpha_m (v) / (alpha_m(v) + beta_m(v))))
-    h   = Gate(value(alpha_h (v) / (alpha_h(v) + beta_h(v))))
+    m   = Gate(value(alpha_m(v) / (alpha_m(v) + beta_m(v))))
+    h   = Gate(value(alpha_h(v) / (alpha_h(v) + beta_h(v))))
     
     @equations begin
         der(m) =  alpha_m(v) * (1 - m) - beta_m(v) * m
@@ -367,25 +367,25 @@ function NaRConductance(celsius,v,gbar,g)
     V0beta_f = -83.3332
     Kbeta_f  = 16.05379
 
-    function alpha_s (v) 
-	(Q10 * (Shiftalpha_s + (Aalpha_s * ((v + V0alpha_s) / (exp ((v + V0alpha_s) / Kalpha_s) - 1)))))
+    function alpha_s(v) 
+	(Q10 * (Shiftalpha_s + (Aalpha_s * ((v + V0alpha_s) / (exp((v + V0alpha_s) / Kalpha_s) - 1)))))
     end
 
-    function beta_s (v) 
+    function beta_s(v) 
 	(Q10 * (Shiftbeta_s + Abeta_s * ((v + V0beta_s) / (exp((v + V0beta_s) / Kbeta_s) - 1))))
     end
 
-    function alpha_f (v) 
+    function alpha_f(v) 
 	(Q10 * Aalpha_f * exp( ( v - V0alpha_f ) / Kalpha_f))
     end
 
-    function beta_f (v) 
+    function beta_f(v) 
 	(Q10 * Abeta_f * exp( ( v - V0beta_f ) / Kbeta_f )  )
     end
     
     
-    s   = Gate(value(alpha_s (v) / (alpha_s(v) + beta_s(v))))
-    f   = Gate(value(alpha_f (v) / (alpha_f(v) + beta_f(v))))
+    s   = Gate(value(alpha_s(v) / (alpha_s(v) + beta_s(v))))
+    f   = Gate(value(alpha_f(v) / (alpha_f(v) + beta_f(v))))
     
     @equations begin
         der(s) =  alpha_s(v) * (1 - s) - beta_s(v) * s
@@ -413,15 +413,15 @@ function pNaConductance(celsius,v,gbar,g)
     B_minf    = 5
     
 
-    function alpha_m (v)
+    function alpha_m(v)
 	(Q10 * Aalpha_m * linoid( (v - V0alpha_m), Kalpha_m))
     end
 
-    function beta_m (v)
-	(Q10 * Abeta_m * linoid ( (v - V0beta_m), Kbeta_m) )
+    function beta_m(v)
+	(Q10 * Abeta_m * linoid( (v - V0beta_m), Kbeta_m) )
     end
     
-    m   = Gate(value(1 / (1 + exp ((- (v - V0_minf)) / B_minf))))
+    m   = Gate(value(1 / (1 + exp((- (v - V0_minf)) / B_minf))))
 
     m_inf   = Unknown(value(1 / (1 + exp((- (v - V0_minf)) / B_minf))))
     tau_m   = Unknown(value(5 / (alpha_m(v) + beta_m(v))))
@@ -480,45 +480,45 @@ function Soma(;
               g_Leak1  = 5.68e-5,
               g_Leak2  = 3e-5,
               
-              v::Unknown  = Voltage (-70.0, "v")   
+              v::Unknown  = Voltage(-70.0, "v")   
               )
 
     area = pi * L * diam
 
-    cai = Unknown (cai0, "cai")
+    cai = Unknown(cai0, "cai")
 
-    g_CaHVA = Conductance ()
+    g_CaHVA = Conductance()
 
-    g_KCa  = Conductance ()
-    g_KA   = Conductance ()
-    g_KV   = Conductance ()
-    g_KM   = Conductance ()
-    g_Kir  = Conductance ()
+    g_KCa  = Conductance()
+    g_KA   = Conductance()
+    g_KV   = Conductance()
+    g_KM   = Conductance()
+    g_Kir  = Conductance()
 
-    g_Na   = Conductance ()
-    g_NaR  = Conductance ()
-    g_pNa  = Conductance ()
+    g_Na   = Conductance()
+    g_NaR  = Conductance()
+    g_pNa  = Conductance()
 
-    I_stim = Discrete (0.0)
+    I_stim = Discrete(0.0)
 
-    I_Ca = Current ()
-    I_K  = Current ()
-    I_L  = Current ()
+    I_Ca = Current()
+    I_K  = Current()
+    I_L  = Current()
 
-    I_CaHVA = Current ()
+    I_CaHVA = Current()
 
-    I_KCa  = Current ()
-    I_KA   = Current ()
-    I_KV   = Current ()
-    I_KM   = Current ()
-    I_Kir  = Current ()
+    I_KCa  = Current()
+    I_KA   = Current()
+    I_KV   = Current()
+    I_KM   = Current()
+    I_Kir  = Current()
 
-    I_Na   = Current ()
-    I_NaR  = Current ()
-    I_pNa  = Current ()
+    I_Na   = Current()
+    I_NaR  = Current()
+    I_pNa  = Current()
 
-    I_Leak1  = Current ()
-    I_Leak2  = Current ()
+    I_Leak1  = Current()
+    I_Leak2  = Current()
     
     # The following gives the return value which is a list of equations.
     # Expressions with Unknowns are kept as expressions. Regular
@@ -544,18 +544,18 @@ function Soma(;
         I_K = I_KA + I_KV + I_KCa + I_Kir  + I_KM
         I_L = I_Leak1 + I_Leak2
 
-        OhmicCurrent (v, I_CaHVA, g_CaHVA, E_Ca)
-        OhmicCurrent (v, I_Na, g_Na, E_Na)
-        OhmicCurrent (v, I_NaR, g_NaR, E_Na)
-        OhmicCurrent (v, I_pNa, g_pNa, E_Na)
-        OhmicCurrent (v, I_KA, g_KA, E_K)
-        OhmicCurrent (v, I_KV, g_KV, E_K)
-        OhmicCurrent (v, I_KM, g_KM, E_K)
-        OhmicCurrent (v, I_KCa, g_KCa, E_K)
-        OhmicCurrent (v, I_Kir, g_Kir, E_K)
+        OhmicCurrent(v, I_CaHVA, g_CaHVA, E_Ca)
+        OhmicCurrent(v, I_Na, g_Na, E_Na)
+        OhmicCurrent(v, I_NaR, g_NaR, E_Na)
+        OhmicCurrent(v, I_pNa, g_pNa, E_Na)
+        OhmicCurrent(v, I_KA, g_KA, E_K)
+        OhmicCurrent(v, I_KV, g_KV, E_K)
+        OhmicCurrent(v, I_KM, g_KM, E_K)
+        OhmicCurrent(v, I_KCa, g_KCa, E_K)
+        OhmicCurrent(v, I_Kir, g_Kir, E_K)
 
-        OhmicCurrent (v, I_Leak1, g_Leak1, E_Leak1)
-        OhmicCurrent (v, I_Leak2, g_Leak2, E_Leak2)
+        OhmicCurrent(v, I_Leak1, g_Leak1, E_Leak1)
+        OhmicCurrent(v, I_Leak2, g_Leak2, E_Leak2)
         
         Event(MTime - 250.0,     # Start injecting current after 250 ms
               Equation[

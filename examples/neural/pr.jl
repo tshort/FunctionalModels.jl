@@ -36,7 +36,7 @@ Ad = 1-As
 Cm = 3
 
 
-function alphams (v)
+function alphams(v)
     return 0.32*(-46.9-v)/(exp((-46.9-v)/4.0)-1.0)
 end
 
@@ -73,7 +73,7 @@ function betasd(v)
 end
 
 function heav(x)
-    return ifelse (x > 0.0, 1.0, 0.0)
+    return ifelse(x > 0.0, 1.0, 0.0)
 end
 
 function alphacd(v)
@@ -86,11 +86,11 @@ end
 
 
 function Soma(V,I)
-    INa  = Current ("INa")
-    IKdr = Current ("IKdr")
+    INa  = Current("INa")
+    IKdr = Current("IKdr")
     
-    h = Gate ()
-    n = Gate ()
+    h = Gate()
+    n = Gate()
 
    @equations begin
        Cm * der(V) = (-gLs * (V - VL) - INa - IKdr + I + J/As)
@@ -105,17 +105,17 @@ end
 
 function Dendrite(V,I)
 
-    ICad  = Current ("ICad")
-    IKahp = Current ("IKahp")
-    IK    = Current ("IK")
-    Cad   = Unknown ("Cad")
+    ICad  = Current("ICad")
+    IKahp = Current("IKahp")
+    IK    = Current("IK")
+    Cad   = Unknown("Cad")
     
-    s     = Gate ()
-    c     = Gate ()
-    q     = Gate ()
+    s     = Gate()
+    c     = Gate()
+    q     = Gate()
     
-    chid  = Unknown ()
-    alphaqd = Unknown ()
+    chid  = Unknown()
+    alphaqd = Unknown()
 
     @equations begin
 

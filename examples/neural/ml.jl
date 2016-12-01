@@ -24,9 +24,9 @@ function MorrisLecar(;
                      v   = Voltage(-60.899, "v")
                      )
                      
-    minf (v) = (0.5 * (1.0 + tanh ((v - v1) / v2)))
-    winf (v) = (0.5 * (1.0 + tanh ((v - v3) / v4)))
-    lamw (v) = (phi * cosh ((v - v3) / (2.0 * v4)))
+    minf(v) = (0.5 * (1.0 + tanh((v - v1) / v2)))
+    winf(v) = (0.5 * (1.0 + tanh((v - v3) / v4)))
+    lamw(v) = (phi * cosh((v - v3) / (2.0 * v4)))
 
     w   = Unknown(0.0149,  "w")
     ica = Unknown()   
@@ -34,8 +34,8 @@ function MorrisLecar(;
 
     @equations begin
         der(v) = (Istim + (gl * (vl - v)) + ica + ik) / c   
-        der(w) = lamw (v) * (winf(v) - w)
-        ica = gca * (minf (v) * (vca - v))
+        der(w) = lamw(v) * (winf(v) - w)
+        ica = gca * (minf(v) * (vca - v))
         ik  = gk * (w * (vk - v))
     end
 end

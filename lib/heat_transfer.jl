@@ -411,7 +411,6 @@ PrescribedTemperature(port::HeatPort, T::Signal)
 const PrescribedTemperature = FixedTemperature
 
 
-
 """
 Fixed heat flow boundary condition
 
