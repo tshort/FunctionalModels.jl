@@ -233,42 +233,25 @@ function setup_functions(sm::Sim)
     ev_pos_thunk = length(ev_pos_array) > 0 ? Expr(:call, :vcat, ev_pos_array...) : Function[]
     ev_neg_thunk = length(ev_neg_array) > 0 ? Expr(:call, :vcat, ev_neg_array...) : Function[]
 
-    _sim_resid_name = gensym("_sim_resid")
-    _sim_init_name = gensym("_sim_init")
-    _sim_event_at_name = gensym("_sim_event_at")
-    _sim_event_pos_array_name = gensym("_sim_event_pos_array")
-    _sim_event_neg_array_name = gensym("_sim_event_neg_array")
-    
     #
     # The framework for the master function defined. Each "thunk" gets
     # plugged into a function which is evaluated.
     #
-    expr = quote
-            # Note: this was originally a closure, but it was converted
-            # to eval globally for two reasons: (1) performance and (2) so
-            # cfunction could be used to set up Julia callbacks.
-            function $_sim_resid_name(t, y, yp, r)
-                 $resid_thunk
-                 nothing
-            end
-            function $_sim_init_name(t, y, yp, r)
-                 $init_thunk
-                 nothing
-            end
-            function $_sim_event_at_name(t, y, yp, r)
-                 $event_thunk
-                 nothing
-            end
-            $_sim_event_pos_array_name = $ev_pos_thunk
-            $_sim_event_neg_array_name = $ev_neg_thunk
-        () -> begin
-            Sims.SimFunctions($_sim_resid_name, $_sim_init_name,
-                              $_sim_event_at_name, $_sim_event_pos_array_name,
-                              $_sim_event_neg_array_name)
+    sim_resid = @eval function(t, y, yp, r)
+            $resid_thunk
+            nothing
         end
-    end
+    sim_init = @eval function(t, y, yp, r)
+            $init_thunk
+            nothing
+        end
+    sim_eventat = @eval function(t, y, yp, r)
+            $event_thunk
+            nothing
+        end
 
-    F = eval(expr)()
+    F = @eval SimFunctions($sim_resid, $sim_init, $sim_eventat, 
+                           $ev_neg_thunk, $ev_neg_thunk)
 
     # For event responses that were actual functions, insert those into
     # the F structure.
