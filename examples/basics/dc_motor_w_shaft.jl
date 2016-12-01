@@ -70,7 +70,7 @@ function FlexibleShaft(flangeA::Flange, flangeB::Flange, n::Int)
     result
 end
 
-@doc+ """
+"""
 A DC motor with a flexible shaft. The shaft is made of multiple
 elements. These are collected together algorithmically.
 
@@ -78,7 +78,7 @@ This is a smaller version of an example on p. 117 of David Broman's
 [thesis](http://www.bromans.com/david/publ/thesis-2010-david-broman.pdf).
 
 I don't know if the results are reasonable or not.
-""" ->
+"""
 function DcMotorWithShaft()
     r1 = Angle("Source angle") 
     r2 = Angle()

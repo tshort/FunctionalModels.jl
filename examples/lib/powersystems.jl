@@ -9,14 +9,14 @@ export RLModel, PiModel, ModalModel
 # Power systems
 """
 
-@doc+ """
+"""
 Three-phase RL line model
 
 See also sister models: PiModel and ModalModal.
 
 WARNING: immature / possibly broken!
 
-""" ->
+"""
 function RLModel()
     ns = Voltage(zeros(3), "Vs")
     np = Voltage(zeros(3))
@@ -43,14 +43,14 @@ function RLModel()
     ]
 end
 
-@doc+ """
+"""
 Three-phase Pi line model
 
 See also sister models: RLModel and ModalModal.
 
 WARNING: immature / possibly broken!
 
-""" ->
+"""
 function PiModel()
     # Lots of junk on the load voltage with this configuration.
     # Also, it won't solve at 60 Hz. It's probably too stiff. It
@@ -94,14 +94,14 @@ end
 ## s = create_sim(f)
 ## y = sim(s, 0.1)
 
-@doc+ """
+"""
 Three-phase modal line model
 
 See also sister models: PiModel and RLModal.
 
 WARNING: immature / possibly broken!
 
-""" ->
+"""
 function ModalModel()
     ns = Voltage(zeros(3), "Vs")
     np = Voltage(zeros(3))

@@ -22,7 +22,7 @@ using Requires
         x - v
     end
     
-@doc+ """
+"""
 Interpolated event grid (requires Grid library).
 
 ```julia
@@ -57,7 +57,7 @@ Event(grid_input(input),
       Equation[])
 
 ```
-""" ->
+"""
 
 function make_grid(events,dt)
     

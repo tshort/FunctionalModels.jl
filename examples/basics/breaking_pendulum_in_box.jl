@@ -6,7 +6,7 @@
 
 export BreakingPendulumInBox
 
-function FreeFall(x,y,vx,vy)
+function FreeFallinBox(x,y,vx,vy)
     @equations begin
         der(x) = vx
         der(y) = vy
@@ -24,7 +24,7 @@ function FreeFall(x,y,vx,vy)
     end
 end
 
-function Pendulum(x,y,vx,vy)
+function PenduluminBox(x,y,vx,vy)
     len = sqrt(x.value^2 + y.value^2)
     phi0 = atan2(x.value, -y.value) 
     phi = Unknown(phi0)
@@ -39,12 +39,12 @@ function Pendulum(x,y,vx,vy)
     end
 end
 
-@doc+ """
+"""
 An extension of Sims.Examples.Basics.BreakingPendulum.
 
 Floors and a wall are added. These are handled by `Events` in the
 `FreeFall` model. Velocities are reversed to bounce the ball.
-""" ->
+"""
 function BreakingPendulumInBox()
     x = Unknown(cos(pi/4), "x")
     y = Unknown(-cos(pi/4), "y")
@@ -52,8 +52,8 @@ function BreakingPendulumInBox()
     vy = Unknown()
     Equation[
     StructuralEvent(MTime - 1.8,     # when time hits 1.8 sec, switch to FreeFall
-        Pendulum(x,y,vx,vy),
-        () -> FreeFall(x,y,vx,vy))
+        PenduluminBox(x,y,vx,vy),
+        () -> FreeFallinBox(x,y,vx,vy))
     ]
 end
 

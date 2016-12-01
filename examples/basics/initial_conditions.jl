@@ -13,10 +13,10 @@
 export InitialCondition, MkinInitialCondition
 
 
-@doc+ """
+"""
 A basic test of solving for initial conditions for two simultaineous
 equations.
-""" ->
+"""
 function InitialCondition()
     @unknown x y
     @equations begin
@@ -25,10 +25,10 @@ function InitialCondition()
      end
 end
 
-@doc+ """
+"""
 A basic test of solving for initial conditions for two simultaineous
 equations.
-""" ->
+"""
 function MkinInitialCondition()
     @unknown x(1.0) y(1.0)
     @equations begin

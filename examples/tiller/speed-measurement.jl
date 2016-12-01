@@ -25,12 +25,12 @@ The system is based on the following plant:
 """
 
 
-@doc """
+"""
 Rotational example
 
 http://book.xogeny.com/behavior/equations/mechanical/
 
-""" ->
+"""
 function SecondOrderSystem(; phi1 = Unknown("Angle of inertia 1"),
                              phi2 = Unknown("Angle of inertia 2", 1.0),
                              omega1 = Unknown("Velocity of inertia 1"),
@@ -52,14 +52,14 @@ end
 
 
 
-@doc """
+"""
 Rotational example based on components in Sims.Lib
 
 http://book.xogeny.com/behavior/equations/mechanical/
 
 ![diagram](http://book.xogeny.com/_images/PlantWithPulseCounter.svg)
 
-""" ->
+"""
 function SecondOrderSystemUsingSimsLib(; phi1 = Angle(label = "Angle of inertia 1", value = 0.0, fixed = true),
                                          phi2 = Angle(label = "Angle of inertia 2", value = 1.0, fixed = true),
                                          omega1 = Unknown(label = "Velocity of inertia 1", value = 0.0, fixed = true),
@@ -79,12 +79,12 @@ end
 
 
 
-@doc """
+"""
 Rotational example with sample-and-hold measurement
 
 http://book.xogeny.com/behavior/discrete/measuring/#sample-and-hold
 
-""" ->
+"""
 function SampleAndHold()
     sample_time = 0.125
     omega1 = Unknown("omega1")
@@ -100,12 +100,12 @@ end
 ## y = dasslsim(SampleAndHold(), tstop = 5.0)
 ## pplot(y)
 
-@doc """
+"""
 Rotational example with interval measurements
 
 http://book.xogeny.com/behavior/discrete/measuring/#interval-measurement
 
-""" ->
+"""
 function IntervalMeasure()
     teeth = 200
     tooth_angle = 2pi / teeth
@@ -130,12 +130,12 @@ end
 ## y = dasslsim(IntervalMeasure(), tstop = 5.0)
 ## pplot(y)
 
-@doc """
+"""
 Rotational example with pulse counting
 
 http://book.xogeny.com/behavior/discrete/measuring/#pulse-counting
 
-""" ->
+"""
 function PulseCounting()
     sample_time = 0.125
     teeth = 200

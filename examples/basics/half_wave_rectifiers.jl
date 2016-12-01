@@ -49,12 +49,12 @@ function ClosedDiode(n1, n2)
 end
 
 
-@doc+ """
+"""
 A half-wave rectifier. The diode uses Events to toggle switching.
 
 See F. E. Cellier and E. Kofman, *Continuous System Simulation*,
 Springer, 2006, fig 9.27.
-""" ->
+"""
 function HalfWaveRectifier()
     nsrc = Voltage("Source voltage")
     n2 = Voltage("")
@@ -72,11 +72,11 @@ end
 
 
 
-@doc+ """
+"""
 This is the same circuit used in
 Sims.Examples.Basics.HalfWaveRectifier, but a structurally variable
 diode is used instead of a diode that uses Events.
-""" ->
+"""
 function StructuralHalfWaveRectifier()
     nsrc = Voltage("Source voltage")
     n2 = Voltage("")

@@ -11,7 +11,7 @@ export TwoMasses, Motor
 # Heat transfer
 """
 
-@doc+ """
+"""
 Simple conduction demo
 
 This example demonstrates the thermal response of two masses
@@ -27,7 +27,7 @@ the system by the sum of the heat capacities of each element.
 
 [LBL doc link](http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Thermal_HeatTransfer_Examples.html#Modelica.Thermal.HeatTransfer.Examples.TwoMasses)
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Thermal_HeatTransfer_Examples.html#Modelica.Thermal.HeatTransfer.Examples.TwoMasses)
-""" ->
+"""
 function TwoMasses()
     t1 = Temperature(373.15, "t1")
     t2 = Temperature(273.15, "t2")
@@ -39,14 +39,14 @@ function TwoMasses()
 end
 
 
-@doc+ """
+"""
 Second order thermal model of a motor
 
 ![diagram](http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica.Thermal.HeatTransfer.Examples.MotorD.png)
 
 [LBL doc link](http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Thermal_HeatTransfer_Examples.html#Modelica.Thermal.HeatTransfer.Examples.Motor)
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Thermal_HeatTransfer_Examples.html#Modelica.Thermal.HeatTransfer.Examples.Motor)
-""" ->
+"""
 function Motor(BROKEN)   ## needs to have `interp` defined
     p1 = Temperature("p1")
     p2 = Temperature("p2")

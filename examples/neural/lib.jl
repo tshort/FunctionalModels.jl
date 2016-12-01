@@ -26,20 +26,29 @@ function ghk(celsius, v, ci, co, z)
         k0 = ((z * (F * E)) / (R * T))
         k1 = exp(- k0)
         k2 = ((z ^ 2) * (E * (F ^ 2))) / (R * T)
-        return (1e-6) * (ifelse(abs(1 - k1) < 1e-6,
-                                 (z * F * (ci - (co * k1)) * (1 - k0)),
-                                 (k2 * (ci - (co * k1)) / (1 - k1))))
+        return (1e-6) * (ifelse(abs (1 - k1) < 1e-6,
+                                (z * F * (ci - (co * k1)) * (1 - k0)),
+                                (k2 * (ci - (co * k1)) / (1 - k1))))
     end
 end
 
 
 function ktf(celsius)
+<<<<<<< HEAD
     return(1000.0 * R * (celsius + 273.15) / F )
 end
 
 function nernst(celsius, ci, co, z) 
     ifelse(ci <= 0, 1e6,
             ifelse(co <= 0, -1e6,
+=======
+    return (1000.0 * R * (celsius + 273.15) / F )
+end
+
+function nernst(celsius, ci, co, z) 
+    ifelse (ci <= 0, 1e6,
+            ifelse (co <= 0, -1e6,
+>>>>>>> e66864751138635f5a7a8899f960a39580821b54
                     ktf(celsius) / z * (log(co / ci))))
 end
 

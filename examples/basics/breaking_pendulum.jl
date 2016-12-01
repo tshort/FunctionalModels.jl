@@ -31,14 +31,14 @@ function Pendulum(x,y,vx,vy)
     end
 end
 
-@doc+ """
+"""
 Models a pendulum that breaks at 5 secs. This model uses a
 StructuralEvent to switch between `Pendulum` mode and `FreeFall` mode.
 
 Based on an example by George Giorgidze's
 thesis](http://eprints.nottingham.ac.uk/12554/1/main.pdf) that's in
 [Hydra](https://github.com/giorgidze/Hydra/blob/master/examples/BreakingPendulum.hs).
-""" ->
+"""
 function BreakingPendulum()
     x = Unknown(cos(pi/4), "x")
     y = Unknown(-cos(pi/4), "y")
