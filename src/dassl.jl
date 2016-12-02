@@ -25,14 +25,6 @@ end
 
 hasdassl = true
 
-try
-    global lib = Libdl.dlopen(dllname)
-catch
-    hasdassl = false
-    println("*********************************************")
-    println("DASKR not available; dasslsim not available  ")
-    println("*********************************************")
-end    
 
 function dasslfun(t_in, y_in, yp_in, cj, delta_out, ires, rpar, ipar)
     n = convert(Array{Int}, unsafe_wrap(Array, ipar, (3,)))

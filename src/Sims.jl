@@ -1,4 +1,4 @@
-# __precompile__()
+__precompile__()
 
 module Sims
 
@@ -39,8 +39,6 @@ export Equation, @equations, is_unknown, der, delay, mexpr, compatible_values, r
 export Branch, BoolEvent
 
 
-
-
 using Docile
 @document
 using Compat
@@ -64,6 +62,17 @@ include("../lib/Lib.jl")
 # load standard Sims examples
 
 include("../examples/Examples.jl")
+
+function __init__() 
+    try
+        global lib = Libdl.dlopen(dllname)
+    catch
+        hasdassl = false
+        println("*********************************************")
+        println("DASKR not available; dasslsim not available  ")
+        println("*********************************************")
+    end    
+end
 
 end # module Sims
 
