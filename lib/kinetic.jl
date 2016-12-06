@@ -87,7 +87,7 @@ function reaction_flux(K,S,X)
     n = size(S,2) ## number of species
     r = size(S,1) ## number of reactions
 
-    F = cell(r)
+    F = Array{Any}(r)
     
     for i = 1:r
         ## (reaction rate) * (reactant concentrations)
@@ -151,9 +151,10 @@ function parse_reactions(V)
 
     X = Any[] ## species
     K = Any[] ## reaction rates
-    
-    for reaction in V
 
+    for i = 1:size(V)[1]
+
+        reaction = V[i,:]
         if reaction[1] == :-> || reaction[1] == :→ 
             assert(length(reaction) == 4)
             x = reaction[2]
@@ -189,14 +190,16 @@ function parse_reactions(V)
     n = size(X,1) ## number of species
     
     ## Stoichiometric coefficients of reactants
-    S = cell(0,n)
+    S = Array{Any}(0,n)
     ## Stoichiometric coefficients of products
-    R = cell(0,n)
-    c = cell(1,n)
+    R = Array{Any}(0,n)
+    c = Array{Any}(1,n)
     c[:] = 0
     i = 1
 
-    for reaction in V
+    for j = 1:size(V)[1]
+        reaction = V[j,:]
+
         if reaction[1] == :-> || reaction[1] == :→ 
             
             x = reaction[2]

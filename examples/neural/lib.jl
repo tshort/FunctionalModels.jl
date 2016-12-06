@@ -24,9 +24,9 @@ function ghk(celsius, v, ci, co, z)
     let T = celsius + 273.15
         E = (1e-3) * v
         k0 = ((z * (F * E)) / (R * T))
-        k1 = exp (- k0)
+        k1 = exp(- k0)
         k2 = ((z ^ 2) * (E * (F ^ 2))) / (R * T)
-        return (1e-6) * (ifelse(abs (1 - k1) < 1e-6,
+        return (1e-6) * (ifelse(abs(1 - k1) < 1e-6,
                                 (z * F * (ci - (co * k1)) * (1 - k0)),
                                 (k2 * (ci - (co * k1)) / (1 - k1))))
     end
@@ -38,8 +38,8 @@ function ktf(celsius)
 end
 
 function nernst(celsius, ci, co, z) 
-    ifelse (ci <= 0, 1e6,
-            ifelse (co <= 0, -1e6,
+    ifelse(ci <= 0, 1e6,
+            ifelse(co <= 0, -1e6,
                     ktf(celsius) / z * (log(co / ci))))
 end
 

@@ -1,4 +1,4 @@
-# __precompile__()
+__precompile__()
 
 module Sims
 
@@ -64,14 +64,14 @@ include("../lib/Lib.jl")
 include("../examples/Examples.jl")
 
 function __init__() 
-    # try
-    #     global lib = Libdl.dlopen(dllname)
-    # catch
+    try
+        global lib = Libdl.dlopen(dllname)
+    catch
         hasdassl = false
-    #     println("*********************************************")
-    #     println("DASKR not available; dasslsim not available  ")
-    #     println("*********************************************")
-    # end    
+        println("*********************************************")
+        println("DASKR not available; dasslsim not available  ")
+        println("*********************************************")
+    end    
 end
 
 end # module Sims

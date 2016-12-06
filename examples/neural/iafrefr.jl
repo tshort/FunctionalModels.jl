@@ -58,7 +58,7 @@ function RefractoryLeakyIaF(;
         end
     end
 
-    Main (v)
+    Main(v)
 end
 
 
