@@ -7,7 +7,7 @@ module WangBuzsaki
 
 using Sims, Sims.Lib
 using Sims.Examples.Neural, Sims.Examples.Neural.Lib
-using Docile
+
 
         
 minf(v)=am(v)/(am(v)+bm(v))

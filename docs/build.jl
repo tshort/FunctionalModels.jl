@@ -1,78 +1,70 @@
 
-using Docile, Docile.Interface, Lexicon, Sims
+using Documenter, Sims
 
-
-myfilter(x::Module; files = [""]) = filter(metadata(x), files = files, categories = [:comment, :module, :function, :method, :type, :typealias, :macro, :global])
-myfilter(x::Metadata; files = [""]) = filter(x, files = files, categories = [:comment, :module, :function, :method, :type, :typealias, :macro, :global])
-
-# Stuff from Lexicon.jl:
-writeobj(any) = string(any)
-writeobj(m::Method) = first(split(string(m), "("))
-# from base/methodshow.jl
-function url(m)
-    line, file = m
-    try
-        d = dirname(file)
-        u = Pkg.Git.readchomp(`config remote.origin.url`, dir=d)
-        u = match(Pkg.Git.GITHUB_REGEX,u).captures[1]
-        root = cd(d) do # dir=d confuses --show-toplevel, apparently
-            Pkg.Git.readchomp(`rev-parse --show-toplevel`)
-        end
-        if beginswith(file, root)
-            commit = Pkg.Git.readchomp(`rev-parse HEAD`, dir=d)
-            return "https://github.com/$u/tree/$commit/"*file[length(root)+2:end]*"#L$line"
+function sorteddocs(mod)
+    path = String[]
+    line = Int[]
+    text = String[]  # for comments, it's the docstring; for others, it's the name
+    iscomment = Bool[]
+    for (k,v) in Docs.meta(mod)
+        if contains(string(k.var), "###comment")
+            docstr = first(v.docs)[2]
+            push!(path, docstr.data[:path])
+            push!(line, docstr.data[:linenumber])
+            push!(text, string(docstr.text...))
+            push!(iscomment, true)
         else
-            return Base.fileurl(file)
+            for docstr in values(v.docs)
+                push!(path, docstr.data[:path])
+                push!(line, docstr.data[:linenumber])
+                push!(text, string(docstr.data[:binding].var))
+                push!(iscomment, false)
+            end
         end
-    catch
-        return Base.fileurl(file)
+    end
+    idx = sortperm([zip(path, line)...])
+    (path[idx], line[idx], text[idx], iscomment[idx])
+end
+"""
+    createmd(mdfile, module, files = "")
+   
+Create the Markdown file `mdfile` using docstrings from `module`, 
+optionally filtering to those in `files`. `files` can be a single
+value or array with strings. 
+"""
+function createmd(mdfile, mod, files = "")
+    path, line, text, iscomment = sorteddocs(mod)
+    open(mdfile, "w") do fout
+        for f in [files;]
+            idx = filter(i -> contains(path[i], f), 1:length(path)) # find the files
+            for i in idx
+                if iscomment[i]
+                    println(fout, text[i])
+                else
+                    println(fout, "```@docs\n    $(text[i])\n```")
+                end
+            end
+        end
     end
 end
 
+mkpath("src/api")
+mkpath("src/lib")
+mkpath("src/examples")
 
-function mysave(file::AbstractString, m::Module, order = [:source])
-    mysave(file, documentation(m), order)
-end
-function mysave(file::AbstractString, docs::Metadata, order = [:source])
-    isfile(file) || mkpath(dirname(file))
-    open(file, "w") do io
-        info("writing documentation to $(file)")
-        println(io)
-        for (k,v) in EachEntry(docs, order = order)
-            name = writeobj(k)
-            source = v.data[:source]
-            catgory = category(v)
-            comment = catgory == :comment
-            println(io)
-            println(io)
-            !comment && println(io, "## $name")
-            println(io)
-            println(io, v.docs.data)
-            path = last(split(source[2], r"v[\d\.]+(/|\\)"))
-            !comment && println(io, "[$(path):$(source[1])]($(url(source)))")
-            println(io)
-        end
-    end
-end
+createmd("src/lib/types.md",         Sims.Lib, "types.jl")
+createmd("src/lib/blocks.md",        Sims.Lib, "blocks.jl")
+createmd("src/lib/electrical.md",    Sims.Lib, "electrical.jl")
+createmd("src/lib/kinetics.md",      Sims.Lib, "kinetic.jl")
+createmd("src/lib/heat_transfer.md", Sims.Lib, "heat_transfer.jl")
+createmd("src/lib/powersystems.md",  Sims.Lib, "powersystems.jl")
+createmd("src/lib/rotational.md",    Sims.Lib, "rotational.jl")
 
+createmd("src/examples/basics.md", Sims.Examples.Basics)
+createmd("src/examples/lib.md",    Sims.Examples.Lib)
+# createmd("src/examples/neural.md", Sims.Examples.Neural)
+createmd("src/examples/tiller.md", Sims.Examples.Tiller)
 
-mysave("lib/types.md",         myfilter(Sims.Lib, files = ["types.jl"]))
-mysave("lib/blocks.md",        myfilter(Sims.Lib, files = ["blocks.jl"]))
-mysave("lib/electrical.md",    myfilter(Sims.Lib, files = ["electrical.jl"]))
-mysave("lib/kinetics.md",      myfilter(Sims.Lib, files = ["kinetic.jl"]))
-mysave("lib/heat_transfer.md", myfilter(Sims.Lib, files = ["heat_transfer.jl"]))
-mysave("lib/powersystems.md",  myfilter(Sims.Lib, files = ["powersystems.jl"]))
-mysave("lib/rotational.md",    myfilter(Sims.Lib, files = ["rotational.jl"]))
-
-mysave("examples/basics.md", Sims.Examples.Basics)
-mysave("examples/lib.md",    Sims.Examples.Lib)
-mysave("examples/neural.md", Sims.Examples.Neural)
-mysave("examples/tiller.md", Sims.Examples.Tiller)
-
-
-mysave("api/main.md",       myfilter(Sims, files = ["main.jl"]), [:category, :name, :source])
-smfiles = ["dassl.jl","sundials.jl","sim.jl", "elaboration.jl", "simcreation.jl"]
-mysave("api/sim.md",        myfilter(Sims, files = smfiles), [:category, :name, :source])
-# Need to load all optional modules to bring in all of the files.
-using Gadfly, DataFrames, Winston, PyPlot    # , Gaston
-mysave("api/utils.md",      myfilter(Sims, files = ["utils.jl"]), [:category, :name, :source])
+createmd("src/api/utils.md", Sims, "utils.jl")
+mysave("src/api/main.md",    Sims, "main.jl")
+mysave("src/api/sim.md",     Sims, ["dassl.jl","sundials.jl","sim.jl", "elaboration.jl", "simcreation.jl"])

@@ -43,15 +43,7 @@ sim(m::SimState; tstop::Float64=1.0, Nsteps::Int=500, reltol::Float64=1e-4, abst
 
 * `::SimResult` : the simulation result
 
-A number of optional packages can be used with results, including:
-
-* Winston - plotting: `wplot(y::SimResult)`
-* Gaston - plotting: `gplot(y::SimResult)` 
-* DataFrames - conversion to a DataFrame: `convert(DataFrame, y::SimResult)` 
-* Gadfly - plotting: `plot(y::SimResult, ...)` 
-
-For each of these, the package must be installed, and the package
-pulled in with `require` or `using`.
+The result can be plotted with `Plots.jl`.
 
 ### Details
 
@@ -90,8 +82,8 @@ end
 
 v = Vanderpol()       # returns the hierarchical model
 y = sunsim(v, 50.0)
-using Winston
-wplot(y)
+
+plot(y)
 ```
 """
 sim = sunsim

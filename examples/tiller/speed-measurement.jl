@@ -1,5 +1,5 @@
 
-using Sims, Sims.Lib, Docile
+using Sims, Sims.Lib
 
 export SecondOrderSystem, SecondOrderSystemUsingSimsLib, SampleAndHold, IntervalMeasure, PulseCounting
 

@@ -2,11 +2,10 @@ module Lib
 
 using ....Sims
 using ....Sims.Lib
-using Docile
-@document
+
 
 @comment """
-# Sims.Lib examples
+# Sims.Lib
 
 Examples using models from the Sims standard library (Sims.Lib).
 
@@ -20,11 +19,10 @@ using Sims
 m = Sims.Examples.Lib.ChuaCircuit()
 z = sim(m, 5000.0)
 
-using Winston
-wplot(z)
+
+plot(z)
 ```
 """
-
 
 include("blocks.jl")
 include("electrical.jl")

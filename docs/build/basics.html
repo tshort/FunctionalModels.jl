@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Basics · Sims.jl</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/default.min.css" rel="stylesheet" type="text/css"/><link href="https://fonts.googleapis.com/css?family=Lato|Ubuntu+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/><link href="assets/documenter.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="assets/documenter.js"></script><script src="../versions.js"></script></head><body><nav class="toc"><h1>Sims.jl</h1><form class="search" action="search.html"><select id="version-selector" onChange="window.location.href=this.value"><option value="#" selected="selected" disabled="disabled">Version</option></select><input id="search-query" name="q" type="text" placeholder="Search docs"/></form><ul><li><a class="toctext" href="index.html">Home</a></li><li class="current"><a class="toctext" href="basics.html">Basics</a><ul class="internal"><li><a class="toctext" href="#Unknowns-1">Unknowns</a></li><li><a class="toctext" href="#Models-1">Models</a></li><li><a class="toctext" href="#Simulating-a-Model-1">Simulating a Model</a></li><li><a class="toctext" href="#Simulation-Output-1">Simulation Output</a></li><li><a class="toctext" href="#Hybrid-Modeling-1">Hybrid Modeling</a></li><li><a class="toctext" href="#Structurally-Varying-Systems-1">Structurally Varying Systems</a></li></ul></li><li><span class="toctext">API</span><ul><li><a class="toctext" href="api/main.html">Building models</a></li><li><a class="toctext" href="api/sim.html">Simulations</a></li><li><a class="toctext" href="api/utils.html">Utilities</a></li></ul></li><li><span class="toctext">Library</span><ul><li><a class="toctext" href="lib/types.html">The Sims standard library</a></li><li><a class="toctext" href="lib/kinetics.html">Chemical kinetics</a></li><li><a class="toctext" href="lib/blocks.html">Control and signal blocks</a></li><li><a class="toctext" href="lib/electrical.html">Analog electrical models</a></li><li><a class="toctext" href="lib/heat_transfer.html">Heat transfer models</a></li><li><a class="toctext" href="lib/powersystems.html">Power systems models</a></li><li><a class="toctext" href="lib/rotational.html">Rotational mechanics</a></li></ul></li><li><span class="toctext">Examples</span><ul><li><a class="toctext" href="examples/basics.html">Examples using basic models</a></li><li><a class="toctext" href="examples/lib.html">Sims.Lib</a></li><li><a class="toctext" href="examples/tiller.html">Tiller examples</a></li></ul></li><li><a class="toctext" href="design.html">Design</a></li><li><a class="toctext" href="NEWS.html">Release notes</a></li><li><a class="toctext" href="LICENSE.html">License</a></li></ul></nav><article id="docs"><header><nav><ul><li><a href="basics.html">Basics</a></li></ul></nav><hr/></header><h1><a class="nav-anchor" id="Documentation-1" href="#Documentation-1">Documentation</a></h1><p>This document provides a general introduction to Sims.</p><h2><a class="nav-anchor" id="Unknowns-1" href="#Unknowns-1">Unknowns</a></h2><p>Models consist of equations and unknown variables. The number of equations should match the number of unknowns. In Sims, the type Unknown is used to define unknown variables. Without the constructor parts, the definition of Unknown is:</p><pre><code class="language-julia">type Unknown{T&lt;:UnknownCategory} &lt;: UnknownVariable
+    sym::Symbol
+    value         # holds initial values (and type info)
+    label::AbstractString 
+end</code></pre><p>Unknowns can be grouped into categories. That&#39;s what the <code>T</code> is for in the definition above. One can define different types of Unknowns (electrical vs. mechanical for example). The default is DefaultUnknown. Unknowns of different types can also be used to define models of the same name that act differently depending on what type of node they are connected to.</p><p>Unknowns also contain a value. This is used for setting initial values, and these values are updated if there is a structural change in the model. Unknowns can be different types. Eventually, all Unknowns are converted to Float64&#39;s in an array for simulation. Currently, Sim supports Unknowns of type Float64, Complex128, and arrays of either of these. Adding support for other structures is not hard as long as they can be converted to Float64&#39;s.</p><p>The label string is used for labeling simulation outputs. Unlabeled Unknowns are not included in results.</p><p>Here are several ways to define Unknowns:</p><pre><code class="language-julia">x = Unknown()          # An initial value of 0.0 with no labeling.
+y = Unknown(1.0, &quot;y&quot;)  # An initial value of 1.0 and a label of &quot;y&quot; on outputs.
+z = Unknown([1.0, 0.0], &quot;vector&quot;)  # An Unknown with array values.
+V = Unknown{Voltage}(10.0, &quot;Output voltage&quot;)  # An Unknown of type Voltage</code></pre><p>Here are ways to create new Unknown types:</p><pre><code class="language-jl"># Untyped Unknowns:
+Angle = AngularVelocity = AngularAcceleration = Torque = RotationalNode = Unknown
+
+# Typed Unknowns:
+type UVoltage &lt;: UnknownCategory
+end
+type UCurrent &lt;: UnknownCategory
+end
+typealias ElectricalNode Unknown{UVoltage}
+typealias Voltage Unknown{UVoltage}
+typealias Current Unknown{UCurrent}</code></pre><p>In model equations, derivatives are specified with der:</p><pre><code class="language-jl">   der(y)</code></pre><p>Derivatives of Unknowns are an object of type DerUnknown. DerUnknown objects contain an initial value, and a pointer to the Unknown object it references. Initial values can be entered as the second parameter to the der function:</p><pre><code class="language-jl">   der(y, 3.0) - (x+1)   #  The derivative of y starts with the value 3.0</code></pre><h2><a class="nav-anchor" id="Models-1" href="#Models-1">Models</a></h2><p>Here is a model of the Van Der Pol oscillator:</p><pre><code class="language-jl">function Vanderpol()
+    y = Unknown(1.0, &quot;y&quot;)   
+    x = Unknown(&quot;x&quot;)       
+    # The following gives the return value which is a list of equations.
+    # Expressions with Unknowns are kept as expressions. Regular
+    # variables are evaluated immediately (like normal).
+    Equation[
+        der(x, -1.0) - ((1 - y^2) * x - y)   # == 0 is assumed
+        der(y) - x
+    ]
+end</code></pre><p>A device model is a function that returns a list of equations or other devices that also return lists of equations. The equations each are assumed equal to zero. In Julia, this is the best we can do, because there isn&#39;t an equality operator (<code>==</code> doesn&#39;t fit the bill, either).</p><p>Models should normally be locally balanced, meaning the number of unknowns matches the number of equations. It&#39;s pretty easy to match unknowns and equations as shown below:</p><pre><code class="language-jl">function Capacitor(n1, n2, C::Real) 
+    i = Current()              # Unknown #1
+    v = Voltage()              # Unknown #2
+    Equation[
+        Branch(n1, n2, v, i)      # Equation #1 - this returns n1 - n2 - v
+        C * der(v) - i            # Equation #2
+    ]
+end</code></pre><p>In the model above, the nodes <code>n1</code> and <code>n2</code> are also Unknowns, but they are defined outside of this model.</p><p>Here is the top-level circuit definition. In this case, there are no input parameters. The ground reference <code>g</code> is assigned zero volts.</p><pre><code class="language-jl">function Circuit()
+    n1 = ElectricalNode(&quot;Source voltage&quot;)   # The string indicates labeling for plots
+    n2 = ElectricalNode(&quot;Output voltage&quot;)
+    n3 = ElectricalNode()
+    g = 0.0  # a ground has zero volts; it&#39;s not an Unknown.
+    Equation[
+        VSource(n1, g, 10.0, 60.0)
+        Resistor(n1, n2, 10.0)
+        Resistor(n2, g, 5.0)
+        SeriesProbe(n2, n3, &quot;Capacitor current&quot;)
+        Capacitor(n3, g, 5.0e-3)
+    ]
+end</code></pre><p>All of the equations returned in this list of equations are other models with different parameters.</p><p>In this top-level model, three new Unknowns are introduced (<code>n1</code>, <code>n2</code>, and <code>n2</code>). Because these are nodes, each Unknown node will also cause an equation to be generated that sums the flows into the node to be zero.</p><p>In this model, the voltages <code>n1</code> and <code>n2</code> are labeled, so they will appear in the output. A SeriesProbe is used to label the current through the capacitor.</p><h2><a class="nav-anchor" id="Simulating-a-Model-1" href="#Simulating-a-Model-1">Simulating a Model</a></h2><p>Steps to building and simulating a model are straightforward.</p><pre><code class="language-jl">v = Vanderpol()       # returns the hierarchical model
+v_f = elaborate(v)    # returns the flattened model
+v_s = create_sim(v_f) # returns a &quot;Sim&quot; ready for simulation
+v_yout = sim(v_s, 10.0) # run the simulation to 10 seconds and return
+                        # the result as an array plus column headings</code></pre><p>Two solvers are available: <code>dasslsim</code> and <code>sunsim</code> using the <a href="https://github.com/tshort/Sundials.jl">Sundials</a>. Right now, <code>sim</code> is equivalent to <code>dasslsim</code>.</p><p>Simulations can also be run directly from a hierarchical model:</p><pre><code class="language-jl">v_yout = sim(v, 10.0) </code></pre><p>Right now, there are really no options available for simulation parameters.</p><h2><a class="nav-anchor" id="Simulation-Output-1" href="#Simulation-Output-1">Simulation Output</a></h2><p>The result of a <code>sim</code> run is an object with components <code>y</code> and <code>colnames</code>. <code>y</code> is a two-dimensional array with time slices along rows and variables along columns. The first column is simulation time. The remaining columns are for each unknown in the model including derivatives. <code>colnames</code> contains the names of each of the columns in <code>y</code> after the time column.</p><h2><a class="nav-anchor" id="Hybrid-Modeling-1" href="#Hybrid-Modeling-1">Hybrid Modeling</a></h2><p>Sims provides basic support for hybrid modeling. Discrete variables are variables that are not involved in integration but apply when &quot;events&quot; occur. Models can define events denoting changes in behavior.</p><p>Event is the main type used for hybrid modeling. It contains a condition for root finding and model expressions to process after positive and negative root crossings are detected.</p><pre><code class="language-jl">type Event &lt;: ModelType
+    condition::ModelType   # An expression used for the event detection. 
+    pos_response::Model    # An expression indicating what to do when
+                           # the condition crosses zero positively.
+    neg_response::Model    # An expression indicating what to do when
+                           # the condition crosses zero in the
+                           # negative direction.
+end</code></pre><p>The function <code>reinit</code> is used in Event responses to redefine variables. Here is an example of a voltage source defined with a square wave:</p><pre><code class="language-jl">function VSquare(n1, n2, V::Real, f::Real)  
+    i = Current()
+    v = Voltage()
+    v_mag = Discrete(V)
+    Equation[
+        Branch(n1, n2, v, i)
+        v - v_mag
+        Event(sin(2 * pi * f * MTime),
+              Equation[reinit(v_mag, V)],    # positive crossing
+              Equation[reinit(v_mag, -V)])   # negative crossing
+    ]
+end</code></pre><p>The variable v_mag is the Discrete variable that is changed using reinit whenever the <code>sin(2 * pi * f * MTime)</code> crosses zero. A response is provided for both positive and negative zero crossings.</p><p>Two other constructs that are useful are BoolEvent and ifelse.  ifelse is like an if-then-else block, but for ModelTypes (you can&#39;t use a regular if-then-else block, at least not without macros).   BoolEvent is a helper for attaching an event to a boolean variable. Here is an example for an ideal diode:</p><pre><code class="language-jl">function IdealDiode(n1, n2)
+    i = Current()
+    v = Voltage()
+    s = Unknown()  # dummy variable
+    openswitch = Discrete(false)  # on/off state of diode
+    Equation[
+        Branch(n1, n2, v, i)
+        BoolEvent(openswitch, -s)  # openswitch becomes true when s goes negative
+        v - ifelse(openswitch, s, 0.0) 
+        i - ifelse(openswitch, 0.0, s) 
+    ]
+end</code></pre><p>Discrete variables are based on Signals from the <a href="http://julialang.org/Reactive.jl/">Reactive.jl</a> package. This provides <a href="http://en.wikipedia.org/wiki/Reactive_programming">Reactive Programming</a> capabilities where variables have data flow. This is similar to how spreadsheets dynamically update and how Simulink works. This <code>lift</code> operator defines dependencies based on a function, and <code>reinit</code> is used to update inputs. Here is an example:</p><pre><code class="language-julia">a = Discrete(2.0)
+b = Discrete(4.0)
+c = lift((x,y) -&gt; x * y, a, b)   # 8.0
+reinit(a, 4.0)  # c becomes 16.0</code></pre><p>Parameters are a special type of Discrete variable. These can be used as input to models. These stay alive through flattening and simulation creation. They can be updated externally from one simulation to the next.</p><h2><a class="nav-anchor" id="Structurally-Varying-Systems-1" href="#Structurally-Varying-Systems-1">Structurally Varying Systems</a></h2><p><code>StructuralEvent</code> defines a type for elements that change the structure of the model. An event is created, and when the event is triggered, the model is re-flattened after replacing <code>default</code> with <code>new_relation</code> in the model.</p><pre><code class="language-jl">type StructuralEvent &lt;: ModelType
+    condition::ModelType   # Expression indicating a zero crossing for event detection.
+    default                # The default relation.
+    new_relation::Function # Function to call when the new relation is needed.
+    activated::Bool        # Used internally to indicate whether the event fired.
+end</code></pre><p>Here is an example for a breaking pendulum. The model starts with the Pendulum construct. Then, when five seconds is reached, the StructuralEvent triggers, and the model is recompiled with the FreeFall construct.</p><pre><code class="language-jl">function BreakingPendulum()
+    x = Unknown(cos(pi/4), &quot;x&quot;)
+    y = Unknown(-cos(pi/4), &quot;y&quot;)
+    vx = Unknown()
+    vy = Unknown()
+    Equation[
+        StructuralEvent(MTime - 5.0,     # when time hits 5 sec, switch to FreeFall
+            Pendulum(x,y,vx,vy),
+            () -&gt; FreeFall(x,y,vx,vy))
+    ]
+end</code></pre><p>One special thing to note is that <code>new_relation</code> must be a function (in the case above, an anonymous function). If <code>new_relation</code> is not a function, it will evaluate right away. The use of a function delays evaluation until the model is recompiled.</p><footer><hr/><a class="previous" href="index.html"><span class="direction">Previous</span><span class="title">Home</span></a><a class="next" href="api/main.html"><span class="direction">Next</span><span class="title">Building models</span></a></footer></article></body></html>

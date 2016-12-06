@@ -120,10 +120,10 @@ support that shows each data column in a frame. Here is an example:
 
 ```julia
 using Sims
-using Winston
+
 z = sim(Sims.Examples.Basics.Vanderpol(), 50.0)
 
-wplot(z)
+plot(z)
 ```
 
 

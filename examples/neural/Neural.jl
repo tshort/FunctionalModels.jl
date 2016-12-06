@@ -2,9 +2,9 @@ module Neural
 
 using ....Sims
 using ....Sims.Lib
-using Docile
+
 using Requires
-@document
+
 
 @comment """
 # Neural models

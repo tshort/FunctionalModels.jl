@@ -1,6 +1,6 @@
 julia 0.5
 Compat
-Docile
+Documenter
 Ipopt
 JuMP
 Plots

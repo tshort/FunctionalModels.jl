@@ -28,6 +28,10 @@ conditions, are given in Kelvin.
 ########################################
 ## Basic
 ########################################
+@comment """
+## Basics
+"""
+
 
 """
 Lumped thermal element storing heat
@@ -354,7 +358,7 @@ end
 ########################################
 
 @comment """
-# Sources
+## Sources
 """
 
 

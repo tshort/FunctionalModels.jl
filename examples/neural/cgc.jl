@@ -7,7 +7,7 @@ module CGC
 
 using Sims, Sims.Lib
 using Sims.Examples.Neural, Sims.Examples.Neural.Lib
-using Docile
+
 
 function sigm (x, y)
     return 1.0 / (exp (x / y) + 1)

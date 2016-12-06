@@ -1,4 +1,4 @@
-__precompile__()
+# __precompile__()
 
 module Sims
 
@@ -24,13 +24,13 @@ export ModelType, UnknownCategory, Unknown, UnknownVariable, DefaultUnknown, Der
 export UnknownReactive, Discrete, Parameter
 
 ## Specials
-export MTime, @unknown, @liftd
+export MTime, @unknown, @liftd, @comment
 
 ## Methods
 export Equation, @equations, is_unknown, der, delay, mexpr, compatible_values, reinit, ifelse, pre,
        basetypeof, from_real, to_real,
        lift, 
-       gplot, wplot,
+       gplot, plot,
        check, sim_verbose, 
        elaborate, create_sim, create_simstate, sim, sunsim, dasslsim, solve,
        initialize!
@@ -39,11 +39,11 @@ export Equation, @equations, is_unknown, der, delay, mexpr, compatible_values, r
 export Branch, BoolEvent
 
 
-using Docile
-@document
+using Documenter
+include("docutil.jl")
+
 using Compat
 import Compat.view
-        
 
 include("main.jl")
 include("elaboration.jl")
@@ -64,14 +64,14 @@ include("../lib/Lib.jl")
 include("../examples/Examples.jl")
 
 function __init__() 
-    try
-        global lib = Libdl.dlopen(dllname)
-    catch
+    # try
+    #     global lib = Libdl.dlopen(dllname)
+    # catch
         hasdassl = false
-        println("*********************************************")
-        println("DASKR not available; dasslsim not available  ")
-        println("*********************************************")
-    end    
+    #     println("*********************************************")
+    #     println("DASKR not available; dasslsim not available  ")
+    #     println("*********************************************")
+    # end    
 end
 
 end # module Sims

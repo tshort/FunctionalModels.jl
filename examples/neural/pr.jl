@@ -10,7 +10,7 @@ export Soma, Dendrite, Circuit
 using Sims, Sims.Lib
 using Sims.Examples.Neural, Sims.Examples.Neural.Lib
 using Sims.Examples.Neural.HodgkinHuxleyModule 
-using Docile
+
 
 
 # Parameter values

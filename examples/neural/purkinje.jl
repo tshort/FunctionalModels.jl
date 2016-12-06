@@ -7,7 +7,7 @@ module Purkinje
 
 using Sims, Sims.Lib
 using Sims.Examples.Neural, Sims.Examples.Neural.Lib
-using Docile
+
 
 
 ## Calcium concentration dynamics
