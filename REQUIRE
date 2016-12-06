@@ -4,6 +4,6 @@ Documenter
 Ipopt
 JuMP
 Plots
-Reactive
+Reactive 0.1.5 0.1.10
 Reexport
 Sundials
