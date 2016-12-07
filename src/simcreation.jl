@@ -251,11 +251,12 @@ function setup_functions(sm::Sim)
         end
 
     F = @eval SimFunctions($sim_resid, $sim_init, $sim_eventat, 
-                           $ev_neg_thunk, $ev_neg_thunk)
+                           $ev_pos_thunk, $ev_neg_thunk)
 
     # For event responses that were actual functions, insert those into
     # the F structure.
     for idx in 1:length(sm.eq.events)
+        show(sm.eq.pos_responses[idx])
         if isa(sm.eq.pos_responses[idx], Function)
             F.event_pos[idx] = sm.eq.pos_responses[idx]
         end
