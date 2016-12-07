@@ -1095,12 +1095,15 @@ UnknownReactive types (like Discrete and Parameter).
 ```julia
 lift{T}(f::Function, inputs::UnknownReactive{T}...)
 lift{T}(f::Function, t::Type, inputs::UnknownReactive{T}...)
+map{T}(f::Function, inputs::UnknownReactive{T}...)
+map{T}(f::Function, t::Type, inputs::UnknownReactive{T}...)
 ```
 
 See also
 [Reactive.lift](http://julialang.org/Reactive.jl/api.html#lift)] and
 the [@liftd](#liftd) helper macro to ease writing expressions.
 
+Note that `lift` is being transitioned to `Base.map`.
 
 ### Arguments
 
@@ -1141,14 +1144,18 @@ in the residual calculation. The advantage of the `a * b` approach is
 that the expression can include Unknowns.
 
 """
-Reactive.lift{T}(f::Function, input::UnknownReactive{T}, inputs::UnknownReactive{T}...) = Parameter(Reactive.lift(f, input.signal, [input.signal for input in inputs]...))
+Reactive.lift{T}(f::Function, input::UnknownReactive{T}, inputs::UnknownReactive{T}...) = Parameter(map(f, input.signal, [input.signal for input in inputs]...))
 
-Reactive.lift{T}(f::Function, t::Type, input::UnknownReactive{T}, inputs::UnknownReactive{T}...) = Parameter(Reactive.lift(f, t, input.signal, [input.signal for input in inputs]...))
+Reactive.lift{T}(f::Function, t::Type, input::UnknownReactive{T}, inputs::UnknownReactive{T}...) = Parameter(map(f, t, input.signal, [input.signal for input in inputs]...))
+
+Base.map{T}(f::Function, input::UnknownReactive{T}, inputs::UnknownReactive{T}...) = Parameter(map(f, input.signal, [input.signal for input in inputs]...))
+
+Base.map{T}(f::Function, t::Type, input::UnknownReactive{T}, inputs::UnknownReactive{T}...) = Parameter(map(f, t, input.signal, [input.signal for input in inputs]...))
 
 Reactive.filter{T}(pred::Function, v0, s::UnknownReactive{T}) = Parameter(filter(pred, v0, s.signal))
 Reactive.dropwhen{T}(test::Signal{Bool}, v0, s::UnknownReactive{T}) = Parameter(dropwhen(pred, v0, s.signal))
 Reactive.sampleon(s1::UnknownReactive, s2::UnknownReactive) = Parameter(sampleon(s1.signal, s2.signal))
-Reactive.merge() = nothing
+# Reactive.merge() = nothing
 Reactive.merge(signals::UnknownReactive...) = Parameter(merge(map(signal, signals)))
 Reactive.droprepeats(s::UnknownReactive) = Parameter(droprepeats(signal(s)))
 Reactive.dropif(pred::Function, v0, s::UnknownReactive) = Parameter(dropif(pred, v0, s.signal))
@@ -1379,9 +1386,9 @@ See [DeadZone](../../lib/electrical/#deadzone) and
 ifelse(x::ModelType, y, z) = mexpr(:call, :ifelse, x, y, z)
 ifelse(x::ModelType, y) = mexpr(:call, :ifelse, x, y)
 ## ifelse(x::Bool, y, z) = x ? y : z
-ifelse(x::Bool, y) = x ? y : nothing
+## ifelse(x::Bool, y) = x ? y : nothing
 ## ifelse(x::Array{Bool}, y, z) = map((x) -> ifelse(x,y,z), x)
-ifelse(x::Array{Bool}, y) = map((x) -> ifelse(x,y), x)
+## ifelse(x::Array{Bool}, y) = map((x) -> ifelse(x,y), x)
 ifelse(x::MExpr, y, z) = mexpr(:call, :ifelse, x.ex, y, z)
 ifelse(x::MExpr, y) = mexpr(:call, :ifelse, x.ex, y)
 ifelse(x::MExpr, y::MExpr, z::MExpr) = mexpr(:call, :ifelse, x.ex, y.ex, z.ex)

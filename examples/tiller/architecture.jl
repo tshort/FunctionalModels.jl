@@ -178,34 +178,34 @@ end
 """
 BaseSystem variant with sample-hold sensing
 """
-Variant1 = BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.01));
+Variant1 = () -> BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.01));
 
-## v1 = dasslsim(Variant1, tstop = 5.0)
+## v1 = dasslsim(Variant1(), tstop = 5.0)
 ## wplot(v1)
 
-Variant1a = BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.036));
+Variant1a = () -> BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.036));
 
-## v1a = dasslsim(Variant1a, tstop = 5.0)
+## v1a = dasslsim(Variant1a(), tstop = 5.0)
 ## wplot(v1a)
 
 
 """
 BaseSystem variant with PID control along with a realistic actuator
 """
-Variant2  = BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.01),
+Variant2  = () -> BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.01),
                        Controller = PIDController(yMax=15, Td=0.1, k=20, Ti=0.1),
                        Actuator = LimitedActuator(delayTime=0.005, uMax=10));
 
-## v2 = dasslsim(Variant2, tstop = 5.0)
+## v2 = dasslsim(Variant2(), tstop = 5.0)
 ## wplot(v2)
 
 
 """
 BaseSystem variant with a tuned PID control along with a realistic actuator
 """
-Variant2a  = BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.01),
+Variant2a  = () -> BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.01),
                         Controller = PIDController(yMax=50, Td=0.01, k=4, Ti=0.07),
                         Actuator = LimitedActuator(delayTime=0.005, uMax=50));
 
-## v2a = dasslsim(Variant2a, tstop = 5.0)
+## v2a = dasslsim(Variant2a(), tstop = 5.0)
 ## wplot(v2a)

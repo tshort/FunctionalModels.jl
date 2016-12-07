@@ -8,10 +8,10 @@ using Sims, Sims.Lib, Sims.Examples.Neural.Lib
 
 function NaConductance(v,gbar,g)
 
-    amf (v) = (0.1 * (v + 40) / (1.0 - exp (- (v + 40) / 10)))
-    bmf (v) = (4.0 * exp (- (v + 65) / 18))
-    ahf (v) = (0.07 * (exp (- (v + 65.0) / 20.0)))
-    bhf (v) = (1.0 / (1.0 + (exp (- (v + 35.0) / 10.0))))
+    amf(v) = (0.1 * (v + 40) / (1.0 - exp(- (v + 40) / 10)))
+    bmf(v) = (4.0 * exp(- (v + 65) / 18))
+    ahf(v) = (0.07 * (exp(- (v + 65.0) / 20.0)))
+    bhf(v) = (1.0 / (1.0 + (exp(- (v + 35.0) / 10.0))))
 
     m   = Gate(0.052, "m")
     h   = Gate(0.596, "h")
@@ -27,8 +27,8 @@ end
 
 function KConductance(v,gbar,g)
 
-    anf (v) = (0.01 * (v + 55) / (1 - (exp ((- (v + 55)) / 10))))
-    bnf (v) = (0.125 * (exp ((- (v + 65)) / 80)))
+    anf(v) = (0.01 * (v + 55) / (1 - (exp((- (v + 55)) / 10))))
+    bnf(v) = (0.125 * (exp((- (v + 65)) / 80)))
 
     n   = Gate(0.317, "n")
 
@@ -52,23 +52,23 @@ function Main(;
               )
 
 
-    I_Na = Current ()
-    I_K  = Current ()
-    I_L  = Current ()
+    I_Na = Current()
+    I_K  = Current()
+    I_L  = Current()
     
-    g_Na = Conductance ()
-    g_K  = Conductance ()
+    g_Na = Conductance()
+    g_K  = Conductance()
     
     @equations begin
 
         MembranePotential(v, Equation[-I,I_Na,I_K,I_L], C_m)
 
-        NaConductance (v, gbar_Na, g_Na)
-        KConductance (v, gbar_K, g_K)
+        NaConductance(v, gbar_Na, g_Na)
+        KConductance(v, gbar_K, g_K)
 
-        OhmicCurrent (v, I_Na, g_Na, E_Na)
-        OhmicCurrent (v, I_K, g_K, E_K)
-        OhmicCurrent (v, I_L, g_L, E_L)
+        OhmicCurrent(v, I_Na, g_Na, E_Na)
+        OhmicCurrent(v, I_K, g_K, E_K)
+        OhmicCurrent(v, I_L, g_L, E_L)
         
     end
 end

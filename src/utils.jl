@@ -1,361 +1,165 @@
 
-using Requires
-
 @comment """
 # Utilities
 
 Several convenience methods are included for plotting, checking
-models, and converting results to other objects like DataFrames.
-Many of these optionally depend on other packages.
+models, and converting results.
 """
 
     
 ########################################
-## PyPlot plotting                    ##
+## Plots.jl plotting                  ##
 ########################################
 
 @comment """
-# PyPlot
+# Plotting
 """
-    
-@require PyPlot begin
 
-    """
-    Plot simulation result with PyPlot (must be installed and
-    loaded).
-    
-    ```julia
-    PyPlot.plot(z::SimResult,
-                columns = collect(1:length(z.colnames));
-                title = "",
-                subplots = :auto,
-                newfigure::Bool = true,
-                legend = :auto)
-    ```
-    
-    ### Arguments
-    
-    * `z::SimResult` : the simulation result
-    * `columns` : columns to plot; defaults to all; can be Int,
-      String, Range, Arrays, or Regexs.
+using Plots
 
-    ### Keyword arguments
-    
-    * `title` : a string to print at the top of the plot
-    * `subplots` : whether to plot columns in subplots; options are:
-      * `true` : use subplots
-      * `false` : don't use subplots
-      * `:auto` : use subplots if column has a length less than or equal to 6
-    * `newfigure::Bool` : show a new figure
-    * `legend` : whether to show legends
-      * `true` : use legends
-      * `false` : don't use legends
-      * `:auto` : use legends if there is more than one column per subplot
-
-    ### Returns
-    
-    * `nothing`
-
-    ### Details
-
-    The `columns` argument allows you to specify which columns to plot and in which subplot. Options are:
-
-    * `Range` or `array` : if `subplot == true`, each entry in the array
-      is plotted in its own subplot. Arrays can contain Ints, Strings,
-      Tuples, Regexs, or Arrays.
-    * `Int` : column position
-    * `String` : column name
-    * `Regex` : expands based on column name matches
-
-    For three subplots, here is an example:
-
-    ```julia
-    plot(z,
-         ["V1",          # 1st subplot: column V1
-          ("Vx", "Vy"),  # 2nd subplot: columns Vx and Vy
-          r"^I.*"],      # 3rd subplot: all columns starting with I
-         subplots = true)
-    ```
-
-    ### Examples
-
-    ```julia
-    using Sims
-    z = sim(Sims.Examples.Lib.CauerLowPassOPV2(), 60.0)
-    
-    using PyPlot
-    plot(z)
-    plot(z, [1:length(z.colnames)])
-    plot(z, r".*", title = "CauerLowPassOPV")
-    plot(z, subplots = true, title = "subplots = true")
-    plot(z, 9:11, subplots = false, title = "subplots = false")
-    plot(z, r"n", title = "r\"n\"")
-    plot(z, r"n1", title = "r\"n1\"")
-    plot(z, 5:8, legend = false)
-    figure()
-    plot(z, 5:8, legend = false, newfigure = false)
-    plot(z, ["n8", "n9"], title = string(["n8", "n9"]))
-    plot(z, [("n8", "n9"), ("n10", "n11")], title = string([("n8", "n9"), ("n10", "n11")]))
-    plot(z, [r"n1", ("n9", "n10")], title = string([r"n1", ("n9", "n10")]))
-    
-    ```
-    
-    """
-    function PyPlot.plot(z::SimResult,
-                         columns = collect(1:length(z.colnames));
-                         title = "",
-                         subplots = :auto,
-                         newfigure::Bool = true,
-                         legend = :auto)
-        newfigure && PyPlot.figure()
-        columns = getcols(z, columns)
-        if subplots == :auto
-            subplots = length(columns) <= 6
-        end
-        @show columns
-        if !subplots
-            for c in columns
-                for i in c
-                    PyPlot.plot(z.y[:,1], z.y[:,i+1], label = z.colnames[i])
-                end
-            end
-            legend in [true, :auto] && PyPlot.legend(loc = "best")
-        else
-            PyPlot.subplots_adjust(hspace=0.001)
-            for i in 1:length(columns)
-                ax = PyPlot.subplot(length(columns), 1, i)  #, sharex = true)
-                for j in columns[i]
-                    PyPlot.plot(z.y[:,1], z.y[:,j+1], label = z.colnames[j])
-                end
-                PyPlot.margins(0, 0.05)
-                if length(columns[i]) > 1 && legend in [true, :auto]
-                    PyPlot.legend(loc = "best")
-                else
-                    PyPlot.ylabel(z.colnames[columns[i]])
-                end
-                ax[:yaxis][:set_label_coords](-0.1, 0.5)
-            end
-        end
-        PyPlot.xlabel("Time, sec")
-        PyPlot.suptitle(title)
+getcols(z::SimResult, x::Real) = x
+getcols(z::SimResult, s::AbstractString) = indexin(collect(s), z.colnames)[1]
+getcols(z::SimResult, v::Union{Range, Vector, Set, Tuple}) = [getcols(z, x) for x in v]
+function getcols(z::SimResult, r::Regex)
+    res = Int[]
+    for i in 1:length(z.colnames)
+        ismatch(r, z.colnames[i]) && push!(res, i)
     end
-    getcols(z::SimResult, x::Real) = x
-    getcols(z::SimResult, s::AbstractString) = indexin([s], z.colnames)[1]
-    getcols(z::SimResult, v::Union(Range, Vector, Set, Tuple)) = [getcols(z, x) for x in v]
-    function getcols(z::SimResult, r::Regex)
-        res = Int[]
-        for i in 1:length(z.colnames)
-            ismatch(r, z.colnames[i]) && push!(res, i)
-        end
-        length(res) == 1 ? res[1] : res
-    end
-end
-    
-
-########################################
-## DataFrames / Gadfly integration    ##
-########################################
-
-@comment """
-# DataFrames and Gadfly
-"""
-    
-@require DataFrames begin
-
-    """
-    Convert to a DataFrame.
-    
-    ```julia
-    Base.convert(::Type{DataFrames.DataFrame}, x::SimResult)
-    ```
-    
-    ### Arguments
-    
-    * `x::SimResult` : a simulation result
-
-    ### Returns
-    
-    * `::DataFrame` : a DataFrame with the first column as `:time` and
-      remaining columns with simulation results.
-    """
-    function Base.convert(::Type{DataFrames.DataFrame}, x::SimResult)
-        df = convert(DataFrames.DataFrame, x.y)
-        DataFrames.names!(df, [:time, map(symbol, x.colnames)])
-        df
-    end
-
+    length(res) == 1 ? res[1] : res
 end
 
-@require Gadfly begin
-
-    """
-    Plot the simulation result with Gadfly (must be installed and
-    loaded).
-    
-    ```julia
-    plot(sm::SimResult, args...)
-    ```
-    
-    ### Arguments
-    
-    * `sm::SimResult` : the simulation result
-
-    ### Returns
-    
-    * A Gadfly object
-    """
-    function Gadfly.plot(x::SimResult)
-        Gadfly.plot(DataFrames.melt(convert(DataFrames.DataFrame, x), :time),
-                    x = :time, y = :value, color = :variable, Gadfly.Geom.line)
-    end
-
+Plots.@recipe function f(x::SimResult; columns = collect(1:length(x.colnames)))
+    columns = getcols(x, columns)
+    n = length(columns)
+    xguide      --> "Time, sec"
+    legend      --> false,
+    label       --> reshape(x.colnames[columns], (1,n))
+    title       --> reshape(x.colnames[columns], (1,n))
+    layout      --> (n,1)
+    x := x.y[:, 1]
+    x.y[:, 1+columns]
 end
 
-
-########################################
-## Basic plotting with Winston        ##
-########################################
-
+# """
+# Plot simulation result with PyPlot (must be installed and
+# loaded).
+# 
+# ```julia
+# PyPlot.plot(z::SimResult,
+#             columns = collect(1:length(z.colnames));
+#             title = "",
+#             subplots = :auto,
+#             newfigure::Bool = true,
+#             legend = :auto)
+# ```
+# 
+# ### Arguments
+# 
+# * `z::SimResult` : the simulation result
+# * `columns` : columns to plot; defaults to all; can be Int,
+#   String, Range, Arrays, or Regexs.
+# 
+# ### Keyword arguments
+# 
+# * `title` : a string to print at the top of the plot
+# * `subplots` : whether to plot columns in subplots; options are:
+#   * `true` : use subplots
+#   * `false` : don't use subplots
+#   * `:auto` : use subplots if column has a length less than or equal to 6
+# * `newfigure::Bool` : show a new figure
+# * `legend` : whether to show legends
+#   * `true` : use legends
+#   * `false` : don't use legends
+#   * `:auto` : use legends if there is more than one column per subplot
+# 
+# ### Returns
+# 
+# * `nothing`
+# 
+# ### Details
+# 
+# The `columns` argument allows you to specify which columns to plot and in which subplot. Options are:
+# 
+# * `Range` or `array` : if `subplot == true`, each entry in the array
+#   is plotted in its own subplot. Arrays can contain Ints, Strings,
+#   Tuples, Regexs, or Arrays.
+# * `Int` : column position
+# * `String` : column name
+# * `Regex` : expands based on column name matches
+# 
+# For three subplots, here is an example:
+# 
+# ```julia
+# plot(z,
+#      ["V1",          # 1st subplot: column V1
+#       ("Vx", "Vy"),  # 2nd subplot: columns Vx and Vy
+#       r"^I.*"],      # 3rd subplot: all columns starting with I
+#      subplots = true)
+# ```
+# 
+# ### Examples
+# 
+# ```julia
+# using Sims
+# z = sim(Sims.Examples.Lib.CauerLowPassOPV2(), 60.0)
+# 
+# using PyPlot
+# plot(z)
+# plot(z, collect(1:length(z.colnames)))
+# plot(z, r".*", title = "CauerLowPassOPV")
+# plot(z, subplots = true, title = "subplots = true")
+# plot(z, 9:11, subplots = false, title = "subplots = false")
+# plot(z, r"n", title = "r\"n\"")
+# plot(z, r"n1", title = "r\"n1\"")
+# plot(z, 5:8, legend = false)
+# figure()
+# plot(z, 5:8, legend = false, newfigure = false)
+# plot(z, ["n8", "n9"], title = string(["n8", "n9"]))
+# plot(z, [("n8", "n9"), ("n10", "n11")], title = string([("n8", "n9"), ("n10", "n11")]))
+# plot(z, [r"n1", ("n9", "n10")], title = string([r"n1", ("n9", "n10")]))
+# 
+# ```
+# 
+# """
+    # function PyPlot.plot(z::SimResult,
+    #                      columns = collect(1:length(z.colnames));
+    #                      title = "",
+    #                      subplots = :auto,
+    #                      newfigure::Bool = true,
+    #                      legend = :auto)
+    #     newfigure && PyPlot.figure()
+    #     columns = getcols(z, columns)
+    #     if subplots == :auto
+    #         subplots = length(columns) <= 6
+    #     end
+    #     @show columns
+    #     if !subplots
+    #         for c in columns
+    #             for i in c
+    #                 PyPlot.plot(z.y[:,1], z.y[:,i+1], label = z.colnames[i])
+    #             end
+    #         end
+    #         legend in [true, :auto] && PyPlot.legend(loc = "best")
+    #     else
+    #         PyPlot.subplots_adjust(hspace=0.001)
+    #         for i in 1:length(columns)
+    #             ax = PyPlot.subplot(length(columns), 1, i)  #, sharex = true)
+    #             for j in columns[i]
+    #                 PyPlot.plot(z.y[:,1], z.y[:,j+1], label = z.colnames[j])
+    #             end
+    #             PyPlot.margins(0, 0.05)
+    #             if length(columns[i]) > 1 && legend in [true, :auto]
+    #                 PyPlot.legend(loc = "best")
+    #             else
+    #                 PyPlot.ylabel(z.colnames[columns[i]])
+    #             end
+    #             ax[:yaxis][:set_label_coords](-0.1, 0.5)
+    #         end
+    #     end
+    #     PyPlot.xlabel("Time, sec")
+    #     PyPlot.suptitle(title)
+    # end
     
-@require Winston begin
-    
-    @comment """
-    # Winston plotting
-    """
-    
-    function _wplot(sm::SimResult)
-            N = length(sm.colnames)
-            a = Winston.Table(N, 1)
-            for plotnum = 1:N
-                p = Winston.FramedPlot()
-                Winston.add(p, Winston.Curve(sm.y[:,1],sm.y[:, plotnum + 1]))
-                Winston.setattr(p, "ylabel", sm.colnames[plotnum])
-                a[plotnum,1] = p
-            end
-            a
-    end
-    
-    """
-    Plot the simulation result with Winston (must be installed and
-    loaded).
-    
-    ```julia
-    wplot(sm::SimResult, filename::AbstractString, args...)
-    wplot(sm::SimResult)
-    ```
-    
-    ### Arguments
-    
-    * `sm::SimResult` : the simulation result
-    * `filename::String` : the filename
-    * `args...` : extra arguments passed to `Winston.file()`
-
-    If `filename` is not give, plot interactively.
-
-    ### Returns
-    
-    * A Winston object
-    """
-    function wplot(sm::SimResult, filename::AbstractString, args...)
-            a = _wplot(sm)
-            Winston.file(a, filename, args...)
-            a
-    end
-    
-    function wplot(sm::SimResult)
-            a = _wplot(sm)
-            Winston.display(a)
-            a
-    end
-end
-
-########################################
-## Basic plotting with Gaston         ##
-########################################
-
-
-@require Gaston begin
-
-    @comment """
-    # Gaston plotting
-    """
-    
-    """
-
-    Plot the simulation result with Gaston (must be installed and
-    loaded).
-    
-    ```julia
-    gplot(sm::SimResult)
-    gplot(sm::SimResult, filename::String)
-    ```
-    
-    ### Arguments
-    
-    * `sm::SimResult` : the simulation result
-    * `filename::String` : the filename
-    
-    ### Returns
-    
-    * `::Void`  (??)
-    """
-    function gplot(sm::SimResult)
-        N = length(sm.colnames)
-        Gaston.figure()
-        c = Gaston.CurveConf()
-        a = Gaston.AxesConf()
-        a.title = ""
-        a.xlabel = "Time (s)"
-        a.ylabel = ""
-        Gaston.addconf(a)
-        for plotnum = 1:N
-            c.legend = sm.colnames[plotnum]
-            Gaston.addcoords(sm.y[:,1],sm.y[:, plotnum + 1],c)
-        end
-        Gaston.llplot()
-    end
-    function gplot(sm::SimResult, filename::String)
-        Gaston.set_filename(filename)
-        gplot(sm)
-        Gaston.printfigure("pdf")
-    end
-
-end
-
-########################################
-## AxisArrays                         ##
-########################################
-
-    
-@require AxisArrays begin
-
-    @comment """
-    # AxisArrays
-    """
-    
-    """
-    Convert to an AxisArray.
-    
-    ```julia
-    AxisArrays.AxisArray(x::SimResult)
-    ```
-    
-    ### Arguments
-    
-    * `x::SimResult` : a simulation result
-
-    ### Returns
-    
-    * `::AxisArray` : a two-dimensional AxisArray with the row axis
-      named `:time` and columns with simulation results and a
-      categorical column axis with string signal names.
-
-    """
-    AxisArrays.AxisArray(x::SimResult) =
-        AxisArrays.AxisArray(x.y[:, 2:end], (x.y[:, 1], x.colnames), (:time, :col))
-
-end
-
 
 @comment """
 # Miscellaneous
@@ -405,7 +209,7 @@ macro unknown(args...)
             name = arg.args[1]
             if length(arg.args) > 1
                 newcall = copy(arg)
-                newcall.args = [:Unknown, newcall.args[2:end]]
+                newcall.args = [:Unknown; newcall.args[2:end]]
                 push!(blk.args, :($name = $newcall))
             else
                 push!(blk.args, :($name = Unknown()))
@@ -451,7 +255,7 @@ check(m::Model) = check(create_sim(elaborate(m)))
 ## Model initiation                   ##
 ########################################
 
-import JuMP, ReverseDiffSparse
+import JuMP
 
 """
 Experimental function to initialize models.
@@ -494,9 +298,9 @@ function initialize!(ss::SimState)
     sm    = ss.sm
     m = JuMP.Model()
     n = length(ss.y0)
-    JuMP.@defVar(m, y[1:n])
-    JuMP.@defVar(m, yp[1:n])
-    JuMP.@defVar(m, t[1])
+    JuMP.@variable(m, y[1:n])
+    JuMP.@variable(m, yp[1:n])
+    JuMP.@variable(m, t[1])
     eq = ss.sm.eq.initialequations
     exv = Sims.replace_unknowns(eq, sm)
     for i in 1:n
@@ -505,19 +309,19 @@ function initialize!(ss::SimState)
         JuMP.setValue(t[1], 0.0)
         ## Add constraints for the fixed variables and derivatives
         if sm.yfixed[i]
-            JuMP.@addConstraint(m, y[i] == ss.y0[i])
+            JuMP.@constraint(m, y[i] == ss.y0[i])
         end
         if sm.ypfixed[i]
-            JuMP.@addConstraint(m, yp[i] == ss.yp0[i])
+            JuMP.@constraint(m, yp[i] == ss.yp0[i])
         end
         if (sm.constraints[i] == 2)
-            JuMP.@addConstraint(m, y[i] >= 0.0)
+            JuMP.@constraint(m, y[i] >= 0.0)
         elseif (sm.constraints[i] == 1)
-            JuMP.@addConstraint(m, y[i] >= 0.0)
+            JuMP.@constraint(m, y[i] >= 0.0)
         elseif (sm.constraints[i] == -1)
-            JuMP.@addConstraint(m, y[i] <= 0.0)
+            JuMP.@constraint(m, y[i] <= 0.0)
         elseif (sm.constraints[i] == -2)
-            JuMP.@addConstraint(m, y[i] <= 0.0)
+            JuMP.@constraint(m, y[i] <= 0.0)
         end
         ex = exv[i]
         if Meta.isexpr(ex, :call) && ex.args[1] == :(-) && length(ex.args) == 3

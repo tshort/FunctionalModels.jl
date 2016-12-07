@@ -28,7 +28,7 @@ function AdEx(;
     
     @equations begin
         der(V) = (( ((- gL) * (V - EL)) +
-                   (gL * Delta * (exp ((V - VT) / Delta))) +
+                   (gL * Delta * (exp((V - VT) / Delta))) +
                    (- W) + Isyn) / C)
         der(W) = (((a * (V - EL)) - W) / tau_w)
    

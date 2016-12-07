@@ -3,7 +3,6 @@ module Neural
 using ....Sims
 using ....Sims.Lib
 using Docile
-using Requires
 @document
 
 @comment """
@@ -35,7 +34,7 @@ include("cgc.jl")
 include("cgoc.jl")
 
 function run(model; dt = 0.025, tf = 100.0, reltol = 1e-6, abstol = 1e-6, alg = true)
-    y = sunsim(model, tstop = tf, Nsteps = int(tf/dt), reltol = reltol, abstol = abstol, alg = alg)
+    y = sunsim(model, tstop = tf, Nsteps = convert(Int,round(tf/dt)), reltol = reltol, abstol = abstol, alg = alg)
     return y
 end
 
@@ -90,14 +89,6 @@ function runall()
     y = run(cgoc, tf=500.0)
 
 end 
-
-@require Gaston begin
-    function plotrun(model; dt = 0.025, tf = 100.0, reltol = 1e-6, abstol = 1e-6, alg = true)
-        y = run(model, dt=dt, tf=tf, reltol=reltol, abstol=abstol, alg=alg)
-        gplot(y)
-        return y
-    end
-end
 
 end # module
 

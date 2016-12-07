@@ -411,7 +411,6 @@ PrescribedTemperature(port::HeatPort, T::Signal)
 const PrescribedTemperature = FixedTemperature
 
 
-
 """
 Fixed heat flow boundary condition
 
@@ -444,7 +443,7 @@ FixedHeatFlow(port::HeatPort, Q_flow::Signal; T_ref::Signal = 293.15, alpha::Sig
 * `alpha::Signal` : temperature coefficient of heat flow rate [1/K]
 
 """
-function FixedHeatFlow(port::HeatPort, Q_flow::Signal, T_ref::Signal = 293.15, alpha::Signal = 0.0)
+function FixedHeatFlow(port::HeatPort, Q_flow::Signal, T_ref::Signal, alpha::Signal = 0.0)
     Q_flow = HeatFlow(compatible_values(port, T))
     @equations begin
         RefBranch(port, Q_flow .* alpha .* (port - T_ref))

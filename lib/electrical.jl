@@ -227,7 +227,7 @@ function Resistor(n1::ElectricalNode, n2::ElectricalNode, R::Signal)
 end
 
 function Resistor(n1::ElectricalNode, n2::ElectricalNode, 
-                  R = 1.0, T = 293.15, T_ref = 300.15, alpha = 0.0)
+                  R, T = 293.15, T_ref = 300.15, alpha = 0.0)
     Resistor(n1, n2, T, R .* (1 + alpha .* (T - T_ref)), T_ref, alpha)
 end
 
@@ -285,7 +285,7 @@ function model()
 end
 ```
 """
-function Capacitor(n1::ElectricalNode, n2::ElectricalNode, C::Signal = 1.0) 
+function Capacitor(n1::ElectricalNode, n2::ElectricalNode, C::Signal) 
     i = Current(compatible_values(n1, n2))
     v = Voltage(value(n1) - value(n2))
     @equations begin
@@ -340,7 +340,7 @@ function model()
 end
 ```
 """
-function Inductor(n1::ElectricalNode, n2::ElectricalNode, L::Signal = 1.0) 
+function Inductor(n1::ElectricalNode, n2::ElectricalNode, L::Signal) 
     i = Current(compatible_values(n1, n2))
     v = Voltage(value(n1) - value(n2))
     @equations begin
@@ -362,7 +362,7 @@ conditions.
 
 """
 function SaturatingInductor(n1::ElectricalNode, n2::ElectricalNode, 
-                            Inom = 1.0,
+                            Inom,
                             Lnom = 1.0,
                             Linf = Lnom ./ 2,
                             Lzer = Lnom .* 2)
@@ -463,7 +463,7 @@ Transformer(p1::ElectricalNode, n1::ElectricalNode, p2::ElectricalNode, n2::Elec
 * `M::Signal`  : Coupling inductance [H], default = 1.0 H
 """
 function Transformer(p1::ElectricalNode, n1::ElectricalNode, p2::ElectricalNode, n2::ElectricalNode, 
-                     L1 = 1.0, L2 = 1.0, M = 1.0)
+                     L1, L2 = 1.0, M = 1.0)
     vals = compatible_values(compatible_values(p1, n1),
                              compatible_values(p2, n2)) 
     v1 = Voltage(value(p1) - value(n1))
@@ -507,7 +507,7 @@ EMF(n1::ElectricalNode, n2::ElectricalNode, flange::Flange;
 * `k` : Transformation coefficient [N.m/A] 
 """
 function EMF(n1::ElectricalNode, n2::ElectricalNode, flange::Flange,
-             support_flange = 0.0, k = 1.0)
+             support_flange, k = 1.0)
     vals = compatible_values(n1, n2) 
     i = Current(vals)
     v = Voltage(vals)
@@ -572,7 +572,7 @@ IdealDiode(n1::ElectricalNode, n2::ElectricalNode;
 
 """
 function IdealDiode(n1::ElectricalNode, n2::ElectricalNode, 
-                    Vknee = 0.0, Ron = 1e-5, Goff = 1e-5)
+                    Vknee, Ron = 1e-5, Goff = 1e-5)
     vals = compatible_values(n1, n2) 
     i = Current(vals)
     v = Voltage(vals)
@@ -625,7 +625,7 @@ IdealThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete;
 * `Goff` : Opened thyristor conductance [S], default = 1.E-5
 """
 function IdealThyristor(n1::ElectricalNode, n2::ElectricalNode, fire, 
-                        Vknee = 0.0, Ron = 1e-5, Goff = 1e-5)
+                        Vknee, Ron = 1e-5, Goff = 1e-5)
     vals = compatible_values(n1, n2) 
     i = Current(vals)
     v = Voltage(vals)
@@ -683,7 +683,7 @@ IdealGTOThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete;
 * `Goff` : Opened thyristor conductance [S], default = 1.E-5
 """
 function IdealGTOThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete, 
-                           Vknee = 0.0, Ron = 1e-5, Goff = 1e-5)
+                           Vknee, Ron = 1e-5, Goff = 1e-5)
     vals = compatible_values(n1, n2) 
     i = Current(vals)
     v = Voltage(vals)
@@ -773,7 +773,7 @@ IdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Discrete;
 * `Goff` : Opened switch conductance [S], default = 1.E-5
 """
 function IdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Discrete,
-                            Ron = 1e-5, Goff = 1e-5)
+                            Ron, Goff = 1e-5)
     vals = compatible_values(n1, n2)
     i = Current(vals)
     v = Voltage(vals)
@@ -821,7 +821,7 @@ IdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Discrete;
 * `Goff` : Opened switch conductance [S], default = 1.E-5
 """
 function IdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Discrete,
-                            Ron = 1e-5,  Goff = 1e-5)
+                            Ron,  Goff = 1e-5)
     vals = compatible_values(n1, n2)
     i = Current(vals)
     v = Voltage(vals)
@@ -841,7 +841,7 @@ end
 TBD
 """
 function ControlledIdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control,
-                                      level = 0.0,  Ron = 1e-5,  Goff = 1e-5)
+                                      level,  Ron = 1e-5,  Goff = 1e-5)
     vals = compatible_values(n1, n2)
     i = Current(vals)
     v = Voltage(vals)
@@ -864,7 +864,7 @@ end
 TBD
 """
 function ControlledIdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control,
-                                      level = 0.0,  Ron = 1e-5,  Goff = 1e-5)
+                                      level,  Ron = 1e-5,  Goff = 1e-5)
     ControlledIdealOpeningSwitch(n1, n2, level, control, Ron, Goff) # note that level and control are swapped
 end
 function ControlledIdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control;
@@ -937,7 +937,7 @@ ControlledOpenerWithArc(n1::ElectricalNode, n2::ElectricalNode, control;
 * `Vmax` : Max. arc voltage [V], default = 60.0
 """
 function ControlledOpenerWithArc(n1::ElectricalNode, n2::ElectricalNode, control,
-                                 level = 0.5,  Ron = 1e-5,  Goff = 1e-5,  V0 = 30.0,  dVdt = 10e3,  Vmax = 60.0)
+                                 level,  Ron = 1e-5,  Goff = 1e-5,  V0 = 30.0,  dVdt = 10e3,  Vmax = 60.0)
     i = Current()
     v = Voltage(value(n1) - value(n2))
     on = Discrete(false)  # on/off state of switch
@@ -1001,7 +1001,7 @@ ControlledCloserWithArc(n1::ElectricalNode, n2::ElectricalNode, control;
 * `Vmax` : Max. arc voltage [V], default = 60.0
 """
 function ControlledCloserWithArc(n1::ElectricalNode, n2::ElectricalNode, control,
-                                 level = 0.5,  Ron = 1e-5,  Goff = 1e-5,  V0 = 30.0,  dVdt = 10e3,  Vmax = 60.0)
+                                 level,  Ron = 1e-5,  Goff = 1e-5,  V0 = 30.0,  dVdt = 10e3,  Vmax = 60.0)
     ControlledOpenerWithArc(n1, n2, level, control, Ron, Goff, V0, dVdt, Vmax)
 end
 function ControlledCloserWithArc(n1::ElectricalNode, n2::ElectricalNode, control;
@@ -1053,7 +1053,7 @@ Diode(n1::ElectricalNode, n2::ElectricalNode; hp::HeatPort;
 * `R` : Parallel ohmic resistance [Ohm], default = 1.e8
 """
 function Diode(n1::ElectricalNode, n2::ElectricalNode, 
-               Ids = 1e-6,  Vt = 0.04,  Maxexp = 15,  R = 1e8)
+               Ids,  Vt = 0.04,  Maxexp = 15,  R = 1e8)
     vals = compatible_values(n1, n2)
     i = Current(vals)
     v = Voltage(vals)
@@ -1078,7 +1078,7 @@ Diode(n1::ElectricalNode, n2::ElectricalNode, hp::HeatPort; args...) =
 TBD
 """
 function ZDiode(n1::ElectricalNode, n2::ElectricalNode,
-                Ids = 1e-6,  Vt = 0.04,  Maxexp = 30.0,  R = 1e8,  Bv = 5.1, Ibv = 0.7,  Nbv = 0.74)
+                Ids,  Vt = 0.04,  Maxexp = 30.0,  R = 1e8,  Bv = 5.1, Ibv = 0.7,  Nbv = 0.74)
     vals = compatible_values(n1, n2)
     i = Current(vals)
     v = Voltage(vals)
@@ -1141,7 +1141,7 @@ HeatingDiode(n1::ElectricalNode, n2::ElectricalNode;
 * `XTI` : Temperature exponent of saturation current, default = 3.0
 """
 function HeatingDiode(n1::ElectricalNode, n2::ElectricalNode, 
-                      T = 293.15,  Ids = 1e-6,  Maxexp = 15,  R = 1e8,  EG = 1.11,  N = 1.0,  TNOM = 300.15,  XTI = 3.0)
+                      T,  Ids = 1e-6,  Maxexp = 15,  R = 1e8,  EG = 1.11,  N = 1.0,  TNOM = 300.15,  XTI = 3.0)
     vals = compatible_values(n1, n2)
     i = Current(vals)
     v = Voltage(vals)
@@ -1237,7 +1237,7 @@ SineVoltage(n1::ElectricalNode, n2::ElectricalNode;
 * `startTime` : Time offset [s], default = 0.0
 """
 function SineVoltage(n1::ElectricalNode, n2::ElectricalNode, 
-                     V = 1.0,  f = 1.0,  ang = 0.0,  offset = 0.0)
+                     V,  f = 1.0,  ang = 0.0,  offset = 0.0)
     SignalVoltage(n1, n2, V .* sin(2pi .* f .* MTime + ang) + offset)
 end
 function SineVoltage(n1::ElectricalNode, n2::ElectricalNode; 
@@ -1269,7 +1269,7 @@ StepVoltage(n1::ElectricalNode, n2::ElectricalNode;
 * `startTime` : Time offset [s], default = 0.0
 """
 function StepVoltage(n1::ElectricalNode, n2::ElectricalNode, 
-                     V = 1.0,  start = 0.0,  offset = 0.0)
+                     V,  start = 0.0,  offset = 0.0)
     i = Current(compatible_values(n1, n2))
     v = Voltage(compatible_values(n1, n2))
     v_mag = Discrete(offset)
