@@ -1065,7 +1065,7 @@ end
 See also [IdealThyristor](../../lib/electrical/#idealthyristor) in the standard library.
 
 """
-reinit{T}(x::Discrete{Reactive.Signal{T}}, y) = mexpr(:call, :(Reactive.push!), x.signal, y)
+reinit{T}(x::Discrete{Reactive.Signal{T}}, y) = MExpr(:( Reactive.push!($(x.signal), $y); Reactive.run_till_now() ))
 reinit{T}(x::Parameter{Reactive.Signal{T}}, y) = Reactive.push!(x.signal, y)
 
 function reinit(x, y)
@@ -1386,7 +1386,7 @@ See [DeadZone](../../lib/electrical/#deadzone) and
 ifelse(x::ModelType, y, z) = mexpr(:call, :ifelse, x, y, z)
 ifelse(x::ModelType, y) = mexpr(:call, :ifelse, x, y)
 ## ifelse(x::Bool, y, z) = x ? y : z
-## ifelse(x::Bool, y) = x ? y : nothing
+ifelse(x::Bool, y) = ifelse(x, y, nothing)
 ## ifelse(x::Array{Bool}, y, z) = map((x) -> ifelse(x,y,z), x)
 ## ifelse(x::Array{Bool}, y) = map((x) -> ifelse(x,y), x)
 ifelse(x::MExpr, y, z) = mexpr(:call, :ifelse, x.ex, y, z)

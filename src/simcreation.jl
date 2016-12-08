@@ -251,7 +251,7 @@ function setup_functions(sm::Sim)
         end
 
     F = @eval SimFunctions($sim_resid, $sim_init, $sim_eventat, 
-                           $ev_neg_thunk, $ev_neg_thunk)
+                           $ev_pos_thunk, $ev_neg_thunk)
 
     # For event responses that were actual functions, insert those into
     # the F structure.
