@@ -33,6 +33,7 @@ s2 = create_simstate(Sims.Examples.Basics.VanderpolWithEvents())
 ys1 = sunsim(s2, tstop = 50.0)
 ys2 = sunsim(s2, tstop = 50.0)
 @test array_approx(ys1.y[:,3], ys2.y[:,3])
+@test isapprox(ys1[end,end], 29.315358456445153)    # I don't know if this check is too precise
 if Sims.hasdassl
     yd1 = dasslsim(s2, tstop = 50.0)
     yd2 = dasslsim(s2, tstop = 50.0)
