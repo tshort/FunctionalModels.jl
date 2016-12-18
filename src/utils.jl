@@ -29,7 +29,7 @@ function getcols(z::SimResult, r::Regex)
 end
 
 Plots.@recipe function f(x::SimResult; columns = collect(1:length(x.colnames)))
-    @show columns = [getcols(x, columns);]
+    columns = [getcols(x, columns);]
     n = length(columns)
     xguide      --> "Time, sec"
     legend      --> false,

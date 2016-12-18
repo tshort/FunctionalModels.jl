@@ -183,7 +183,15 @@ the columns in `y` after the time column.
 Sims uses `Plots.jl` for plotting columns of output. Here are examples:
 
 ```@example
-v = sim(Sims.Examples.Basics.Vanderpol, 10.0)
+using Plots
+v = sim(Sims.Examples.Basics.Vanderpol(), 10.0)
+plot(v)
+z = sim(Sims.Examples.Lib.CauerLowPassAnalog(), 60.0)
+plot(z)
+plot(z, layout = 1, legend = true)
+plot(z, columns = [2,4])
+plot(z, columns = 2:4)
+plot(z, columns = ["n1", "n2"])
 ```
 
 ## Hybrid Modeling
