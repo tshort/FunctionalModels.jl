@@ -18,7 +18,7 @@ models, and converting results.
 using Plots
 
 getcols(z::SimResult, x::Real) = x
-getcols(z::SimResult, s::AbstractString) = indexin(collect(s), z.colnames)[1]
+getcols(z::SimResult, s::AbstractString) = indexin([s], z.colnames)[1]
 getcols(z::SimResult, v::Union{Range, Vector, Set, Tuple}) = [getcols(z, x) for x in v]
 function getcols(z::SimResult, r::Regex)
     res = Int[]
@@ -29,17 +29,31 @@ function getcols(z::SimResult, r::Regex)
 end
 
 Plots.@recipe function f(x::SimResult; columns = collect(1:length(x.colnames)))
-    columns = getcols(x, columns)
+    columns = [getcols(x, columns);]
     n = length(columns)
     xguide      --> "Time, sec"
     legend      --> false,
     label       --> reshape(x.colnames[columns], (1,n))
     title       --> reshape(x.colnames[columns], (1,n))
     layout      --> (n,1)
-    x := x.y[:, 1]
-    x.y[:, 1+columns]
+    x.y[:, 1], x.y[:, 1+columns]
 end
 
+# z = sim(Sims.Examples.Lib.CauerLowPassOPV2(), 60.0)
+
+# plot(z)
+# plot(z, collect(1:length(z.colnames)))
+# plot(z, r".*", title = "CauerLowPassOPV")
+# plot(z, subplots = true, title = "subplots = true")
+# plot(z, 9:11, subplots = false, title = "subplots = false")
+# plot(z, r"n", title = "r\"n\"")
+# plot(z, r"n1", title = "r\"n1\"")
+# plot(z, 5:8, legend = false)
+# figure()
+# plot(z, 5:8, legend = false, newfigure = false)
+# plot(z, ["n8", "n9"], title = string(["n8", "n9"]))
+# plot(z, [("n8", "n9"), ("n10", "n11")], title = string([("n8", "n9"), ("n10", "n11")]))
+# plot(z, [r"n1", ("n9", "n10")], title = string([r"n1", ("n9", "n10")]))
 # """
 # Plot simulation result with PyPlot (must be installed and
 # loaded).
@@ -102,8 +116,7 @@ end
 # ```julia
 # using Sims
 # z = sim(Sims.Examples.Lib.CauerLowPassOPV2(), 60.0)
-# 
-# using PyPlot
+
 # plot(z)
 # plot(z, collect(1:length(z.colnames)))
 # plot(z, r".*", title = "CauerLowPassOPV")

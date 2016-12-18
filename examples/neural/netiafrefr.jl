@@ -2,7 +2,7 @@
 ## Integrate-and-fire example with refractory period.
 
 using Sims
-using Winston
+
 
 gL     = 0.1 
 vL     = -70.0 

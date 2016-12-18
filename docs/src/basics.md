@@ -17,10 +17,10 @@ type Unknown{T<:UnknownCategory} <: UnknownVariable
 end
 ```
 
-Unknowns can be grouped into categories. That's what the `T` is for in
-the definition above. One can define different types of Unknowns
+`Unknown`s can be grouped into categories. That's what the `T` is for in
+the definition above. One can define different types of `Unknowns`
 (electrical vs. mechanical for example). The default is
-DefaultUnknown. Unknowns of different types can also be used to define
+`DefaultUnknown`. Unknowns of different types can also be used to define
 models of the same name that act differently depending on what type of
 node they are connected to.
 
@@ -28,9 +28,9 @@ Unknowns also contain a value. This is used for setting initial
 values, and these values are updated if there is a structural change
 in the model. Unknowns can be different types. Eventually, all
 Unknowns are converted to Float64's in an array for simulation.
-Currently, Sim supports Unknowns of type Float64, Complex128, and
+Currently, Sim supports Unknowns of type `Float64`, `Complex128`, and
 arrays of either of these. Adding support for other structures is not
-hard as long as they can be converted to Float64's.
+hard as long as they can be converted to `Float64`'s.
 
 The label string is used for labeling simulation outputs. Unlabeled
 Unknowns are not included in results.
@@ -46,7 +46,7 @@ V = Unknown{Voltage}(10.0, "Output voltage")  # An Unknown of type Voltage
 
 Here are ways to create new Unknown types:
 
-```jl
+```julia
 # Untyped Unknowns:
 Angle = AngularVelocity = AngularAcceleration = Torque = RotationalNode = Unknown
 
@@ -61,16 +61,16 @@ typealias Current Unknown{UCurrent}
 ```
 In model equations, derivatives are specified with der:
 
-```jl
+```julia
    der(y)
 ```
 
-Derivatives of Unknowns are an object of type DerUnknown. DerUnknown
-objects contain an initial value, and a pointer to the Unknown object
+Derivatives of `Unknowns` are an object of type `DerUnknown`. `DerUnknown`
+objects contain an initial value, and a pointer to the `Unknown` object
 it references. Initial values can be entered as the second
-parameter to the der function:
+parameter to the `der` function:
 
-```jl
+```julia
    der(y, 3.0) - (x+1)   #  The derivative of y starts with the value 3.0
 ```
 
@@ -78,7 +78,7 @@ parameter to the der function:
 
 Here is a model of the Van Der Pol oscillator:
 
-```jl
+```julia
 function Vanderpol()
     y = Unknown(1.0, "y")   
     x = Unknown("x")       
@@ -101,7 +101,7 @@ Models should normally be locally balanced, meaning the number of
 unknowns matches the number of equations. It's pretty easy to match
 unknowns and equations as shown below:
 
-```jl
+```julia
 function Capacitor(n1, n2, C::Real) 
     i = Current()              # Unknown #1
     v = Voltage()              # Unknown #2
@@ -112,13 +112,13 @@ function Capacitor(n1, n2, C::Real)
 end
 ```
 
-In the model above, the nodes `n1` and `n2` are also Unknowns, but they
+In the model above, the nodes `n1` and `n2` are also `Unknowns`, but they
 are defined outside of this model.
 
 Here is the top-level circuit definition. In this case, there are no
 input parameters. The ground reference `g` is assigned zero volts.
 
-```jl
+```julia
 function Circuit()
     n1 = ElectricalNode("Source voltage")   # The string indicates labeling for plots
     n2 = ElectricalNode("Output voltage")
@@ -142,7 +142,7 @@ and `n2`). Because these are nodes, each Unknown node will also cause an
 equation to be generated that sums the flows into the node to be zero.
 
 In this model, the voltages `n1` and `n2` are labeled, so they will
-appear in the output. A SeriesProbe is used to label the current
+appear in the output. A `SeriesProbe` is used to label the current
 through the capacitor.
 
 
@@ -150,7 +150,7 @@ through the capacitor.
 
 Steps to building and simulating a model are straightforward.
 
-```jl
+```julia
 v = Vanderpol()       # returns the hierarchical model
 v_f = elaborate(v)    # returns the flattened model
 v_s = create_sim(v_f) # returns a "Sim" ready for simulation
@@ -160,18 +160,18 @@ v_yout = sim(v_s, 10.0) # run the simulation to 10 seconds and return
 
 Two solvers are available: `dasslsim` and `sunsim` using the
 [Sundials](https://github.com/tshort/Sundials.jl). Right now, `sim` is
-equivalent to `dasslsim`.
+equivalent to `sunsim`.
 
 Simulations can also be run directly from a hierarchical model:
 
-```jl
+```julia
 v_yout = sim(v, 10.0) 
 ```
 
 Right now, there are really no options available for simulation
 parameters.
 
-## Simulation Output
+## Simulation Output and Plotting
 
 The result of a `sim` run is an object with components `y` and
 `colnames`. `y` is a two-dimensional array with time slices along
@@ -180,17 +180,31 @@ time. The remaining columns are for each unknown in the model
 including derivatives. `colnames` contains the names of each of
 the columns in `y` after the time column.
 
+Sims uses `Plots.jl` for plotting columns of output. Here are examples:
+
+```@example
+using Plots
+v = sim(Sims.Examples.Basics.Vanderpol(), 10.0)
+plot(v)
+z = sim(Sims.Examples.Lib.CauerLowPassAnalog(), 60.0)
+plot(z)
+plot(z, layout = 1, legend = true)
+plot(z, columns = [2,4])
+plot(z, columns = 2:4)
+plot(z, columns = ["n1", "n2"])
+```
+
 ## Hybrid Modeling
 
 Sims provides basic support for hybrid modeling. Discrete variables
 are variables that are not involved in integration but apply when
 "events" occur. Models can define events denoting changes in behavior.
 
-Event is the main type used for hybrid modeling. It contains a
+`Event` is the main type used for hybrid modeling. It contains a
 condition for root finding and model expressions to process after
 positive and negative root crossings are detected.
 
-```jl
+```julia
 type Event <: ModelType
     condition::ModelType   # An expression used for the event detection. 
     pos_response::Model    # An expression indicating what to do when
@@ -201,10 +215,10 @@ type Event <: ModelType
 end
 ```
 
-The function `reinit` is used in Event responses to redefine variables.
+The function `reinit` is used in `Event` responses to redefine variables.
 Here is an example of a voltage source defined with a square wave:
 
-```jl
+```julia
 function VSquare(n1, n2, V::Real, f::Real)  
     i = Current()
     v = Voltage()
@@ -219,17 +233,17 @@ function VSquare(n1, n2, V::Real, f::Real)
 end
 ```
 
-The variable v_mag is the Discrete variable that is changed using
+The variable `v_mag` is the `Discrete` variable that is changed using
 reinit whenever the `sin(2 * pi * f * MTime)` crosses zero. A response
 is provided for both positive and negative zero crossings.
 
-Two other constructs that are useful are BoolEvent and ifelse. 
-ifelse is like an if-then-else block, but for ModelTypes (you can't
+Two other constructs that are useful are `BoolEvent` and `ifelse`. 
+ifelse is like an if-then-else block, but for `ModelTypes` (you can't
 use a regular if-then-else block, at least not without macros).  
-BoolEvent is a helper for attaching an event to a boolean variable.
+`BoolEvent` is a helper for attaching an event to a boolean variable.
 Here is an example for an ideal diode:
 
-```jl
+```julia
 function IdealDiode(n1, n2)
     i = Current()
     v = Voltage()
@@ -244,7 +258,7 @@ function IdealDiode(n1, n2)
 end
 ```
 
-Discrete variables are based on Signals from the
+`Discrete` variables are based on `Signals` from the
 [Reactive.jl](http://julialang.org/Reactive.jl/) package. This
 provides
 [Reactive Programming](http://en.wikipedia.org/wiki/Reactive_programming)
@@ -260,7 +274,7 @@ c = lift((x,y) -> x * y, a, b)   # 8.0
 reinit(a, 4.0)  # c becomes 16.0
 ```
 
-Parameters are a special type of Discrete variable. These can be used
+`Parameter`s are a special type of `Discrete` variable. These can be used
 as input to models. These stay alive through flattening and simulation
 creation. They can be updated externally from one simulation to the
 next.
@@ -273,7 +287,7 @@ of the model. An event is created, and when the event is triggered,
 the model is re-flattened after replacing `default` with
 `new_relation` in the model.
 
-```jl
+```julia
 type StructuralEvent <: ModelType
     condition::ModelType   # Expression indicating a zero crossing for event detection.
     default                # The default relation.
@@ -287,7 +301,7 @@ Pendulum construct. Then, when five seconds is reached, the
 StructuralEvent triggers, and the model is recompiled with the
 FreeFall construct.
 
-```jl
+```julia
 function BreakingPendulum()
     x = Unknown(cos(pi/4), "x")
     y = Unknown(-cos(pi/4), "y")

@@ -2,8 +2,7 @@ module Neural
 
 using ....Sims
 using ....Sims.Lib
-using Docile
-@document
+
 
 @comment """
 # Neural models

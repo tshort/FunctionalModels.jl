@@ -2,8 +2,6 @@ module Basics
 
 using ....Sims
 using ....Sims.Lib
-using Docile
-@document
 
 
 @comment """
@@ -18,8 +16,8 @@ using Sims
 m = Sims.Examples.Basics.Vanderpol()
 v = sim(m, 50.0)
 
-using Winston
-wplot(v)
+
+plot(v)
 ```
 """
 
