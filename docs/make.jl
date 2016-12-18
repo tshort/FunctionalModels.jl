@@ -116,7 +116,7 @@ makedocs(
 )
 
 
-# deploydocs(
-#     repo = "github.com/tshort/Sims.jl.git"
-# )
+deploydocs(
+    repo = "github.com/tshort/Sims.jl.git"
+)
 
