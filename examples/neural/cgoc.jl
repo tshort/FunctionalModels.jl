@@ -7,7 +7,7 @@ module CGoC
 
 using Sims, Sims.Lib
 using Sims.Examples.Neural, Sims.Examples.Neural.Lib
-using Docile
+
 
 function linoid(x, y) 
     return ifelse(abs(x / y) < 1e-6,

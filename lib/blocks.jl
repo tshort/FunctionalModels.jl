@@ -20,7 +20,7 @@ These components are modeled after the `Modelica.Blocks.*` library.
 """
 
 @comment """
-# Continuous linear
+## Continuous linear
 """
 
 
@@ -463,7 +463,7 @@ TransferFunction(u::Signal, y::Signal;
 ## Nonlinear Blocks
 ########################################
 @comment """
-# Nonlinear
+## Nonlinear
 """
 
 

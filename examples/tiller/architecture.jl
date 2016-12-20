@@ -1,5 +1,5 @@
 
-using Sims, Sims.Lib, Docile
+using Sims, Sims.Lib
 
 export FlatSystem, BaseSystem, IdealSensor, SampleHoldSensor,
        IdealActuator, LimitedActuator, ProportionalController,
@@ -48,7 +48,7 @@ function FlatSystem(phi1 = Angle(),
 end
 
 ## y = dasslsim(FlatSystem(), tstop = 5.0)
-## wplot(y)
+## plot(y)
 
 
 """
@@ -173,7 +173,7 @@ function BaseSystem(; Plant = BasicPlant,
 end
 
 ## bs = dasslsim(BaseSystem(), tstop = 5.0)
-## wplot(bs)
+## plot(bs)
 
 """
 BaseSystem variant with sample-hold sensing
@@ -181,12 +181,12 @@ BaseSystem variant with sample-hold sensing
 Variant1 = () -> BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.01));
 
 ## v1 = dasslsim(Variant1(), tstop = 5.0)
-## wplot(v1)
+## plot(v1)
 
 Variant1a = () -> BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.036));
 
 ## v1a = dasslsim(Variant1a(), tstop = 5.0)
-## wplot(v1a)
+## plot(v1a)
 
 
 """
@@ -197,7 +197,7 @@ Variant2  = () -> BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.01),
                        Actuator = LimitedActuator(delayTime=0.005, uMax=10));
 
 ## v2 = dasslsim(Variant2(), tstop = 5.0)
-## wplot(v2)
+## plot(v2)
 
 
 """
@@ -208,4 +208,4 @@ Variant2a  = () -> BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.01),
                         Actuator = LimitedActuator(delayTime=0.005, uMax=50));
 
 ## v2a = dasslsim(Variant2a(), tstop = 5.0)
-## wplot(v2a)
+## plot(v2a)

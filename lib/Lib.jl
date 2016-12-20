@@ -1,7 +1,7 @@
 module Lib
 using ..Sims
-using Docile
-@document
+
+
 
 
 ## Standard library

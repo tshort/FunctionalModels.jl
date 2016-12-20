@@ -117,9 +117,8 @@ end
 
 y = sim(Vanderpol(), 10.0) # Run the simulation to 10 seconds and return
                            # the result as an array.
-# plot the results with Winston
-using Winston
-wplot(y)
+
+plot(y)
 ``` 
 
 Here are the results:
@@ -141,8 +140,8 @@ end
 
 y = sim(Vanderpol(), 10.0) # Run the simulation to 10 seconds and return
                            # the result as an array.
-# plot the results with Winston
-wplot(y)
+
+plot(y)
 ``` 
 
 Electrical example

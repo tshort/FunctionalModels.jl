@@ -3,12 +3,12 @@ module Tiller
 
 using ....Sims
 using ....Sims.Lib
-using Docile
-@document
 
 
 @comment """
-# From [Modelica by Example](http://book.xogeny.com/)
+# Tiller examples
+
+**From [Modelica by Example](http://book.xogeny.com/)**
 
 These examples are from the online book [Modelica by
 Example](http://book.xogeny.com/) by Michael M. Tiller. Michael
@@ -23,11 +23,10 @@ using Sims
 m = Sims.Examples.Tiller.SecondOrderSystem()
 y = dasslsim(m, tstop = 5.0)
 
-using Winston
-wplot(y)
+
+plot(y)
 ```
 """
-
 
 include("speed-measurement.jl")
 include("architecture.jl")

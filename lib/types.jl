@@ -25,7 +25,7 @@ Most of the components mimic those in the Modelica Standard Library.
 The main types for Unknowns and signals defined in Sims.Lib include:
 
 |                     | Flow/through variable | Node/across variable | Node helper type |
-|---------------------|-----------------------|----------------------|------------------|
+| ------------------- | --------------------- | -------------------- | ---------------- |
 | Electrical systems  | `Current`             | `Voltage`            | `ElectricalNode` |
 | Heat transfer       | `HeatFlow`            | `Temperature`        | `HeatPort`       |
 | Mechanical rotation | `Torque`              | `Angle`              | `Flange`         |
@@ -48,6 +48,10 @@ and some support complex values.
 ########################################
 ## Types
 ########################################
+
+@comment """
+## Basic types
+"""
 
 """
 `NumberOrUnknown{T,C}` is a typealias for
@@ -74,7 +78,7 @@ typealias Signal NumberOrUnknown{DefaultUnknown,Normal}
 # Main electrical types
 ############################################
 @comment """
-# Electrical types
+## Electrical types
 """
 
 """
@@ -120,7 +124,7 @@ typealias Current Unknown{UCurrent,Normal}
 # Main thermal types
 ############################################
 @comment """
-# Thermal types
+## Thermal types
 """
 
 ## Thermal
@@ -141,10 +145,6 @@ An UnknownCategory for heat flow rate in watts.
 """
 type UHeatFlow <: UnknownCategory
 end
-
-@comment """
-## HeatPort
-"""
 
 """
 `HeatPort` is a typealias for `NumberOrUnknown{UHeatPort,Normal}`.
@@ -175,7 +175,7 @@ typealias Temperature Unknown{UHeatPort,Normal}
 # Main mechanical types
 ############################################
 @comment """
-# Rotational types
+## Rotational types
 """
 
 ## Mechanical rotation
