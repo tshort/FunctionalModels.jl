@@ -77,6 +77,7 @@ createmd("src/api/utils.md", Sims, "utils.jl")
 createmd("src/api/main.md",  Sims, "main.jl")
 createmd("src/api/sim.md",   Sims, ["dassl.jl","sundials.jl","sim.jl", "elaboration.jl", "simcreation.jl"])
 
+sleep(2)
 
 makedocs(
     modules = [Sims],
@@ -89,8 +90,8 @@ makedocs(
         "Home" => "index.md",
         "Basics" => "basics.md",
         "API" => Any[
-            "api/main.md",
             "api/sim.md",
+            "api/main.md",
             "api/utils.md",
         ],
         "Library" => Any[
