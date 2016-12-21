@@ -6,6 +6,8 @@ os:
 addons:
   apt_packages:
     - gfortran
+env:
+  - DOCUMENTER_DEBUG=1
 notifications:
   email: false
 after_success:
