@@ -118,6 +118,9 @@ makedocs(
 
 
 deploydocs(
-    repo = "github.com/tshort/Sims.jl.git"
+    repo = "github.com/tshort/Sims.jl.git",
+    target = "build",
+    deps = nothing,
+    make = nothing,
 )
 
