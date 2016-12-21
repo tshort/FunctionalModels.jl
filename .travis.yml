@@ -10,5 +10,5 @@ notifications:
   email: false
 after_success:
   - julia -e 'Pkg.add("Documenter")'
-  - julia -e 'cd(Pkg.dir("Sims")); include(joinpath("docs", "make.jl"))'
+  - julia -e 'cd(Pkg.dir("Sims", "docs")); include("make.jl")'
   - julia -e 'cd(Pkg.dir("Sims")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
