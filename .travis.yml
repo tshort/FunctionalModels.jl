@@ -6,11 +6,9 @@ os:
 addons:
   apt_packages:
     - gfortran
-env:
-  - DOCUMENTER_DEBUG=1
 notifications:
   email: false
 after_success:
   - julia -e 'Pkg.add("Documenter")'
-  - julia -e 'cd(Pkg.dir("Sims", "docs")); include("make.jl")'
+  - julia -e 'ENV["DOCUMENTER_DEBUG"] = "true"; cd(Pkg.dir("Sims", "docs")); include("make.jl")'
   - julia -e 'cd(Pkg.dir("Sims")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
