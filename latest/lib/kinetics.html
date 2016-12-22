@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Chemical kinetics · Sims.jl</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/default.min.css" rel="stylesheet" type="text/css"/><link href="https://fonts.googleapis.com/css?family=Lato|Ubuntu+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/><link href="../assets/documenter.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="../assets/documenter.js"></script><script src="../../versions.js"></script></head><body><nav class="toc"><h1>Sims.jl</h1><form class="search" action="../search.html"><select id="version-selector" onChange="window.location.href=this.value"><option value="#" selected="selected" disabled="disabled">Version</option></select><input id="search-query" name="q" type="text" placeholder="Search docs"/></form><ul><li><a class="toctext" href="../index.html">Home</a></li><li><a class="toctext" href="../basics.html">Basics</a></li><li><span class="toctext">API</span><ul><li><a class="toctext" href="../api/sim.html">Simulations</a></li><li><a class="toctext" href="../api/main.html">Building models</a></li><li><a class="toctext" href="../api/utils.html">Utilities</a></li></ul></li><li><span class="toctext">Library</span><ul><li><a class="toctext" href="types.html">The Sims standard library</a></li><li class="current"><a class="toctext" href="kinetics.html">Chemical kinetics</a><ul class="internal"></ul></li><li><a class="toctext" href="blocks.html">Control and signal blocks</a></li><li><a class="toctext" href="electrical.html">Analog electrical models</a></li><li><a class="toctext" href="heat_transfer.html">Heat transfer models</a></li><li><a class="toctext" href="powersystems.html">Power systems models</a></li><li><a class="toctext" href="rotational.html">Rotational mechanics</a></li></ul></li><li><span class="toctext">Examples</span><ul><li><a class="toctext" href="../examples/basics.html">Examples using basic models</a></li><li><a class="toctext" href="../examples/lib.html">Sims.Lib</a></li><li><a class="toctext" href="../examples/tiller.html">Tiller examples</a></li></ul></li><li><a class="toctext" href="../design.html">Design</a></li><li><a class="toctext" href="../NEWS.html">Release notes</a></li><li><a class="toctext" href="../LICENSE.html">License</a></li></ul></nav><article id="docs"><header><nav><ul><li>Library</li><li><a href="kinetics.html">Chemical kinetics</a></li></ul><a class="edit-page" href="https://github.com/tshort/Sims.jl/tree/2e4f71c4a9b2731338e9896c93294e59ec0c1bd3/docs/src/lib/kinetics.md"><span class="fa"></span> Edit on GitHub</a></nav><hr/></header><ul><li><a href="kinetics.html#Chemical-kinetics-1">Chemical kinetics</a></li><ul><ul><li><a href="kinetics.html#ReactionEquation-1">ReactionEquation</a></li><li><a href="kinetics.html#parse_reactions-1">parse_reactions</a></li></ul></ul></ul><h1><a class="nav-anchor" id="Chemical-kinetics-1" href="#Chemical-kinetics-1">Chemical kinetics</a></h1><h3><a class="nav-anchor" id="ReactionEquation-1" href="#ReactionEquation-1">ReactionEquation</a></h3><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="Sims.Lib.ReactionEquation" href="#Sims.Lib.ReactionEquation"><code>Sims.Lib.ReactionEquation</code></a> — <span class="docstring-category">Function</span>.</div><div><p>Chemical kinetic reaction system</p><pre><code class="language-julia">ReactionSystem(X, S, R, K)</code></pre><p><strong>Arguments</strong></p><ul><li><p><code>X</code> : State vector (array of unknowns N x 1)</p></li><li><p><code>S</code> : stoichiometric coefficients for reactants (array M x N)</p></li><li><p><code>R</code> : stoichiometric coefficients for products (array M x N)</p></li><li><p><code>K</code> : reaction rates (array M x 1)</p></li></ul><p><strong>Example</strong></p><pre><code class="language-julia">function concentration()
+
+    A0 = 0.25
+    rateA = 0.333
+    rateB = 0.16
+
+    X= { Unknown(A0), Unknown(0.0) }
+
+    S = [ [1, 0] [0, 1] ] ## stoichiometric coefficients for reactants
+    R = [ [0, 1] [1, 0] ] ## stoichiometric coefficients for products
+    K = [rateA , rateB] ## reaction rates
+    
+    return ReactionSystem(X, S, R, K)
+
+end
+y = sim(concentration())</code></pre><pre><code class="language-julia">### Simple reaction syntax parser
+
+function simpleConcentration()
+
+    A0 = 0.25
+    rateA = 0.333
+    rateB = 0.16
+
+    A = Unknown(A0)
+    B = Unknown(0.0)
+    
+    reactions = Any[
+                     [ :-&gt; A B rateA ]
+                     [ :-&gt; B A rateB ]
+                   ]
+
+    return parse_reactions(reactions)
+end
+
+y = sim(simpleConcentration())</code></pre></div><a class="source-link" target="_blank" href="https://github.com/tshort/Sims.jl/tree/2e4f71c4a9b2731338e9896c93294e59ec0c1bd3/src/../lib/kinetic.jl#L10-L67">source</a><br/></section><h3><a class="nav-anchor" id="parse_reactions-1" href="#parse_reactions-1">parse_reactions</a></h3><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="Sims.Lib.parse_reactions" href="#Sims.Lib.parse_reactions"><code>Sims.Lib.parse_reactions</code></a> — <span class="docstring-category">Function</span>.</div><div><p>Parses reactions of the form</p><pre><code class="language-julia">Any[ :-&gt; a b rate ]
+Any[ :→ a b rate  ]
+Any[ :⇄ a b rate1 rate2 ]</code></pre><p><strong>Arguments</strong></p><ul><li><p><code>V</code> : Vector of reactions</p></li></ul><p><strong>Example</strong></p><pre><code class="language-julia">    A0 = 0.25
+    rateA = 0.333
+    rateB = 0.16
+
+    A = Unknown(A0)
+    B = Unknown(0.0)
+
+    reactions = Any[
+                     [ :⇄ A B rateA rateB ]
+                   ]
+
+    parse_reactions(reactions)</code></pre></div><a class="source-link" target="_blank" href="https://github.com/tshort/Sims.jl/tree/2e4f71c4a9b2731338e9896c93294e59ec0c1bd3/src/../lib/kinetic.jl#L119-L149">source</a><br/></section><footer><hr/><a class="previous" href="types.html"><span class="direction">Previous</span><span class="title">The Sims standard library</span></a><a class="next" href="blocks.html"><span class="direction">Next</span><span class="title">Control and signal blocks</span></a></footer></article></body></html>

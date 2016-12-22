@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Home · Sims.jl</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/default.min.css" rel="stylesheet" type="text/css"/><link href="https://fonts.googleapis.com/css?family=Lato|Ubuntu+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/><link href="assets/documenter.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="assets/documenter.js"></script><script src="../versions.js"></script></head><body><nav class="toc"><h1>Sims.jl</h1><form class="search" action="search.html"><select id="version-selector" onChange="window.location.href=this.value"><option value="#" selected="selected" disabled="disabled">Version</option></select><input id="search-query" name="q" type="text" placeholder="Search docs"/></form><ul><li class="current"><a class="toctext" href="index.html">Home</a><ul class="internal"><li><a class="toctext" href="#Background-1">Background</a></li><li><a class="toctext" href="#Installation-1">Installation</a></li><li><a class="toctext" href="#Basic-example-1">Basic example</a></li><li><a class="toctext" href="#Electrical-example-1">Electrical example</a></li><li><a class="toctext" href="#Initialization-and-Solving-Sets-of-Equations-1">Initialization and Solving Sets of Equations</a></li><li><a class="toctext" href="#Hybrid-Modeling-and-Structural-Variability-1">Hybrid Modeling and Structural Variability</a></li></ul></li><li><a class="toctext" href="basics.html">Basics</a></li><li><span class="toctext">API</span><ul><li><a class="toctext" href="api/sim.html">Simulations</a></li><li><a class="toctext" href="api/main.html">Building models</a></li><li><a class="toctext" href="api/utils.html">Utilities</a></li></ul></li><li><span class="toctext">Library</span><ul><li><a class="toctext" href="lib/types.html">The Sims standard library</a></li><li><a class="toctext" href="lib/kinetics.html">Chemical kinetics</a></li><li><a class="toctext" href="lib/blocks.html">Control and signal blocks</a></li><li><a class="toctext" href="lib/electrical.html">Analog electrical models</a></li><li><a class="toctext" href="lib/heat_transfer.html">Heat transfer models</a></li><li><a class="toctext" href="lib/powersystems.html">Power systems models</a></li><li><a class="toctext" href="lib/rotational.html">Rotational mechanics</a></li></ul></li><li><span class="toctext">Examples</span><ul><li><a class="toctext" href="examples/basics.html">Examples using basic models</a></li><li><a class="toctext" href="examples/lib.html">Sims.Lib</a></li><li><a class="toctext" href="examples/tiller.html">Tiller examples</a></li></ul></li><li><a class="toctext" href="design.html">Design</a></li><li><a class="toctext" href="NEWS.html">Release notes</a></li><li><a class="toctext" href="LICENSE.html">License</a></li></ul></nav><article id="docs"><header><nav><ul><li><a href="index.html">Home</a></li></ul><a class="edit-page" href="https://github.com/tshort/Sims.jl/tree/2e4f71c4a9b2731338e9896c93294e59ec0c1bd3/docs/src/index.md"><span class="fa"></span> Edit on GitHub</a></nav><hr/></header><h1><a class="nav-anchor" id="Sims.jl-1" href="#Sims.jl-1">Sims.jl</a></h1><p>A <a href="http://julialang.org">Julia</a> package for equation-based modeling and simulations.</p><h2><a class="nav-anchor" id="Background-1" href="#Background-1">Background</a></h2><p>Sims is like a lite version of Modelica. This package is for non-causal modeling in Julia. The idea behind non-causal modeling is that the user develops models based on components which are described by a set of equations. A tool can then transform the equations and solve the differential algebraic equations. Non-causal models tend to match their physical counterparts in terms of their specification and implementation.</p><p>Causal modeling is where all signals have an input and an output, and the flow of information is clear. Simulink is the highest-profile example. The problem with causal modeling is that it is difficult to build up models from components.</p><p>The highest profile noncausal modeling tools are in the <a href="www.modelica.org">Modelica</a> family. The MathWorks company also has Simscape that uses Matlab notation. Modelica is an object-oriented, open language with multiple implementations. It is a large, complex, powerful language with an extensive standard library of components.</p><p>This implementation follows the work of <a href="http://web.ict.kth.se/~dbro/">David Broman</a> (<a href="http://www.bromans.com/david/publ/thesis-2010-david-broman.pdf">thesis</a> and <a href="http://www.bromans.com/software/mkl/mkl-source-1.0.0.zip">code</a>) and <a href="http://db.inf.uni-tuebingen.de/team/giorgidze">George Giorgidze</a> (<a href="https://github.com/giorgidze/Hydra">Hydra code</a> and <a href="http://db.inf.uni-tuebingen.de/files/giorgidze/phd_thesis.pdf">thesis</a>) and <a href="http://www.cs.nott.ac.uk/~nhn/">Henrik Nilsson</a> and their functional hybrid modeling. Sims is most similar to <a href="https://github.com/david-broman/modelyze">Modelyze</a> by David Broman (<a href="http://www.eecs.berkeley.edu/Pubs/TechRpts/2012/EECS-2012-173.pdf">report</a>).</p><p>Two solvers are available to solve the implicit DAE&#39;s generated. The default is DASKR, a derivative of DASSL with root finding. A solver based on the <a href="https://github.com/tshort/Sundials.jl">Sundials</a> package is also available.</p><h2><a class="nav-anchor" id="Installation-1" href="#Installation-1">Installation</a></h2><p>Sims is an installable package. To install Sims, use the following:</p><pre><code class="language-julia">Pkg.add(&quot;Sims&quot;)</code></pre><p>Sims.jl has one main module named <code>Sims</code> and the following submodules:</p><ul><li><p><code>Sims.Lib</code> – the standard library</p></li><li><p><code>Sims.Examples</code> – example models, including:</p><ul><li><p><code>Sims.Examples.Basics</code></p></li><li><p><code>Sims.Examples.Lib</code></p></li><li><p><code>Sims.Examples.Neural</code></p></li></ul></li></ul><h2><a class="nav-anchor" id="Basic-example-1" href="#Basic-example-1">Basic example</a></h2><p>Sims defines a basic symbolic class used for unknown variables in the model. As unknown variables are evaluated, expressions (of type MExpr) are built up.</p><pre><code class="language-julia">julia&gt; using Sims
+
+julia&gt; a = Unknown()
+##1243
+
+julia&gt; a * (a + 1)
+MExpr(*(##1243,+(##1243,1)))</code></pre><p>In a simulation, the unknowns are to be solved based on a set of equations. Equations are built from device models. </p><p>A device model is a function that returns a vector of equations or other devices that also return lists of equations. The equations each are assumed equal to zero. So,</p><pre><code class="language-julia">der(y) = x + 1</code></pre><p>Should be entered as:</p><pre><code class="language-julia">der(y) - (x+1)</code></pre><p><code>der</code> indicates a derivative.</p><p>The Van Der Pol oscillator is a simple problem with two equations and two unknowns:</p><pre><code class="language-julia">function Vanderpol()
+    y = Unknown(1.0, &quot;y&quot;)   # The 1.0 is the initial value. &quot;y&quot; is for plotting.
+    x = Unknown(&quot;x&quot;)        # The initial value is zero if not given.
+    # The following gives the return value which is a list of equations.
+    # Expressions with Unknowns are kept as expressions. Expressions of
+    # regular variables are evaluated immediately.
+    Equation[
+        # The -1.0 in der(x, -1.0) is the initial value for the derivative 
+        der(x, -1.0) - ((1 - y^2) * x - y)      # == 0 is assumed
+        der(y) - x
+    ]
+end
+
+y = sim(Vanderpol(), 10.0) # Run the simulation to 10 seconds and return
+                           # the result as an array.
+
+plot(y)</code></pre><p>Here are the results:</p><p><img src="https://github.com/tshort/Sims.jl/blob/master/examples/basics/vanderpol.png?raw=true \"Van Der Pol results\"" alt="plot results"/></p><p>An <code>@equations</code> macro is provided to return <code>Equation[]</code> allowing for the use of equals in equations, so the example above can be:</p><pre><code class="language-julia">function Vanderpol()
+    y = Unknown(1.0, &quot;y&quot;) 
+    x = Unknown(&quot;x&quot;)
+    @equations begin
+        der(x, -1.0) = (1 - y^2) * x - y
+        der(y) = x
+    end
+end
+
+y = sim(Vanderpol(), 10.0) # Run the simulation to 10 seconds and return
+                           # the result as an array.
+
+plot(y)</code></pre><h2><a class="nav-anchor" id="Electrical-example-1" href="#Electrical-example-1">Electrical example</a></h2><p>This example shows definitions of several electrical components. Each is again a function that returns a list of equations. Equations are expressions (type MExpr) that includes other expressions and unknowns (type Unknown).</p><p>Arguments to each function are model parameters. These normally include nodes specifying connectivity followed by parameters specifying model characteristics.</p><p>Models can contain models or other functions that return equations. The function Branch is a special function that returns an equation specifying relationships between nodes and flows. It also acts as an indicator to mark nodes. In the flattening/elaboration process, equations are created to sum flows (in this case electrical currents) to zero at all nodes. RefBranch is another special function for marking nodes and flow variables.</p><p>Nodes passed as parameters or created with ElectricalNode() are simply unknowns. For these electrical examples, a node is simply an unknown voltage.</p><pre><code class="language-julia">function Resistor(n1, n2, R::Real) 
+    i = Current()   # This is simply an Unknown. 
+    v = Voltage()
+    @equations begin
+        Branch(n1, n2, v, i)
+        R * i = v
+    end
+end
+
+function Capacitor(n1, n2, C::Real) 
+    i = Current()
+    v = Voltage()
+    @equations begin
+        Branch(n1, n2, v, i)
+        C * der(v) = i
+    end
+end</code></pre><p>What follows is a top-level circuit definition. In this case, there are no input parameters. The ground reference &quot;g&quot; is assigned zero volts.</p><p>All of the equations returned in the list of equations are other models with various parameters.</p><pre><code class="language-julia">function Circuit()
+    n1 = Voltage(&quot;Source voltage&quot;)   # The string indicates labeling for plots
+    n2 = Voltage(&quot;Output voltage&quot;)
+    n3 = Voltage()
+    g = 0.0  # A ground has zero volts; it&#39;s not an unknown.
+    Equation[
+        SineVoltage(n1, g, 10.0, 60.0)
+        Resistor(n1, n2, 10.0)
+        Resistor(n2, g, 5.0)
+        SeriesProbe(n2, n3, &quot;Capacitor current&quot;)
+        Capacitor(n3, g, 5.0e-3)
+    ]
+end
+
+ckt = Circuit()
+ckt_y = sim(ckt, 0.1)
+gplot(ckt_y)</code></pre><p>Here are the results:</p><p><img src="https://github.com/tshort/Sims.jl/blob/master/examples/basics/circuit.png?raw=true \"Circuit results\"" alt="plot results"/></p><h2><a class="nav-anchor" id="Initialization-and-Solving-Sets-of-Equations-1" href="#Initialization-and-Solving-Sets-of-Equations-1">Initialization and Solving Sets of Equations</a></h2><p>Sims initialization is still weak, but it is developed enough to be able to solve non-differential equations. Here is a small example where two Unknowns, <code>x</code> and <code>y</code>, are solved based on the following two equations:</p><pre><code class="language-julia">function test()
+    @unknown x y
+    @equations begin
+        2*x - y   = exp(-x)
+         -x + 2*y = exp(-y)
+    end
+end
+
+solution = solve(create_sim(test()))</code></pre><h2><a class="nav-anchor" id="Hybrid-Modeling-and-Structural-Variability-1" href="#Hybrid-Modeling-and-Structural-Variability-1">Hybrid Modeling and Structural Variability</a></h2><p>Sims supports basic hybrid modeling, including the ability to handle structural model changes. Consider the following example:</p><p><a href="https://github.com/tshort/Sims.jl/blob/master/examples/basics/breaking_pendulum_in_box.jl">Breaking pendulum</a></p><p>This model starts as a pendulum, then the wire breaks, and the ball goes into free fall. Sims handles this much like <a href="https://github.com/giorgidze/Hydra">Hydra</a>; the model is recompiled. Because Julia can compile code just-in-time (JIT), this happens relatively quickly. After the pendulum breaks, the ball bounces around in a box. This shows off another feature of Sims: handling nonstructural events. Each time the wall is hit, the velocity is adjusted for the &quot;bounce&quot;.</p><p>Here is an animation of the results. Note that the actual animation was done in R, not Julia.</p><p><img src="https://github.com/tshort/Sims.jl/blob/master/examples/basics/pendulum.gif?raw=true \"Pendulum\"" alt="plot results"/></p><footer><hr/><a class="next" href="basics.html"><span class="direction">Next</span><span class="title">Basics</span></a></footer></article></body></html>
