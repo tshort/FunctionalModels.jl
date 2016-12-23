@@ -44,9 +44,6 @@ export foldp, value, signal, flatmap
 using Documenter
 include("docutil.jl")
 
-using Compat
-import Compat.view
-
 include("main.jl")
 include("elaboration.jl")
 include("simcreation.jl")
