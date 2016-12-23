@@ -8,8 +8,10 @@ Sims.jl
 =======
 
 A [Julia](http://julialang.org) package for equation-based modeling
-and simulations. For more information, see the
-**[Documentation](https://tshort.github.io/Sims.jl/)**.
+and simulations. For more information, see the documentation:
+
+* **[Documentation for the released version](https://tshort.github.io/Sims.jl/stable)**.
+* **[Documentation for the development version](https://tshort.github.io/Sims.jl/latest)**.
 
 
 Background
@@ -73,7 +75,7 @@ Basic example
 
 Sims defines a basic symbolic class used for unknown variables in
 the model. As unknown variables are evaluated, expressions (of
-type MExpr) are built up.
+type `MExpr`) are built up.
 
 ``` julia
 julia> using Sims
@@ -146,8 +148,8 @@ end
 
 y = sim(Vanderpol(), 10.0) # Run the simulation to 10 seconds and return
                            # the result as an array.
-# plot the results with Gaston
-gplot(y)
+# plot the results
+plot(y)
 ``` 
 
 Electrical example
@@ -163,14 +165,14 @@ nodes specifying connectivity followed by parameters specifying model
 characteristics.
 
 Models can contain models or other functions that return equations.
-The function Branch is a special function that returns an equation
+The function `Branch` is a special function that returns an equation
 specifying relationships between nodes and flows. It also acts as an
 indicator to mark nodes. In the flattening/elaboration process,
 equations are created to sum flows (in this case electrical currents)
-to zero at all nodes. RefBranch is another special function for
+to zero at all nodes. `RefBranch` is another special function for
 marking nodes and flow variables.
 
-Nodes passed as parameters or created with ElectricalNode() are simply
+Nodes passed as parameters or created with `ElectricalNode()` are simply
 unknowns. For these electrical examples, a node is simply an unknown
 voltage.
  

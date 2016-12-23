@@ -24,8 +24,8 @@ if Sims.hasdassl
     Sims.defaultsim(sunsim)
 end
 
-# println("== run other tests")
-# println("= simulations")
-# include("simulations.jl")
-# println("= miscellaneous")
-# include("miscellaneous.jl")
+println("== run other tests")
+println("= simulations")
+include("simulations.jl")
+println("= miscellaneous")
+include("miscellaneous.jl")

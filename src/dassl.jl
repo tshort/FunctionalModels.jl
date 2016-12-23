@@ -63,6 +63,7 @@ function dasslsim(ss::SimState, tstop::Float64, Nsteps::Int=500, reltol::Float64
     sm = ss.sm
     for x in sm.discrete_inputs
         push!(x.signal, x.initialvalue)
+        Reactive.run_till_now() 
     end
     ss.y[:] = ss.y0
     ss.yp[:] = ss.yp0
