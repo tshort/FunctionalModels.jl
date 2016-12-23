@@ -49,7 +49,7 @@ function dasslrootfun(neq, t_in, y_in, yp_in, nrt, rval_out, rpar, ipar)
     return nothing
 end
 
-initdassl = @compat Dict(:none => 0, :Ya_Ydp => 1, :Y => 2)
+initdassl = Dict(:none => 0, :Ya_Ydp => 1, :Y => 2)
 
 """
 The solver that uses DASKR, a variant of DASSL.
