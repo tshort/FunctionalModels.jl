@@ -119,7 +119,6 @@ function sunsim(ss::SimState, tstop, Nsteps = 500, reltol = 1e-4, abstol = 1e-4,
     # fix up initial values
     for x in sm.discrete_inputs
         push!(x.signal, x.initialvalue)
-        Reactive.run_till_now() 
     end
     ss.y[:] = ss.y0
     ss.yp[:] = ss.yp0

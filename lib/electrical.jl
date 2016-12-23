@@ -1,4 +1,3 @@
-import Reactive
 
 ########################################
 ## Electrical library                 ##
@@ -532,15 +531,16 @@ IdealThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete;
 """
 function IdealThyristor(n1::ElectricalNode, n2::ElectricalNode, fire, 
                         Vknee, Ron = 1e-5, Goff = 1e-5)
+    fire = Parameter(fire)
     vals = compatible_values(n1, n2) 
     i = Current(vals)
     v = Voltage(vals)
     s = Unknown(vals)  # dummy variable
     spositive = Discrete(value(s) > 0.0)
-    ## off = @lift !spositive | (off & !fire) # on/off state of each switch
-    off = lift(x -> x[1],
-               foldl((off, spositive, fire) -> (!spositive | (off[1] & !fire), spositive, fire),
-                     (true, value(spositive), value(fire)), spositive, fire))
+    ## off = @map !spositive | (off & !fire) # on/off state of each switch
+    off = map(x -> x[1],
+              foldp((off, spositive, fire) -> (!spositive | (off[1] & !fire), spositive, fire),
+                    (true, value(spositive), value(fire)), spositive, fire))
     @equations begin
         Branch(n1, n2, v, i)
         BoolEvent(spositive, s)
@@ -553,7 +553,7 @@ function IdealThyristor(n1::ElectricalNode, n2::ElectricalNode, fire;
     IdealThyristor(n1, n2, fire, Vknee, Ron, Goff)
 end
 
-  
+
 """
 This is an ideal GTO thyristor model which is **open** (off), if the
 voltage drop is less than 0 or `fire` is false **closed** (on), if the
