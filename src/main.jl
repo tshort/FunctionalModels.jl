@@ -916,7 +916,7 @@ end
 
 
 """
-An abstract type representing Unknowns that use the Reactive.jl
+An abstract type representing Unknowns that use the ReactiveBasics.jl
 package. The main types included are `Discrete` and
 `Parameter`. `Discrete` is normally used as inputs inside of models
 and includes an initial value that is reset at every simulation
@@ -927,10 +927,9 @@ variations.
 Because they are Unknowns, UnknownReactive types form MExpr's when
 used in expressions just like Unknowns.
 
-Many of the methods from Reactive.jl are supported, including `lift`,
-`foldl`, `filter`, `dropif`, `droprepeats`, `keepwhen`, `dropwhen`,
-`sampleon`, and `merge`. Use `reinit` to reinitialize a Discrete or a
-Parameter (equivalent to `Reactive.push!`).
+Many of the methods from ReactiveBasics.jl are supported, including `map`,
+`foldp`, `filter`, and `merge`. Use `reinit` to reinitialize a Discrete or a
+Parameter (equivalent to `push!`).
 
 """
 abstract UnknownReactive{T} <: UnknownVariable
@@ -940,13 +939,13 @@ Discrete is a type for discrete variables. These are only changed
 during events. They are not used by the integrator. Because they are
 not used by the integrator, almost any type can be used as a discrete
 variable. Discrete variables wrap a Signal from the
-[Reactive.jl](http://julialang.org/Reactive.jl/) package.
+[ReactiveBasics.jl](http://github.org/tshort/ReactiveBasics.jl) package.
 
 ### Constructors
 
 ```julia
 Discrete(initialvalue = 0.0)
-Discrete(x::Reactive.Signal, initialvalue)
+Discrete(x::ReactiveBasics.Signal, initialvalue)
 ```
 
 Without arguments, `Discrete()` uses an initial value of 0.0.
@@ -954,26 +953,26 @@ Without arguments, `Discrete()` uses an initial value of 0.0.
 ### Arguments
 
 * `initialvalue` : initial value and type information, defaults to 0.0
-* `x::Reactive.Signal` : a `Signal` from the Reactive.jl package.
+* `x::ReactiveBasics.Signal` : a `Signal` from the ReactiveBasics.jl package.
 
 ### Details
 
 `Discrete` is the main input type for discrete variables. By default,
-it wraps a `Reactive.Signal` type. `Discrete` variables support data
-flow using Reactive.jl. Use `reinit` to update Discrete variables. Use
-`lift` to create additional `UnknownReactive` types that depend on the
-`Discrete` input. Use `foldl` for actions that remember state. For
+it wraps a `ReactiveBasics.Signal` type. `Discrete` variables support data
+flow using ReactiveBasics.jl. Use `reinit` to update Discrete variables. Use
+`map` to create additional `UnknownReactive` types that depend on the
+`Discrete` input. Use `foldp` for actions that remember state. For
 more information on *Reactive Programming*, see the
-[Reactive.jl](http://julialang.org/Reactive.jl/) package.
+[ReactiveBasics.jl](http://github.org/tshort/ReactiveBasics.jl) package.
 
 """
-type Discrete{T <: Reactive.Signal} <: UnknownReactive{T}
+type Discrete{T <: ReactiveBasics.Signal} <: UnknownReactive{T}
     signal::T
     initialvalue
 end
-# Discrete(x::Reactive.SignalSource) = Discrete(x, zero(x))
-Discrete(initialval) = Discrete(Reactive.Signal(initialval), initialval)
-Discrete() = Discrete(Reactive.Signal(0.0), 0.0)
+# Discrete(x::ReactiveBasics.SignalSource) = Discrete(x, zero(x))
+Discrete(initialval) = Discrete(ReactiveBasics.Signal(initialval), initialval)
+Discrete() = Discrete(ReactiveBasics.Signal(0.0), 0.0)
 
 """
 An `UnknownReactive` type that is useful for passing parameters at the
@@ -983,20 +982,20 @@ top level.
 
 ```julia
 Parameter(x = 0.0)
-Parameter(sig::Reactive.Signal}
+Parameter(sig::ReactiveBasics.Signal}
 ```
 
 ### Arguments
 
 * `x` : initial value and type information, defaults to 0.0
-* `sig` : A `Reactive.Signal 
+* `sig` : A `ReactiveBasics.Signal`
 
 ### Details
 
 Parameters can be reinitialized with `reinit`, either externally or
 inside models. If you want Parameters to be read-only, wrap them in
 another UnknownReactive before passing to models. For example, use
-`param_read_only = lift(x -> x, param)`.
+`param_read_only = map(x -> x, param)`.
 
 ### Examples
 
@@ -1014,17 +1013,18 @@ vwp3 = sim(ss, 10.0) # should be the same as vwp1
 ```
 
 """
-type Parameter{T <: Reactive.Signal} <: UnknownReactive{T}
+type Parameter{T <: ReactiveBasics.Signal} <: UnknownReactive{T}
     signal::T
 end
-Parameter(x = 0.0) = Parameter(Reactive.Signal(x))
+Parameter(x = 0.0) = Parameter(ReactiveBasics.Signal(x))
+Parameter(x::UnknownReactive) = x
 
 name(a::UnknownReactive) = "discrete"
-value{T}(x::UnknownReactive{T}) = Reactive.value(x.signal)
+value{T}(x::UnknownReactive{T}) = ReactiveBasics.value(x.signal)
 signal(x::UnknownReactive) = x.signal
 
-Reactive.push!{T}(x::Discrete{Reactive.Signal{T}}, y) = mexpr(:call, :(Reactive.push!), x.signal, y)
-Reactive.push!{T}(x::Parameter{Reactive.Signal{T}}, y) = Reactive.push!(x.signal, y)
+ReactiveBasics.push!{T}(x::Discrete{ReactiveBasics.Signal{T}}, y) = mexpr(:call, :(ReactiveBasics.push!), x.signal, y)
+ReactiveBasics.push!{T}(x::Parameter{ReactiveBasics.Signal{T}}, y) = ReactiveBasics.push!(x.signal, y)
 
 
 """
@@ -1065,8 +1065,8 @@ end
 See also [IdealThyristor](../../lib/electrical/#idealthyristor) in the standard library.
 
 """
-reinit{T}(x::Discrete{Reactive.Signal{T}}, y) = MExpr(:( Reactive.push!($(x.signal), $y); Reactive.run_till_now() ))
-reinit{T}(x::Parameter{Reactive.Signal{T}}, y) = Reactive.push!(x.signal, y)
+reinit{T}(x::Discrete{ReactiveBasics.Signal{T}}, y) = MExpr(:( ReactiveBasics.push!($(x.signal), $y) ))
+reinit{T}(x::Parameter{ReactiveBasics.Signal{T}}, y) = ReactiveBasics.push!(x.signal, y)
 
 function reinit(x, y)
     sim_info("reinit: $(x[]) to $y", 2)
@@ -1093,17 +1093,9 @@ Create a new UnknownReactive type that links to existing
 UnknownReactive types (like Discrete and Parameter).
 
 ```julia
-lift{T}(f::Function, inputs::UnknownReactive{T}...)
-lift{T}(f::Function, t::Type, inputs::UnknownReactive{T}...)
 map{T}(f::Function, inputs::UnknownReactive{T}...)
 map{T}(f::Function, t::Type, inputs::UnknownReactive{T}...)
 ```
-
-See also
-[Reactive.lift](http://julialang.org/Reactive.jl/api.html#lift)] and
-the [@liftd](#liftd) helper macro to ease writing expressions.
-
-Note that `lift` is being transitioned to `Base.map`.
 
 ### Arguments
 
@@ -1119,8 +1111,8 @@ function.
 
 ```julia
 a = Discrete(1)
-b = lift(x -> x + 1, a)
-c = lift((x,y) -> x * y, a, b)
+b = map(x -> x + 1, a)
+c = map((x,y) -> x * y, a, b)
 reinit(a, 3)
 b    # now 4
 c    # now 12
@@ -1131,11 +1123,11 @@ Note that you can use Discretes and Parameters in expressions that
 create MExprs. Compare the following:
 
 ```julia
-j = lift((x,y) = x * y, a, b)
+j = map((x,y) = x * y, a, b)
 k = a * b
 ```
 
-In this example, `j` uses `lift` to immediately connect to `a` and
+In this example, `j` uses `map` to immediately connect to `a` and
 `b`. `k` is an MExpr with `a * b` embedded inside. When `j` is used in
 a model, the `j` UnknownReactive object is embedded in the model, and it
 is updated automatically. With `k`, `a * b` is inserted into the
@@ -1144,34 +1136,22 @@ in the residual calculation. The advantage of the `a * b` approach is
 that the expression can include Unknowns.
 
 """
-Reactive.lift{T}(f::Function, input::UnknownReactive{T}, inputs::UnknownReactive{T}...) = Parameter(map(f, input.signal, [input.signal for input in inputs]...))
-
-Reactive.lift{T}(f::Function, t::Type, input::UnknownReactive{T}, inputs::UnknownReactive{T}...) = Parameter(map(f, t, input.signal, [input.signal for input in inputs]...))
-
 Base.map{T}(f::Function, input::UnknownReactive{T}, inputs::UnknownReactive{T}...) = Parameter(map(f, input.signal, [input.signal for input in inputs]...))
 
 Base.map{T}(f::Function, t::Type, input::UnknownReactive{T}, inputs::UnknownReactive{T}...) = Parameter(map(f, t, input.signal, [input.signal for input in inputs]...))
 
-Reactive.filter{T}(pred::Function, v0, s::UnknownReactive{T}) = Parameter(filter(pred, v0, s.signal))
-Reactive.dropwhen{T}(test::Signal{Bool}, v0, s::UnknownReactive{T}) = Parameter(dropwhen(pred, v0, s.signal))
-Reactive.sampleon(s1::UnknownReactive, s2::UnknownReactive) = Parameter(sampleon(s1.signal, s2.signal))
-# Reactive.merge() = nothing
-Reactive.merge(signals::UnknownReactive...) = Parameter(merge(map(signal, signals)))
-Reactive.droprepeats(s::UnknownReactive) = Parameter(droprepeats(signal(s)))
-Reactive.dropif(pred::Function, v0, s::UnknownReactive) = Parameter(dropif(pred, v0, s.signal))
-Reactive.keepwhen(test::UnknownReactive{Signal{Bool}}, v0, s::UnknownReactive) = Parameter(keepwhen(test.signal, v0, s.signal))
+Base.filter{T}(pred::Function, v0, s::UnknownReactive{T}) = Parameter(filter(pred, v0, s.signal))
+Base.merge(signals::UnknownReactive...) = Parameter(merge(map(signal, signals)))
+ReactiveBasics.flatmap(f, inputs::UnknownReactive...) = Parameter(flatmap(f, [x.signal for x in inputs]...))
 
 
 
 """
-"Fold over time" -- an UnknownReactive updated based on stored state
+"Fold over past values" -- an UnknownReactive updated based on stored state
 and additional inputs.
 
-See also
-[Reactive.foldl](http://julialang.org/Reactive.jl/api.html#foldl)].
-
 ```julia
-foldl(f::Function, v0, inputs::UnknownReactive{T}...)
+foldp(f::Function, v0, inputs::UnknownReactive{T}...)
 ```
 
 ### Arguments
@@ -1191,8 +1171,8 @@ foldl(f::Function, v0, inputs::UnknownReactive{T}...)
 See the definition of [pre](#pre) for an example.
 
 """
-Reactive.foldl{T,S}(f,v0::T, signal::UnknownReactive{S}, signals::UnknownReactive{S}...) =
-    Parameter(Reactive.foldl(f, v0, signal.signal, [s.signal for s in signals]...))
+ReactiveBasics.foldp{T,S}(f,v0::T, signal::UnknownReactive{S}, signals::UnknownReactive{S}...) =
+    Parameter(ReactiveBasics.foldp(f, v0, signal.signal, [s.signal for s in signals]...))
 
 
 
@@ -1204,7 +1184,7 @@ A helper for an expression of UnknownReactive variables
 ```
 
 Note that the expression should not contain Unknowns. To mark the
-Discrete variables, enter them as Symbols. This uses `lift()`.
+Discrete variables, enter them as Symbols. This uses `map()`.
 
 ### Arguments
 
@@ -1221,7 +1201,7 @@ x = Discrete(true)
 y = Discrete(false)
 z = @liftd :x & !:y
 ## equivalent to:
-z2 = lift((x, y) -> x & !y, x, y)
+z2 = map((x, y) -> x & !y, x, y)
 ```
 
 """
@@ -1229,7 +1209,7 @@ macro liftd(ex)
     varnames = Any[]
     body = replace_syms(ex, varnames)
     front = Expr(:tuple, varnames...)
-    esc(:( Reactive.lift($front ->  $body, $(varnames...)) ))
+    esc(:( map($front ->  $body, $(varnames...)) ))
 end
 replace_syms(x, varnames) = x
 function replace_syms(e::Expr, varnames)
@@ -1265,8 +1245,8 @@ pre(x::UnknownReactive)
 
 """
 function pre{T}(x::UnknownReactive{T})
-    Reactive.lift(x -> x[1],
-         Reactive.foldl((a,b) -> (a[2], b), (zero(Sims.value(x)), Sims.value(x)), x))
+    map(x -> x[1],
+        ReactiveBasics.foldp((a,b) -> (a[2], b), (zero(Sims.value(x)), Sims.value(x)), x))
 end
 
     
