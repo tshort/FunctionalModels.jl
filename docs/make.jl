@@ -109,8 +109,8 @@ makedocs(
             "examples/tiller.md",
         ],
         "Design" => "design.md",
-        "Release notes" => "../NEWS.md",
-        "License" => "../LICENSE.md",
+        "Release notes" => "../../NEWS.md",
+        "License" => "../../LICENSE.md",
     ]
 )
 
