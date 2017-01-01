@@ -77,8 +77,8 @@ createmd("src/api/utils.md", Sims, "utils.jl")
 createmd("src/api/main.md",  Sims, "main.jl")
 createmd("src/api/sim.md",   Sims, ["dassl.jl","sundials.jl","sim.jl", "elaboration.jl", "simcreation.jl"])
 
-cp("../NEWS.md", "src")
-cp("../LICENSE.md", "src")
+cp("../NEWS.md", "src/NEWS.md")
+cp("../LICENSE.md", "src/LICENSE.md")
 
 makedocs(
     modules = [Sims],
