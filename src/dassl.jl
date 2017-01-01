@@ -49,7 +49,7 @@ function dasslrootfun(neq, t_in, y_in, yp_in, nrt, rval_out, rpar, ipar)
     return nothing
 end
 
-initdassl = @compat Dict(:none => 0, :Ya_Ydp => 1, :Y => 2)
+initdassl = Dict(:none => 0, :Ya_Ydp => 1, :Y => 2)
 
 """
 The solver that uses DASKR, a variant of DASSL.
@@ -63,7 +63,6 @@ function dasslsim(ss::SimState, tstop::Float64, Nsteps::Int=500, reltol::Float64
     sm = ss.sm
     for x in sm.discrete_inputs
         push!(x.signal, x.initialvalue)
-        Reactive.run_till_now() 
     end
     ss.y[:] = ss.y0
     ss.yp[:] = ss.yp0

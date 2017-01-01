@@ -259,18 +259,18 @@ end
 ```
 
 `Discrete` variables are based on `Signals` from the
-[Reactive.jl](http://julialang.org/Reactive.jl/) package. This
+[ReactiveBasics.jl](http://github.com/tshort/ReactiveBasics.jl/) package. This
 provides
 [Reactive Programming](http://en.wikipedia.org/wiki/Reactive_programming)
 capabilities where variables have data flow. This is similar to how
-spreadsheets dynamically update and how Simulink works. This `lift`
+spreadsheets dynamically update and how Simulink works. This `map`
 operator defines dependencies based on a function, and `reinit` is
 used to update inputs. Here is an example:
 
 ```julia
 a = Discrete(2.0)
 b = Discrete(4.0)
-c = lift((x,y) -> x * y, a, b)   # 8.0
+c = map((x,y) -> x * y, a, b)   # 8.0
 reinit(a, 4.0)  # c becomes 16.0
 ```
 

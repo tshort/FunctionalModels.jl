@@ -58,7 +58,7 @@ end
 
 function MembranePotential(v,currents,c)
     @equations begin
-        c * der(v) = - foldl((i,ax) -> i+ax, currents)
+        c * der(v) = - foldp((i,ax) -> i+ax, currents)
     end
 end
 

@@ -1,9 +1,7 @@
 julia 0.5
-Compat
 Documenter
 Ipopt
 JuMP
 Plots
-Reactive 
-Reexport
+ReactiveBasics 
 Sundials

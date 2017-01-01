@@ -2,8 +2,8 @@ __precompile__(false)
 
 module Sims
 
-using Reexport
-@reexport using Reactive
+using ReactiveBasics
+import ReactiveBasics.value
 
 import Base.ifelse,
        Base.hcat,
@@ -29,7 +29,6 @@ export MTime, @unknown, @liftd, @comment
 ## Methods
 export Equation, @equations, is_unknown, der, delay, mexpr, compatible_values, reinit, ifelse, pre,
        basetypeof, from_real, to_real,
-       lift, 
        gplot, plot,
        check, sim_verbose, 
        elaborate, create_sim, create_simstate, sim, sunsim, dasslsim, solve,
@@ -38,12 +37,12 @@ export Equation, @equations, is_unknown, der, delay, mexpr, compatible_values, r
 ## Model methods
 export Branch, BoolEvent
 
+## ReactiveBasics
+export foldp, value, signal, flatmap
+
 
 using Documenter
 include("docutil.jl")
-
-using Compat
-import Compat.view
 
 include("main.jl")
 include("elaboration.jl")
