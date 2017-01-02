@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Design · Sims.jl</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/default.min.css" rel="stylesheet" type="text/css"/><link href="https://fonts.googleapis.com/css?family=Lato|Ubuntu+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/><link href="assets/documenter.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="assets/documenter.js"></script><script src="../versions.js"></script></head><body><nav class="toc"><h1>Sims.jl</h1><form class="search" action="search.html"><select id="version-selector" onChange="window.location.href=this.value"><option value="#" selected="selected" disabled="disabled">Version</option></select><input id="search-query" name="q" type="text" placeholder="Search docs"/></form><ul><li><a class="toctext" href="index.html">Home</a></li><li><a class="toctext" href="basics.html">Basics</a></li><li><span class="toctext">API</span><ul><li><a class="toctext" href="api/sim.html">Simulations</a></li><li><a class="toctext" href="api/main.html">Building models</a></li><li><a class="toctext" href="api/utils.html">Utilities</a></li></ul></li><li><span class="toctext">Library</span><ul><li><a class="toctext" href="lib/types.html">The Sims standard library</a></li><li><a class="toctext" href="lib/kinetics.html">Chemical kinetics</a></li><li><a class="toctext" href="lib/blocks.html">Control and signal blocks</a></li><li><a class="toctext" href="lib/electrical.html">Analog electrical models</a></li><li><a class="toctext" href="lib/heat_transfer.html">Heat transfer models</a></li><li><a class="toctext" href="lib/powersystems.html">Power systems models</a></li><li><a class="toctext" href="lib/rotational.html">Rotational mechanics</a></li></ul></li><li><span class="toctext">Examples</span><ul><li><a class="toctext" href="examples/basics.html">Examples using basic models</a></li><li><a class="toctext" href="examples/lib.html">Sims.Lib</a></li><li><a class="toctext" href="examples/tiller.html">Tiller examples</a></li></ul></li><li class="current"><a class="toctext" href="design.html">Design</a><ul class="internal"><li><a class="toctext" href="#Overview-1">Overview</a></li><li><a class="toctext" href="#Unknowns-and-MExpr's-1">Unknowns and MExpr&#39;s</a></li><li><a class="toctext" href="#Models-1">Models</a></li><li><a class="toctext" href="#Special-Model-Features-1">Special Model Features</a></li><li><a class="toctext" href="#Connections-/-Nodal-Models-1">Connections / Nodal Models</a></li><li><a class="toctext" href="#Model-Flattening-1">Model Flattening</a></li><li><a class="toctext" href="#Model-Instantiation-1">Model Instantiation</a></li><li><a class="toctext" href="#Initial-Equations-1">Initial Equations</a></li><li><a class="toctext" href="#Hybrid-Modeling-1">Hybrid Modeling</a></li><li><a class="toctext" href="#Structural-Events-1">Structural Events</a></li></ul></li><li><a class="toctext" href="NEWS.html">Release notes</a></li><li><a class="toctext" href="LICENSE.html">License</a></li></ul></nav><article id="docs"><header><nav><ul><li><a href="design.html">Design</a></li></ul><a class="edit-page" href="https://github.com/tshort/Sims.jl/tree/753a74faa605fef22449b3f35bbc0f5024e3cdc3/docs/src/design.md"><span class="fa"></span> Edit on GitHub</a></nav><hr/></header><h1><a class="nav-anchor" id="Design-Documentation-1" href="#Design-Documentation-1">Design Documentation</a></h1><p>This documentation is an overview of the design of Sims, particularly the input specification. Some of the internals are also discussed.</p><h2><a class="nav-anchor" id="Overview-1" href="#Overview-1">Overview</a></h2><p>This implementation follows the work of David Broman and his MKL and Modelyze simulators and the work of George Giorgidze and Henrik Nilsson and their functional hybrid modeling.</p><p>A nodal formulation is used based on David&#39;s work. His thesis documents this nicely:</p><ul><li><p>David Broman. Meta-Languages and Semantics for Equation-Based Modeling and Simulation. PhD thesis, Thesis No 1333. Department of Computer and Information Science, Linköping University, Sweden, 2010. http://www.bromans.com/david/publ/thesis-2010-david-broman.pdf</p></li></ul><p>Here is David&#39;s code and home page:</p><ul><li><p>http://web.ict.kth.se/~dbro/</p></li><li><p>http://www.eecs.berkeley.edu/Pubs/TechRpts/2012/EECS-2012-173.pdf</p></li><li><p>http://www.bromans.com/software/mkl/mkl-source-1.0.0.zip</p></li><li><p>https://github.com/david-broman/modelyze</p></li></ul><p>Sims implements something like David&#39;s approach in MKL and Modelyze. Modelyze models in particular look quite similar to Sims models. A model constructor returns a list of equations. Models are made of models, so this builds up a hierarchical structure of equations that then needs to be flattened. Like David&#39;s approach, Sims is nodal; nodes are passed in as parameters to models to perform connections between devices. </p><p>Modeling of dynamically varying systems is handled similarly to functional hybrid modelling (FHM), specifically the Hydra implementation by George. See here for links:</p><ul><li><p>https://github.com/giorgidze/Hydra</p></li><li><p>http://www.cs.nott.ac.uk/~nhn/</p></li></ul><p>FHM is also a functional approach. Hydra is implemented as a domain specific language embedded in Haskell. Their implementation handles dynamically changing systems with JIT-compiled code from an amazingly small amount of code.</p><h2><a class="nav-anchor" id="Unknowns-and-MExpr's-1" href="#Unknowns-and-MExpr's-1">Unknowns and MExpr&#39;s</a></h2><p>An <code>Unknown</code> is a symbolic type. When used in Julia expressions, Unknowns combine into <code>MExpr</code>s which are symbolic representations of equations.</p><p>Expressions (of type MExpr) are built up based on Unknown&#39;s. Unknown is a symbol with a uniquely generated symbol name. If you have</p><pre><code class="language-julia">  a = 1
+  b = Unknown()
+  a * b + b^2</code></pre><p>evaluation produces the following:</p><pre><code class="language-julia">  MExpr(+(*(1,##1029),*(##1029,##1029)))</code></pre><p>This is an expression tree where <code>##1029</code> is the symbol name for <code>b</code>.</p><p>The idea is that you can set up a set of hierarchical equations that will be later flattened.</p><p>Other types or method definitions can be used to assign behavior during flattening (like the Branch type) or during instantiation (like the der method).</p><p>Unknowns can contain Float64, Complex, and Array{Float64} values. Additionally, Unknowns can contain values for any types with <code>from_real</code> and <code>to_real</code> defined. These methods define conversions from and to Float64 arrays. This allows Unknowns to be extended to cover additional types.</p><p>In addition to a value, Unknowns can carry additional metadata, including an identification symbol and a label. In the future, unit information may be added.</p><p>Unknowns can also have type parameters. For example, <code>Voltage</code> is defined as <code>Unknown{UVoltage}</code>. The <code>UVoltage</code> type parameter is a marker to distinguish those Unknown from others. Users can add their own Unknown types. Different Unknown types makes it easier to dispatch on model arguments.</p><p>In addition to standard Unknowns, additional variations are Unknowns are provided:</p><ul><li><p><code>DerUnknown</code> – Derivative of an Unknown (not normally used by a user).</p></li><li><p><code>Discrete</code> – Discrete is a type for discrete variables. These are only changed during events. They are not used by the integrator.</p></li><li><p><code>Parameter</code> – Fixed model parameters.</p></li><li><p><code>RefUnknown</code> and <code>RefDiscrete</code> – Used for supporting arrays.</p></li><li><p><code>PassedUnknown</code> – Identity unknown: don&#39;t replace with a ref to the y array. I don&#39;t remember what this is for:)</p></li></ul><h2><a class="nav-anchor" id="Models-1" href="#Models-1">Models</a></h2><p>A model is a function definition that returns an Equation or array of Equations. Models can contain Models. Here is an example of two models:</p><pre><code class="language-julia">function EMF(n1::ElectricalNode, n2::ElectricalNode, flange::Flange, k::Real)
+    tau = Angle()
+    i = Current()
+    v = Voltage()
+    w = AngularVelocity()
+    Equation[
+        Branch(n1, n2, i, v)
+        RefBranch(flange, tau)
+        w - der(flange)
+        v - k * w
+        tau - k * i
+    ]
+end
+
+function DCMotor(flange::Flange)
+    n1 = Voltage()
+    n2 = Voltage()
+    n3 = Voltage()
+    g = 0.0
+    Equation[
+        SignalVoltage(n1, g, 60.0)
+        Resistor(n1, n2, 100.0)
+        Inductor(n2, n3, 0.2)
+        EMF(n3, g, flange, 1.0)
+    ]
+end</code></pre><p>The normal rules for function returns and array creation apply.</p><p>An <code>@equations</code> macro can also be used to specify the model equations. The main difference is that <code>=</code> can be used in models. Like <code>Equation[]</code>, the result is of type Array{Equation}. Here is an example of one of the models above:</p><pre><code class="language-julia">function EMF(n1::ElectricalNode, n2::ElectricalNode, flange::Flange, k::Real)
+    tau = Angle()
+    i = Current()
+    v = Voltage()
+    w = AngularVelocity()
+    @equations begin
+        Branch(n1, n2, i, v)
+        RefBranch(flange, tau)
+        w = der(flange)
+        v = k * w
+        tau = k * i
+    end
+end</code></pre><p>Equation definitions normally consist of other Models, MExpr&#39;s, or special types for other features like <code>InitialEquation(equations)</code>. Right now, <code>Equation == Any</code>, but that could change in the future.</p><p>Any valid Julia is allowed in models and Equation definitions. Some limitations include:</p><ul><li><p><code>if-then-else</code> constructs evaluate immediately, so you cannot use them for dynamic decision actions in a model. Use the <code>ifelse</code> function instead. You can use <code>if-then-else</code> to pick between Equations to include based on static inputs.</p></li><li><p>Some functions may not automatically combine to MExpr&#39;s. Most user-defined functions will work if functions are defined in terms of the basic functions supported in Sims. For functions that are not automatically converted, there are ways to extend Sims to support them. TODO: document this / make it a little easier.</p></li></ul><p>Julia&#39;s multiple dispatch works well with a functional model specification. Variations of models or entirely different models can be defined with the same model name with different inputs. For example a <code>Capacitor(n1::Voltage, n2::Voltage, C::Signal = 1.0)</code> can specify an electrical model, and <code>Capacitor(hp::Temperature, C::Signal)</code> can specify a thermal capacitor.</p><p>Models can have positional function arguments and/or keyword function arguments. Arguments may also have defaults. By convention in the standard library, all models are defined with positional function arguments. Often, especially for long argument lists, versions with keyword arguments are also provided. As with any Julia functions, use <code>methods(Resistor)</code> to see all of the method definitions for <code>Resistor</code>. Variable-length arguments (<code>args...</code>) can also be used in models.  Model arguments can be typed or untyped. In the examples above, model arguments are typed.  The electrical nodes have type <code>ElectricalNode</code> from the standard library defined as</p><pre><code class="language-julia">typealias NumberOrUnknown{T} Union(AbstractArray, Number, MExpr,
+                                   RefUnknown{T}, Unknown{T})
+typealias ElectricalNode NumberOrUnknown{UVoltage}</code></pre><p>This allows the user to pass in a fixed value or an Unknown. A fixed value can be used to fix voltage (zero for a ground reference). Arrays can also be passed.</p><p>As with most functional approaches, arguments to models can be model types. This &quot;functional composition&quot; allows for easier replacement of internal model subcomponents. For example, the <code>BranchHeatPort</code> in the standard electrical library has the following signature:</p><pre><code class="language-julia">function BranchHeatPort(n1::ElectricalNode, n2::ElectricalNode, hp::HeatPort,
+                        model::Function, args...)</code></pre><p>This can be used to add heat ports to any electrical branch passed in with <code>model</code>. Here&#39;s an example of a definition defining a Resistor that uses a heat port (a Temperature) in terms of another model:</p><pre><code class="language-julia">function Resistor(n1::ElectricalNode, n2::ElectricalNode, R::Signal, hp::Temperature, T_ref::Signal, alpha::Signal) 
+    BranchHeatPort(n1, n2, hp, Resistor, R .* (1 + alpha .* (hp - T_ref)))
+end</code></pre><p>By convention in the standard library, the first model arguments are generally nodes.</p><p>Right now, there are no substantial model checks.</p><h2><a class="nav-anchor" id="Special-Model-Features-1" href="#Special-Model-Features-1">Special Model Features</a></h2><p>The following are special model types, functions, or models that are handled specially when flattening or during instantiation:</p><ul><li><p><code>der(x)</code> – The time derivative of <code>x</code>.</p></li><li><p><code>MTime</code> – The model time, secs.</p></li><li><p><code>RefBranch(node, flowvariable)</code> – The type RefBranch is used to indicate the potential <code>node</code> and the flow (<code>flowvariable</code>) into the node from a branch connected to it.</p></li><li><p><code>InitialEquation(equations)</code> – Specifies an array of initial equations.</p></li><li><p><code>delay(x, val)</code> – <code>x</code> delayed by <code>val</code>.</p></li><li><p><code>pre(x)</code> – The value of a Discrete variable <code>x</code> prior to an event.</p></li><li><p><code>ifelse(condition, trueresult, falseresult)</code> – Like an if-then-else block, but for ModelTypes.</p></li><li><p><code>Event(condition, pos_response, neg_response)</code> – The main type for hybrid modeling; specifies a condition for root finding and model expressions to process after positive and negative root crossings are detected.</p></li><li><p><code>StructuralEvent(condition, default_model, new_relation)</code> – A type for elements that change the structure of the model. An event is created (condition is the zero crossing). When the event is triggered, the model is re-flattened after replacing default with new_relation in the model.</p></li></ul><h2><a class="nav-anchor" id="Connections-/-Nodal-Models-1" href="#Connections-/-Nodal-Models-1">Connections / Nodal Models</a></h2><h2><a class="nav-anchor" id="Model-Flattening-1" href="#Model-Flattening-1">Model Flattening</a></h2><p><code>elaborate</code> is the main flattening function. There is no real symbolic processing (sorting, index reduction, or any of the other stuff a fancy modeling tool would do). This returns an <code>EquationSet</code> object containing the hierarchical equations, flattened equations, flattened initial equations, events, event response functions, and a map of Unknown nodes.</p><pre><code class="language-julia">type EquationSet
+    model             # The active model, a hierachichal set of equations.
+    equations         # A flat list of equations.
+    initialequations  # A flat list of initial equations.
+    events
+    pos_responses
+    neg_responses
+    nodeMap::Dict
+end</code></pre><p>Here is an example of a flattened version of the example <code>breaking_pendulum_in_box.jl</code>. This model contains standard Events and a StructuralEvent.</p><pre><code class="language-julia">julia&gt; dump(p_f, 10)
+EquationSet 
+  model: Array(Any,(1,))
+    ...
+  equations: Array(Any,(6,))
+    1: Expr 
+      head: Symbol call
+      args: Array(Any,(3,))
+        1: -
+        2: DerUnknown 
+          sym: Symbol ##8244
+          value: Float64 0.0
+          fixed: Bool false
+          parent: Unknown{DefaultUnknown} 
+            sym: Symbol ##8244
+            value: Float64 0.7853981633974483
+            label: String &quot;&quot;
+            fixed: Bool false
+            save_history: Bool false
+        3: Unknown{DefaultUnknown} 
+          sym: Symbol ##8245
+          value: Float64 0.0
+          label: String &quot;&quot;
+          fixed: Bool false
+          save_history: Bool false
+      typ: Any
+    2: Expr 
+      head: Symbol call
+      args: Array(Any,(3,))
+        1: -
+        2: DerUnknown 
+          sym: Symbol ##8240
+          value: Float64 0.0
+          fixed: Bool false
+          parent: Unknown{DefaultUnknown} 
+            sym: Symbol ##8240
+            value: Float64 0.7071067811865476
+            label: String &quot;x&quot;
+            fixed: Bool false
+            save_history: Bool true
+        3: Unknown{DefaultUnknown} 
+          sym: Symbol ##8242
+          value: Float64 0.0
+          label: String &quot;&quot;
+          fixed: Bool false
+          save_history: Bool false
+      typ: Any
+      ...
+    6: Expr 
+      head: Symbol call
+      args: Array(Any,(3,))
+        1: -
+        2: DerUnknown 
+          sym: Symbol ##8245
+          value: Float64 0.0
+          fixed: Bool false
+          parent: Unknown{DefaultUnknown} 
+            sym: Symbol ##8245
+            value: Float64 0.0
+            label: String &quot;&quot;
+            fixed: Bool false
+            save_history: Bool false
+        3: Expr 
+          head: Symbol call
+          args: Array(Any,(3,))
+            1: *
+            2: Float64 -9.81
+            3: Expr 
+              head: Symbol call
+              args: Array(Any,(2,))
+                1: sin
+                2: Unknown{DefaultUnknown} 
+                  sym: Symbol ##8244
+                  value: Float64 0.7853981633974483
+                  label: String &quot;&quot;
+                  fixed: Bool false
+                  save_history: Bool false
+              typ: Any
+          typ: Any
+      typ: Any
+  initialequations: Array(Any,(6,))
+    1: Expr 
+      head: Symbol call
+      args: Array(Any,(3,))
+        1: -
+        2: DerUnknown 
+          sym: Symbol ##8244
+          value: Float64 0.0
+          fixed: Bool false
+          parent: Unknown{DefaultUnknown} 
+            sym: Symbol ##8244
+            value: Float64 0.7853981633974483
+            label: String &quot;&quot;
+            fixed: Bool false
+            save_history: Bool false
+        3: Unknown{DefaultUnknown} 
+          sym: Symbol ##8245
+          value: Float64 0.0
+          label: String &quot;&quot;
+          fixed: Bool false
+          save_history: Bool false
+      typ: Any
+    2: Expr 
+      head: Symbol call
+      args: Array(Any,(3,))
+        1: -
+        2: DerUnknown 
+          sym: Symbol ##8240
+          value: Float64 0.0
+          fixed: Bool false
+          parent: Unknown{DefaultUnknown} 
+            sym: Symbol ##8240
+            value: Float64 0.7071067811865476
+            label: String &quot;x&quot;
+            fixed: Bool false
+            save_history: Bool true
+        3: Unknown{DefaultUnknown} 
+          sym: Symbol ##8242
+          value: Float64 0.0
+          label: String &quot;&quot;
+          fixed: Bool false
+          save_history: Bool false
+      typ: Any
+      ...
+    6: Expr 
+      head: Symbol call
+      args: Array(Any,(3,))
+        1: -
+        2: DerUnknown 
+          sym: Symbol ##8245
+          value: Float64 0.0
+          fixed: Bool false
+          parent: Unknown{DefaultUnknown} 
+            sym: Symbol ##8245
+            value: Float64 0.0
+            label: String &quot;&quot;
+            fixed: Bool false
+            save_history: Bool false
+        3: Expr 
+          head: Symbol call
+          args: Array(Any,(3,))
+            1: *
+            2: Float64 -9.81
+            3: Expr 
+              head: Symbol call
+              args: Array(Any,(2,))
+                1: sin
+                2: Unknown{DefaultUnknown} 
+                  sym: Symbol ##8244
+                  value: Float64 0.7853981633974483
+                  label: String &quot;&quot;
+                  fixed: Bool false
+                  save_history: Bool false
+              typ: Any
+          typ: Any
+      typ: Any
+  events: Array(Any,(1,))
+    1: Expr 
+      head: Symbol call
+      args: Array(Any,(3,))
+        1: -
+        2: Unknown{DefaultUnknown} 
+          sym: Symbol time
+          value: Float64 0.0
+          label: String &quot;&quot;
+          fixed: Bool false
+          save_history: Bool false
+        3: Float64 1.8
+      typ: Any
+  pos_responses: Array(Any,(1,))
+    1: (anonymous function)
+  neg_responses: Array(Any,(1,))
+    1: (anonymous function)
+  nodeMap: Dict{Any,Any} len 0</code></pre><p>The main steps in flattening are:</p><ul><li><p>Replace fixed initial values.</p></li><li><p>Flatten models and populate <code>eq.equations</code>.</p></li><li><p>Pull out InitialEquations and populate <code>eq.initialequations</code>.</p></li><li><p>Pull out Events and populate <code>eq.events</code>.</p></li><li><p>Handle StructuralEvents.</p></li><li><p>Collect nodes and populate <code>eq.nodeMap</code>.</p></li><li><p>Strip out MExpr&#39;s from expressions.</p></li><li><p>Remove empty equations.</p></li></ul><p>In EquationSet, <code>model</code> contains equations and StructuralEvents. When a StructuralEvent triggers, the entire model is elaborated again. The first step is to replace StructuralEvents that have activated with their new_relation in model. Then, the rest of the EquationSet is reflattened using <code>model</code> as the starting point.</p><h2><a class="nav-anchor" id="Model-Instantiation-1" href="#Model-Instantiation-1">Model Instantiation</a></h2><pre><code class="language-none">From the flattened equations, `create_sim` generates a set of functions
+for use by the simulation. The residual function has arguments
+(t,y,yp) that returns the residual of type Float64 of length N, the
+number of equations in the system. The vectors y and yp are also of
+length N and type Float64. As part of finding the residual function,
+we use several Dicts to map unknown variables to indexes into y and
+yp.
+
+SimFunctions is the set of functions used during simulation. All
+functions take (t,y,yp) as arguments.</code></pre><h2><a class="nav-anchor" id="Initial-Equations-1" href="#Initial-Equations-1">Initial Equations</a></h2><h2><a class="nav-anchor" id="Hybrid-Modeling-1" href="#Hybrid-Modeling-1">Hybrid Modeling</a></h2><h2><a class="nav-anchor" id="Structural-Events-1" href="#Structural-Events-1">Structural Events</a></h2><footer><hr/><a class="previous" href="examples/tiller.html"><span class="direction">Previous</span><span class="title">Tiller examples</span></a><a class="next" href="NEWS.html"><span class="direction">Next</span><span class="title">Release notes</span></a></footer></article></body></html>
