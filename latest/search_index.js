@@ -117,7 +117,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Basics",
     "title": "Hybrid Modeling",
     "category": "section",
-    "text": "Sims provides basic support for hybrid modeling. Discrete variables are variables that are not involved in integration but apply when \"events\" occur. Models can define events denoting changes in behavior.Event is the main type used for hybrid modeling. It contains a condition for root finding and model expressions to process after positive and negative root crossings are detected.type Event <: ModelType\n    condition::ModelType   # An expression used for the event detection. \n    pos_response::Model    # An expression indicating what to do when\n                           # the condition crosses zero positively.\n    neg_response::Model    # An expression indicating what to do when\n                           # the condition crosses zero in the\n                           # negative direction.\nendThe function reinit is used in Event responses to redefine variables. Here is an example of a voltage source defined with a square wave:function VSquare(n1, n2, V::Real, f::Real)  \n    i = Current()\n    v = Voltage()\n    v_mag = Discrete(V)\n    Equation[\n        Branch(n1, n2, v, i)\n        v - v_mag\n        Event(sin(2 * pi * f * MTime),\n              Equation[reinit(v_mag, V)],    # positive crossing\n              Equation[reinit(v_mag, -V)])   # negative crossing\n    ]\nendThe variable v_mag is the Discrete variable that is changed using reinit whenever the sin(2 * pi * f * MTime) crosses zero. A response is provided for both positive and negative zero crossings.Two other constructs that are useful are BoolEvent and ifelse.  ifelse is like an if-then-else block, but for ModelTypes (you can't use a regular if-then-else block, at least not without macros).   BoolEvent is a helper for attaching an event to a boolean variable. Here is an example for an ideal diode:function IdealDiode(n1, n2)\n    i = Current()\n    v = Voltage()\n    s = Unknown()  # dummy variable\n    openswitch = Discrete(false)  # on/off state of diode\n    Equation[\n        Branch(n1, n2, v, i)\n        BoolEvent(openswitch, -s)  # openswitch becomes true when s goes negative\n        v - ifelse(openswitch, s, 0.0) \n        i - ifelse(openswitch, 0.0, s) \n    ]\nendDiscrete variables are based on Signals from the Reactive.jl package. This provides Reactive Programming capabilities where variables have data flow. This is similar to how spreadsheets dynamically update and how Simulink works. This lift operator defines dependencies based on a function, and reinit is used to update inputs. Here is an example:a = Discrete(2.0)\nb = Discrete(4.0)\nc = lift((x,y) -> x * y, a, b)   # 8.0\nreinit(a, 4.0)  # c becomes 16.0Parameters are a special type of Discrete variable. These can be used as input to models. These stay alive through flattening and simulation creation. They can be updated externally from one simulation to the next."
+    "text": "Sims provides basic support for hybrid modeling. Discrete variables are variables that are not involved in integration but apply when \"events\" occur. Models can define events denoting changes in behavior.Event is the main type used for hybrid modeling. It contains a condition for root finding and model expressions to process after positive and negative root crossings are detected.type Event <: ModelType\n    condition::ModelType   # An expression used for the event detection. \n    pos_response::Model    # An expression indicating what to do when\n                           # the condition crosses zero positively.\n    neg_response::Model    # An expression indicating what to do when\n                           # the condition crosses zero in the\n                           # negative direction.\nendThe function reinit is used in Event responses to redefine variables. Here is an example of a voltage source defined with a square wave:function VSquare(n1, n2, V::Real, f::Real)  \n    i = Current()\n    v = Voltage()\n    v_mag = Discrete(V)\n    Equation[\n        Branch(n1, n2, v, i)\n        v - v_mag\n        Event(sin(2 * pi * f * MTime),\n              Equation[reinit(v_mag, V)],    # positive crossing\n              Equation[reinit(v_mag, -V)])   # negative crossing\n    ]\nendThe variable v_mag is the Discrete variable that is changed using reinit whenever the sin(2 * pi * f * MTime) crosses zero. A response is provided for both positive and negative zero crossings.Two other constructs that are useful are BoolEvent and ifelse.  ifelse is like an if-then-else block, but for ModelTypes (you can't use a regular if-then-else block, at least not without macros).   BoolEvent is a helper for attaching an event to a boolean variable. Here is an example for an ideal diode:function IdealDiode(n1, n2)\n    i = Current()\n    v = Voltage()\n    s = Unknown()  # dummy variable\n    openswitch = Discrete(false)  # on/off state of diode\n    Equation[\n        Branch(n1, n2, v, i)\n        BoolEvent(openswitch, -s)  # openswitch becomes true when s goes negative\n        v - ifelse(openswitch, s, 0.0) \n        i - ifelse(openswitch, 0.0, s) \n    ]\nendDiscrete variables are based on Signals from the ReactiveBasics.jl package. This provides Reactive Programming capabilities where variables have data flow. This is similar to how spreadsheets dynamically update and how Simulink works. This map operator defines dependencies based on a function, and reinit is used to update inputs. Here is an example:a = Discrete(2.0)\nb = Discrete(4.0)\nc = map((x,y) -> x * y, a, b)   # 8.0\nreinit(a, 4.0)  # c becomes 16.0Parameters are a special type of Discrete variable. These can be used as input to models. These stay alive through flattening and simulation creation. They can be updated externally from one simulation to the next."
 },
 
 {
@@ -657,9 +657,9 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "api/main.html#Sims.value",
+    "location": "api/main.html#ReactiveBasics.value",
     "page": "Building models",
-    "title": "Sims.value",
+    "title": "ReactiveBasics.value",
     "category": "Function",
     "text": "The value of an object or UnknownVariable.\n\nvalue(x)\n\nArguments\n\nx : an object\n\nReturns\n\nFor standard Julia objects, value(x) returns x. For Unknowns and other ModelTypes, returns the current value of the object. value evaluates immediately, so don't expect to use this in model expressions, except to grab an immediate value.\n\nExamples\n\nv = Voltage(value(n1) - value(n2))\n\n\n\n"
 },
@@ -805,7 +805,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Building models",
     "title": "Sims.UnknownReactive",
     "category": "Type",
-    "text": "An abstract type representing Unknowns that use the Reactive.jl package. The main types included are Discrete and Parameter. Discrete is normally used as inputs inside of models and includes an initial value that is reset at every simulation run. Parameter is used to pass information from outside to the model. Use this for repeated simulation runs based on parameter variations.\n\nBecause they are Unknowns, UnknownReactive types form MExpr's when used in expressions just like Unknowns.\n\nMany of the methods from Reactive.jl are supported, including lift, foldl, filter, dropif, droprepeats, keepwhen, dropwhen, sampleon, and merge. Use reinit to reinitialize a Discrete or a Parameter (equivalent to Reactive.push!).\n\n\n\n"
+    "text": "An abstract type representing Unknowns that use the ReactiveBasics.jl package. The main types included are Discrete and Parameter. Discrete is normally used as inputs inside of models and includes an initial value that is reset at every simulation run. Parameter is used to pass information from outside to the model. Use this for repeated simulation runs based on parameter variations.\n\nBecause they are Unknowns, UnknownReactive types form MExpr's when used in expressions just like Unknowns.\n\nMany of the methods from ReactiveBasics.jl are supported, including map, foldp, filter, and merge. Use reinit to reinitialize a Discrete or a Parameter (equivalent to push!).\n\n\n\n"
 },
 
 {
@@ -821,7 +821,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Building models",
     "title": "Sims.Discrete",
     "category": "Type",
-    "text": "Discrete is a type for discrete variables. These are only changed during events. They are not used by the integrator. Because they are not used by the integrator, almost any type can be used as a discrete variable. Discrete variables wrap a Signal from the Reactive.jl package.\n\nConstructors\n\nDiscrete(initialvalue = 0.0)\nDiscrete(x::Reactive.Signal, initialvalue)\n\nWithout arguments, Discrete() uses an initial value of 0.0.\n\nArguments\n\ninitialvalue : initial value and type information, defaults to 0.0\nx::Reactive.Signal : a Signal from the Reactive.jl package.\n\nDetails\n\nDiscrete is the main input type for discrete variables. By default, it wraps a Reactive.Signal type. Discrete variables support data flow using Reactive.jl. Use reinit to update Discrete variables. Use lift to create additional UnknownReactive types that depend on the Discrete input. Use foldl for actions that remember state. For more information on Reactive Programming, see the Reactive.jl package.\n\n\n\n"
+    "text": "Discrete is a type for discrete variables. These are only changed during events. They are not used by the integrator. Because they are not used by the integrator, almost any type can be used as a discrete variable. Discrete variables wrap a Signal from the ReactiveBasics.jl package.\n\nConstructors\n\nDiscrete(initialvalue = 0.0)\nDiscrete(x::ReactiveBasics.Signal, initialvalue)\n\nWithout arguments, Discrete() uses an initial value of 0.0.\n\nArguments\n\ninitialvalue : initial value and type information, defaults to 0.0\nx::ReactiveBasics.Signal : a Signal from the ReactiveBasics.jl package.\n\nDetails\n\nDiscrete is the main input type for discrete variables. By default, it wraps a ReactiveBasics.Signal type. Discrete variables support data flow using ReactiveBasics.jl. Use reinit to update Discrete variables. Use map to create additional UnknownReactive types that depend on the Discrete input. Use foldp for actions that remember state. For more information on Reactive Programming, see the ReactiveBasics.jl package.\n\n\n\n"
 },
 
 {
@@ -837,7 +837,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Building models",
     "title": "Sims.Parameter",
     "category": "Type",
-    "text": "An UnknownReactive type that is useful for passing parameters at the top level.\n\nArguments\n\nParameter(x = 0.0)\nParameter(sig::Reactive.Signal}\n\nArguments\n\nx : initial value and type information, defaults to 0.0\nsig : A `Reactive.Signal \n\nDetails\n\nParameters can be reinitialized with reinit, either externally or inside models. If you want Parameters to be read-only, wrap them in another UnknownReactive before passing to models. For example, use param_read_only = lift(x -> x, param).\n\nExamples\n\nSims.Examples.Basics.VanderpolWithParameter takes one model argument mu. Here is an example of it used externally with a Parameter:\n\nmu = Parameter(1.0)\nss = create_simstate(VanderpolWithParameter(mu))\nvwp1 = sim(ss, 10.0)\nreinit(mu, 1.5)\nvwp2 = sim(ss, 10.0)\nreinit(mu, 1.0)\nvwp3 = sim(ss, 10.0) # should be the same as vwp1\n\n\n\n"
+    "text": "An UnknownReactive type that is useful for passing parameters at the top level.\n\nArguments\n\nParameter(x = 0.0)\nParameter(sig::ReactiveBasics.Signal}\n\nArguments\n\nx : initial value and type information, defaults to 0.0\nsig : A ReactiveBasics.Signal\n\nDetails\n\nParameters can be reinitialized with reinit, either externally or inside models. If you want Parameters to be read-only, wrap them in another UnknownReactive before passing to models. For example, use param_read_only = map(x -> x, param).\n\nExamples\n\nSims.Examples.Basics.VanderpolWithParameter takes one model argument mu. Here is an example of it used externally with a Parameter:\n\nmu = Parameter(1.0)\nss = create_simstate(VanderpolWithParameter(mu))\nvwp1 = sim(ss, 10.0)\nreinit(mu, 1.5)\nvwp2 = sim(ss, 10.0)\nreinit(mu, 1.0)\nvwp3 = sim(ss, 10.0) # should be the same as vwp1\n\n\n\n"
 },
 
 {
@@ -881,35 +881,35 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "api/main.html#Reactive.lift",
+    "location": "api/main.html#Base.map",
     "page": "Building models",
-    "title": "Reactive.lift",
+    "title": "Base.map",
     "category": "Function",
-    "text": "Create a new UnknownReactive type that links to existing UnknownReactive types (like Discrete and Parameter).\n\nlift{T}(f::Function, inputs::UnknownReactive{T}...)\nlift{T}(f::Function, t::Type, inputs::UnknownReactive{T}...)\nmap{T}(f::Function, inputs::UnknownReactive{T}...)\nmap{T}(f::Function, t::Type, inputs::UnknownReactive{T}...)\n\nSee also Reactive.lift] and the @liftd helper macro to ease writing expressions.\n\nNote that lift is being transitioned to Base.map.\n\nArguments\n\nf::Function : the transformation function; takes one argument for each inputs argument\ninputs::UnknownReactive : signals to apply f to\nt::Type : optional output type\n\nNote: you cannot use Unknowns or MExprs in f, the transformation function.\n\nExamples\n\na = Discrete(1)\nb = lift(x -> x + 1, a)\nc = lift((x,y) -> x * y, a, b)\nreinit(a, 3)\nb    # now 4\nc    # now 12\n\nSee IdealThyristor in the standard library.\n\nNote that you can use Discretes and Parameters in expressions that create MExprs. Compare the following:\n\nj = lift((x,y) = x * y, a, b)\nk = a * b\n\nIn this example, j uses lift to immediately connect to a and b. k is an MExpr with a * b embedded inside. When j is used in a model, the j UnknownReactive object is embedded in the model, and it is updated automatically. With k, a * b is inserted into the model, so it's more like a macro; a * b will be evaluated every time in the residual calculation. The advantage of the a * b approach is that the expression can include Unknowns.\n\n\n\n"
+    "text": "Create a new UnknownReactive type that links to existing UnknownReactive types (like Discrete and Parameter).\n\nmap{T}(f::Function, inputs::UnknownReactive{T}...)\nmap{T}(f::Function, t::Type, inputs::UnknownReactive{T}...)\n\nArguments\n\nf::Function : the transformation function; takes one argument for each inputs argument\ninputs::UnknownReactive : signals to apply f to\nt::Type : optional output type\n\nNote: you cannot use Unknowns or MExprs in f, the transformation function.\n\nExamples\n\na = Discrete(1)\nb = map(x -> x + 1, a)\nc = map((x,y) -> x * y, a, b)\nreinit(a, 3)\nb    # now 4\nc    # now 12\n\nSee IdealThyristor in the standard library.\n\nNote that you can use Discretes and Parameters in expressions that create MExprs. Compare the following:\n\nj = map((x,y) = x * y, a, b)\nk = a * b\n\nIn this example, j uses map to immediately connect to a and b. k is an MExpr with a * b embedded inside. When j is used in a model, the j UnknownReactive object is embedded in the model, and it is updated automatically. With k, a * b is inserted into the model, so it's more like a macro; a * b will be evaluated every time in the residual calculation. The advantage of the a * b approach is that the expression can include Unknowns.\n\n\n\n"
 },
 
 {
-    "location": "api/main.html#lift-1",
+    "location": "api/main.html#map-1",
     "page": "Building models",
-    "title": "lift",
+    "title": "map",
     "category": "section",
-    "text": "lift"
+    "text": "map"
 },
 
 {
-    "location": "api/main.html#Base.foldl",
+    "location": "api/main.html#ReactiveBasics.foldp",
     "page": "Building models",
-    "title": "Base.foldl",
+    "title": "ReactiveBasics.foldp",
     "category": "Function",
-    "text": "\"Fold over time\" – an UnknownReactive updated based on stored state and additional inputs.\n\nSee also Reactive.foldl].\n\nfoldl(f::Function, v0, inputs::UnknownReactive{T}...)\n\nArguments\n\nf::Function : the transformation function; the first argument is the stored state followed by one argument for each inputs argument\nv0 : initial value of the stored state\ninputs::UnknownReactive : signals to apply f to\n\nReturns\n\n::UnknownReactive\n\nExamples\n\nSee the definition of pre for an example.\n\n\n\n"
+    "text": "\"Fold over past values\" – an UnknownReactive updated based on stored state and additional inputs.\n\nfoldp(f::Function, v0, inputs::UnknownReactive{T}...)\n\nArguments\n\nf::Function : the transformation function; the first argument is the stored state followed by one argument for each inputs argument\nv0 : initial value of the stored state\ninputs::UnknownReactive : signals to apply f to\n\nReturns\n\n::UnknownReactive\n\nExamples\n\nSee the definition of pre for an example.\n\n\n\n"
 },
 
 {
-    "location": "api/main.html#foldl-1",
+    "location": "api/main.html#foldp-1",
     "page": "Building models",
-    "title": "foldl",
+    "title": "foldp",
     "category": "section",
-    "text": "foldl"
+    "text": "foldp"
 },
 
 {
@@ -917,7 +917,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Building models",
     "title": "Sims.@liftd",
     "category": "Macro",
-    "text": "A helper for an expression of UnknownReactive variables\n\n@liftd exp\n\nNote that the expression should not contain Unknowns. To mark the Discrete variables, enter them as Symbols. This uses lift().\n\nArguments\n\nexp : an expression, usually containing other Discrete variables\n\nReturns\n\n::Discrete : a signal\n\nExamples\n\nx = Discrete(true)\ny = Discrete(false)\nz = @liftd :x & !:y\n## equivalent to:\nz2 = lift((x, y) -> x & !y, x, y)\n\n\n\n"
+    "text": "A helper for an expression of UnknownReactive variables\n\n@liftd exp\n\nNote that the expression should not contain Unknowns. To mark the Discrete variables, enter them as Symbols. This uses map().\n\nArguments\n\nexp : an expression, usually containing other Discrete variables\n\nReturns\n\n::Discrete : a signal\n\nExamples\n\nx = Discrete(true)\ny = Discrete(false)\nz = @liftd :x & !:y\n## equivalent to:\nz2 = map((x, y) -> x & !y, x, y)\n\n\n\n"
 },
 
 {
@@ -1045,7 +1045,23 @@ var documenterSearchIndex = {"docs": [
     "page": "Utilities",
     "title": "Plotting",
     "category": "section",
-    "text": ""
+    "text": "Basic plotting includes a recipe for Plots.jl for plotting results.One additional argument is columns for specifying which columns to plot. This can be a vector of integer column positions or names of channels."
+},
+
+{
+    "location": "api/utils.html#Plots.plot",
+    "page": "Utilities",
+    "title": "Plots.plot",
+    "category": "Function",
+    "text": "plot(y::SimResult)\n\nPlot y with options. For detailed options, see the Plots.jl documentation.\n\nusing Plots\nv = sim(Sims.Examples.Basics.Vanderpol(), 10.0)\nplot(v)\nz = sim(Sims.Examples.Lib.CauerLowPassAnalog(), 60.0)\nplot(z)\nplot(z, layout = 1, legend = true)\nplot(z, columns = [2,4])\nplot(z, columns = 2:4)\nplot(z, columns = [\"n1\", \"n2\"])\n\n\n\n"
+},
+
+{
+    "location": "api/utils.html#plot-1",
+    "page": "Utilities",
+    "title": "plot",
+    "category": "section",
+    "text": "plot"
 },
 
 {
@@ -1093,7 +1109,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Utilities",
     "title": "Sims.initialize!",
     "category": "Function",
-    "text": "Experimental function to initialize models.\n\ninitialize!(ss::SimState)\n\nArguments\n\nss::SimState : the SimState to be initialized\n\nReturns\n\n::JuMP.Model\n\nDetails\n\ninitialize! updates ss.y0 and ss.yp0 with values that satisfy the initial equations. If it does not converge, a warning is printed, and ss is not changed.\n\nJuMP.jl must be installed along with a nonlinear solver like Ipopt.jl or NLopt.jl. The JuMP model is set up without an objective function. Linear equality constraints are added for each fixed variable. Nonlinear equality constraints are added for each equation in the model (with some additional checking work, some of these could probably be converted to linear constraints).\n\nAlso, initialize! only works for scalar models. Models with Unknown vector components don't work. Internally, .* is replaced with *. It's rather kludgy, but right now, JuMP doesn't support .*. A better approach might be to fully flatten the model.\n\ninitialize! only runs at the beginning of simulations. It does not run after Events.\n\n\n\n"
+    "text": "Experimental function to initialize models. CURRENTLY BROKEN!\n\ninitialize!(ss::SimState)\n\nArguments\n\nss::SimState : the SimState to be initialized\n\nReturns\n\n::JuMP.Model\n\nDetails\n\ninitialize! updates ss.y0 and ss.yp0 with values that satisfy the initial equations. If it does not converge, a warning is printed, and ss is not changed.\n\nJuMP.jl must be installed along with a nonlinear solver like Ipopt.jl or NLopt.jl. The JuMP model is set up without an objective function. Linear equality constraints are added for each fixed variable. Nonlinear equality constraints are added for each equation in the model (with some additional checking work, some of these could probably be converted to linear constraints).\n\nAlso, initialize! only works for scalar models. Models with Unknown vector components don't work. Internally, .* is replaced with *. It's rather kludgy, but right now, JuMP doesn't support .*. A better approach might be to fully flatten the model.\n\ninitialize! only runs at the beginning of simulations. It does not run after Events.\n\n\n\n"
 },
 
 {
@@ -3605,7 +3621,23 @@ var documenterSearchIndex = {"docs": [
     "page": "Release notes",
     "title": "Release notes",
     "category": "page",
-    "text": "../NEWS.md"
+    "text": ""
+},
+
+{
+    "location": "NEWS.html#Sims-v0.2.0-Release-Notes-1",
+    "page": "Release notes",
+    "title": "Sims v0.2.0 Release Notes",
+    "category": "section",
+    "text": "Update to support Julia v0.5\nSwitch from Reactive to ReactiveBasics for Discrete's\nUse Documenter for documentation"
+},
+
+{
+    "location": "NEWS.html#Sims-v0.1.0-Release-Notes-1",
+    "page": "Release notes",
+    "title": "Sims v0.1.0 Release Notes",
+    "category": "section",
+    "text": "This is the first tagged release version. Recent highlights of this release include:Removal of global variables and general simulation API improvements (Ivan Raikov)\nMore than 15 model example of neural systems (Ivan Raikov)\nBug fixes in structural models (Ivan Raikov)\nDocumentation system based on Docile/Lexicon/Mkdocs (Tom Short)\nReorganization into Sims, Sims.Lib, Sims.Example, and Sims.Example.* modules (Tom Short)"
 },
 
 {
@@ -3613,7 +3645,7 @@ var documenterSearchIndex = {"docs": [
     "page": "License",
     "title": "License",
     "category": "page",
-    "text": "../LICENSE.md"
+    "text": "Copyright (c) 2012 - 2015, Electric Power Research Institute and Ivan Raikov.Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:Redistributions of source code must retain the above copyright\nnotice, this list of conditions and the following disclaimer.\n\nRedistributions in binary form must reproduce the above copyright\nnotice, this list of conditions and the following disclaimer in\nthe documentation and/or other materials provided with the\ndistribution.THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.This code also contains documentation adapted from the Modelica Standard Library available under the Modelica License Version 2 (an allowed usage). See here:https://www.modelica.org/licenses/ModelicaLicense2 https://www.modelica.org/news_items/modelica-standard-library-3.2.1-released"
 },
 
 ]}
