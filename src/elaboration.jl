@@ -193,14 +193,14 @@ end
 
 # These methods strip the MExpr's from expressions.
 strip_mexpr(a) = a
-strip_mexpr(a::Vector{Any}) = map(strip_mexpr, a)
+strip_mexpr(a::Vector) = map(strip_mexpr, a)
 strip_mexpr(a::MExpr) = strip_mexpr(a.ex)
 ## strip_mexpr(a::MSymbol) = a.sym 
 strip_mexpr(e::Expr) = Expr(e.head, (isempty(e.args) ? e.args : map(strip_mexpr, e.args))...)
 
 # Other utilities:
-remove_empties(l::Vector{Any}) = filter(x -> !isequal(x, Any[]), l)
-eval_all(x) = eval(x)
+remove_empties(l::Vector) = filter(x -> !isequal(x, Any[]), l)
+eval_all(x) = eval(Sims, x)
 eval_all{T}(x::Array{T,1}) = map(eval_all, x)
 
 

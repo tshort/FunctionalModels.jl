@@ -207,7 +207,7 @@ function setup_functions(sm::Sim)
     event_thunk = Expr(:block, fixeq(ev_block, sm.eq.events)...)
 
     # Helpers to convert an array of expressions into a single expression.
-    to_thunk{T}(ex::Vector{T}) = reduce((x,y) -> :($x;$y), :(), ex)
+    to_thunk(ex::Vector) = reduce((x,y) -> :($x;$y), :(), ex)
     to_thunk(ex::Expr) = ex
     to_thunk(ex::Function) = ex
 
@@ -302,7 +302,7 @@ end
 # The replace_unknowns method replaces Unknown types with
 # references to the positions in the y or yp vectors.
 replace_unknowns(a, sm::Sim) = a
-replace_unknowns(a::Array{Any,1}, sm::Sim) = map(x -> replace_unknowns(x, sm), a)
+replace_unknowns(a::Vector, sm::Sim) = map(x -> replace_unknowns(x, sm), a)
 replace_unknowns(e::Expr, sm::Sim) = Expr(e.head, replace_unknowns(e.args, sm)...)
 function replace_unknowns(a::Unknown, sm::Sim)
     if isequal(a.sym, :time)

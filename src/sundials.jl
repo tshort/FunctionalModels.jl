@@ -17,7 +17,7 @@ function initfun(u::N_Vector, r::N_Vector, userdata_ptr::Ptr{Void})
     y  = unsafe_wrap(Array, Sundials.N_VGetArrayPointer_Serial(u), (n,))
     yp = nu - n > 0 ? unsafe_wrap(Array, Sundials.N_VGetArrayPointer_Serial(u) + n, (nu - n,)) : Float64[]
     r  = Sundials.asarray(r)
-    sm.F.init(ss.t[1], y, yp, r)
+    Base.invokelatest(sm.F.init, ss.t[1], y, yp, r)
     
     return Int32(0)   # indicates normal return
 end
@@ -28,7 +28,7 @@ function daefun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userdata_ptr
     y  = Sundials.asarray(y) 
     yp = Sundials.asarray(yp) 
     r  = Sundials.asarray(r)
-    sm.F.resid(t, y, yp, r)
+    Base.invokelatest(sm.F.resid, t, y, yp, r)
     return Int32(0)   # indicates normal return
 end
 
@@ -38,7 +38,7 @@ function rootfun(t::Float64, y::N_Vector, yp::N_Vector, g::Ptr{Sundials.realtype
     y  = Sundials.asarray(y) 
     yp = Sundials.asarray(yp) 
     g  = Sundials.asarray(g, (length(sm.F.event_pos),))
-    sm.F.event_at(t, y, yp, g)
+    Base.invokelatest(sm.F.event_at, t, y, yp, g)
     return Int32(0)   # indicates normal return
 end
 
@@ -138,13 +138,13 @@ function sunsim(ss::SimState, tstop, Nsteps = 500, reltol = 1e-4, abstol = 1e-4,
     neq   = length(ss.y0)
     rtest = zeros(neq)
 
-    sm.F.resid(tstart, ss.y, ss.yp, rtest)
+    Base.invokelatest(sm.F.resid, tstart, ss.y, ss.yp, rtest)
 
     mem = smem.mem
     
     flag = Sundials.IDAReInit(mem, tstart, ss.y, ss.yp)
 
-    if any(abs(rtest) .>= sm.reltol)
+    if any(abs.(rtest) .>= sm.reltol)
         flag = Sundials.IDACalcIC(mem, init == :Y ? Sundials.IDA_Y_INIT : Sundials.IDA_YA_YDP_INIT, tstart + tstep)
     end
     
@@ -167,9 +167,9 @@ function sunsim(ss::SimState, tstop, Nsteps = 500, reltol = 1e-4, abstol = 1e-4,
             retvalr = Sundials.IDAGetRootInfo(mem, jroot)
             for ridx in 1:length(jroot)
                 if jroot[ridx] == 1
-                    sm.F.event_pos[ridx](tret[1], ss.y, ss.yp, ss)
+                    Base.invokelatest(sm.F.event_pos[ridx], tret[1], ss.y, ss.yp, ss)
                 elseif jroot[ridx] == -1
-                    sm.F.event_neg[ridx](tret[1], ss.y, ss.yp, ss)
+                    Base.invokelatest(sm.F.event_neg[ridx], tret[1], ss.y, ss.yp, ss)
                 end
                 flag = Sundials.IDAReInit(mem, tret[1], ss.y, ss.yp)
                 flag = Sundials.IDACalcIC(mem, init == :Ya_Ydp ? Sundials.IDA_YA_YDP_INIT : Sundials.IDA_Y_INIT, tret[1] + sm.abstol)

@@ -34,7 +34,7 @@ function dasslfun(t_in, y_in, yp_in, cj, delta_out, ires, rpar, ipar)
     y = unsafe_wrap(Array, y_in, (n[1],))
     yp = unsafe_wrap(Array, yp_in, (n[1],))
     delta = unsafe_wrap(Array, delta_out, (n[1],))
-    df.resid(t, y, yp, delta)
+    Base.invokelatest(df.resid, t, y, yp, delta)
     return nothing
 end
 function dasslrootfun(neq, t_in, y_in, yp_in, nrt, rval_out, rpar, ipar)
@@ -45,7 +45,7 @@ function dasslrootfun(neq, t_in, y_in, yp_in, nrt, rval_out, rpar, ipar)
     y = unsafe_wrap(Array, y_in, (n[1],))
     yp = unsafe_wrap(Array, yp_in, (n[1],))
     rval = unsafe_wrap(Array, rval_out, (n[2],))
-    df.event_at(t, y, yp, rval) 
+    Base.invokelatest(df.event_at, t, y, yp, rval) 
     return nothing
 end
 
@@ -170,9 +170,9 @@ function dasslsim(ss::SimState, tstop::Float64, Nsteps::Int=500, reltol::Float64
             if idid[1] == 5 # Event found
                 for ridx in 1:length(jroot)
                     if jroot[ridx] == 1
-                        sm.F.event_pos[ridx](t, y, yp, ss)
+                        Base.invokelatest(sm.F.event_pos[ridx], t, y, yp, ss)
                     elseif jroot[ridx] == -1
-                        sm.F.event_neg[ridx](t, y, yp, ss)
+                        Base.invokelatest(sm.F.event_neg[ridx], t, y, yp, ss)
                     end
                 end
                 if ss.structural_change

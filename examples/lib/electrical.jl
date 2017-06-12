@@ -677,7 +677,7 @@ end
 ## Run the electrical examples from Examples.Lib
 function run_electrical_examples()
     clpa  = sim(CauerLowPassAnalog(), 60.0)
-    clpo  = sim(CauerLowPassOPV(), 60.0)
+    # clpo  = sim(CauerLowPassOPV(), 60.0)   # Broken on v0.6
     clpo2 = sim(CauerLowPassOPV2(), 60.0)
     cid   = sim(CharacteristicIdealDiodes(), 1.0)
     cc    = sim(ChuaCircuit(), 5000.0)

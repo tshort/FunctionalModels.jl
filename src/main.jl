@@ -442,11 +442,10 @@ unary_functions = [:(+), :(-), :(!),
                    :acosh,  :asinh,  :atanh,
                    :transpose, :ctranspose]
 
-binary_functions = [:(.==), :(!=), :(.!=), :isless, 
-                    :(.>), :(.>=), :(.<), :(.<=),
+binary_functions = [:(!=), :isless, 
                     :(>), :(>=), :(<), :(<=),
-                    :(+), :(.+), :(-), :(.-), :(*), :(.*), :(/), :(./),
-                    :(.^), :(^), :(div), :(mod), :(fld), :(rem),
+                    :(+), :(-), :(*), :(/),
+                    :(^), :(div), :(mod), :(fld), :(rem),
                     :(&), :(|), :($),
                     :atan2,
                     :dot, :cor, :cov]
