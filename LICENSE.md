@@ -1,4 +1,4 @@
-Copyright (c) 2012 - 2015, Electric Power Research Institute and Ivan
+Copyright (c) 2012 - 2021, Electric Power Research Institute and Ivan
 Raikov.
 
 Redistribution and use in source and binary forms, with or without

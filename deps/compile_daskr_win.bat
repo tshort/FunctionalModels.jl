@@ -1,2 +1,0 @@
-\apps\anaconda\MinGW\bin\gfortran -fPIC -O2 -ggdb -shared -m32 -march=i686 -o daskr32.dll DASKR/ddaskr.f DASKR/dlinpk.f DASKR/daux.f
-REM \apps\anaconda\MinGW\bin\gfortran -fPIC -O2 -ggdb -shared -o daskr64.dll DASKR/ddaskr.f DASKR/dlinpk.f DASKR/daux.f
