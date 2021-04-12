@@ -1,9 +1,7 @@
 using Sims, ModelingToolkit, DifferentialEquations, Plots
 
-# Current() = Num(Variable{ModelingToolkit.FnType{Tuple{Any},Real}}(gensym("i")))(t)
-# Voltage() = Num(Variable{ModelingToolkit.FnType{Tuple{Any},Real}}(gensym("v")))(t)
-Current() = Num(Variable{ModelingToolkit.FnType{Tuple{Any},Real}}(Symbol("i" * string(rand(1000:9999)))))(t)
-Voltage() = Num(Variable{ModelingToolkit.FnType{Tuple{Any},Real}}(Symbol("v" * string(rand(1000:9999)))))(t)
+Current() = Num(Variable{ModelingToolkit.FnType{Tuple{Any},Real}}(gensym("i")))(t)
+Voltage() = Num(Variable{ModelingToolkit.FnType{Tuple{Any},Real}}(gensym("v")))(t)
 
 function VoltageSource(n1, n2, V) 
     i = Current()
@@ -14,7 +12,7 @@ function VoltageSource(n1, n2, V)
     ]
 end
 
-function Resistor(n1, n2, R::Real) 
+function Resistor(n1, n2, R) 
     i = Current()
     v = Voltage()
     [
@@ -23,12 +21,12 @@ function Resistor(n1, n2, R::Real)
     ]
 end
 
-function Capacitor(n1, n2, C::Real) 
+function Capacitor(n1, n2, C) 
     i = Current()
     v = Voltage()
     [
         Branch(n1, n2, v, i)
-        i ~ C * D(v)
+        D(v) ~ i / C
     ]
 end
 

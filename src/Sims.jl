@@ -3,7 +3,7 @@ module Sims
 
 using ModelingToolkit: Equation, @parameters, @variables, ModelingToolkit
 
-export Branch, RefBranch, system, t, D
+export Branch, RefBranch, system, t, D, der
 
 
 ##############################################
@@ -88,11 +88,7 @@ and functions.
 
 @parameters t
 const D = ModelingToolkit.Differential(t)
-
-"""
-The model time - a special unknown variable.
-"""
-# const MTime = Unknown{DefaultUnknown,Normal}(:time, 0.0, "", false)
+const der = D
 
 
 """
