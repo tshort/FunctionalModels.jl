@@ -1,7 +1,9 @@
-using Sims, ModelingToolkit, DifferentialEquations
+using Sims, ModelingToolkit, DifferentialEquations, Plots
 
-Current() = Num(Variable{ModelingToolkit.FnType{Tuple{Any},Real}}(gensym("i")))(t)
-Voltage() = Num(Variable{ModelingToolkit.FnType{Tuple{Any},Real}}(gensym("v")))(t)
+# Current() = Num(Variable{ModelingToolkit.FnType{Tuple{Any},Real}}(gensym("i")))(t)
+# Voltage() = Num(Variable{ModelingToolkit.FnType{Tuple{Any},Real}}(gensym("v")))(t)
+Current() = Num(Variable{ModelingToolkit.FnType{Tuple{Any},Real}}(Symbol("i" * string(rand(1000:9999)))))(t)
+Voltage() = Num(Variable{ModelingToolkit.FnType{Tuple{Any},Real}}(Symbol("v" * string(rand(1000:9999)))))(t)
 
 function VoltageSource(n1, n2, V) 
     i = Current()
@@ -44,6 +46,6 @@ end
 ckt = Circuit()
 
 sys = system(ckt)
-prob = ODAEProblem(sys, [], (0, 0.1))
+prob = ODAEProblem(sys, [k => 0.0 for k in states(sys)], (0, 0.1))
 sol = solve(prob, Tsit5())
 plot(sol)

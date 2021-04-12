@@ -1,3 +1,6 @@
+name = "Sims"
+uuid = "00000000-0014-501f-94e3-6117800e7a78"
+
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78"

@@ -1,9 +1,9 @@
 
 module Sims
 
-using ModelingToolkit: Differential, ODESystem, Equation, @parameters, @variables
+using ModelingToolkit: Equation, @parameters, @variables, ModelingToolkit
 
-export Branch, RefBranch, system
+export Branch, RefBranch, system, t, D
 
 
 ##############################################
@@ -87,7 +87,7 @@ and functions.
 """
 
 @parameters t
-const D = Differential(t)
+const D = ModelingToolkit.Differential(t)
 
 """
 The model time - a special unknown variable.
@@ -248,9 +248,9 @@ function system(a; simplify = true)
     for (key, nodeset) in nodemap
         push!(eq, 0 ~ nodeset)
     end
-    sys = ODESystem(eq)
+    sys = ModelingToolkit.ODESystem(eq, t)
     if simplify
-        return structural_simplify(sys)
+        return ModelingToolkit.structural_simplify(sys)
     else
         return sys
     end
@@ -269,7 +269,7 @@ function elaborate_unit!(a::Vector, eq::Vector{Equation}, nodemap::Dict)
 end
 
 function elaborate_unit!(b::RefBranch, eq::Vector{Equation}, nodemap::Dict)
-    if b.n isa Num
+    if b.n isa ModelingToolkit.Num
         nodemap[b.n] = get(nodemap, b.n, 0.0) + b.i
     end
 end
