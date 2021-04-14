@@ -47,15 +47,15 @@ Inertia(flange_a::Flange, flange_b::Flange, J::Real)
 """
 function Inertia(flange_a::Flange, J::Real)
     val = compatible_values(flange_a)
-    tau_a = Torque(val)
-    w = AngularVelocity(val)
-    a = AngularAcceleration(val)
-    @equations begin
+    tau_a = Torque()
+    w = AngularVelocity()
+    a = AngularAcceleration()
+    [
         RefBranch(flange_a, tau_a)
-        w = der(flange_a)
-        a = der(w)
-        tau_a = J .* a
-    end
+        der(flange_a) ~ w
+        der(w) ~ a
+        tau_a ~ J .* a
+    ]
 end
 function Inertia(flange_a::Flange, flange_b::Flange, J::Real)
     val = compatible_values(flange_a, flange_b)
@@ -63,14 +63,14 @@ function Inertia(flange_a::Flange, flange_b::Flange, J::Real)
     tau_b = Torque(val)
     w = AngularVelocity(val)
     a = AngularAcceleration(val)
-    @equations begin
+    [
         RefBranch(flange_a, tau_a)
         RefBranch(flange_b, tau_b)
-        flange_b = flange_a    # the angles are both equal
-        w = der(flange_a)
-        a = der(w)
-        tau_a + tau_b = J .* a
-    end
+        flange_b ~ flange_a    # the angles are both equal
+        der(flange_a) ~ w
+        der(w) ~ a
+        tau_a + tau_b ~ J .* a
+    ]
 end
 
 
@@ -93,10 +93,10 @@ Disc(flange_a::Flange, flange_b::Flange, deltaPhi)
 
 """
 function Disc(flange_a::Flange, flange_b::Flange, deltaPhi = 0.0)
-    tau = Torque(compatible_values(flange_a, flange_b))
-    @equations begin
+    tau = Torque()
+    [
         RefBranch(flange_b, flange_a, deltaPhi, tau)
-    end
+    ]
 end
 
 
@@ -121,13 +121,12 @@ Spring(flange_a::Flange, flange_b::Flange, c::Real, phi_rel0 = 0.0)
 
 """
 function Spring(flange_a::Flange, flange_b::Flange, c::Real, phi_rel0::Signal = 0.0)
-    val = compatible_values(flange_a, flange_b)
-    phi_rel = Angle(value(flange_b) - value(flange_a))
-    tau = Torque(val)
-    @equations begin
+    phi_rel = Angle(default_value(flange_b) - default_value(flange_a))
+    tau = Torque()
+    [
         Branch(flange_b, flange_a, phi_rel, tau)
-        tau = c .* (phi_rel - phi_rel0)
-    end
+        tau ~ c .* (phi_rel - phi_rel0)
+    ]
 end
 
 
@@ -153,12 +152,12 @@ Damper(flange_a::Flange, flange_b::Flange, hp::HeatPort, d::Signal)
 """
 function Damper(flange_a::Flange, flange_b::Flange, d::Signal)
     val = compatible_values(flange_a, flange_b)
-    phi_rel = Angle(value(flange_b) - value(flange_a))
+    phi_rel = Angle(default_value(flange_b) - default_value(flange_a))
     tau = Torque(val)
-    @equations begin
+    [
         Branch(flange_b, flange_a, phi_rel, tau)
-        tau = d .* der(phi_rel)
-    end
+        der(phi_rel) ~ tau ./ d
+    ]
 end
 Damper(flange_a::Flange, flange_b::Flange, hp::HeatPort, d::Signal) =
     MBranchHeatPort(flange_a, flange_b, hp, Damper, d)
@@ -188,105 +187,104 @@ SpringDamper(flange_a::Flange, flange_b::Flange, hp::HeatPort, c::Signal, d::Sig
 
 """
 function SpringDamper(flange_a::Flange, flange_b::Flange, c::Signal, d::Signal)
-    val = compatible_values(flange_a, flange_b)
-    phi_rel = Angle(value(flange_b) - value(flange_a))
-    tau = Torque(val)
-    @equations begin
+    phi_rel = Angle(default_value(flange_b) - default_value(flange_a))
+    tau = Torque()
+    [
         Spring(flange_a, flange_b, c)
         Damper(flange_a, flange_b, d)
-    end
+    ]
 end
 SpringDamper(flange_a::Flange, flange_b::Flange, hp::HeatPort, c::Signal, d::Signal) =
     MBranchHeatPort(flange_a, flange_b, hp, SpringDamper, c, d)
 
 
 
-function Brake(flange_a::Flange, flange_b::Flange, support::Flange, f_normalized::Signal,
-               mue_pos, peak, cgeo, fn_max, w_small)
-    ## NOT WORKING!!!
-    "Brake based on Coulomb friction"
-    val = compatible_values(flange_a, flange_b)
-    phi = Angle(val)   # Angle between shaft flanges and support
-    tau = Torque(val)  # Brake friction torque
-    tau_a = Torque(val)
-    tau_b = Torque(val)
-    w = AngularVelocity(val)  # Absolute angular velocity of flange_a and flange_b
-    a = AngularAcceleration(val)  # Absolute angular acceleration of flange_a and flange_b
-    mue0 = tempInterpol1(0, mue_pos, 2)
-    free = Discrete(fill(true, length(vals)))
-    locked = Discrete(fill(false, length(vals)))
-    startForward = Discrete(fill(false, length(vals)))
-    startBackward = Discrete(fill(false, length(vals)))
-    const UnknownMode=3   # Value of mode is not known
-    const Free=2      # Element is not active
-    const Forward=1   # w_rel > 0 (forward sliding)
-    const Stuck=0     # w_rel = 0 (forward sliding, locked or backward sliding)
-    const Backward=-1 # w_rel < 0 (backward sliding)
-    mode = Discrete(fill(UnknownMode, length(vals)))
-    @equations begin
-        RefBranch(flange_a, tau_a)
-        RefBranch(flange_b, tau_b)
+# function Brake(flange_a::Flange, flange_b::Flange, support::Flange, f_normalized::Signal,
+#                mue_pos, peak, cgeo, fn_max, w_small)
+#     ## NOT WORKING!!!
+#     "Brake based on Coulomb friction"
+#     val = compatible_values(flange_a, flange_b)
+#     phi = Angle(val)   # Angle between shaft flanges and support
+#     tau = Torque(val)  # Brake friction torque
+#     tau_a = Torque(val)
+#     tau_b = Torque(val)
+#     w = AngularVelocity(val)  # Absolute angular velocity of flange_a and flange_b
+#     a = AngularAcceleration(val)  # Absolute angular acceleration of flange_a and flange_b
+#     mue0 = tempInterpol1(0, mue_pos, 2)
+#     free = Discrete(fill(true, length(vals)))
+#     locked = Discrete(fill(false, length(vals)))
+#     startForward = Discrete(fill(false, length(vals)))
+#     startBackward = Discrete(fill(false, length(vals)))
+#     const UnknownMode=3   # Value of mode is not known
+#     const Free=2      # Element is not active
+#     const Forward=1   # w_rel > 0 (forward sliding)
+#     const Stuck=0     # w_rel = 0 (forward sliding, locked or backward sliding)
+#     const Backward=-1 # w_rel < 0 (backward sliding)
+#     mode = Discrete(fill(UnknownMode, length(vals)))
+#     [
+#         RefBranch(flange_a, tau_a)
+#         RefBranch(flange_b, tau_b)
         
-        phi - flange_a + support
-        flange_b - flange_a
+#         phi - flange_a + support
+#         flange_b - flange_a
    
-        # Angular velocity and angular acceleration of flanges flange_a and flange_b
-        w = der(phi)
-        a = der(w)
-        w_relfric = w
-        a_relfric = a
+#         # Angular velocity and angular acceleration of flanges flange_a and flange_b
+#         w = der(phi)
+#         a = der(w)
+#         w_relfric = w
+#         a_relfric = a
 
-        # Friction torque, normal force and friction torque for w_rel=0
-        tau_a + tau_b = tau
-        fn = fn_max .* f_normalized
-        tau0 = mue0 .* cgeo .* fn
-        tau0_max = peak .* tau0
-        BoolEvent(free, fn)
-        Event(w,
-              Equation[
-                  reinit(startForward,
-                         pre(mode) == Stuck & (sa > tau0_max/unitTorque | pre(startForward)) &
-                         sa > tau0/unitTorque | pre(mode) == Backward & w > w_small | initial() & (w > 0))
-                  reinit(startBackward,
-                         pre(mode) == Stuck & (sa < -tau0_max/unitTorque | pre(startBackward) &
-                         sa < -tau0/unitTorque) | pre(mode) == Forward & w < -w_small | initial() & (w < 0))
-                  reinit(locked,
-                         !free && !(pre(mode) == Forward | startForward | pre(mode) == Backward | startBackward))
-                  # finite state machine to determine configuration
-                  reinit(mode,
-                         ifelse(free, Free,
-                         ifelse((pre(mode) == Forward  | pre(mode) == Free | startForward) & w > 0, Forward,
-                         ifelse((pre(mode) == Backward | pre(mode) == Free | startBackward) & w < 0, Backward,
-                         Stuck))))
-              ])
+#         # Friction torque, normal force and friction torque for w_rel=0
+#         tau_a + tau_b = tau
+#         fn = fn_max .* f_normalized
+#         tau0 = mue0 .* cgeo .* fn
+#         tau0_max = peak .* tau0
+#         BoolEvent(free, fn)
+#         Event(w,
+#               [
+#                   reinit(startForward,
+#                          pre(mode) == Stuck & (sa > tau0_max/unitTorque | pre(startForward)) &
+#                          sa > tau0/unitTorque | pre(mode) == Backward & w > w_small | initial() & (w > 0))
+#                   reinit(startBackward,
+#                          pre(mode) == Stuck & (sa < -tau0_max/unitTorque | pre(startBackward) &
+#                          sa < -tau0/unitTorque) | pre(mode) == Forward & w < -w_small | initial() & (w < 0))
+#                   reinit(locked,
+#                          !free && !(pre(mode) == Forward | startForward | pre(mode) == Backward | startBackward))
+#                   # finite state machine to determine configuration
+#                   reinit(mode,
+#                          ifelse(free, Free,
+#                          ifelse((pre(mode) == Forward  | pre(mode) == Free | startForward) & w > 0, Forward,
+#                          ifelse((pre(mode) == Backward | pre(mode) == Free | startBackward) & w < 0, Backward,
+#                          Stuck))))
+#               ])
    
-        # Friction torque
-        tau = ifelse(locked,
-                     sa*unitTorque,
-              ifelse(free,
-                     0.0,
-                     cgeo .* fn .* (ifelse(startForward,
-                                            tempInterpol1( w, mue_pos, 2),
-                                    ifelse(startBackward,
-                                           -tempInterpol1(-w, mue_pos, 2),
-                                    ifelse(pre(mode) == Forward,
-                                            tempInterpol1( w, mue_pos, 2),
-                                           -tempInterpol1(-w, mue_pos, 2)))))))
+#         # Friction torque
+#         tau = ifelse(locked,
+#                      sa*unitTorque,
+#               ifelse(free,
+#                      0.0,
+#                      cgeo .* fn .* (ifelse(startForward,
+#                                             tempInterpol1( w, mue_pos, 2),
+#                                     ifelse(startBackward,
+#                                            -tempInterpol1(-w, mue_pos, 2),
+#                                     ifelse(pre(mode) == Forward,
+#                                             tempInterpol1( w, mue_pos, 2),
+#                                            -tempInterpol1(-w, mue_pos, 2)))))))
    
-        a = unitAngularAcceleration .*
-            ifelse(locked,
-                   0.0,
-            ifelse(free,
-                   sa,
-            ifelse(startForward,
-                   sa - tau0_max ./ unitTorque,
-            ifelse(startBackward,
-                   sa + tau0_max ./ unitTorque,
-            ifelse(pre(mode) == Forward,
-                   sa - tau0_max ./ unitTorque,
-                   sa + tau0_max ./ unitTorque)))))
-    end
-end
+#         a = unitAngularAcceleration .*
+#             ifelse(locked,
+#                    0.0,
+#             ifelse(free,
+#                    sa,
+#             ifelse(startForward,
+#                    sa - tau0_max ./ unitTorque,
+#             ifelse(startBackward,
+#                    sa + tau0_max ./ unitTorque,
+#             ifelse(pre(mode) == Forward,
+#                    sa - tau0_max ./ unitTorque,
+#                    sa + tau0_max ./ unitTorque)))))
+#     ]
+# end
     
 """
 Ideal gear without inertia
@@ -309,15 +307,14 @@ IdealGear(flange_a::Flange, flange_b::Flange, ratio)
 
 """
 function IdealGear(flange_a::Flange, flange_b::Flange, ratio::Real)
-    val = compatible_values(flange_a, flange_b)
-    tau_a = Torque(val)
-    tau_b = Torque(val)
-    @equations begin
+    tau_a = Torque()
+    tau_b = Torque()
+    [
         RefBranch(flange_a, tau_a)
         RefBranch(flange_b, tau_b)
-        flange_a = ratio * flange_b
-        ratio * tau_a + tau_b
-    end
+        flange_a ~ ratio * flange_b
+        ratio * tau_a ~ -tau_b
+    ]
 end
 
 
@@ -348,23 +345,18 @@ MBranchHeatPort(flange_a::Flange, flange_b::Flange, hp::HeatPort,
 """
 function MBranchHeatPort(flange_a::Flange, flange_b::Flange, hp::HeatPort,
                          model::Function, args...)
-    val = compatible_values(flange_a, flange_b)
-    phi_rel = Angle(value(flange_b) - value(flange_a))
-    w_rel = AngularVelocity(val)
-    tau = Torque(val)
-    PowerLoss = Power(compatible_values(hp))
-    @equations begin
-        n1 - n2 = phi_rel
-        w_rel = der(phi_rel)
-        if length(value(hp)) > 1  # an array
-            PowerLoss = w_rel .* tau
-        else
-            PowerLoss = sum(w_rel .* tau)
-        end
+    phi_rel = Angle(default_value(flange_b) - default_value(flange_a))
+    w_rel = AngularVelocity()
+    tau = Torque()
+    PowerLoss = Power()
+    [
+        n1 - n2 ~ phi_rel
+        der(phi_rel) ~ w_rel
+        PowerLoss ~ sum(w_rel .* tau)
         RefBranch(hp, -PowerLoss)
         Branch(n1, n, 0.0, tau)
         model(n, n2, args...)
-    end
+    ]
 end
 
 
@@ -393,9 +385,9 @@ SpeedSensor(flange::Flange, w::Signal)
 
 """
 function SpeedSensor(flange::Flange, w::Signal)
-    @equations begin
-        w = der(flange)
-    end
+    [
+        der(flange) ~ w
+    ]
 end
 
 
@@ -417,10 +409,10 @@ SpeedSensor(flange::Flange, a::Signal)
 """
 function AccSensor(flange::Flange, a::Signal)
     w = AngularVelocity(compatible_values(flange))
-    @equations begin
-        w = der(flange)
-        a = der(w)
-    end
+    [
+        der(flange) ~ w
+        der(w) ~ a
+    ]
 end
 
 
@@ -453,10 +445,10 @@ SignalTorque(flange_a::Flange, flange_b::Flange, tau)
 
 """
 function SignalTorque(flange_a::Flange, flange_b::Flange, tau)
-    @equations begin
+    [
         RefBranch(flange_a, -tau)
         RefBranch(flange_b, tau)
-    end
+    ]
 end
 
 """
@@ -486,11 +478,11 @@ function QuadraticSpeedDependentTorque(flange_a::Flange, flange_b::Flange,
     tau = Torque(val)
     phi = Angle(val)
     w = AngularVelocity(val)
-    @equations begin
+    [
         Branch(flange_b, flange_a, phi, tau)
-        w = der(phi)
-        tau = ifelse(TorqueDirection,
+        der(phi) ~ w
+        tau ~ ifelse(TorqueDirection,
                      tau_nominal*(w/w_nominal)^2,
                      tau_nominal*ifelse(w >= 0, (w/w_nominal)^2, -(w/w_nominal)^2))
-    end
+    ]
 end 

@@ -1,16 +1,16 @@
 module Lib
-using ..Sims
-
+using ..Sims, ModelingToolkit
+using IfElse: ifelse
 
 
 
 ## Standard library
 ## Base types
-export NumberOrUnknown, Signal, UVoltage, UCurrent, ElectricalNode, Voltage, Current,
-       UHeatPort, UTemperature, UHeatFlow,
+export Signal, ElectricalNode, Voltage, Current,
        HeatPort, Temperature, HeatFlow,
-       UAngle, UTorque, Angle, Torque, UAngularVelocity, AngularVelocity,
-       UAngularAcceleration, AngularAcceleration, Flange
+       Angle, Torque, AngularVelocity,
+       AngularAcceleration, Flange, 
+       Discrete
 ## Blocks
 export Integrator, Derivativ, Integrator, Derivative,
        LimPID, StateSpace, Limiter, DeadZone, BooleanPulse, Pulse
@@ -42,12 +42,8 @@ export make_grid, grid_input
 # load standard Sims libraries
 include("types.jl")
 include("blocks.jl")
-include("electrical.jl")
-## include("machines.jl")
-include("powersystems.jl")
 include("heat_transfer.jl")
 include("rotational.jl")
-include("kinetic.jl")
-# include("event_grid.jl")
+include("electrical.jl")
 
 end # module Lib

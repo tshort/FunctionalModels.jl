@@ -29,9 +29,9 @@ the system by the sum of the heat capacities of each element.
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Thermal_HeatTransfer_Examples.html#Modelica.Thermal.HeatTransfer.Examples.TwoMasses)
 """
 function TwoMasses()
-    t1 = Temperature(373.15, "t1")
-    t2 = Temperature(273.15, "t2")
-    Equation[
+    t1 = Temperature(373.15, "t1", gensym = false)
+    t2 = Temperature(273.15, "t2", gensym = false)
+    [
         HeatCapacitor(t1, 15.0)
         HeatCapacitor(t2, 15.0)
         ThermalConductor(t1, t2, 10.0)
@@ -54,10 +54,10 @@ function Motor(BROKEN)   ## needs to have `interp` defined
     TAmb = 293.15
     t = [0, 360, 360, 600]
     winding_losses = [100, 100, 1000, 1000]
-    Equation[
+    [
         # Winding
         HeatCapacitor(p1, 2500.0)
-        PrescribedHeatFlow(p1, interp(winding_losses, t, MTime), 95 + 273.15, 3.03E-3)
+        PrescribedHeatFlow(p1, interp(winding_losses, t, t), 95 + 273.15, 3.03E-3)
         # Core
         HeatCapacitor(p2, 25000.0)
         PrescribedHeatFlow(p2, 500.0)

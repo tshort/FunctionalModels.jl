@@ -85,7 +85,7 @@ function Vanderpol()
     # The following gives the return value which is a list of equations.
     # Expressions with Unknowns are kept as expressions. Regular
     # variables are evaluated immediately (like normal).
-    Equation[
+    [
         der(x, -1.0) - ((1 - y^2) * x - y)   # == 0 is assumed
         der(y) - x
     ]
@@ -105,7 +105,7 @@ unknowns and equations as shown below:
 function Capacitor(n1, n2, C::Real) 
     i = Current()              # Unknown #1
     v = Voltage()              # Unknown #2
-    Equation[
+    [
         Branch(n1, n2, v, i)      # Equation #1 - this returns n1 - n2 - v
         C * der(v) - i            # Equation #2
     ]
@@ -124,7 +124,7 @@ function Circuit()
     n2 = ElectricalNode("Output voltage")
     n3 = ElectricalNode()
     g = 0.0  # a ground has zero volts; it's not an Unknown.
-    Equation[
+    [
         VSource(n1, g, 10.0, 60.0)
         Resistor(n1, n2, 10.0)
         Resistor(n2, g, 5.0)
@@ -223,18 +223,18 @@ function VSquare(n1, n2, V::Real, f::Real)
     i = Current()
     v = Voltage()
     v_mag = Discrete(V)
-    Equation[
+    [
         Branch(n1, n2, v, i)
         v - v_mag
-        Event(sin(2 * pi * f * MTime),
-              Equation[reinit(v_mag, V)],    # positive crossing
-              Equation[reinit(v_mag, -V)])   # negative crossing
+        Event(sin(2 * pi * f * t),
+              [reinit(v_mag, V)],    # positive crossing
+              [reinit(v_mag, -V)])   # negative crossing
     ]
 end
 ```
 
 The variable `v_mag` is the `Discrete` variable that is changed using
-reinit whenever the `sin(2 * pi * f * MTime)` crosses zero. A response
+reinit whenever the `sin(2 * pi * f * t)` crosses zero. A response
 is provided for both positive and negative zero crossings.
 
 Two other constructs that are useful are `BoolEvent` and `ifelse`. 
@@ -249,7 +249,7 @@ function IdealDiode(n1, n2)
     v = Voltage()
     s = Unknown()  # dummy variable
     openswitch = Discrete(false)  # on/off state of diode
-    Equation[
+    [
         Branch(n1, n2, v, i)
         BoolEvent(openswitch, -s)  # openswitch becomes true when s goes negative
         v - ifelse(openswitch, s, 0.0) 
@@ -307,8 +307,8 @@ function BreakingPendulum()
     y = Unknown(-cos(pi/4), "y")
     vx = Unknown()
     vy = Unknown()
-    Equation[
-        StructuralEvent(MTime - 5.0,     # when time hits 5 sec, switch to FreeFall
+    [
+        StructuralEvent(t - 5.0,     # when time hits 5 sec, switch to FreeFall
             Pendulum(x,y,vx,vy),
             () -> FreeFall(x,y,vx,vy))
     ]

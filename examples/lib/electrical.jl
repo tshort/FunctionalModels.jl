@@ -1,3 +1,7 @@
+using Sims
+using Sims.Lib
+using ModelingToolkit
+
 
 ########################################
 ## Electrical examples
@@ -38,13 +42,10 @@ pulse response is calculated.
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CauerLowPassAnalog)
 """
 function CauerLowPassAnalog()
-    n1 = Voltage("n1")
-    n2 = Voltage("n2")
-    n3 = Voltage("n3")
-    n4 = Voltage("n4")
+    @variables n1(t) n2(t) n3(t) n4(t)
     g = 0.0
-    Equation[
-        StepVoltage(n1, g, 1.0, 1.0, 0.0)
+    [
+        StepVoltage(n1, g, 1.0, 1.0)
         Resistor(n1, n2, 1.0)
         Capacitor(n2, g, 1.072)
         Capacitor(n2, n3, 1/(1.704992^2 * 1.304))
@@ -56,13 +57,6 @@ function CauerLowPassAnalog()
         Resistor(n4, g, 1.0)
     ]
 end
-
-# m = CauerLowPassAnalog()
-# f = elaborate(m)
-# s = create_sim(f)
-# y = sim(s, 60.0)
-# y = sim(CauerLowPassAnalog(), 60.0)
-# _ex1 = copy(_ex)
 
 """
 Cauer low-pass filter with operational amplifiers
@@ -78,7 +72,7 @@ voltage. The pulse response is calculated.
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CauerLowPassOPV)
 """
 function CauerLowPassOPV()
-    n = Voltage(zeros(11), "n")
+    n = Unknown(zeros(11), "n", gensym = false)
     g = 0.0
     l1 = 1.304
     l2 = 0.8586
@@ -87,7 +81,7 @@ function CauerLowPassOPV()
     c3 = 1.682
     c4 = 1 / (1.179945^2 + l2)
     c5 = 0.7262
-    Equation[
+    [
         StepVoltage(n[1], g, -1.0, 1.0, 0.0)
         IdealOpAmp(g, n[2], n[3])
         IdealOpAmp(g, n[4], n[5])
@@ -131,17 +125,7 @@ voltage. The pulse response is calculated.
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CauerLowPassOPV)
 """
 function CauerLowPassOPV2()
-    n1 = Voltage("n1")
-    n2 = Voltage("n2")
-    n3 = Voltage("n3")
-    n4 = Voltage("n4")
-    n5 = Voltage("n5")
-    n6 = Voltage("n6")
-    n7 = Voltage("n7")
-    n8 = Voltage("n8")
-    n9 = Voltage("n9")
-    n10 = Voltage("n10")
-    n11 = Voltage("n11")
+    @variables n1(t) n2(t) n3(t) n4(t) n5(t) n6(t) n7(t) n8(t) n9(t) n10(t) n11(t)
     g = 0.0
     l1 = 1.304
     l2 = 0.8586
@@ -150,7 +134,7 @@ function CauerLowPassOPV2()
     c3 = 1.682
     c4 = 1 / (1.179945^2 + l2)
     c5 = 0.7262
-    Equation[
+    [
         StepVoltage(n1, g, -1.0, 1.0, 0.0)
         IdealOpAmp(g, n2, n3)
         IdealOpAmp(g, n4, n5)
@@ -180,20 +164,6 @@ function CauerLowPassOPV2()
     ]
 end
 
-# m = CauerLowPassOPV()
-# f = elaborate(m)
-# s = create_sim(f)
-# y = sim(s, 20.0)
-# # _ex1 = copy(_ex)
-
-
-# m2 = CauerLowPassOPV2()
-# f2 = elaborate(m2)
-# s2 = create_sim(f2)
-# y2 = sim(s2, 20.0)
-# # _ex2 = copy(_ex)
-
-
 """
 Characteristic of ideal diodes
 
@@ -214,14 +184,10 @@ proportional to n1.
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CharacteristicIdealDiodes)
 """
 function CharacteristicIdealDiodes()
-    s1 = Voltage("s1")
-    s2 = Voltage("s2")
-    s3 = Voltage("s3")
-    n1 = Voltage("n1")
-    n2 = Voltage("n2")
-    n3 = Voltage("n3")
+    @variables n1(t) n2(t) n3(t)
+    @variables s1(t) s2(t) s3(t)
     g = 0.0
-    Equation[
+    [
         SineVoltage(s1, g, 10.0, 1.0, -pi/10.0) 
         SineVoltage(s2, g, 10.0, 1.0, -pi/15.0, -9.0) 
         SineVoltage(s3, g, 10.0, 1.0, -pi/20.0) 
@@ -235,21 +201,6 @@ function CharacteristicIdealDiodes()
 end
 
 
-# function CharacteristicIdealDiodes1()
-#     s1 = Voltage("s1")
-#     n1 = Voltage("n1")
-#     g = 0.0
-#     {
-#         SineVoltage(s1, g, 10.0, 1.0, -pi/10.0, 0.0) 
-#         Resistor(n1, g, 1e-3) 
-#         IdealDiode(s1, n1, 0.0, 0.0, 0.0)
-#     }
-# end
-
-# m = CharacteristicIdealDiodes()
-# f = elaborate(m)
-# s = create_sim(f)
-# y = sim(s, 1.0)
 
 
 """
@@ -269,20 +220,18 @@ voltages).
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.ChuaCircuit)
 """
 function ChuaCircuit()
-    n1 = Voltage("n1")
-    n2 = Voltage("n2")
-    n3 = Voltage(value = 4.0, label = "n3", fixed = true)
+    @variables n1(t) n2(t) n3(t)
     g = 0.0
     function NonlinearResistor(n1::ElectricalNode, n2::ElectricalNode, Ga, Gb, Ve)
         i = Current(compatible_values(n1, n2))
         v = Voltage(compatible_values(n1, n2))
-        Equation[
+        [
             Branch(n1, n2, v, i)
-            i - ifelse(v < -Ve, Gb .* (v + Ve) - Ga .* Ve,
+            i ~ ifelse(v < -Ve, Gb .* (v + Ve) - Ga .* Ve,
                        ifelse(v > Ve, Gb .* (v - Ve) + Ga*Ve, Ga*v))
         ]
     end
-    Equation[
+    [
         Resistor(n1, g, 12.5e-3) 
         Inductor(n1, n2, 18.0)
         Resistor(n2, n3, 1 / 0.565) 
@@ -292,11 +241,6 @@ function ChuaCircuit()
     ]
 end
 
-
-## m = ChuaCircuit()
-## f = elaborate(m)
-## s = create_sim(f)
-## y = sim(s, 1.0)
 
 
 """
@@ -312,16 +256,18 @@ environment via its heatPort.
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.HeatingResistor)
 """
 function HeatingResistor()
-    n1 = Voltage("n1")
-    hp1 = Temperature("hp1")
-    hp2 = Temperature("hp2")
+    @variables n1(t) hp1(t) hp2(t)
     g = 0.0
-    Equation[
+    [
         SineVoltage(n1, g, 220, 1.0)
-        Resistor(n1, g, 100.0, hp1, 20 + 273.15, 1e-3)
+        HeatResistor(n1, g, 100.0, hp1, 20 + 273.15, 1e-3)
         ThermalConductor(hp1, hp2, 50.0)
         FixedTemperature(hp2, 20 + 273.15)
     ]
+end
+function HeatResistor(n1::ElectricalNode, n2::ElectricalNode,
+                  R::Signal, hp::HeatPort, T_ref::Signal, alpha::Signal) 
+    BranchHeatPort(n1, n2, hp, Resistor, R .* (1 + alpha .* (hp - T_ref)))
 end
 
 
@@ -338,12 +284,10 @@ capacitor is loaded.
 
 """
 function HeatingRectifier()
-    n1 = Voltage("n1")
-    n2 = Voltage("n2")
-    hp1 = Temperature("hp1")
-    hp2 = Temperature("hp2")
+    @variables n1(t) n2(t)
+    @variables hp1(t) hp2(t)
     g = 0.0
-    Equation[
+    [
         SineVoltage(n1, g, 1.0, 1.0)
         HeatingDiode(n1, n2, T = hp1)
         Capacitor(n2, g, 1.0)
@@ -368,7 +312,7 @@ ideal no-load voltage, thus making easier initial transient.
 
 """
 function Rectifier()
-    n = Voltage("n")
+    n = Unknown("n", gensym = false)
     VAC = 400.0
     n1 = Voltage(VAC .* sqrt(2/3) .* sin([0,-2pi/3, 2pi/3]))
     n2 = Voltage(VAC .* sqrt(2/3) .* sin([0,-2pi/3, 2pi/3]))
@@ -383,7 +327,7 @@ function Rectifier()
     Vknee = 2.0
     CDC = 15e-3
     IDC = 500.0
-    Equation[
+    [
         SineVoltage(n1[1], g, VAC .* sqrt(2/3), f,  0.0)
         SineVoltage(n1[2], g, VAC .* sqrt(2/3), f, -2pi/3)
         SineVoltage(n1[3], g, VAC .* sqrt(2/3), f,  2pi/3)
@@ -433,7 +377,7 @@ function ShowSaturatingInductor()
     f = 1/(2pi)
     phase = pi/2
     phase = 0.0
-    Equation[
+    [
         SineVoltage(n1, g, U, f, phase)
         ## SaturatingInductor(n1, g, Inom, Lnom, Linf, Lzer)
         SaturatingInductor(n1, g, Inom, Lnom)
@@ -447,7 +391,7 @@ function ShowSaturatingInductor2()
     U = 1.25
     f = 1/(2pi)
     phase = 0.0
-    Equation[
+    [
         SineVoltage(n1, g, U, f, phase)
         SaturatingInductor2(n1, g, 71.0, 0.1, 0.04)
     ]
@@ -464,7 +408,7 @@ function ShowSaturatingInductor3()
     U = 1.25
     f = 1/(2pi)
     phase = 0.0
-    Equation[
+    [
         SineVoltage(n1, g, U, f, phase)
         SaturatingInductor3(n1, g, 3e-9, 0.33, 0.15)
     ]
@@ -481,7 +425,7 @@ function ShowSaturatingInductor4()
     U = 1.25
     f = 1/(2pi)
     phase = 0.0
-    Equation[
+    [
         SineVoltage(n1, g, U, f, phase)
         SaturatingInductor4(n1, g, .50, 0.7, 0.0)
     ]
@@ -516,16 +460,16 @@ function ShowVariableResistor()
     isig2 = Voltage("Ir2")
     vres = Voltage("Vres")
     g = 0.0
-    Equation[
-        n2 - n3 - isig1    # current monitor
-        n5 - n3 - isig2    # current monitor
-        n5 - n4 - vres 
+    [
+        n2 ~ n3 + isig1    # current monitor
+        n5 ~ n3 + isig2    # current monitor
+        n5 ~ n4 + vres 
         SineVoltage(n, g, 1.0, 1.0)
         Resistor(n, n1, 1.0)
         Resistor(n1, n2, 1.0)
         Resistor(n2, n3, 1.0)
         Resistor(n, n4, 1.0)
-        Resistor(n4, n5, 2 + 2.5 * MTime)
+        Resistor(n4, n5, 2 + 2.5 * t)
         Resistor(n5, n3, 1.0)
     ]
 end
@@ -555,7 +499,7 @@ function ControlledSwitchWithArc()
     b3 = Voltage("b3")
     vs = Voltage()
     g = 0.0
-    Equation[
+    [
         SineVoltage(vs, g, 1.0, 1.0)
         ## SignalVoltage(a1, g, 50.0)
         ## ControlledIdealClosingSwitch(a1, a2, vs, 0.5, 1e-5, 1e-5)
@@ -575,10 +519,9 @@ end
 ## y = sim(s, 6.1)
 
 function dc()
-    n1 = Voltage("n1")
-    n2 = Voltage("n2")
+    @variables n1(t) n2(t)
     g = 0.0
-    Equation[
+    [
         SignalVoltage(n1, g, 50.0)
         Resistor(n1, n2, 0.1)
         Inductor(n2, g, 0.1)
@@ -608,13 +551,13 @@ function CharacteristicThyristors()
     x = Unknown("pulse")
     sig = Discrete(false)
     g = 0.0
-    Equation[
+    [
         x - sig
         BooleanPulse(sig, width = 20.0, period = 1.0, startTime = 0.15)
         SineVoltage(n1, g, 10.0, 1.0, -0.006) 
         IdealThyristor(n1, n2, sig, 5.0)
         IdealGTOThyristor(n1, n3, sig, 0.0)
-        BoolEvent(sig, MTime - 1.25)  
+        BoolEvent(sig, t - 1.25)  
         Resistor(n2, g, 1e-3)
         Resistor(n3, g, 1e-3)
     ]

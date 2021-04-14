@@ -168,7 +168,7 @@ function Circuit()
     n1 = Voltage()
     n2 = Voltage()
     g = 0.0  # A ground has zero volts; it's not an unknown.
-    Equation[
+    [
         SineVoltage(n1, g, 10.0, 60.0)
         Resistor(n1, n2, 10.0)
         Resistor(n2, g, 5.0)

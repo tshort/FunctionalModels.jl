@@ -82,8 +82,8 @@ leading "tag".
 ```julia
 function Resistor(n1::ElectricalNode, n2::ElectricalNode, R::Signal)
     i = Current(compatible_values(n1, n2))
-    v = Voltage(value(n1) - value(n2))
-    Equation[
+    v = Voltage(default_value(n1) - default_value(n2))
+    [
         Branch(n1, n2, v, i)
         R .* i - v   # == 0 is implied
     ]

@@ -78,11 +78,11 @@ for the HeatPort you define.
 """
 function HeatCapacitor(hp::HeatPort, C::Signal)
     Q_flow = HeatFlow(compatible_values(hp))
-    @equations begin
+    [
         RefBranch(hp, Q_flow)
-        C .* der(hp) = Q_flow
+        der(hp) ~ Q_flow ./ C
+    ]
     end
-end
 
 
 """
@@ -142,13 +142,13 @@ Typical values for k at 20 degC in W/(m.K):
 
 """
 function ThermalConductor(port_a::HeatPort, port_b::HeatPort, G::Signal)
-    dT = Temperature(value(port_a) - value(port_b))
+    dT = Temperature(default_value(port_a) - default_value(port_b))
     Q_flow = HeatFlow(compatible_values(port_a, port_b))
-    @equations begin
+    [
         Branch(port_a, port_b, dT, Q_flow)
-        Q_flow = G .* dT
+        Q_flow ~ G .* dT
+    ]
     end
-end
 
 
 """
@@ -228,13 +228,13 @@ Transfer, 8th edition, McGraw-Hill, 1997, p.270):
 
 """
 function Convection(port_a::HeatPort, port_b::HeatPort, Gc::Signal)
-    dT = Temperature(value(port_a) - value(port_b))
+    dT = Temperature(default_value(port_a) - default_value(port_b))
     Q_flow = HeatFlow(compatible_values(port_a, port_b))
-    @equations begin
+    [
         Branch(port_a, port_b, dT, Q_flow)
-        Q_flow = Gc .* dT
+        Q_flow ~ Gc .* dT
+    ]
     end
-end
 
 
 """
@@ -321,11 +321,11 @@ inner to the outer cylinder):**
 function BodyRadiation(port_a::HeatPort, port_b::HeatPort, Gr::Signal)
     Q_flow = HeatFlow(compatible_values(port_a, port_b))
     sigma = 5.67037321e-8
-    @equations begin
+    [
         RefBranch(port_a, Q_flow)
         RefBranch(port_b, -Q_flow)
-        Q_flow = sigma .* Gr .* (port_a .^ 4 - port_b .^ 4)
-    end
+        Q_flow ~ sigma .* Gr .* (port_a .^ 4 - port_b .^ 4)
+    ]
 end
 
 
@@ -346,9 +346,9 @@ ThermalCollector(port_a::HeatPort, port_b::HeatPort)
 function ThermalCollector(port_a::HeatPort, port_b::HeatPort)
     # This ends up being a short circuit.
     Q_flow = HeatFlow(compatible_values(port_a, port_b))
-    @equations begin
+    [
         Branch(port_a, port_b, 0.0, Q_flow)
-    end
+    ]
 end
 
 
@@ -384,9 +384,9 @@ FixedTemperature(port::HeatPort, T::Signal)
 """
 function FixedTemperature(port::HeatPort, T::Signal)
     Q_flow = HeatFlow(compatible_values(port, T))
-    @equations begin
+    [
         Branch(port, T, 0.0, Q_flow)
-    end
+    ]
 end
 
 """
@@ -449,9 +449,9 @@ FixedHeatFlow(port::HeatPort, Q_flow::Signal; T_ref::Signal = 293.15, alpha::Sig
 """
 function FixedHeatFlow(port::HeatPort, Q_flow::Signal, T_ref::Signal, alpha::Signal = 0.0)
     Q_flow = HeatFlow(compatible_values(port, T))
-    @equations begin
+    [
         RefBranch(port, Q_flow .* alpha .* (port - T_ref))
-    end
+    ]
 end
 FixedHeatFlow(port::HeatPort, Q_flow::Signal; T_ref::Signal = 293.15, alpha::Signal = 0.0) =
     FixedHeatFlow(port, Q_flow, T_ref, alpha)

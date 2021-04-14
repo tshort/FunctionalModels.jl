@@ -47,10 +47,10 @@ function PID_Controller()
     setpoint = Unknown("setpoint") 
     shaftspeed = Unknown("shaftspeed")
     tau = Unknown("tau")
-    @equations begin
-        setpoint = ifelse((MTime < 0.5) | (MTime >= 3.2), 0.0,
-                          ifelse(MTime < 1.5, MTime - 0.5,
-                                 ifelse(MTime < 2.2, 1.0, 3.2 - MTime)))
+    [
+        setpoint ~ ifelse((t < 0.5) | (t >= 3.2), 0.0,
+                          ifelse(t < 1.5, t - 0.5,
+                                 ifelse(t < 2.2, 1.0, 3.2 - t)))
         SpeedSensor(n1, shaftspeed)
         LimPID(setpoint, shaftspeed, tau, 
                controllerType = "PI",
@@ -64,9 +64,7 @@ function PID_Controller()
         SpringDamper(n1, n2, 1e4, 100)
         Inertia(n2, 2.0)
         SignalTorque(n2, 0.0, 10.0)
-    end
+    ]
 end
-# Results of this example match Dymola with the exception of
-# starting transients. 
 
 

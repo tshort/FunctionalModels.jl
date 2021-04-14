@@ -114,7 +114,7 @@ function EMF(n1::ElectricalNode, n2::ElectricalNode, flange::Flange, k::Real)
     i = Current()
     v = Voltage()
     w = AngularVelocity()
-    Equation[
+    [
         Branch(n1, n2, i, v)
         RefBranch(flange, tau)
         w - der(flange)
@@ -128,7 +128,7 @@ function DCMotor(flange::Flange)
     n2 = Voltage()
     n3 = Voltage()
     g = 0.0
-    Equation[
+    [
         SignalVoltage(n1, g, 60.0)
         Resistor(n1, n2, 100.0)
         Inductor(n2, n3, 0.2)
@@ -141,7 +141,7 @@ The normal rules for function returns and array creation apply.
 
 An `@equations` macro can also be used to specify the model
 equations. The main difference is that `=` can be used in models. Like
-`Equation[]`, the result is of type Array{Equation}. Here is an
+`[]`, the result is of type Array{Equation}. Here is an
 example of one of the models above:
 
 ```julia
@@ -150,7 +150,7 @@ function EMF(n1::ElectricalNode, n2::ElectricalNode, flange::Flange, k::Real)
     i = Current()
     v = Voltage()
     w = AngularVelocity()
-    @equations begin
+    [
         Branch(n1, n2, i, v)
         RefBranch(flange, tau)
         w = der(flange)
@@ -238,7 +238,7 @@ The following are special model types, functions, or models that are handled
 specially when flattening or during instantiation:
 
 * `der(x)` -- The time derivative of `x`.
-* `MTime` -- The model time, secs.
+* `t` -- The model time, secs.
 * `RefBranch(node, flowvariable)` -- The type RefBranch is used to
   indicate the potential `node` and the flow
   (`flowvariable`) into the node from a branch connected to it.

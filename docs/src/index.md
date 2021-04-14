@@ -108,7 +108,7 @@ function Vanderpol()
     # The following gives the return value which is a list of equations.
     # Expressions with Unknowns are kept as expressions. Expressions of
     # regular variables are evaluated immediately.
-    Equation[
+    [
         # The -1.0 in der(x, -1.0) is the initial value for the derivative 
         der(x, -1.0) - ((1 - y^2) * x - y)      # == 0 is assumed
         der(y) - x
@@ -125,14 +125,14 @@ Here are the results:
 
 ![plot results](https://github.com/tshort/Sims.jl/blob/master/examples/basics/vanderpol.png?raw=true "Van Der Pol results")
 
-An `@equations` macro is provided to return `Equation[]` allowing for
+An `@equations` macro is provided to return `[]` allowing for
 the use of equals in equations, so the example above can be:
 
 ```julia
 function Vanderpol()
     y = Unknown(1.0, "y") 
     x = Unknown("x")
-    @equations begin
+    [
         der(x, -1.0) = (1 - y^2) * x - y
         der(y) = x
     end
@@ -173,7 +173,7 @@ voltage.
 function Resistor(n1, n2, R::Real) 
     i = Current()   # This is simply an Unknown. 
     v = Voltage()
-    @equations begin
+    [
         Branch(n1, n2, v, i)
         R * i = v
     end
@@ -182,7 +182,7 @@ end
 function Capacitor(n1, n2, C::Real) 
     i = Current()
     v = Voltage()
-    @equations begin
+    [
         Branch(n1, n2, v, i)
         C * der(v) = i
     end
@@ -202,7 +202,7 @@ function Circuit()
     n2 = Voltage("Output voltage")
     n3 = Voltage()
     g = 0.0  # A ground has zero volts; it's not an unknown.
-    Equation[
+    [
         SineVoltage(n1, g, 10.0, 60.0)
         Resistor(n1, n2, 10.0)
         Resistor(n2, g, 5.0)
@@ -230,7 +230,7 @@ equations:
 ```julia
 function test()
     @unknown x y
-    @equations begin
+    [
         2*x - y   = exp(-x)
          -x + 2*y = exp(-y)
     end

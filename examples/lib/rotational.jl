@@ -31,12 +31,7 @@ housing on one side via component Fixed.
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Mechanics_Rotational_Examples.html#Modelica.Mechanics.Rotational.Examples.First)
 """
 function First()
-    n1 = Angle("n1")
-    n2 = Angle("n2")
-    n3 = Angle("n3")
-    n4 = Angle("n4")
-    n5 = Angle("n5")
-    n6 = Angle("n6")
+    @variables n1(t) n2(t) n3(t) n4(t) n5(t) n6(t)
     g = 0.0
     amplitude = 10.0
     freqHz = 5.0
@@ -44,8 +39,8 @@ function First()
     Jload = 2.0
     ratio = 10.0
     damping = 10.0
-    Equation[
-        SignalTorque(n1, g, amplitude * sin(2pi * freqHz * MTime))
+    [
+        SignalTorque(n1, g, amplitude * sin(2pi * freqHz * t))
         Inertia(n1, n2, Jmotor)
         IdealGear(n2, n3, ratio)
         Inertia(n3, n4, 2.0)

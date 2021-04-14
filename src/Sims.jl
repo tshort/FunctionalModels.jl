@@ -1,9 +1,10 @@
 
 module Sims
 
-using ModelingToolkit: Equation, @parameters, @variables, ModelingToolkit
+using ModelingToolkit: Equation, @parameters, @variables, ModelingToolkit, Num
+import Symbolics
 
-export Branch, RefBranch, system, t, D, der
+export Unknown, Branch, RefBranch, system, t, D, der, default_value, compatible_values, @comment
 
 
 ##############################################
@@ -90,6 +91,36 @@ and functions.
 const D = ModelingToolkit.Differential(t)
 const der = D
 
+"""
+`Unknown` is a helper to create variables with default values.
+The default values determines the type and shape of the result.
+Symbol names are created using gensym to create unique names 
+(unless `gensym` is set to false).
+
+```julia
+Unknown(value = 0.0, sym::Union{AbstractString, Symbol} = ""; gensym = true) 
+Unknown(sym::Union{AbstractString, Symbol}; gensym = true)
+```
+"""
+function Unknown(value = 0.0, sym::Union{AbstractString, Symbol} = ""; gensym = true) 
+    s = gensym ? Base.gensym(Symbol(sym)) : Symbol(sym)
+    if length(value) > 1    # array
+        x = map(Iterators.product(1:length(value))) do ind
+            Symbolics.setmetadata(ModelingToolkit.Num(ModelingToolkit.Sym{(ModelingToolkit.FnType){NTuple{1, Any}, Real}}(s, ind...))(Symbolics.value(t)), 
+                                  Symbolics.VariableDefaultValue, value[ind...])
+        end
+    else
+        Symbolics.setmetadata(ModelingToolkit.Num(ModelingToolkit.Variable{ModelingToolkit.FnType{Tuple{Any},Real}}(s))(t), 
+                              Symbolics.VariableDefaultValue, value)
+    end
+end
+Unknown(sym::Union{AbstractString, Symbol}; gensym = true) = Unknown(0.0, sym; gensym = gensym)
+
+default_value(x::ModelingToolkit.Num) = default_value(x.val)
+default_value(x::ModelingToolkit.Term) = Symbolics.getmetadata(x, Symbolics.VariableDefaultValue, 0.0)
+default_value(x::Array) = default_value.(x)
+default_value(x) = x
+
 
 """
 A special ModelType to specify branch flows into nodes. When the model
@@ -140,7 +171,7 @@ model that injects current (a flow variable) between two nodes:
 
 ```julia
 function SignalCurrent(n1::ElectricalNode, n2::ElectricalNode, I::Signal)  
-    @equations begin
+    [
         RefBranch(n1, I) 
         RefBranch(n2, -I) 
     end
@@ -270,14 +301,59 @@ function elaborate_unit!(b::RefBranch, eq::Vector{Equation}, nodemap::Dict)
     end
 end
 
+"""
+A helper functions to return the base value from an Unknown to use
+when creating other Unknowns. It is especially useful for taking two
+model arguments and creating a new variable compatible with both
+arguments.
+
+```julia
+compatible_values(x,y)
+compatible_values(x)
+```
+
+It's still somewhat broken but works for basic cases. No type
+promotion is currently done.
+
+### Arguments
+
+* `x`, `y` : objects or variables
+
+### Returns
+
+The returned object has zeros of type and length common to both `x`
+and `y`.
+
+### Examples
+
+```julia
+a = Unknown(45.0 + 10im)
+x = Unknown(compatible_values(a))   # Initialized to 0.0 + 0.0im.
+a = Unknown()
+b = Unknown([1., 0.])
+y = Unknown(compatible_values(a,b)) # Initialized to [0.0, 0.0].
+```
+"""
+compatible_values(x,y) = length(x) > length(y) ? zero(default_value(x)) : zero(default_value(y))
+compatible_values(x) = zero(default_value(x))
+# This should work for real and complex valued unknowns, including
+# arrays. For something more complicated, it may not.
+
+
+# Documentation helper
+macro comment(str)
+    name = gensym("comment")
+    :( @doc $str $name = :DOCCOMMENT )
+end
+
 
 # load standard Sims libraries
 
-# include("../lib/Lib.jl")
+include("../lib/Lib.jl")
 
 # load standard Sims examples
 
-# include("../examples/Examples.jl")
+include("../examples/Examples.jl")
 
 
 end # module Sims

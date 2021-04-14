@@ -19,10 +19,10 @@ equations.
 """
 function InitialCondition()
     @unknown x y
-    @equations begin
+    [
         2*x - y = exp(-x)
          -x + 2*y = exp(-y)
-     end
+    ]
 end
 
 """
@@ -31,8 +31,8 @@ equations.
 """
 function MkinInitialCondition()
     @unknown x(1.0) y(1.0)
-    @equations begin
+    [
         x^2 + y^2 = 1.0
         y = x^2
-    end
+    ]
 end
