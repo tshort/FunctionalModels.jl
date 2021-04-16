@@ -19,7 +19,7 @@ export CauerLowPassAnalog,
        CauerLowPassOPV2,
        CharacteristicIdealDiodes,
        ChuaCircuit,
-       HeatingResistor,
+       HeatedResistor,
        HeatingRectifier,
        Rectifier,
        ShowSaturatingInductor,
@@ -255,19 +255,15 @@ environment via its heatPort.
 [LBL doc link](http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.HeatingResistor)
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.HeatingResistor)
 """
-function HeatingResistor()
+function HeatedResistor()
     @variables n1(t) hp1(t) hp2(t)
     g = 0.0
     [
         SineVoltage(n1, g, 220, 1.0)
-        HeatResistor(n1, g, 100.0, hp1, 20 + 273.15, 1e-3)
+        HeatingResistor(n1, g, hp1, 100.0, 20 + 273.15, 1e-3)
         ThermalConductor(hp1, hp2, 50.0)
         FixedTemperature(hp2, 20 + 273.15)
     ]
-end
-function HeatResistor(n1::ElectricalNode, n2::ElectricalNode,
-                  R::Signal, hp::HeatPort, T_ref::Signal, alpha::Signal) 
-    BranchHeatPort(n1, n2, hp, Resistor, R .* (1 + alpha .* (hp - T_ref)))
 end
 
 

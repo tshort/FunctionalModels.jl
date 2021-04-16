@@ -126,24 +126,24 @@ function Resistor(n1::ElectricalNode, n2::ElectricalNode, R::Signal)
     ]
 end
 
-## TODO: Figure out how to do this without dispatching
+function Resistor(n1::ElectricalNode, n2::ElectricalNode, 
+                  R, T, T_ref = 300.15, alpha = 0.0)
+    Resistor(n1, n2, T, R .* (1 + alpha .* (T - T_ref)), T_ref, alpha)
+end
 
-# function Resistor(n1::ElectricalNode, n2::ElectricalNode, 
-#                   R, T = 293.15, T_ref = 300.15, alpha = 0.0)
-#     Resistor(n1, n2, T, R .* (1 + alpha .* (T - T_ref)), T_ref, alpha)
-# end
+function Resistor(n1::ElectricalNode, n2::ElectricalNode;  # keyword-arg version
+                  R = 1.0, T = 293.15, T_ref = 300.15, alpha = 0.0)
+    Resistor(n1, n2, R, T, T_ref, alpha)
+end
 
-# function Resistor(n1::ElectricalNode, n2::ElectricalNode;  # keyword-arg version
-#                   R = 1.0, T = 293.15, T_ref = 300.15, alpha = 0.0)
-#     Resistor(n1, n2, T, R, T, T_ref, alpha)
-# end
-
-# function Resistor(n1::ElectricalNode, n2::ElectricalNode,
-#                   R::Signal, hp::Temperature, T_ref::Signal, alpha::Signal) 
-#     BranchHeatPort(n1, n2, hp, Resistor, R .* (1 + alpha .* (hp - T_ref)))
-# end
-
-
+function HeatingResistor(n1::ElectricalNode, n2::ElectricalNode,
+                  hp::HeatPort, R::Signal, T_ref::Signal, alpha::Signal) 
+    BranchHeatPort(n1, n2, hp, Resistor, R .* (1 + alpha .* (hp - T_ref)))
+end
+function HeatingResistor(n1::ElectricalNode, n2::ElectricalNode, hp::HeatPort;  # keyword-arg version
+                  R = 1.0, T_ref = 300.15, alpha = 0.0)
+    HeatingResistor(n1, n2, hp, R, T_ref, alpha)
+end
 
 
 """

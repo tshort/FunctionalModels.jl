@@ -1,5 +1,6 @@
 
 using Sims, Sims.Lib, Sims.Examples.Lib
+using ModelingToolkit
 using DifferentialEquations
 using Plots
 
@@ -28,8 +29,8 @@ function runChuaCircuit()
     (sys = sys, sol = sol) 
 end
 
-function runHeatingResistor(   #### BROKEN
-    sys = system(HeatingResistor())
+function runHeatedResistor()   #### BROKEN
+    sys = system(HeatedResistor())
     prob = ODAEProblem(sys, Dict(k => 0.0 for k in states(sys)), (0, 10.0))
     sol = solve(prob, Tsit5())
     display(plot(sol))
