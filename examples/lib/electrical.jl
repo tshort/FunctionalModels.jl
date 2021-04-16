@@ -19,7 +19,7 @@ export CauerLowPassAnalog,
        CauerLowPassOPV2,
        CharacteristicIdealDiodes,
        ChuaCircuit,
-       HeatedResistor,
+       HeatingResistor,
        HeatingRectifier,
        Rectifier,
        ShowSaturatingInductor,
@@ -45,16 +45,16 @@ function CauerLowPassAnalog()
     @variables n1(t) n2(t) n3(t) n4(t)
     g = 0.0
     [
-        StepVoltage(n1, g, 1.0, 1.0)
-        Resistor(n1, n2, 1.0)
-        Capacitor(n2, g, 1.072)
-        Capacitor(n2, n3, 1/(1.704992^2 * 1.304))
-        Inductor(n2, n3, 1.304)
-        Capacitor(n3, g, 1.682)
-        Capacitor(n3, n4, 1/(1.179945^2 * 0.8586))
-        Inductor(n3, n4, 0.8565)
-        Capacitor(n4, g, 0.7262)
-        Resistor(n4, g, 1.0)
+        StepVoltage(n1, g, V = 1.0, start = 1.0, name = :vsrc)
+        Resistor(n1, n2, R = 1.0, name = :r1)
+        Capacitor(n2, g, C = 1.072, name = :c1)
+        Capacitor(n2, n3, C = 1/(1.704992^2 * 1.304), name = :c2)
+        Inductor(n2, n3, L = 1.304, name = :l1)
+        Capacitor(n3, g, C = 1.682, name = :c3)
+        Capacitor(n3, n4, C = 1/(1.179945^2 * 0.8586), name = :c4)
+        Inductor(n3, n4, L = 0.8565, name = :l2)
+        Capacitor(n4, g, C = 0.7262, name = :c5)
+        Resistor(n4, g, R = 1.0, name = :r2)
     ]
 end
 
@@ -72,7 +72,7 @@ voltage. The pulse response is calculated.
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CauerLowPassOPV)
 """
 function CauerLowPassOPV()
-    n = Unknown(zeros(11), "n", gensym = false)
+    n = Unknown(zeros(11), "n")
     g = 0.0
     l1 = 1.304
     l2 = 0.8586
@@ -82,32 +82,32 @@ function CauerLowPassOPV()
     c4 = 1 / (1.179945^2 + l2)
     c5 = 0.7262
     [
-        StepVoltage(n[1], g, -1.0, 1.0, 0.0)
-        IdealOpAmp(g, n[2], n[3])
-        IdealOpAmp(g, n[4], n[5])
-        IdealOpAmp(g, n[6], n[7])
-        IdealOpAmp(g, n[8], n[9])
-        IdealOpAmp(g, n[10], n[11])
-        Resistor(n[1], n[2], 1.0)
-        Resistor(n[3], n[4], -1.0)
-        Resistor(n[5], n[6], 1.0)
-        Resistor(n[7], n[8], -1.0)
-        Resistor(n[9], n[10], 1.0)
-        Capacitor(n[2], n[3], c1 + c2)
-        Capacitor(n[4], n[5], l1)
-        Capacitor(n[6], n[7], c2 + c3 + c4)
-        Capacitor(n[8], n[9], l2)
-        Capacitor(n[10], n[11], c4 + c5)
-        Resistor(n[2], n[3], 1.0)
-        Resistor(n[2], n[5], 1.0)
-        Resistor(n[4], n[7], -1.0)
-        Resistor(n[6], n[9], 1.0)
-        Resistor(n[8], n[11], -1.0)
-        Resistor(n[10], n[11], 1.0)
-        Capacitor(n[2], n[7], c2)
-        Capacitor(n[3], n[6], c2)
-        Capacitor(n[6], n[11], c4)
-        Capacitor(n[7], n[10], c4)
+        StepVoltage(n[1], g, V = -1.0, start = 1.0, name = :vsrc)
+        IdealOpAmp(g, n[2], n[3], name = :op1)
+        IdealOpAmp(g, n[4], n[5], name = :op2)
+        IdealOpAmp(g, n[6], n[7], name = :op3)
+        IdealOpAmp(g, n[8], n[9], name = :op4)
+        IdealOpAmp(g, n[10], n[11], name = :op5)
+        Resistor(n[1], n[2],  R = 1.0,  name = :r1)
+        Resistor(n[3], n[4],  R = -1.0, name = :r2)
+        Resistor(n[5], n[6],  R = 1.0,  name = :r3)
+        Resistor(n[7], n[8],  R = -1.0, name = :r4)
+        Resistor(n[9], n[10], R =  1.0, name = :r5)
+        Capacitor(n[2], n[3],   C = c1 + c2, name = :c1)
+        Capacitor(n[4], n[5],   C = l1, name = :c2)
+        Capacitor(n[6], n[7],   C = c2 + c3 + c4, name = :c3)
+        Capacitor(n[8], n[9],   C = l2, name = :c4)
+        Capacitor(n[10], n[11], C = c4 + c5, name = :c5)
+        Resistor(n[2], n[3],   R = 1.0, name = :r6)
+        Resistor(n[2], n[5],   R = 1.0, name = :r7)
+        Resistor(n[4], n[7],   R = -1.0, name = :r8)
+        Resistor(n[6], n[9],   R = 1.0, name = :r9)
+        Resistor(n[8], n[11],  R = -1.0, name = :r10)
+        Resistor(n[10], n[11], R = 1.0, name = :r11)
+        Capacitor(n[2], n[7],  C = c2, name = :c6)
+        Capacitor(n[3], n[6],  C = c2, name = :c7)
+        Capacitor(n[6], n[11], C = c4, name = :c8)
+        Capacitor(n[7], n[10], C = c4, name = :c9)
     ]
 end
 
@@ -135,32 +135,32 @@ function CauerLowPassOPV2()
     c4 = 1 / (1.179945^2 + l2)
     c5 = 0.7262
     [
-        StepVoltage(n1, g, -1.0, 1.0, 0.0)
-        IdealOpAmp(g, n2, n3)
-        IdealOpAmp(g, n4, n5)
-        IdealOpAmp(g, n6, n7)
-        IdealOpAmp(g, n8, n9)
-        IdealOpAmp(g, n10, n11)
-        Resistor(n1, n2, 1.0)
-        Resistor(n3, n4, -1.0)
-        Resistor(n5, n6, 1.0)
-        Resistor(n7, n8, -1.0)
-        Resistor(n9, n10, 1.0)
-        Capacitor(n2, n3, c1 + c2)
-        Capacitor(n4, n5, l1)
-        Capacitor(n6, n7, c2 + c3 + c4)
-        Capacitor(n8, n9, l2)
-        Capacitor(n10, n11, c4 + c5)
-        Resistor(n2, n3, 1.0)
-        Resistor(n2, n5, 1.0)
-        Resistor(n4, n7, -1.0)
-        Resistor(n6, n9, 1.0)
-        Resistor(n8, n11, -1.0)
-        Resistor(n10, n11, 1.0)
-        Capacitor(n2, n7, c2)
-        Capacitor(n3, n6, c2)
-        Capacitor(n6, n11, c4)
-        Capacitor(n7, n10, c4)
+        StepVoltage(n1, g, V = -1.0, start = 1.0, name = :vsrc)
+        IdealOpAmp(g, n2, n3, name = :op1)
+        IdealOpAmp(g, n4, n5, name = :op2)
+        IdealOpAmp(g, n6, n7, name = :op3)
+        IdealOpAmp(g, n8, n9, name = :op4)
+        IdealOpAmp(g, n10, n11, name = :op5)
+        Resistor(n1, n2,  R = 1.0,  name = :r1)
+        Resistor(n3, n4,  R = -1.0, name = :r2)
+        Resistor(n5, n6,  R = 1.0,  name = :r3)
+        Resistor(n7, n8,  R = -1.0, name = :r4)
+        Resistor(n9, n10, R =  1.0, name = :r5)
+        Capacitor(n2, n3,   C = c1 + c2, name = :c1)
+        Capacitor(n4, n5,   C = l1, name = :c2)
+        Capacitor(n6, n7,   C = c2 + c3 + c4, name = :c3)
+        Capacitor(n8, n9,   C = l2, name = :c4)
+        Capacitor(n10, n11, C = c4 + c5, name = :c5)
+        Resistor(n2, n3,   R = 1.0, name = :r6)
+        Resistor(n2, n5,   R = 1.0, name = :r7)
+        Resistor(n4, n7,   R = -1.0, name = :r8)
+        Resistor(n6, n9,   R = 1.0, name = :r9)
+        Resistor(n8, n11,  R = -1.0, name = :r10)
+        Resistor(n10, n11, R = 1.0, name = :r11)
+        Capacitor(n2, n7,  C = c2, name = :c6)
+        Capacitor(n3, n6,  C = c2, name = :c7)
+        Capacitor(n6, n11, C = c4, name = :c8)
+        Capacitor(n7, n10, C = c4, name = :c9)
     ]
 end
 
@@ -188,15 +188,15 @@ function CharacteristicIdealDiodes()
     @variables s1(t) s2(t) s3(t)
     g = 0.0
     [
-        SineVoltage(s1, g, 10.0, 1.0, -pi/10.0) 
-        SineVoltage(s2, g, 10.0, 1.0, -pi/15.0, -9.0) 
-        SineVoltage(s3, g, 10.0, 1.0, -pi/20.0) 
-        Resistor(n1, g, 1e-3) 
-        Resistor(n2, g, 1e-3) 
-        Resistor(n3, g, 1e-3) 
-        IdealDiode(s1, n1, 0.0, 0.0, 0.0)
-        IdealDiode(s2, n2, 0.0, 0.1, 0.1) 
-        IdealDiode(s3, n3, 5.0, 0.2, 0.2) 
+        SineVoltage(s1, g, V = 10.0, f = 1.0, ang = -pi/10.0) 
+        SineVoltage(s2, g, V = 10.0, f = 1.0, ang = -pi/15.0, offset = -9.0) 
+        SineVoltage(s3, g, V = 10.0, f = 1.0, ang = -pi/20.0) 
+        Resistor(n1, g, R = 1e-3) 
+        Resistor(n2, g, R = 1e-3) 
+        Resistor(n3, g, R = 1e-3) 
+        IdealDiode(s1, n1, Vknee = 0.0, Ron = 0.0, Goff = 0.0)
+        IdealDiode(s2, n2, Vknee = 0.0, Ron = 0.1, Goff = 0.1) 
+        IdealDiode(s3, n3, Vknee = 5.0, Ron = 0.2, Goff = 0.2) 
      ]
 end
 
@@ -222,22 +222,22 @@ voltages).
 function ChuaCircuit()
     @variables n1(t) n2(t) n3(t)
     g = 0.0
-    function NonlinearResistor(n1::ElectricalNode, n2::ElectricalNode, Ga, Gb, Ve)
+    function NonlinearResistor(n1::ElectricalNode, n2::ElectricalNode; name, Ga, Gb, Ve)
         i = Current(compatible_values(n1, n2))
         v = Voltage(compatible_values(n1, n2))
-        [
+        name => [
             Branch(n1, n2, v, i)
             i ~ ifelse(v < -Ve, Gb .* (v + Ve) - Ga .* Ve,
                        ifelse(v > Ve, Gb .* (v - Ve) + Ga*Ve, Ga*v))
         ]
     end
     [
-        Resistor(n1, g, 12.5e-3) 
-        Inductor(n1, n2, 18.0)
-        Resistor(n2, n3, 1 / 0.565) 
-        Capacitor(n2, g, 100.0)
-        Capacitor(n3, g, 10.0)
-        NonlinearResistor(n3, g, -0.757576, -0.409091, 1.0)
+        Resistor(n1, g,  R = 12.5e-3, name = :r1) 
+        Inductor(n1, n2, L = 18.0, name = :l1)
+        Resistor(n2, n3, R = 1 / 0.565, name = :r2) 
+        Capacitor(n2, g, C = 100.0, name = :c1)
+        Capacitor(n3, g, C = 10.0, name = :c2)
+        NonlinearResistor(n3, g, Ga = -0.757576, Gb = -0.409091, Ve = 1.0, name = :r3)
     ]
 end
 
@@ -255,14 +255,14 @@ environment via its heatPort.
 [LBL doc link](http://simulationresearch.lbl.gov/modelica/releases/msl/3.2/help/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.HeatingResistor)
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.HeatingResistor)
 """
-function HeatedResistor()
+function HeatingResistor()
     @variables n1(t) hp1(t) hp2(t)
     g = 0.0
     [
-        SineVoltage(n1, g, 220, 1.0)
-        HeatingResistor(n1, g, hp1, 100.0, 20 + 273.15, 1e-3)
-        ThermalConductor(hp1, hp2, 50.0)
-        FixedTemperature(hp2, 20 + 273.15)
+        SineVoltage(n1, g, V = 220, f = 1.0, name = :vsrc)
+        Resistor(n1, g, hp1, R = 100.0, T_ref = 20 + 273.15, alpha = 1e-3, name = :r1)
+        ThermalConductor(hp1, hp2, G = 50.0, name = :tc)
+        FixedTemperature(hp2, T = 20 + 273.15, name = :tsrc)
     ]
 end
 
@@ -284,12 +284,12 @@ function HeatingRectifier()
     @variables hp1(t) hp2(t)
     g = 0.0
     [
-        SineVoltage(n1, g, 1.0, 1.0)
-        HeatingDiode(n1, n2, T = hp1)
-        Capacitor(n2, g, 1.0)
-        Resistor(n2, g, 1.0)
-        ThermalConductor(hp1, hp2, 10.0)
-        HeatCapacitor(hp2, 1)
+        SineVoltage(n1, g, V = 1.0, f = 1.0, name = :vsrc)
+        HeatingDiode(n1, n2, T = hp1, name = :d1)
+        Capacitor(n2, g, C = 1.0, name = :c1)
+        Resistor(n2, g, R = 1.0, name = :r1)
+        ThermalConductor(hp1, hp2, G = 10.0, name = :tc1)
+        HeatCapacitor(hp2, C = 1, name = :hc1)
     ]
 end
 
@@ -324,19 +324,19 @@ function Rectifier()
     CDC = 15e-3
     IDC = 500.0
     [
-        SineVoltage(n1[1], g, VAC .* sqrt(2/3), f,  0.0)
-        SineVoltage(n1[2], g, VAC .* sqrt(2/3), f, -2pi/3)
-        SineVoltage(n1[3], g, VAC .* sqrt(2/3), f,  2pi/3)
-        Inductor(n1, n2, LAC)
-        IdealDiode(n2[1], np, Vknee, Ron, Goff)
-        IdealDiode(n2[2], np, Vknee, Ron, Goff)
-        IdealDiode(n2[3], np, Vknee, Ron, Goff)
-        IdealDiode(nn, n2[1], Vknee, Ron, Goff)
-        IdealDiode(nn, n2[2], Vknee, Ron, Goff)
-        IdealDiode(nn, n2[3], Vknee, Ron, Goff)
-        Capacitor(np, 0.0, 2 * CDC)
-        Capacitor(nn, 0.0, 2 * CDC)
-        SignalCurrent(np, nn, IDC)
+        SineVoltage(n1[1], g, V = VAC .* sqrt(2/3), f = f, ang =  0.0, name = :v1)
+        SineVoltage(n1[2], g, V = VAC .* sqrt(2/3), f = f, ang = -2pi/3, name = :v2)
+        SineVoltage(n1[3], g, V = VAC .* sqrt(2/3), f = f, ang =  2pi/3, name = :v3)
+        Inductor(n1, n2, L = LAC, name = :l1)
+        IdealDiode(n2[1], np, Vknee = Vknee, Ron = Ron, Goff = Goff, name = :d1)
+        IdealDiode(n2[2], np, Vknee = Vknee, Ron = Ron, Goff = Goff, name = :d2)
+        IdealDiode(n2[3], np, Vknee = Vknee, Ron = Ron, Goff = Goff, name = :d3)
+        IdealDiode(nn, n2[1], Vknee = Vknee, Ron = Ron, Goff = Goff, name = :d4)
+        IdealDiode(nn, n2[2], Vknee = Vknee, Ron = Ron, Goff = Goff, name = :d5)
+        IdealDiode(nn, n2[3], Vknee = Vknee, Ron = Ron, Goff = Goff, name = :d6)
+        Capacitor(np, 0.0, C = 2 * CDC, name = :c1)
+        Capacitor(nn, 0.0, C = 2 * CDC, name = :c2)
+        SignalCurrent(np, nn, I = IDC, name = :i1)
     ]
 end
 
@@ -374,9 +374,9 @@ function ShowSaturatingInductor()
     phase = pi/2
     phase = 0.0
     [
-        SineVoltage(n1, g, U, f, phase)
+        SineVoltage(n1, g, V = U, f = f, angle = phase, name = :vsrc)
         ## SaturatingInductor(n1, g, Inom, Lnom, Linf, Lzer)
-        SaturatingInductor(n1, g, Inom, Lnom)
+        SaturatingInductor(n1, g, Inom = Inom, Lnom = Lnom, name = :i1)
     ]
 end
 
@@ -388,8 +388,8 @@ function ShowSaturatingInductor2()
     f = 1/(2pi)
     phase = 0.0
     [
-        SineVoltage(n1, g, U, f, phase)
-        SaturatingInductor2(n1, g, 71.0, 0.1, 0.04)
+        SineVoltage(n1, g, V = U, f = f, angle = phase, name = :vsrc)
+        SaturatingInductor2(n1, g, a = 71.0, b = 0.1, c = 0.04, name = :i1)
     ]
 end
 ## m = ShowSaturatingInductor2()
@@ -460,13 +460,13 @@ function ShowVariableResistor()
         n2 ~ n3 + isig1    # current monitor
         n5 ~ n3 + isig2    # current monitor
         n5 ~ n4 + vres 
-        SineVoltage(n, g, 1.0, 1.0)
-        Resistor(n, n1, 1.0)
-        Resistor(n1, n2, 1.0)
-        Resistor(n2, n3, 1.0)
-        Resistor(n, n4, 1.0)
-        Resistor(n4, n5, 2 + 2.5 * t)
-        Resistor(n5, n3, 1.0)
+        SineVoltage(n, g, V = 1.0, f = 1.0)
+        Resistor(n, n1,  R = 1.0, name = :r1)
+        Resistor(n1, n2, R = 1.0, name = :r2)
+        Resistor(n2, n3, R = 1.0, name = :r3)
+        Resistor(n, n4,  R = 1.0, name = :r4)
+        Resistor(n4, n5, R = 2 + 2.5 * t, name = :r5)
+        Resistor(n5, n3, R = 1.0, name = :r6)
     ]
 end
 
@@ -496,15 +496,15 @@ function ControlledSwitchWithArc()
     vs = Voltage()
     g = 0.0
     [
-        SineVoltage(vs, g, 1.0, 1.0)
+        SineVoltage(vs, g, V = 1.0, f = 1.0, name = :vsrc)
         ## SignalVoltage(a1, g, 50.0)
         ## ControlledIdealClosingSwitch(a1, a2, vs, 0.5, 1e-5, 1e-5)
         ## Inductor(a2, a3, 0.1)
         ## Resistor(a3, g, 1.0)
-        SignalVoltage(b1, g, 50.0)
-        ControlledCloserWithArc(b1, b2, vs, V0 = 30.0, dVdt = 10000.0, Vmax = 60.0)
-        Inductor(b2, b3, 0.1)
-        Resistor(b3, g, 1.0)
+        SignalVoltage(b1, g, V = 50.0, name = :vsrc2)
+        ControlledCloserWithArc(b1, b2, vs, V0 = 30.0, dVdt = 10000.0, Vmax = 60.0, name = :ccwa)
+        Inductor(b2, b3, L = 0.1, name = :l1)
+        Resistor(b3, g, R = 1.0, name = :r1)
     ]
 end
 
@@ -518,9 +518,9 @@ function dc()
     @variables n1(t) n2(t)
     g = 0.0
     [
-        SignalVoltage(n1, g, 50.0)
-        Resistor(n1, n2, 0.1)
-        Inductor(n2, g, 0.1)
+        SignalVoltage(n1, g, V = 50.0, name = :vsrc)
+        Resistor(n1, n2, R = 0.1, name = :r1)
+        Inductor(n2, g, L = 0.1, name = :l1)
     ]
 end
 

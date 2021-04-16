@@ -91,30 +91,34 @@ and functions.
 const D = ModelingToolkit.Differential(t)
 const der = D
 
+struct IdCtx end
+
 """
 `Unknown` is a helper to create variables with default values.
 The default values determines the type and shape of the result.
-Symbol names are created using gensym to create unique names 
-(unless `gensym` is set to false).
 
 ```julia
-Unknown(value = 0.0, sym::Union{AbstractString, Symbol} = ""; gensym = true) 
+Unknown(value = 0.0, sym::Union{AbstractString, Symbol} = "") 
 Unknown(sym::Union{AbstractString, Symbol}; gensym = true)
 ```
 """
-function Unknown(value = 0.0, sym::Union{AbstractString, Symbol} = ""; gensym = true) 
-    s = gensym ? Base.gensym(Symbol(sym)) : Symbol(sym)
+function Unknown(value = 0.0, sym::Union{AbstractString, Symbol} = "") 
+    s = Symbol(sym)
     if length(value) > 1    # array
-        x = map(Iterators.product(1:length(value))) do ind
-            Symbolics.setmetadata(ModelingToolkit.Num(ModelingToolkit.Sym{(ModelingToolkit.FnType){NTuple{1, Any}, Real}}(s, ind...))(Symbolics.value(t)), 
+        map(Iterators.product(1:length(value))) do ind
+            x = Symbolics.setmetadata(ModelingToolkit.Num(ModelingToolkit.Sym{(ModelingToolkit.FnType){NTuple{1, Any}, Real}}(s, ind...))(Symbolics.value(t)), 
                                   Symbolics.VariableDefaultValue, value[ind...])
+            Symbolics.setmetadata(x, IdCtx, gensym())
         end
     else
-        Symbolics.setmetadata(ModelingToolkit.Num(ModelingToolkit.Variable{ModelingToolkit.FnType{Tuple{Any},Real}}(s))(t), 
+        x = Symbolics.setmetadata(ModelingToolkit.Num(ModelingToolkit.Variable{ModelingToolkit.FnType{Tuple{Any},Real}}(s))(t), 
                               Symbolics.VariableDefaultValue, value)
+        Symbolics.setmetadata(x, IdCtx, gensym())
     end
 end
-Unknown(sym::Union{AbstractString, Symbol}; gensym = true) = Unknown(0.0, sym; gensym = gensym)
+Unknown(sym::Union{AbstractString, Symbol}) = Unknown(0.0, sym)
+
+
 
 default_value(x::ModelingToolkit.Num) = default_value(x.val)
 default_value(x::ModelingToolkit.Term) = Symbolics.getmetadata(x, Symbolics.VariableDefaultValue, 0.0)
@@ -174,7 +178,7 @@ function SignalCurrent(n1::ElectricalNode, n2::ElectricalNode, I::Signal)
     [
         RefBranch(n1, I) 
         RefBranch(n2, -I) 
-    end
+    ]
 end
 ```
 """
@@ -268,14 +272,18 @@ elaborate(a)
 """
 
 function system(a; simplify = true)
-    eq = Equation[]
-    nodemap = Dict()
-    elaborate_unit!(a, eq, nodemap)
-    # Add in equations for each node to sum flows to zero:
-    for (key, nodeset) in nodemap
-        push!(eq, 0 ~ nodeset)
+    ctx = EqCtx(Equation[], Dict(), Dict(), Dict())
+    sweep_vars(a, (), ctx)
+    for (k, v) in ctx.varmap
+        ctx.newvars[k] = Num(ModelingToolkit.rename(ModelingToolkit.value(k), Symbol(join((v..., ModelingToolkit.value(k).f.name), "ₓ"))))
     end
-    sys = ModelingToolkit.ODESystem(eq, t)
+    elaborate_unit!(a, ctx)
+    # Add in equations for each node to sum flows to zero:
+    for (key, nodeset) in ctx.nodemap
+        push!(ctx.eq, 0 ~ nodeset)
+    end
+    # return ctx
+    sys = ModelingToolkit.ODESystem(ctx.eq, t)
     if simplify
         return ModelingToolkit.structural_simplify(sys)
     else
@@ -283,21 +291,69 @@ function system(a; simplify = true)
     end
 end
 
+struct EqCtx
+    eq::Vector{Equation}
+    nodemap::Dict
+    varmap::IdDict
+    newvars::IdDict
+end
+
+# function sweep_vars(a::Union{ModelingToolkit.Sym,ModelingToolkit.Term}, names, ctx::EqCtx)
+function sweep_vars(a::ModelingToolkit.Term, names, ctx::EqCtx)
+    if !haskey(ctx.varmap, a)
+        ctx.varmap[a] = names
+    else 
+        original = ctx.varmap[a]
+        if original != names
+            ctx.varmap[a] = common_root(original, names)
+        end
+    end
+    nothing
+end
+sweep_vars(a, names, ctx::EqCtx) = nothing
+sweep_vars(a::Num, names, ctx::EqCtx) = sweep_vars(ModelingToolkit.value(a), names, ctx)
+sweep_vars(a::Pair, names, ctx::EqCtx) = sweep_vars(a[2], (names..., a[1]), ctx)
+sweep_vars(a::Vector, names, ctx::EqCtx) = map(x -> sweep_vars(x, names, ctx), a)
+function sweep_vars(a::RefBranch, names, ctx::EqCtx)
+    sweep_vars(a.n, names, ctx)
+    sweep_vars(a.i, names, ctx)
+end
+function sweep_vars(a::Equation, names, ctx::EqCtx)
+    sweep_vars(ModelingToolkit.get_variables(a.lhs), names, ctx)
+    sweep_vars(ModelingToolkit.get_variables(a.rhs), names, ctx)
+end
+
+function common_root(a, b)
+    rng = 1:min(length(a), length(b))
+    for i in rng
+        if a[i] !== b[i]
+            return a[1:i-1]
+        end
+    end
+    return a[rng]
+end
+
+
+
+
 #
 # elaborate_unit flattens the set of equations while building up
 # events, event responses, and a Dict of nodes.
 #
-elaborate_unit!(a::Any, eq::Vector{Equation}, nodemap::Dict) = nothing # The default is to ignore undefined types.
-function elaborate_unit!(a::Equation, eq::Vector{Equation}, nodemap::Dict)
-    push!(eq, a)
+elaborate_unit!(a::Any, ctx::EqCtx) = nothing # The default is to ignore undefined types.
+function elaborate_unit!(a::Equation, ctx::EqCtx)
+    push!(ctx.eq, ModelingToolkit.substitute(a, ctx.newvars))
 end
-function elaborate_unit!(a::Vector, eq::Vector{Equation}, nodemap::Dict)
-    map(x -> elaborate_unit!(x, eq, nodemap), a)
+function elaborate_unit!(a::Vector, ctx::EqCtx)
+    map(x -> elaborate_unit!(x, ctx), a)
+end
+function elaborate_unit!(a::Pair, ctx::EqCtx)
+    map(x -> elaborate_unit!(x, ctx), a)
 end
 
-function elaborate_unit!(b::RefBranch, eq::Vector{Equation}, nodemap::Dict)
+function elaborate_unit!(b::RefBranch, ctx::EqCtx)
     if b.n isa ModelingToolkit.Num
-        nodemap[b.n] = get(nodemap, b.n, 0.0) + b.i
+        ctx.nodemap[b.n] = get(ctx.nodemap, b.n, 0.0) + ModelingToolkit.substitute(ModelingToolkit.value(b.i), ctx.newvars)
     end
 end
 

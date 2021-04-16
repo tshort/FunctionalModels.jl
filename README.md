@@ -95,22 +95,6 @@ equations. Equations are built from device models.
 A device model is a function that returns a vector of equations or
 other devices that also return lists of equations. 
 
-The Van Der Pol oscillator is a simple problem with two equations
-and two unknowns:
-
-``` julia
-function Vanderpol()
-    @variables x(t) y(t)
-    # The following gives the return value which is a list of equations.
-    # Expressions with variables are kept as expressions. Expressions of
-    # regular variables are evaluated immediately.
-    [
-        D(x, -1.0) ~ (1 - y^2) * x - y
-        D(y) ~ x
-    ]
-end
-``` 
-
 Electrical example
 ------------------
 
@@ -137,21 +121,21 @@ electrical examples, a node is simply an unknown voltage.
 Current() = Num(Variable{ModelingToolkit.FnType{Tuple{Any},Real}}(gensym("i")))(t)
 Voltage() = Num(Variable{ModelingToolkit.FnType{Tuple{Any},Real}}(gensym("v")))(t)
 
-function Resistor(n1, n2, R::Real) 
+function Resistor(n1, n2; name; name, R::Real) 
     i = Current()
     v = Voltage()
-    [
+    name => [
         Branch(n1, n2, v, i)
         R * i ~ v
     ]
 end
 
-function Capacitor(n1, n2, C::Real) 
+function Capacitor(n1, n2; name, C::Real) 
     i = Current()
     v = Voltage()
-    [
+    name => [
         Branch(n1, n2, v, i)
-        C * D(v) ~ i
+        D(v) ~ i / C
     ]
 end
 ```
@@ -169,10 +153,10 @@ function Circuit()
     n2 = Voltage()
     g = 0.0  # A ground has zero volts; it's not an unknown.
     [
-        SineVoltage(n1, g, 10.0, 60.0)
-        Resistor(n1, n2, 10.0)
-        Resistor(n2, g, 5.0)
-        Capacitor(n2, g, 5.0e-3)
+        SineVoltage(n1, g, V = 10.0, f = 60.0, name = :vsrc)
+        Resistor(n1, n2, R = 10.0, name = :r1)
+        Resistor(n2, g, R = 5.0, name = :r2)
+        Capacitor(n2, g, C = 5.0e-3, name = :c1)
     ]
 end
 

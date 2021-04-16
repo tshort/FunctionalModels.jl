@@ -29,8 +29,8 @@ function runChuaCircuit()
     (sys = sys, sol = sol) 
 end
 
-function runHeatedResistor()   #### BROKEN
-    sys = system(HeatedResistor())
+function runHeatingResistor()   #### BROKEN
+    sys = system(HeatingResistor())
     prob = ODAEProblem(sys, Dict(k => 0.0 for k in states(sys)), (0, 10.0))
     sol = solve(prob, Tsit5())
     display(plot(sol))
@@ -38,5 +38,5 @@ function runHeatedResistor()   #### BROKEN
 end
 
 
-# CauerLowPassOPV
-
+runCauerLowPass()
+runChuaCircuit()

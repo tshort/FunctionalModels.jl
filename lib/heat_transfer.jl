@@ -76,13 +76,13 @@ Modelica. You need to define the starting temperature at the top level
 for the HeatPort you define.
 
 """
-function HeatCapacitor(hp::HeatPort, C::Signal)
+function HeatCapacitor(hp::HeatPort; name, C::Signal)
     Q_flow = HeatFlow(compatible_values(hp))
-    [
+    name => [
         RefBranch(hp, Q_flow)
         der(hp) ~ Q_flow ./ C
     ]
-    end
+end
 
 
 """
@@ -141,21 +141,21 @@ Typical values for k at 20 degC in W/(m.K):
 ```
 
 """
-function ThermalConductor(port_a::HeatPort, port_b::HeatPort, G::Signal)
+function ThermalConductor(port_a::HeatPort, port_b::HeatPort; name, G::Signal)
     dT = Temperature(default_value(port_a) - default_value(port_b))
     Q_flow = HeatFlow(compatible_values(port_a, port_b))
-    [
+    name => [
         Branch(port_a, port_b, dT, Q_flow)
         Q_flow ~ G .* dT
     ]
-    end
+end
 
 
 """
 Lumped thermal element for heat convection
 
 ```julia
-Convection(port_a::HeatPort, port_b::HeatPort, Gc::Signal)
+Convection(port_a::HeatPort, port_b::HeatPort; Gc::Signal)
 ```
 
 ### Arguments
@@ -227,14 +227,14 @@ Transfer, 8th edition, McGraw-Hill, 1997, p.270):
 ```
 
 """
-function Convection(port_a::HeatPort, port_b::HeatPort, Gc::Signal)
+function Convection(port_a::HeatPort, port_b::HeatPort; name, Gc::Signal)
     dT = Temperature(default_value(port_a) - default_value(port_b))
     Q_flow = HeatFlow(compatible_values(port_a, port_b))
-    [
+    name => [
         Branch(port_a, port_b, dT, Q_flow)
         Q_flow ~ Gc .* dT
     ]
-    end
+end
 
 
 """
@@ -318,10 +318,10 @@ inner to the outer cylinder):**
 ```
 
 """
-function BodyRadiation(port_a::HeatPort, port_b::HeatPort, Gr::Signal)
+function BodyRadiation(port_a::HeatPort, port_b::HeatPort; name, Gr::Signal)
     Q_flow = HeatFlow(compatible_values(port_a, port_b))
     sigma = 5.67037321e-8
-    [
+    name => [
         RefBranch(port_a, Q_flow)
         RefBranch(port_b, -Q_flow)
         Q_flow ~ sigma .* Gr .* (port_a .^ 4 - port_b .^ 4)
@@ -343,10 +343,10 @@ ThermalCollector(port_a::HeatPort, port_b::HeatPort)
 * `port_b::HeatPort` : heat port [K]
 
 """
-function ThermalCollector(port_a::HeatPort, port_b::HeatPort)
+function ThermalCollector(port_a::HeatPort, port_b::HeatPort; name)
     # This ends up being a short circuit.
     Q_flow = HeatFlow(compatible_values(port_a, port_b))
-    [
+    name => [
         Branch(port_a, port_b, 0.0, Q_flow)
     ]
 end
@@ -382,9 +382,9 @@ FixedTemperature(port::HeatPort, T::Signal)
 * `T::Signal` : temperature at port [K]
 
 """
-function FixedTemperature(port::HeatPort, T::Signal)
+function FixedTemperature(port::HeatPort; name, T::Signal)
     Q_flow = HeatFlow(compatible_values(port, T))
-    [
+    name => [
         Branch(port, T, 0.0, Q_flow)
     ]
 end
@@ -447,14 +447,12 @@ FixedHeatFlow(port::HeatPort, Q_flow::Signal; T_ref::Signal = 293.15, alpha::Sig
 * `alpha::Signal` : temperature coefficient of heat flow rate [1/K]
 
 """
-function FixedHeatFlow(port::HeatPort, Q_flow::Signal, T_ref::Signal, alpha::Signal = 0.0)
+function FixedHeatFlow(port::HeatPort; name, Q_flow::Signal, T_ref::Signal = 293.15, alpha::Signal = 0.0)
     Q_flow = HeatFlow(compatible_values(port, T))
-    [
+    name => [
         RefBranch(port, Q_flow .* alpha .* (port - T_ref))
     ]
 end
-FixedHeatFlow(port::HeatPort, Q_flow::Signal; T_ref::Signal = 293.15, alpha::Signal = 0.0) =
-    FixedHeatFlow(port, Q_flow, T_ref, alpha)
     
 """
 Prescribed heat flow boundary condition
