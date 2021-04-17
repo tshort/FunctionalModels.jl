@@ -51,19 +51,19 @@ function PID_Controller()
         setpoint ~ ifelse((t < 0.5) | (t >= 3.2), 0.0,
                           ifelse(t < 1.5, t - 0.5,
                                  ifelse(t < 2.2, 1.0, 3.2 - t)))
-        SpeedSensor(n1, shaftspeed)
-        LimPID(setpoint, shaftspeed, tau, 
+        :ss1 => SpeedSensor(n1, shaftspeed)
+        :pid => LimPID(setpoint, shaftspeed, tau, 
                controllerType = "PI",
                k  = 100.0,
                Ti = 0.1,
                Td = 0.1,
                yMax = 12.0,
                Ni = 0.1)
-        SignalTorque(n1, 0.0, tau)
-        Inertia(n1, 1.0)
-        SpringDamper(n1, n2, 1e4, 100)
-        Inertia(n2, 2.0)
-        SignalTorque(n2, 0.0, 10.0)
+         :st1 => SignalTorque(n1, 0.0, tau)
+         :in1 => Inertia(n1, 1.0)
+         :sd1 => SpringDamper(n1, n2, 1e4, 100)
+         :in2 => Inertia(n2, 2.0)
+         :st2 => SignalTorque(n2, 0.0, 10.0)
     ]
 end
 

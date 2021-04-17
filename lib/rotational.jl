@@ -45,25 +45,25 @@ Inertia(flange_a::Flange, flange_b::Flange, J::Real)
 * `J::Real` : Moment of inertia [kg.m^2]
 
 """
-function Inertia(flange_a::Flange; name, J::Real)
+function Inertia(flange_a::Flange; J::Real)
     val = compatible_values(flange_a)
     tau_a = Torque()
     w = AngularVelocity()
     a = AngularAcceleration()
-    name => [
+    [
         RefBranch(flange_a, tau_a)
         der(flange_a) ~ w
         der(w) ~ a
         tau_a ~ J .* a
     ]
 end
-function Inertia(flange_a::Flange, flange_b::Flange; name, J::Real)
+function Inertia(flange_a::Flange, flange_b::Flange; J::Real)
     val = compatible_values(flange_a, flange_b)
     tau_a = Torque(val)
     tau_b = Torque(val)
     w = AngularVelocity(val)
     a = AngularAcceleration(val)
-    name => [
+    [
         RefBranch(flange_a, tau_a)
         RefBranch(flange_b, tau_b)
         flange_b ~ flange_a    # the angles are both equal
@@ -92,9 +92,9 @@ Disc(flange_a::Flange, flange_b::Flange, deltaPhi)
 * `deltaPhi::Signal` : rotation of left flange with respect to right flange (= flange_b - flange_a) [rad]
 
 """
-function Disc(flange_a::Flange, flange_b::Flange; name, deltaPhi = 0.0)
+function Disc(flange_a::Flange, flange_b::Flange; deltaPhi = 0.0)
     tau = Torque()
-    name => [
+    [
         RefBranch(flange_b, flange_a, deltaPhi, tau)
     ]
 end
@@ -120,10 +120,10 @@ Spring(flange_a::Flange, flange_b::Flange, c::Real, phi_rel0 = 0.0)
 * `phi_rel0` : unstretched spring angle [rad]
 
 """
-function Spring(flange_a::Flange, flange_b::Flange; name, c::Real, phi_rel0::Signal = 0.0)
+function Spring(flange_a::Flange, flange_b::Flange; c::Real, phi_rel0::Signal = 0.0)
     phi_rel = Angle(default_value(flange_b) - default_value(flange_a))
     tau = Torque()
-    name => [
+    [
         Branch(flange_b, flange_a, phi_rel, tau)
         tau ~ c .* (phi_rel - phi_rel0)
     ]
@@ -150,17 +150,17 @@ Damper(flange_a::Flange, flange_b::Flange, hp::HeatPort, d::Signal)
 * `d`: 	damping constant [N.m.s/rad]
 
 """
-function Damper(flange_a::Flange, flange_b::Flange; name, d::Signal)
+function Damper(flange_a::Flange, flange_b::Flange; d::Signal)
     val = compatible_values(flange_a, flange_b)
     phi_rel = Angle(default_value(flange_b) - default_value(flange_a))
     tau = Torque(val)
-    name => [
+    [
         Branch(flange_b, flange_a, phi_rel, tau)
         der(phi_rel) ~ tau ./ d
     ]
 end
-Damper(flange_a::Flange, flange_b::Flange, hp::HeatPort; name, d::Signal) =
-    name => MBranchHeatPort(flange_a, flange_b, hp, Damper; d = d)
+Damper(flange_a::Flange, flange_b::Flange, hp::HeatPort; d::Signal) =
+    MBranchHeatPort(flange_a, flange_b, hp, Damper; d = d)
 
 
 """
@@ -186,16 +186,16 @@ SpringDamper(flange_a::Flange, flange_b::Flange, hp::HeatPort, c::Signal, d::Sig
 * `d`: 	damping constant [N.m.s/rad]
 
 """
-function SpringDamper(flange_a::Flange, flange_b::Flange; name, c::Signal, d::Signal)
+function SpringDamper(flange_a::Flange, flange_b::Flange; c::Signal, d::Signal)
     phi_rel = Angle(default_value(flange_b) - default_value(flange_a))
     tau = Torque()
-    name => [
+    [
         Spring(flange_a, flange_b, c)
         Damper(flange_a, flange_b, d)
     ]
 end
 SpringDamper(flange_a::Flange, flange_b::Flange, hp::HeatPort; c::Signal, d::Signal) =
-    name => MBranchHeatPort(flange_a, flange_b, hp, SpringDamper, c = c, d = d)
+    MBranchHeatPort(flange_a, flange_b, hp, SpringDamper, c = c, d = d)
 
 
 
@@ -306,10 +306,10 @@ IdealGear(flange_a::Flange, flange_b::Flange, ratio)
 * `ratio` : transmission ratio (flange_a / flange_b)
 
 """
-function IdealGear(flange_a::Flange, flange_b::Flange; name, ratio::Real)
+function IdealGear(flange_a::Flange, flange_b::Flange; ratio::Real)
     tau_a = Torque()
     tau_b = Torque()
-    name => [
+    [
         RefBranch(flange_a, tau_a)
         RefBranch(flange_b, tau_b)
         flange_a ~ ratio * flange_b
@@ -384,8 +384,8 @@ SpeedSensor(flange::Flange, w::Signal)
 * `w::Signal`: 	absolute angular velocity of the flange [rad/sec]
 
 """
-function SpeedSensor(flange::Flange; name, w::Signal)
-    name => [
+function SpeedSensor(flange::Flange; w::Signal)
+    [
         der(flange) ~ w
     ]
 end
@@ -407,9 +407,9 @@ SpeedSensor(flange::Flange; a::Signal)
 * `a::Signal`: 	absolute angular acceleration of the flange [rad/sec^2]
 
 """
-function AccSensor(flange::Flange; name, a::Signal)
+function AccSensor(flange::Flange; a::Signal)
     w = AngularVelocity(compatible_values(flange))
-    name => [
+    [
         der(flange) ~ w
         der(w) ~ a
     ]
@@ -444,8 +444,8 @@ SignalTorque(flange_a::Flange, flange_b::Flange, tau)
   (normally a support); a positive value accelerates flange_a
 
 """
-function SignalTorque(flange_a::Flange, flange_b::Flange; name, tau)
-    name => [
+function SignalTorque(flange_a::Flange, flange_b::Flange; tau)
+    [
         RefBranch(flange_a, -tau)
         RefBranch(flange_b, tau)
     ]
@@ -473,12 +473,12 @@ QuadraticSpeedDependentTorque(flange_a::Flange, flange_b::Flange,
 
 """
 function QuadraticSpeedDependentTorque(flange_a::Flange, flange_b::Flange;
-                                       name, tau_nominal::Signal, TorqueDirection::Bool, w_nominal::Signal)
+                                       tau_nominal::Signal, TorqueDirection::Bool, w_nominal::Signal)
     val = compatible_values(flange_a, flange_b)
     tau = Torque(val)
     phi = Angle(val)
     w = AngularVelocity(val)
-    name => [
+    [
         Branch(flange_b, flange_a, phi, tau)
         der(phi) ~ w
         tau ~ ifelse(TorqueDirection,

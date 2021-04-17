@@ -118,22 +118,20 @@ electrical examples, a node is simply an unknown voltage.
  
 
 ```julia
-Current() = Num(Variable{ModelingToolkit.FnType{Tuple{Any},Real}}(gensym("i")))(t)
-Voltage() = Num(Variable{ModelingToolkit.FnType{Tuple{Any},Real}}(gensym("v")))(t)
 
-function Resistor(n1, n2; name; name, R::Real) 
+function Resistor(n1, n2; R::Real) 
     i = Current()
     v = Voltage()
-    name => [
+    [
         Branch(n1, n2, v, i)
         R * i ~ v
     ]
 end
 
-function Capacitor(n1, n2; name, C::Real) 
+function Capacitor(n1, n2; C::Real) 
     i = Current()
     v = Voltage()
-    name => [
+    [
         Branch(n1, n2, v, i)
         D(v) ~ i / C
     ]
@@ -153,10 +151,10 @@ function Circuit()
     n2 = Voltage()
     g = 0.0  # A ground has zero volts; it's not an unknown.
     [
-        SineVoltage(n1, g, V = 10.0, f = 60.0, name = :vsrc)
-        Resistor(n1, n2, R = 10.0, name = :r1)
-        Resistor(n2, g, R = 5.0, name = :r2)
-        Capacitor(n2, g, C = 5.0e-3, name = :c1)
+        :vs => SineVoltage(n1, g, V = 10.0, f = 60.0)
+        :r1 => Resistor(n1, n2, R = 10.0)
+        :r2 => Resistor(n2, g, R = 5.0)
+        :c1 => Capacitor(n2, g, C = 5.0e-3)
     ]
 end
 

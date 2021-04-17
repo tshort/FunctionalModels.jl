@@ -32,9 +32,9 @@ function TwoMasses()
     t1 = Temperature(373.15, "t1", gensym = false)
     t2 = Temperature(273.15, "t2", gensym = false)
     [
-        HeatCapacitor(t1, C = 15.0, name = :hc1)
-        HeatCapacitor(t2, C = 15.0, name = :hc2)
-        ThermalConductor(t1, t2, G = 10.0, name = :tc1)
+        :hc1 => HeatCapacitor(t1, C = 15.0)
+        :hc2 => HeatCapacitor(t2, C = 15.0)
+        :tc1 => ThermalConductor(t1, t2, G = 10.0)
     ]
 end
 
@@ -56,16 +56,16 @@ function Motor(BROKEN)   ## needs to have `interp` defined
     winding_losses = [100, 100, 1000, 1000]
     [
         # Winding
-        HeatCapacitor(p1, C = 2500.0, name = :hc1)
-        PrescribedHeatFlow(p1, Q_flow = interp(winding_losses, t, t), T_ref = 95 + 273.15, alpha = 3.03E-3, name = hf1)
+        :hc1   => HeatCapacitor(p1, C = 2500.0)
+        hf1    => PrescribedHeatFlow(p1, Q_flow = interp(winding_losses, t, t), T_ref = 95 + 273.15, alpha = 3.03E-3)
         # Core
-        HeatCapacitor(p2, C = 25000.0, name = :hc2)
-        PrescribedHeatFlow(p2, Q_flow = 500.0, name = :hf2)
+        :hc2   => HeatCapacitor(p2, C = 25000.0)
+        :hf2   => PrescribedHeatFlow(p2, Q_flow = 500.0)
         # conduction between the winding and core:
-        ThermalConductor(p1, p2, G = 10.0, name = :tc1)
+        :tc1   => ThermalConductor(p1, p2, G = 10.0)
         # Convection to ambient 
-        Convection(p2, p3, Gc = 25.0, name = :conv1)
-        FixedTemperature(p3, T = TAmb, name = :t1)
+        :conv1 => Convection(p2, p3, Gc = 25.0)
+        :t1    => FixedTemperature(p3, T = TAmb)
     ]
 end
 

@@ -44,11 +44,10 @@ Integrator(u::Signal, y::Signal; k = 1.0, y_start = 0.0) # keyword arg version
 
 """
 function Integrator(u::Signal, y::Signal; 
-                    name,
                     k = 1.0,       # Gain
                     y_start = 0.0) # output initial value
     y.value = y_start
-    name => [
+    [
         der(y) ~ k .* u
     ]
 end
@@ -92,7 +91,6 @@ Derivative(u::Signal, y::Signal; T = 1.0, k = 1.0, x_start = 0.0, y_start = 0.0)
 
 """
 function Derivative(u::Signal, y::Signal;
-                    name, 
                     T,         # pole's time constant
                     k = 1.0,   # Gain
                     x_start = 0.0, # initial value of state
@@ -100,7 +98,7 @@ function Derivative(u::Signal, y::Signal;
     y.value = y_start
     x = Unknown(x_start)  # state of the block
     zeroGain = abs(k) < eps()
-    name => [
+    [
         der(x) ~ zeroGain ? 0 : (u - x) ./ T
         y ~ zeroGain ? 0 : (k ./ T) .* (u - x)
     ]
@@ -145,12 +143,11 @@ FirstOrder(u::Signal, y::Signal; T = 1.0, k = 1.0, y_start = 0.0)
 
 """
 function FirstOrder(u::Signal, y::Signal;
-                    name,
                     T = 1.0,       # pole's time constant
                     k = 1.0,       # Gain
                     y_start = 0.0) # output initial value
     y.value = y_start
-    name => [
+    [
         der(y) ~ (k*u - y) / T
     ]
 end
@@ -239,7 +236,6 @@ this controller, the following practical aspects are included:
 
 """
 function LimPID(u_s::Signal, u_m::Signal, y::Signal; 
-                name,
                 controllerType = "PID",
                 k = 1.0,      # Gain of controller
                 Ti = 1.0,     # Time constant fo the Integrator block, s 
@@ -261,7 +257,7 @@ function LimPID(u_s::Signal, u_m::Signal, y::Signal;
     i = Unknown()  # input of integrator block
     I = Unknown()  # output of integrator block
     zeroGain = abs(k) < eps()
-    name => [
+    [
         i ~ u_s - u_m + (y - x) / (k * Ni)
         with_I ? Integrator(i, I, 1/Ti) : []
         with_D ? Derivative(d, D, Td, max(Td/Nd, 1e-14)) : []
@@ -343,7 +339,6 @@ NOTE: untested / probably broken
 
 """
 function StateSpace(u::Signal, y::Signal; 
-                    name,
                     A = [1.0],
                     B = [1.0],
                     C = [1.0],
@@ -404,7 +399,6 @@ TransferFunction(u::Signal, y::Signal; b = [1], a = [1])
 
 """
 function TransferFunction(u::Signal, y::Signal;
-                          name, 
                           b,        # Numerator; 2*s + 3 is specified as [2,3]
                           a = [1])  # Denominator
     na = length(a)
@@ -417,7 +411,7 @@ function TransferFunction(u::Signal, y::Signal;
     x = Unknown(zeros(nx))
     x_scaled = Unknown(zeros(nx))
     
-    name => if nx == 0
+    ;if nx == 0
         [y ~ d * u]
     else
         [
@@ -463,12 +457,11 @@ Limiter(u::Signal, y::Signal; uMax = 1.0, uMin = -uMax)
 
 """
 function Limiter(u::Signal, y::Signal; 
-                 name,
                  uMax,
                  uMin = -uMax)
     clamped_pos = Discrete(false)
     clamped_neg = Discrete(false)
-    name => [
+    [
         BoolEvent(clamped_pos, u - uMax)
         BoolEvent(clamped_neg, uMin - u)
         y ~ ifelse(clamped_pos, uMax,
@@ -499,12 +492,11 @@ Step(y::Signal; height = 1.0, offset = 0.0, startTime = 0.0)
 
 """
 function Step(y::Signal; 
-              name,
               height = 1.0,
               offset = 0.0, 
               startTime = 0.0)
     # ymag = Discrete(offset)
-    name => [
+    [
         y ~ ifelse(t > startTime, offset, 0.0)  
         # Event(t - startTime,
         #       [reinit(ymag, offset + height)],   # positive crossing
@@ -539,12 +531,11 @@ DeadZone(u::Signal, y::Signal; uMax = 1.0, uMin = -uMax)
 
 """
 function DeadZone(u::Signal, y::Signal;
-                  name,
                   uMax = 1.0,
                   uMin = -uMax)
     pos = Discrete(false)
     neg = Discrete(false)
-    name => [
+    [
         BoolEvent(pos, u - uMax)
         BoolEvent(neg, uMin - u)
         y ~ ifelse(pos, u - uMax,
@@ -573,15 +564,15 @@ BooleanPulse(y; width = 50.0, period = 1.0, startTime = 0.0)
 * `startTime` : time instant of the first pulse [sec]
 
 """
-function BooleanPulse(x; name, width, period = 1.0, startTime = 0.0)
-    name => [BoolEvent(x, ifelse(t > startTime,
+function BooleanPulse(x; width, period = 1.0, startTime = 0.0)
+    [BoolEvent(x, ifelse(t > startTime,
                         trianglewave(t - startTime, width, period),
                         -1.0))]
 end
     
 
-function Pulse(d; name, amplitude, width = 50.0, period = 1.0, offset = 0.0, startTime = 0.0)
-    name => [
+function Pulse(d; amplitude, width = 50.0, period = 1.0, offset = 0.0, startTime = 0.0)
+    [
         Event(ifelse(t > startTime,
                      trianglewave(t - startTime, width, period),
                      -1.0),
