@@ -96,8 +96,8 @@ http://book.xogeny.com/behavior/discrete/measuring/#interval-measurement
 function IntervalMeasure()
     teeth = 200
     tooth_angle = 2pi / teeth
-    phi1 = Unknown("phi1")
-    omega1_measured_u = Unknown("omega1 measured")
+    @named phi1 = Unknown()
+    @named omega1_measured_u = Unknown()
     omega1_measured = Discrete(0.0)
     next_phi = Discrete(default_value(phi1) + tooth_angle)
     prev_phi = Discrete(default_value(phi1) - tooth_angle)

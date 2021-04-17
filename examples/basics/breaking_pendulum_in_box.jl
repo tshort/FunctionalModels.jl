@@ -27,8 +27,8 @@ end
 function PenduluminBox(x,y,vx,vy)
     len = sqrt(x.value^2 + y.value^2)
     phi0 = atan2(x.value, -y.value) 
-    phi = Unknown(phi0)
-    phid = Unknown()
+    @named phi = Unknown(phi0)
+    @named phid = Unknown()
     [
         der(phi) ~ phid
         der(x)   ~ vx
@@ -46,10 +46,10 @@ Floors and a wall are added. These are handled by `Events` in the
 `FreeFall` model. Velocities are reversed to bounce the ball.
 """
 function BreakingPendulumInBox()
-    x = Unknown(cos(pi/4), "x")
-    y = Unknown(-cos(pi/4), "y")
-    vx = Unknown()
-    vy = Unknown()
+    @named x = Unknown(cos(pi/4))
+    @named y = Unknown(-cos(pi/4))
+    @named vx = Unknown()
+    @named vy = Unknown()
     [
     StructuralEvent(t - 1.8,     # when time hits 1.8 sec, switch to FreeFall
         PenduluminBox(x,y,vx,vy),

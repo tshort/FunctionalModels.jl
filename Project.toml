@@ -1,5 +1,6 @@
 name = "Sims"
 uuid = "c42448f0-9baa-11eb-2295-650722d739d2"
+version = "0.4.0"
 
 [deps]
 IfElse = "615f187c-cbe4-4ef1-ba3b-2fcf58d6d173"

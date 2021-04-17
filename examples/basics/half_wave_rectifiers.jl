@@ -78,10 +78,10 @@ Sims.Examples.Basics.HalfWaveRectifier, but a structurally variable
 diode is used instead of a diode that uses Events.
 """
 function StructuralHalfWaveRectifier()
-    nsrc = Voltage("Source voltage")
-    n2 = Voltage("")
-    nout = Voltage("Output voltage")
-    Vdiode = Unknown("Vdiode")    # probe variable
+    @named nsrc = Voltage()
+    @named n2 = Voltage()
+    @named nout = Voltage()
+    @named Vdiode = Unknown()    # probe variable
     g = 0.0 
     [
         Vdiode = n2 - nout

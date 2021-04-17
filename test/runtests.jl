@@ -1,5 +1,5 @@
 using Sims
 using Sims.Lib
-using Base.Test
+using Test
 
 include("examples.jl")

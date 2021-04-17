@@ -1,3 +1,7 @@
+#
+# This is like the model in circuit.jl, except subsystems are not named.
+#
+
 using Sims, ModelingToolkit, DifferentialEquations, Plots
 # using Sims, ModelingToolkit
 
@@ -31,28 +35,28 @@ function Capacitor(n1, n2; C)
     ]
 end
 
-function Subsystem(n1, n2)
+function SubsystemX(n1, n2)
     @variables vs(t)
     g = 0.0  # A ground has zero volts; it's not a variable.
     [
-        :r1 => Resistor(n1, vs, R = 10.0)
-        :c1 => Capacitor(vs, n2, C = 5.0e-3)
-        :r2 => Resistor(n2, g, R = 5.0)
+        Resistor(n1, vs, R = 10.0)
+        Capacitor(vs, n2, C = 5.0e-3)
+        Resistor(n2, g, R = 5.0)
     ]
 end
 
-function Circuit(v1, v2)
+function CircuitX(v1, v2)
     g = 0.0  # A ground has zero volts; it's not a variable.
     [
-        :vsrc => VoltageSource(v1, g, V = sin(2pi * 60 * t))
-        :ss => Subsystem(v1, v2)
-        :c1 => Capacitor(v2, g, C = 5.0e-3)
+        VoltageSource(v1, g, V = sin(2pi * 60 * t))
+        SubsystemX(v1, v2)
+        Capacitor(v2, g, C = 5.0e-3)
     ]
 end
 
-function runCircuit()
+function runCircuitX()
     @variables v1(t) v2(t)
-    ckt = Circuit(v1, v2)
+    ckt = CircuitX(v1, v2)
 
     sys = system(ckt)
     prob = ODAEProblem(sys, [k => 0.0 for k in states(sys)], (0, 0.1))

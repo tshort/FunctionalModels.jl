@@ -249,8 +249,8 @@ function SaturatingInductor(n1::ElectricalNode, n2::ElectricalNode;
     vals = compatible_values(n1, n2) 
     i = Current(vals, "i_s")
     v = Voltage(default_value(n1) - default_value(n2), "v_s")
-    Psi = Unknown(vals, "psi")
-    Lact = Unknown(default_value(Linf), "Lact")
+    @named psi = Unknown(vals)
+    @named Lact = Unknown(default_value(Linf))
     ## Lact = Unknown(vals)
     # initial equation equivalent (uses John Myles White's Optim package):
     Ipar = optimize(Ipar -> ((Lnom - Linf) - (Lzer - Linf)*Ipar[1]/Inom*(pi/2-atan2(Ipar[1],Inom))) ^ 2, [Inom]).minimum[1]
@@ -258,8 +258,8 @@ function SaturatingInductor(n1::ElectricalNode, n2::ElectricalNode;
     [
         Branch(n1, n2, v, i)
         (Lact - Linf) .* i ./ Ipar ~ (Lzer - Linf) .* atan2(i, Ipar)
-        Psi ~ Lact .* i
-        der(Psi) ~ v
+        psi ~ Lact .* i
+        der(psi) ~ v
     ]
 end
 
@@ -267,7 +267,7 @@ function SaturatingInductor2(n1::ElectricalNode, n2::ElectricalNode;
                              a, b, c)
     i = Current()
     v = Voltage(default_value(n1) - default_value(n2))
-    psi = Unknown("psi")
+    @named psi = Unknown()
     [
         Branch(n1, n2, v, i)
         psi ~ a * tanh(b * i) + c * i
@@ -279,7 +279,7 @@ function SaturatingInductor3(n1::ElectricalNode, n2::ElectricalNode,
                              a, b, c)
     i = Current()
     v = Voltage(default_value(n1) - default_value(n2))
-    psi = Unknown("psi")
+    @named psi = Unknown()
     [
         Branch(n1, n2, v, i)
         i ~ a * sinh(b * psi) - c * psi
@@ -291,7 +291,7 @@ function SaturatingInductor4(n1::ElectricalNode, n2::ElectricalNode,
                              a, b, c)
     i = Current()
     v = Voltage(default_value(n1) - default_value(n2))
-    psi = Unknown("psi")
+    @named psi = Unknown()
     [
         Branch(n1, n2, v, i)
         psi ~ a * sign(i) * abs(i) ^ b + c * i

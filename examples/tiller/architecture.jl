@@ -154,13 +154,13 @@ function BaseSystem(; Plant = BasicPlant,
                       Sensor = IdealSensor,
                       Actuator = IdealActuator,
                       Controller = ProportionalController(k = 20.0))
-    phi1 = Angle()
-    phi2 = Angle()
-    omega2 = AngularVelocity("shaft speed")
-    setpoint = Unknown("desired speed")
-    measured = Unknown("measured speed")
+    @named phi1 = Angle()
+    @named phi2 = Angle()
+    @named omega2 = AngularVelocity()
+    @named setpoint = Unknown()
+    @named measured = Unknown()
     d = Discrete(true)
-    tau = Unknown("tau")
+    @named tau = Unknown()
     [
         der(phi2) ~ omega2
         BooleanPulse(d)

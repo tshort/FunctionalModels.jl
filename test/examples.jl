@@ -40,3 +40,13 @@ end
 
 runCauerLowPass()
 runChuaCircuit()
+
+module Ckt
+include("../examples/circuit.jl")
+runCircuit()
+end
+
+module CktX
+include("../examples/circuitX.jl")
+runCircuitX()
+end

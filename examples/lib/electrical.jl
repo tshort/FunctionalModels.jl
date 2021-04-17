@@ -72,7 +72,7 @@ voltage. The pulse response is calculated.
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CauerLowPassOPV)
 """
 function CauerLowPassOPV()
-    n = Unknown(zeros(11), "n")
+    @named n = Unknown(zeros(11))
     g = 0.0
     l1 = 1.304
     l2 = 0.8586
@@ -308,7 +308,7 @@ ideal no-load voltage, thus making easier initial transient.
 
 """
 function Rectifier()
-    n = Unknown("n", gensym = false)
+    @named n = Unknown()
     VAC = 400.0
     n1 = Voltage(VAC .* sqrt(2/3) .* sin([0,-2pi/3, 2pi/3]))
     n2 = Voltage(VAC .* sqrt(2/3) .* sin([0,-2pi/3, 2pi/3]))
@@ -531,10 +531,10 @@ ideal GTO thyristor with Vknee=5.
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.CharacteristicThyristors)
 """
 function CharacteristicThyristors()
-    n1 = Voltage("n1")
-    n2 = Voltage("n2")
-    n3 = Voltage("n3")
-    x = Unknown("pulse")
+    @named n1 = Voltage()
+    @named n2 = Voltage()
+    @named n3 = Voltage()
+    @named x = Unknown()
     sig = Discrete(false)
     g = 0.0
     [

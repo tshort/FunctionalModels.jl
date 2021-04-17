@@ -102,8 +102,8 @@ Unknown(value = 0.0, sym::Union{AbstractString, Symbol} = "")
 Unknown(sym::Union{AbstractString, Symbol}; gensym = true)
 ```
 """
-function Unknown(value = 0.0, sym::Union{AbstractString, Symbol} = "") 
-    s = Symbol(sym)
+function Unknown(value = 0.0; name = gensym()) 
+    s = Symbol(name)
     if length(value) > 1    # array
         map(Iterators.product(1:length(value))) do ind
             x = Symbolics.setmetadata(ModelingToolkit.Num(ModelingToolkit.Sym{(ModelingToolkit.FnType){NTuple{1, Any}, Real}}(s, ind...))(Symbolics.value(t)), 
@@ -116,8 +116,6 @@ function Unknown(value = 0.0, sym::Union{AbstractString, Symbol} = "")
         Symbolics.setmetadata(x, IdCtx, gensym())
     end
 end
-Unknown(sym::Union{AbstractString, Symbol}) = Unknown(0.0, sym)
-
 
 
 default_value(x::ModelingToolkit.Num) = default_value(x.val)
@@ -274,9 +272,7 @@ elaborate(a)
 function system(a; simplify = true)
     ctx = EqCtx(Equation[], Dict(), Dict(), Dict())
     sweep_vars(a, (), ctx)
-    for (k, v) in ctx.varmap
-        ctx.newvars[k] = Num(ModelingToolkit.rename(ModelingToolkit.value(k), Symbol(join((v..., ModelingToolkit.value(k).f.name), "ₓ"))))
-    end
+    prep_variables(ctx)
     elaborate_unit!(a, ctx)
     # Add in equations for each node to sum flows to zero:
     for (key, nodeset) in ctx.nodemap
@@ -296,6 +292,24 @@ struct EqCtx
     nodemap::Dict
     varmap::IdDict
     newvars::IdDict
+end
+
+# Prepare the newvars map and fix up duplicate names.
+function prep_variables(ctx)
+    for (k, v) in ctx.varmap
+        ctx.newvars[k] = Num(ModelingToolkit.rename(ModelingToolkit.value(k), Symbol(join((v..., ModelingToolkit.value(k).f.name), "ₓ"))))
+    end
+    vars = collect(keys(ctx.newvars))
+    newvars = collect(values(ctx.newvars))
+    for i in 1:length(vars)-1
+        for j in i+1:length(vars)
+            name = ModelingToolkit.tosymbol(newvars[j])
+            if ModelingToolkit.tosymbol(newvars[i]) == name
+                ctx.newvars[vars[j]] = newvars[j] = Num(ModelingToolkit.rename(ModelingToolkit.value(newvars[j]), gensym(ModelingToolkit.value(newvars[j]).f.name)))
+            end
+        end
+    end
+    nothing
 end
 
 # function sweep_vars(a::Union{ModelingToolkit.Sym,ModelingToolkit.Term}, names, ctx::EqCtx)

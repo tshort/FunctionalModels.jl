@@ -251,11 +251,11 @@ function LimPID(u_s::Signal, u_m::Signal, y::Signal;
                 y_start = 0.0)  # output initial value
     with_I = any(controllerType .== ["PI", "PID"])
     with_D = any(controllerType .== ["PD", "PID"])
-    x = Unknown(xi_start)  # node just in front of the limiter
-    d = Unknown(xd_start)  # input of derivative block
-    D = Unknown()  # output of derivative block
-    i = Unknown()  # input of integrator block
-    I = Unknown()  # output of integrator block
+    @named x = Unknown(xi_start)  # node just in front of the limiter
+    @named d = Unknown(xd_start)  # input of derivative block
+    @named D = Unknown()  # output of derivative block
+    @named i = Unknown()  # input of integrator block
+    @named I = Unknown()  # output of integrator block
     zeroGain = abs(k) < eps()
     [
         i ~ u_s - u_m + (y - x) / (k * Ni)

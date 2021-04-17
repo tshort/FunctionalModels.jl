@@ -53,11 +53,11 @@ const HeatPort = Any
 const Flange = Any
 const Discrete = Any
 
-Current(x = 0.0) = Unknown(x, :i)
-Voltage(x = 0.0) = Unknown(x, :v)
-HeatFlow(x = 0.0) = Unknown(x, :hf)
-Temperature(x = 0.0) = Unknown(x, :T)
-Torque(x = 0.0) = Unknown(x, :torque)
-Angle(x = 0.0) = Unknown(x, :angle)
-AngularVelocity(x = 0.0) = Unknown(x, :angvelocity)
-AngularAcceleration(x = 0.0) = Unknown(x, :angacceleration)
+Current(x = 0.0; name = :i) = Unknown(x, name = name)
+Voltage(x = 0.0; name = :v) = Unknown(x, name = name)
+HeatFlow(x = 0.0; name = :hf) = Unknown(x, name = name)
+Temperature(x = 0.0; name = :T) = Unknown(x, name = name)
+Torque(x = 0.0; name = :torque) = Unknown(x, name = name)
+Angle(x = 0.0; name = :angle) = Unknown(x, name = name)
+AngularVelocity(x = 0.0; name = :angvelocity) = Unknown(x, name = name)
+AngularAcceleration(x = 0.0; name = :angacceleration) = Unknown(x, name = name)

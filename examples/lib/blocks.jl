@@ -44,9 +44,9 @@ This is a simple drive train controlled by a PID controller:
 function PID_Controller()
     n1 = Angle()
     n2 = Angle()
-    setpoint = Unknown("setpoint") 
-    shaftspeed = Unknown("shaftspeed")
-    tau = Unknown("tau")
+    @named setpoint = Unknown() 
+    @named shaftspeed = Unknown()
+    @named tau = Unknown()
     [
         setpoint ~ ifelse((t < 0.5) | (t >= 3.2), 0.0,
                           ifelse(t < 1.5, t - 0.5,
