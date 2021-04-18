@@ -60,3 +60,9 @@ function runCircuit()
     plot(sol)
     # plot(sol, vars = [v1, v2])
 end
+function tstCircuit()
+    @variables v1(t) v2(t)
+    ckt = Circuit(v1, v2)
+
+    sys = system(ckt)
+end

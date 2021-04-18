@@ -92,6 +92,7 @@ const D = ModelingToolkit.Differential(t)
 const der = D
 
 struct IdCtx end
+struct NameCtx end
 
 """
 `Unknown` is a helper to create variables with default values.
@@ -102,17 +103,19 @@ Unknown(value = 0.0, sym::Union{AbstractString, Symbol} = "")
 Unknown(sym::Union{AbstractString, Symbol}; gensym = true)
 ```
 """
-function Unknown(value = 0.0; name = gensym()) 
-    s = Symbol(name)
+function Unknown(value = 0.0; name = :u) 
+    s = gensym(name)
     if length(value) > 1    # array
         map(Iterators.product(1:length(value))) do ind
             x = Symbolics.setmetadata(ModelingToolkit.Num(ModelingToolkit.Sym{(ModelingToolkit.FnType){NTuple{1, Any}, Real}}(s, ind...))(Symbolics.value(t)), 
                                   Symbolics.VariableDefaultValue, value[ind...])
+            x = Symbolics.setmetadata(x, NameCtx, name)
             Symbolics.setmetadata(x, IdCtx, gensym())
         end
     else
         x = Symbolics.setmetadata(ModelingToolkit.Num(ModelingToolkit.Variable{ModelingToolkit.FnType{Tuple{Any},Real}}(s))(t), 
                               Symbolics.VariableDefaultValue, value)
+        x = Symbolics.setmetadata(x, NameCtx, name)
         Symbolics.setmetadata(x, IdCtx, gensym())
     end
 end
@@ -278,7 +281,7 @@ function system(a; simplify = true)
     for (key, nodeset) in ctx.nodemap
         push!(ctx.eq, 0 ~ nodeset)
     end
-    # return ctx
+    return ctx
     sys = ModelingToolkit.ODESystem(ctx.eq, t)
     if simplify
         return ModelingToolkit.structural_simplify(sys)
@@ -297,7 +300,8 @@ end
 # Prepare the newvars map and fix up duplicate names.
 function prep_variables(ctx)
     for (k, v) in ctx.varmap
-        ctx.newvars[k] = Num(ModelingToolkit.rename(ModelingToolkit.value(k), Symbol(join((v..., ModelingToolkit.value(k).f.name), "ₓ"))))
+        ctx.newvars[k] = Num(ModelingToolkit.rename(ModelingToolkit.value(k), 
+                                                    Symbol(join((v..., ModelingToolkit.getmetadata(ModelingToolkit.value(k), NameCtx, ModelingToolkit.value(k).f.name)), "ₓ"))))
     end
     vars = collect(keys(ctx.newvars))
     newvars = collect(values(ctx.newvars))
