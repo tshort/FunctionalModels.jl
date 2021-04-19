@@ -1,7 +1,7 @@
-[![Example](http://pkg.julialang.org/badges/Sims_release.svg)](http://pkg.julialang.org/?pkg=Sims&ver=release)
+<!-- [![Example](http://pkg.julialang.org/badges/Sims_release.svg)](http://pkg.julialang.org/?pkg=Sims&ver=release)
 [![Example](http://pkg.julialang.org/badges/Sims_nightly.svg)](http://pkg.julialang.org/?pkg=Sims&ver=nightly)
 [![Build Status](https://travis-ci.org/tshort/Sims.jl.svg?branch=master)](https://travis-ci.org/tshort/Sims.jl)
-[![Coverage Status](https://img.shields.io/coveralls/tshort/Sims.jl.svg)](https://coveralls.io/r/tshort/Sims.jl)
+[![Coverage Status](https://img.shields.io/coveralls/tshort/Sims.jl.svg)](https://coveralls.io/r/tshort/Sims.jl) -->
 
 
 Sims.jl
@@ -23,8 +23,18 @@ Sims builds on top of [ModelingToolkit](https://mtk.sciml.ai/). The following
 are exported:
 
 * `t`
-* `D` and `der`: aliases for Differential(t)
+* `D` and `der`: aliases for `Differential(t)`
 * `system`: flattens a set of hierarchical equations and returns a simplified `ODESystem`
+* `Unknown`: helper function to create variables
+* `default_value`: return the default (starting) value of a variable
+* `compatible_values`: return the base value from a variable to use when creating other variables
+* `RefBranch` and `Branch`: marks nodes and flow variables
+
+Equations are standard ModelingToolkit equations. The main difference in Sims is
+that variables should be created with `Unknown(val; name)` or one of the helpers like `Voltage()`.
+Variables created this way include metadata to ensure that variable names don't clash.
+Multiple subcomponents can all have a `v(t)` variable for example.
+Once the model is flattened, the variable names will be normalized.
 
 Sims uses a functional style as opposed to the more object-oriented
 approach of ModelingToolkit, Modia, and Modelica. Because `system`
@@ -74,6 +84,9 @@ Sims is an installable package. To install Sims, use the following:
 ```julia
 Pkg.add("Sims")
 ```
+
+Model Libraries
+---------------
 
 Sims.jl has one main module named `Sims` and the following submodules:
 
@@ -144,11 +157,15 @@ assigned zero volts.
 
 All of the equations returned in the list of equations are other
 models with various parameters.
+
+In this example, the model components are named (`:vs`, `:r1`, ...).
+Unnamed components can also be used, but then variables used 
+in components have anonymized naming (`c1₊i(t)` vs. `var"##i#1057"(t)`).
    
 ```julia
 function Circuit()
-    n1 = Voltage()
-    n2 = Voltage()
+    @named n1 = Voltage()
+    @named n2 = Voltage()
     g = 0.0  # A ground has zero volts; it's not an unknown.
     [
         :vs => SineVoltage(n1, g, V = 10.0, f = 60.0)

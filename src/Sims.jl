@@ -95,13 +95,22 @@ struct IdCtx end
 struct NameCtx end
 
 """
+```julia
+Unknown(value = 0.0; name = :u) 
+```
+
 `Unknown` is a helper to create variables with default values.
 The default values determines the type and shape of the result.
+It also adds metadata to variables to that variable names don't clash.
+The viewable variable name is based on a `gensym`.
+`name` is stored as metadata, and when equations are flattened
+with `system`, variables are renamed to include subsystem names
+and varable base name. 
 
-```julia
-Unknown(value = 0.0, sym::Union{AbstractString, Symbol} = "") 
-Unknown(sym::Union{AbstractString, Symbol}; gensym = true)
-```
+For example, `Unknown(:v)` may show as `var"##v#1057"(t)`, but
+after flattening, it will show as something like `ss₊c1₊v(t)` 
+(`ss` and `c1` are subsystems).
+
 """
 function Unknown(value = 0.0; name = :u) 
     s = gensym(name)
@@ -255,16 +264,20 @@ end
 
 
 """
-`elaborate` is the main elaboration function that returns
+`system` is the main elaboration function that returns
 an `ODESystem`.
 
 ```julia
-elaborate(a)
+system(a)
 ```
 
 ### Arguments
 
 * `a` : the input model containing a nested vector of equations
+
+### Optional/Keyword Arguments
+
+* `simplify = true` : whether `structural_simplify` is used to simplify results 
 
 ### Returns
 
@@ -281,7 +294,7 @@ function system(a; simplify = true)
     for (key, nodeset) in ctx.nodemap
         push!(ctx.eq, 0 ~ nodeset)
     end
-    return ctx
+    # return ctx
     sys = ModelingToolkit.ODESystem(ctx.eq, t)
     if simplify
         return ModelingToolkit.structural_simplify(sys)
@@ -376,8 +389,8 @@ function elaborate_unit!(b::RefBranch, ctx::EqCtx)
 end
 
 """
-A helper functions to return the base value from an Unknown to use
-when creating other Unknowns. It is especially useful for taking two
+A helper functions to return the base value from a variable to use
+when creating other variables. It is especially useful for taking two
 model arguments and creating a new variable compatible with both
 arguments.
 
