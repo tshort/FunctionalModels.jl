@@ -67,7 +67,7 @@ with `model`. Here's an example of a definition defining a Resistor
 that uses a heat port (a Temperature) in terms of another model:
 
 ```julia
-function Resistor(n1::ElectricalNode, n2::ElectricalNode, R::Signal, hp::Temperature, T_ref::Signal, alpha::Signal) 
+function Resistor(n1::ElectricalNode, n2::ElectricalNode; R::Signal, hp::Temperature, T_ref::Signal, alpha::Signal) 
     BranchHeatPort(n1, n2, hp, Resistor, R = R .* (1 + alpha .* (hp - T_ref)))
 end
 ```

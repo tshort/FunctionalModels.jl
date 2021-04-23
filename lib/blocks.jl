@@ -13,23 +13,26 @@
 #    DiscreteBlock(u, y, Ts, SS.TransferFunction(a,b)) # fuzzy
 
 
-@comment """
+"""
 # Control and signal blocks
 
 These components are modeled after the `Modelica.Blocks.*` library.
 """
+@comment 
 
-@comment """
+
+"""
 ## Continuous linear
 """
+@comment 
+
 
 
 """
 Output the integral of the input signals
 
 ```julia
-Integrator(u::Signal, y::Signal, k,       y_start = 0.0)
-Integrator(u::Signal, y::Signal; k = 1.0, y_start = 0.0) # keyword arg version
+Integrator(u::Signal, y::Signal; k = 1.0, y_start = 0.0)
 ```
 
 ### Arguments
@@ -75,7 +78,6 @@ derivative block with parameters as:
 ```
 
 ```julia
-Derivative(u::Signal, y::Signal, T = 1.0, k = 1.0, x_start = 0.0, y_start = 0.0)
 Derivative(u::Signal, y::Signal; T = 1.0, k = 1.0, x_start = 0.0, y_start = 0.0)
 ```
 
@@ -127,7 +129,6 @@ derivative block with parameters as:
 ```
 
 ```julia
-FirstOrder(u::Signal, y::Signal, T = 1.0, k = 1.0, y_start = 0.0)
 FirstOrder(u::Signal, y::Signal; T = 1.0, k = 1.0, y_start = 0.0)
 ```
 
@@ -159,20 +160,6 @@ PID controller with limited output, anti-windup compensation and setpoint weight
 ![diagram](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica.Blocks.Continuous.LimPIDD.png)
 
 ```julia
-LimPID(u_s::Signal, u_m::Signal, y::Signal, 
-       controllerType = "PID",
-       k = 1.0,      
-       Ti = 1.0,    
-       Td = 1.0,   
-       yMax = 1.0,   
-       yMin = -yMax, 
-       wp = 1.0,     
-       wd = 0.0,     
-       Ni = 0.9,    
-       Nd = 10.0,    
-       xi_start = 0.0, 
-       xd_start = 0.0,
-       y_start = 0.0)
 LimPID(u_s::Signal, u_m::Signal, y::Signal; 
        controllerType = "PID",
        k = 1.0,      
@@ -311,7 +298,6 @@ results in the following equations:
 
 
 ```julia
-StateSpace(u::Signal, y::Signal, A = [1.0], B = [1.0], C = [1.0], D = [0.0])
 StateSpace(u::Signal, y::Signal; A = [1.0], B = [1.0], C = [1.0], D = [0.0])
 ```
 
@@ -329,11 +315,6 @@ StateSpace(u::Signal, y::Signal; A = [1.0], B = [1.0], C = [1.0], D = [0.0])
 
 ### Details
 
-
-### Example
-
-```julia
-```
 
 NOTE: untested / probably broken
 
@@ -383,7 +364,6 @@ results in the following transfer function:
 ```
 
 ```julia
-TransferFunction(u::Signal, y::Signal, b = [1], a = [1])
 TransferFunction(u::Signal, y::Signal; b = [1], a = [1])
 ```
 
@@ -427,9 +407,11 @@ end
 ########################################
 ## Nonlinear Blocks
 ########################################
-@comment """
+"""
 ## Nonlinear
 """
+@comment 
+
 
 
 
@@ -441,7 +423,6 @@ the input is within the specified upper and lower limits. If this is
 not the case, the corresponding limits are passed as output.
 
 ```julia
-Limiter(u::Signal, y::Signal, uMax = 1.0, uMin = -uMax)
 Limiter(u::Signal, y::Signal; uMax = 1.0, uMin = -uMax)
 ```
 
@@ -475,7 +456,6 @@ const VariableLimiter = Limiter
 Generate step signals of type Real
 
 ```julia
-Step(y::Signal, height = 1.0, offset = 0.0, startTime = 0.0)
 Step(y::Signal; height = 1.0, offset = 0.0, startTime = 0.0)
 ```
 
@@ -515,7 +495,6 @@ this zone, the output is a linear function of the input with a slope
 of 1.
 
 ```julia
-DeadZone(u::Signal, y::Signal, uMax = 1.0, uMin = -uMax)
 DeadZone(u::Signal, y::Signal; uMax = 1.0, uMin = -uMax)
 ```
 
@@ -549,7 +528,6 @@ end
 Generate a Discrete boolean pulse signal
 
 ```julia
-BooleanPulse(y, width = 50.0, period = 1.0, startTime = 0.0)
 BooleanPulse(y; width = 50.0, period = 1.0, startTime = 0.0)
 ```
 

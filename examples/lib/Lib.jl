@@ -6,7 +6,7 @@ using ModelingToolkit
 using IfElse: ifelse
 
 
-@comment """
+"""
 # Sims.Lib
 
 Examples using models from the Sims standard library (Sims.Lib).
@@ -15,6 +15,7 @@ Many of these are patterned after the examples in the Modelica
 Standard Library.
 
 """
+@comment 
 
 # include("blocks.jl")
 include("electrical.jl")

@@ -3,7 +3,7 @@ Sims.jl
 =======
 
 A [Julia](http://julialang.org) package for equation-based modeling
-and simulations.
+and simulations using [ModelingToolkit](https://mtk.sciml.ai/dev/).
 
 Background
 ----------
@@ -39,11 +39,11 @@ functional hybrid modeling. Sims is most similar to
 [Modelyze](https://github.com/david-broman/modelyze) by David Broman
 ([report](http://www.eecs.berkeley.edu/Pubs/TechRpts/2012/EECS-2012-173.pdf)).
 
-Two solvers are available to solve the implicit DAE's generated. The
-default is DASKR, a derivative of DASSL with root finding. A solver
-based on the [Sundials](https://github.com/tshort/Sundials.jl) package
-is also available.
-    
+Sims creates a ModelingToolkit component. ModelingToolkit can be used
+directly for noncausal modeling with more traditional composition of
+components with `connect` and subsystems. Sims differs by using a 
+more functional approach to composition.
+
 Installation
 ------------
 

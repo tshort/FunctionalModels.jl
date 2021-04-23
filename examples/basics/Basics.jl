@@ -4,7 +4,7 @@ using ....Sims
 using ....Sims.Lib
 
 
-@comment """
+"""
 # Examples using basic models
 
 These are available in **Sims.Examples.Basics**.
@@ -20,7 +20,7 @@ v = sim(m, 50.0)
 plot(v)
 ```
 """
-
+@comment 
 
 # include("breaking_pendulum.jl")
 # include("breaking_pendulum_in_box.jl")

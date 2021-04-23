@@ -14,7 +14,9 @@ and simulations. For more information, see the documentation:
 
 ---
 
-NOTE: This is a work in progress to convert this to use [ModelingToolkit](https://mtk.sciml.ai/).
+NOTE: This is a work in progress to convert the package to use [ModelingToolkit](https://mtk.sciml.ai/).
+
+Some of the components and/or examples do not work, yet. This especially includes models requiring events and discrete systems.
 
 ---
 

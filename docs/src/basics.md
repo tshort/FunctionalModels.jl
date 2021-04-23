@@ -1,12 +1,13 @@
 # Documentation
 
-This document provides a general introduction to Sims.
+This document provides a general introduction to Sims using [ModelingToolkit](https://mtk.sciml.ai/dev/).
 
 ## Unknowns
 
 Models consist of equations and unknown variables. The number of
 equations should match the number of unknowns. In Sims, the function
-`Unknown` is used to define unknown Symbolics.jl variables. 
+`Unknown` is used to define unknown 
+[Symbolics.jl](https://symbolics.juliasymbolics.org/dev/manual/variables/) variables. 
 
 Unknowns also contain a value. This is used for setting initial
 values. Unknowns can be different types. 
@@ -17,6 +18,7 @@ Unknowns are not included in results.
 Here are several ways to define Unknowns:
 
 ```julia
+using Sims, ModelingToolkit
 x = Unknown()          # An initial value of 0.0 with an anonymous name.
 y = Unknown(1.0, name = :y)  # An initial value of 1.0 and a name of `y`.
 @named y = Unknown(1.0)       # Same.
@@ -38,13 +40,13 @@ Here is a model of the Van Der Pol oscillator:
 function Vanderpol()
     @named y = Unknown(1.0)   
     @named x = Unknown()       
-    @named dx = Unknown(-1.0)       
+    @named dx = Unknown(-1.0)  
     # The following gives the return value which is a list of equations.
     # Expressions with Unknowns are kept as expressions. Regular
     # variables are evaluated immediately (like normal).
     [
         der(x) ~ dx
-        der(x, -1.0) ~ (1 - y^2) * x - y
+        dx ~ (1 - y^2) * x - y
         der(y) ~ x
     ]
 end
@@ -62,8 +64,8 @@ function Capacitor(n1, n2; C)
     i = Current()              # Unknown #1
     v = Voltage()              # Unknown #2
     [
-        Branch(n1, n2, v, i)      # Equation #1 - this returns n1 - n2 - v
-        C * der(v) ~ i            # Equation #2
+        Branch(n1, n2, v, i)      # Equation #1 - this returns `v ~ n1 - n2`
+        der(v) ~ i / C            # Equation #2
     ]
 end
 ```
@@ -76,9 +78,9 @@ input parameters. The ground reference `g` is assigned zero volts.
 
 ```julia
 function Circuit()
-    @named n = ElectricalNode()
-    @named n = ElectricalNode()
-    @named n = ElectricalNode()
+    @named n1 = ElectricalNode()
+    @named n2 = ElectricalNode()
+    @named n3 = ElectricalNode()
     g = 0.0  # a ground has zero volts; it's not an Unknown.
     [
         VSource(n1, g, V = 10.0, f = 60.0)
@@ -107,9 +109,18 @@ through the capacitor.
 Steps to building and simulating a model are straightforward.
 
 ```julia
-v = Vanderpol()       # returns the hierarchical model
+using Sims, ModelingToolkit
+v = Vanderpol()  # returns the hierarchical model
 v_sys = system(v)     # returns the flattened model as a ModelingToolkit.ODEProblem
 ```
 
-From here, all modeling and plotting is done with ModelingToolkit.
+From here, all solving and plotting is done with ModelingToolkit.
 
+```julia
+st = states(v_sys)
+prob = ODAEProblem(v_sys, Dict(st[1] => 0.0, st[2] => 1.0), (0, 10.0))
+using OrdinaryDiffEq
+sol = solve(prob, Tsit5())
+using Plots
+plot(sol)
+```

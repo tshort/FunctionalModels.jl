@@ -6,7 +6,7 @@ function sorteddocs(mod)
     text = String[]  # for comments, it's the docstring; for others, it's the name
     iscomment = Bool[]
     for (k,v) in Docs.meta(mod)
-        if contains(string(k.var), "###comment")
+        if contains(string(k.var), "##comment")
             docstr = first(v.docs)[2]
             push!(path, docstr.data[:path])
             push!(line, docstr.data[:linenumber])
@@ -71,19 +71,20 @@ createmd("src/lib/rotational.md",    Sims.Lib, "rotational.jl")
 createmd("src/examples/lib.md",    Sims.Examples.Lib)
 # createmd("src/examples/tiller.md", Sims.Examples.Tiller)
 
-cp("../NEWS.md", "src/NEWS.md")
-cp("../LICENSE.md", "src/LICENSE.md")
+cp("../NEWS.md", "src/NEWS.md", force=true)
+cp("../LICENSE.md", "src/LICENSE.md", force=true)
 
 makedocs(
     modules = [Sims],
     clean = false,
-    format = :html,
+    format = Documenter.HTML(),
     sitename = "Sims.jl",
     authors = "Tom Short and contributors.",
     # linkcheck = !("skiplinks" in ARGS),
     pages = Any[ 
         "Home" => "index.md",
         "Basics" => "basics.md",
+        "API" => "sims.md",
         "Library" => Any[
             "lib/types.md",
             "lib/blocks.md",

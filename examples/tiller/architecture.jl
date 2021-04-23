@@ -5,7 +5,7 @@ export FlatSystem, BaseSystem, IdealSensor, SampleHoldSensor,
        IdealActuator, LimitedActuator, ProportionalController,
        PIDController
 
-@comment """
+"""
 # Architectures
 
 These examples from the following sections from the [Architectures
@@ -20,6 +20,7 @@ also possible in Sims.jl. Because Sims.jl is functional, the approach
 is different than Modelica's object-oriented approach. The functional
 approach is generally cleaner.
 """
+@comment 
 
 
 """

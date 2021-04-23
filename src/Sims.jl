@@ -7,6 +7,13 @@ import Symbolics
 export Unknown, Branch, RefBranch, system, t, D, der, default_value, compatible_values, @comment
 
 
+# Documentation helper
+macro comment(str="")
+    name = gensym("comment")
+    :( $name = :DOCCOMMENT )
+end
+
+
 ##############################################
 ## Non-causal time-domain modeling in Julia ##
 ##############################################
@@ -81,14 +88,18 @@ export Unknown, Branch, RefBranch, system, t, D, der, default_value, compatible_
 #
 
 """
-# Building models
-
 The API for building models with Sims. Includes basic types, models,
 and functions.
 """
+@comment
 
 @parameters t
+""" Independent variable """
+t
+
+""" Differential(t) """
 const D = ModelingToolkit.Differential(t)
+""" Differential(t) """
 const der = D
 
 struct IdCtx end
@@ -130,12 +141,6 @@ function Unknown(value = 0.0; name = :u)
 end
 
 
-default_value(x::ModelingToolkit.Num) = default_value(x.val)
-default_value(x::ModelingToolkit.Term) = Symbolics.getmetadata(x, Symbolics.VariableDefaultValue, 0.0)
-default_value(x::Array) = default_value.(x)
-default_value(x) = x
-
-
 """
 A special ModelType to specify branch flows into nodes. When the model
 is flattened, equations are created to zero out branch flows into
@@ -175,7 +180,7 @@ function HeatCapacitor(hp::HeatPort, C::Signal)
     Q_flow = HeatFlow(compatible_values(hp))
     [
         RefBranch(hp, Q_flow)
-        C .* der(hp) ~ Q_flow
+        der(hp) ~ Q_flow ./ C
     ]
 end
 ```
@@ -264,7 +269,7 @@ end
 
 
 """
-`system` is the main elaboration function that returns
+`system` is the main elaboration/flattening function that returns
 an `ODESystem`.
 
 ```julia
@@ -284,7 +289,6 @@ system(a)
 * `::ODESystem` : the flattened model
 
 """
-
 function system(a; simplify = true)
     ctx = flatten(a)
     sys = ModelingToolkit.ODESystem(ctx.eq, t)
@@ -314,11 +318,18 @@ struct EqCtx
     newvars::IdDict
 end
 
+# Return the name stored in metadata with subscript indices included (if needed).
+function basevarname(v)
+    name = v.f.name
+    return Symbol(ModelingToolkit.getmetadata(v, NameCtx, name),
+                  (x for x in string(name) if x in ('₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉'))...)
+end
+
 # Prepare the newvars map and fix up duplicate names.
 function prep_variables(ctx)
     for (k, v) in ctx.varmap
-        ctx.newvars[k] = Num(ModelingToolkit.rename(ModelingToolkit.value(k), 
-                                                    Symbol(join((v..., ModelingToolkit.getmetadata(ModelingToolkit.value(k), NameCtx, ModelingToolkit.value(k).f.name)), "ₓ"))))
+        kval = ModelingToolkit.value(k)
+        ctx.newvars[k] = Num(ModelingToolkit.rename(kval, Symbol(join((v..., basevarname(kval)), "ₓ"))))
     end
     vars = collect(keys(ctx.newvars))
     newvars = collect(values(ctx.newvars))
@@ -392,6 +403,24 @@ function elaborate_unit!(b::RefBranch, ctx::EqCtx)
     end
 end
 
+
+"""
+The default or starting value of a variable.
+
+```julia
+default_value(x) 
+```
+
+### Arguments
+
+* `x` : the reference variable or numeric value.
+"""
+default_value(x::ModelingToolkit.Num) = default_value(x.val)
+default_value(x::ModelingToolkit.Term) = Symbolics.getmetadata(x, Symbolics.VariableDefaultValue, 0.0)
+default_value(x::Array) = default_value.(x)
+default_value(x) = x
+
+
 """
 A helper functions to return the base value from a variable to use
 when creating other variables. It is especially useful for taking two
@@ -430,12 +459,6 @@ compatible_values(x) = zero(default_value(x))
 # This should work for real and complex valued unknowns, including
 # arrays. For something more complicated, it may not.
 
-
-# Documentation helper
-macro comment(str)
-    name = gensym("comment")
-    :( @doc $str $name = :DOCCOMMENT )
-end
 
 
 # load standard Sims libraries

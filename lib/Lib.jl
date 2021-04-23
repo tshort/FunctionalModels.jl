@@ -3,7 +3,6 @@ using ..Sims, ModelingToolkit
 using IfElse: ifelse
 
 
-
 ## Standard library
 ## Base types
 export Signal, ElectricalNode, Voltage, Current,

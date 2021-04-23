@@ -5,7 +5,7 @@ using ....Sims
 using ....Sims.Lib
 
 
-@comment """
+"""
 # Tiller examples
 
 **From [Modelica by Example](http://book.xogeny.com/)**
@@ -27,6 +27,8 @@ y = dasslsim(m, tstop = 5.0)
 plot(y)
 ```
 """
+@comment 
+
 
 include("speed-measurement.jl")
 include("architecture.jl")

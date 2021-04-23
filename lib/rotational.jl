@@ -3,7 +3,7 @@
 ## Rotational Mechanical Models       ##
 ########################################
 
-@comment """
+"""
 # Rotational mechanics
 
 Library to model 1-dimensional, rotational mechanical systems
@@ -16,11 +16,15 @@ library.
 
 NOTE: these need more testing.
 """
+@comment 
 
 
-@comment """
+
+"""
 ## Basic models
 """
+@comment 
+
 
 #
 # I'm not sure the mechanical models are right.
@@ -34,14 +38,17 @@ Rotational component with inertia at a flange (or between two rigidly
 connected flanges).
 
 ```julia
-Inertia(flange_a::Flange, J::Real)
-Inertia(flange_a::Flange, flange_b::Flange, J::Real)
+Inertia(flange_a::Flange; J::Real)
+Inertia(flange_a::Flange, flange_b::Flange; J::Real)
 ```
 
 ### Arguments
 
 * `flange_a::Flange` : left flange of shaft [rad]
 * `flange_b::Flange` : right flange of shaft [rad]
+
+### Keyword/Optional Arguments
+
 * `J::Real` : Moment of inertia [kg.m^2]
 
 """
@@ -82,13 +89,16 @@ inertia. The right flange is rotated by the fixed angle "deltaPhi"
 with respect to the left flange.
 
 ```julia
-Disc(flange_a::Flange, flange_b::Flange, deltaPhi)
+Disc(flange_a::Flange, flange_b::Flange; deltaPhi)
 ```
 
 ### Arguments
 
 * `flange_a::Flange` : left flange of shaft [rad]
 * `flange_b::Flange` : right flange of shaft [rad]
+
+### Keyword/Optional Arguments
+
 * `deltaPhi::Signal` : rotation of left flange with respect to right flange (= flange_b - flange_a) [rad]
 
 """
@@ -109,13 +119,16 @@ between a inertia/gear and the housing (component Fixed), to describe
 a coupling of the element with the housing via a spring.
 
 ```julia
-Spring(flange_a::Flange, flange_b::Flange, c::Real, phi_rel0 = 0.0)
+Spring(flange_a::Flange, flange_b::Flange; c::Real, phi_rel0 = 0.0)
 ```
 
 ### Arguments
 
 * `flange_a::Flange` : left flange of shaft [rad]
 * `flange_b::Flange` : right flange of shaft [rad]
+
+### Keyword/Optional Arguments
+
 * `c`: spring constant [N.m/rad]
 * `phi_rel0` : unstretched spring angle [rad]
 
@@ -138,8 +151,8 @@ between an inertia or gear and the housing (component Fixed), or
 between two inertia/gear elements.
 
 ```julia
-Damper(flange_a::Flange, flange_b::Flange, d::Signal)
-Damper(flange_a::Flange, flange_b::Flange, hp::HeatPort, d::Signal)
+Damper(flange_a::Flange, flange_b::Flange; d::Signal)
+Damper(flange_a::Flange, flange_b::Flange, hp::HeatPort; d::Signal)
 ```
 
 ### Arguments
@@ -147,6 +160,9 @@ Damper(flange_a::Flange, flange_b::Flange, hp::HeatPort, d::Signal)
 * `flange_a::Flange` : left flange of shaft [rad]
 * `flange_b::Flange` : right flange of shaft [rad]
 * `hp::HeatPort` : heat port [K]
+
+### Keyword/Optional Arguments
+
 * `d`: 	damping constant [N.m.s/rad]
 
 """
@@ -182,6 +198,9 @@ SpringDamper(flange_a::Flange, flange_b::Flange, hp::HeatPort, c::Signal, d::Sig
 * `flange_a::Flange` : left flange of shaft [rad]
 * `flange_b::Flange` : right flange of shaft [rad]
 * `hp::HeatPort` : heat port [K]
+
+### Keyword/Optional Arguments
+
 * `c`: 	spring constant [N.m/rad]
 * `d`: 	damping constant [N.m.s/rad]
 
@@ -303,6 +322,9 @@ IdealGear(flange_a::Flange, flange_b::Flange, ratio)
 
 * `flange_a::Flange` : left flange of shaft [rad]
 * `flange_b::Flange` : right flange of shaft [rad]
+
+### Keyword/Optional Arguments
+
 * `ratio` : transmission ratio (flange_a / flange_b)
 
 """
@@ -321,9 +343,11 @@ end
 ########################################
 ## Misc
 ########################################
-@comment """
+"""
 ## Miscellaneous
 """
+@comment 
+
 
 """
 Wrap argument `model` with a heat port that captures the power
@@ -364,9 +388,11 @@ end
 ########################################
 ## Sensors
 ########################################
-@comment """
+"""
 ## Sensors
 """
+@comment 
+
 
 """
 Ideal sensor to measure the absolute flange angular velocity
@@ -375,12 +401,15 @@ Measures the absolute angular velocity w of a flange in an ideal way
 and provides the result as output signal w.
 
 ```julia
-SpeedSensor(flange::Flange, w::Signal)
+SpeedSensor(flange::Flange; w::Signal)
 ```
 
 ### Arguments
 
 * `flange::Flange` : left flange of shaft [rad]
+
+### Keyword/Optional Arguments
+
 * `w::Signal`: 	absolute angular velocity of the flange [rad/sec]
 
 """
@@ -404,6 +433,9 @@ SpeedSensor(flange::Flange; a::Signal)
 ### Arguments
 
 * `flange::Flange` : left flange of shaft [rad]
+
+### Keyword/Optional Arguments
+
 * `a::Signal`: 	absolute angular acceleration of the flange [rad/sec^2]
 
 """
@@ -420,9 +452,11 @@ end
 ########################################
 ## Sources
 ########################################
-@comment """
+"""
 ## Sources
 """
+@comment 
+
 
 
 """
@@ -440,6 +474,9 @@ SignalTorque(flange_a::Flange, flange_b::Flange, tau)
 
 * `flange_a::Flange` : left flange of shaft [rad]
 * `flange_b::Flange` : right flange of shaft [rad]
+
+### Keyword/Optional Arguments
+
 * `tau` : Accelerating torque acting at flange_a relative to flange_b
   (normally a support); a positive value accelerates flange_a
 
@@ -459,7 +496,7 @@ Parameter TorqueDirection chooses whether direction of torque is the
 same in both directions of rotation or not.
 
 ```julia
-QuadraticSpeedDependentTorque(flange_a::Flange, flange_b::Flange,
+QuadraticSpeedDependentTorque(flange_a::Flange, flange_b::Flange;
                               tau_nominal::Signal, TorqueDirection::Bool, w_nominal::Signal)
 ```
 
@@ -467,6 +504,9 @@ QuadraticSpeedDependentTorque(flange_a::Flange, flange_b::Flange,
 
 * `flange_a::Flange` : left flange of shaft [rad]
 * `flange_b::Flange` : right flange of shaft [rad]
+
+### Keyword/Optional Arguments
+
 * `tau_nominal::Signal` : nominal torque (if negative, torque is acting as a load) [N.m]
 * `TorqueDirection::Bool` : same direction of torque in both directions of rotation
 * `AngularVelocity::Signal` : nominal speed [rad/sec]

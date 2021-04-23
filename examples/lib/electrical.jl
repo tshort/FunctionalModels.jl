@@ -9,10 +9,10 @@ using ModelingToolkit
 ## These attempt to mimic the Modelica.Electrical.Analog.Examples
 ########################################
 
-@comment """
+"""
 # Electrical
 """
-  
+@comment   
 
 export CauerLowPassAnalog,
        CauerLowPassOPV,

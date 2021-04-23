@@ -3,7 +3,7 @@
 ## Electrical library                 ##
 ########################################
 
-@comment """
+"""
 # Analog electrical models
 
 This library of components is modeled after the
@@ -27,7 +27,7 @@ ground).
 function ex_ChuaCircuit()
     @variables n1(t) n2(t) n3(t) = 4.0
     g = 0.0
-    function NonlinearResistor(n1::ElectricalNode, n2::ElectricalNode, Ga, Gb, Ve)
+    function NonlinearResistor(n1::ElectricalNode, n2::ElectricalNode; Ga, Gb, Ve)
         i = Current(compatible_values(n1, n2))
         v = Voltage(compatible_values(n1, n2))
         [
@@ -37,26 +37,27 @@ function ex_ChuaCircuit()
         ]
     end
     [
-        Resistor(n1, g, 12.5e-3) 
-        Inductor(n1, n2, 18.0)
-        Resistor(n2, n3, 1 / 0.565) 
-        Capacitor(n2, g, 100.0)
-        Capacitor(n3, g, 10.0)
-        NonlinearResistor(n3, g, -0.757576, -0.409091, 1.0)
+        Resistor(n1, g,  R = 12.5e-3) 
+        Inductor(n1, n2, L = 18.0)
+        Resistor(n2, n3, R = 1 / 0.565) 
+        Capacitor(n2, g, C = 100.0)
+        Capacitor(n3, g, C = 10.0)
+        NonlinearResistor(n3, g, Ga = -0.757576, Gb = -0.409091, Ve = 1.0)
     ]
 end
 
 ```
 """
-
+@comment 
 
 
 ########################################
 ## Basic
 ########################################
-@comment """
+"""
 ## Basics
 """
+@comment 
 
 """
 The linear resistor connects the branch voltage `v` with the branch
@@ -108,7 +109,7 @@ function model()
     @variables n1
     g = 0.0
     [
-        :vsrc => SineVoltage(n1, g, 100.0)
+        :vsrc => SineVoltage(n1, g, V = 100.0)
         :r1   => Resistor(n1, g, R = 3.0, T = 330.0, alpha = 1.0)
     ]
 end
@@ -312,8 +313,6 @@ connected by the following relation:
 respectively.
 
 ```julia
-Transformer(p1::ElectricalNode, n1::ElectricalNode, p2::ElectricalNode, n2::ElectricalNode, 
-            L1 = 1.0, L2 = 1.0, M = 1.0)
 Transformer(p1::ElectricalNode, n1::ElectricalNode, p2::ElectricalNode, n2::ElectricalNode; 
             L1 = 1.0, L2 = 1.0, M = 1.0)
 ```
@@ -393,9 +392,10 @@ end
 ########################################
 ## Ideal
 ########################################
-@comment """
+"""
 ## Ideal
 """
+@comment
 
 
 """
@@ -459,8 +459,6 @@ displace the knee point along the `Goff`-characteristic until `v =
 Vknee`. 
 
 ```julia
-IdealThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete, 
-               Vknee = 0.0, Ron = 1e-5, Goff = 1e-5)
 IdealThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete; 
                Vknee = 0.0, Ron = 1e-5, Goff = 1e-5)
 ```
@@ -514,8 +512,6 @@ to displace the knee point along the `Goff`-characteristic until `v =
 Vknee`.
 
 ```julia
-IdealGTOThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete, 
-                  Vknee = 0.0, Ron = 1e-5, Goff = 1e-5)
 IdealGTOThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete; 
                   Vknee = 0.0, Ron = 1e-5, Goff = 1e-5)
 ```
@@ -605,8 +601,6 @@ of the open switch could be also exactly zero. Note, there are circuits,
 where a description with zero Ron or zero Goff is not possible.
 
 ```julia
-IdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Discrete,
-                   Ron = 1e-5, Goff = 1e-5)
 IdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Discrete;
                    Ron = 1e-5, Goff = 1e-5)
 ```
@@ -649,8 +643,6 @@ of the open switch could be also exactly zero. Note, there are circuits,
 where a description with zero Ron or zero Goff is not possible.
 
 ```julia
-IdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Discrete,
-                   Ron = 1e-5, Goff = 1e-5)
 IdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Discrete;
                    Ron = 1e-5, Goff = 1e-5)
 ```
@@ -749,8 +741,6 @@ This model is the same as ControlledOpenerWithArc, but the switch
 is closed when `control > level`. 
 
 ```julia
-ControlledOpenerWithArc(n1::ElectricalNode, n2::ElectricalNode, control,
-                        level = 0.5,  Ron = 1e-5,  Goff = 1e-5,  V0 = 30.0,  dVdt = 10e3,  Vmax = 60.0)
 ControlledOpenerWithArc(n1::ElectricalNode, n2::ElectricalNode, control;
                         level = 0.5,  Ron = 1e-5,  Goff = 1e-5,  V0 = 30.0,  dVdt = 10e3,  Vmax = 60.0)
 ```
@@ -813,8 +803,6 @@ This model is the same as ControlledOpenerWithArc, but the switch
 is closed when `control > level`. 
 
 ```julia
-ControlledCloserWithArc(n1::ElectricalNode, n2::ElectricalNode, control,
-                        level = 0.5,  Ron = 1e-5,  Goff = 1e-5,  V0 = 30.0,  dVdt = 10e3,  Vmax = 60.0)
 ControlledCloserWithArc(n1::ElectricalNode, n2::ElectricalNode, control;
                         level = 0.5,  Ron = 1e-5,  Goff = 1e-5,  V0 = 30.0,  dVdt = 10e3,  Vmax = 60.0)
 ```
@@ -848,9 +836,10 @@ ControlledCloserWithArc(n1::ElectricalNode, n2::ElectricalNode, control;
 ########################################
 ## Semiconductors
 ########################################
-@comment """
+"""
 ## Semiconductors
 """
+@comment 
 
 
 """
@@ -863,11 +852,7 @@ If the exponent `v/vt` reaches the limit `maxex`, the diode
 characterisic is linearly continued to avoid overflow.
 
 ```julia
-Diode(n1::ElectricalNode, n2::ElectricalNode, 
-      Ids = 1e-6,  Vt = 0.04,  Maxexp = 15,  R = 1e8)
 Diode(n1::ElectricalNode, n2::ElectricalNode; 
-      Ids = 1e-6,  Vt = 0.04,  Maxexp = 15,  R = 1e8)
-Diode(n1::ElectricalNode, n2::ElectricalNode, hp::HeatPort,
       Ids = 1e-6,  Vt = 0.04,  Maxexp = 15,  R = 1e8)
 Diode(n1::ElectricalNode, n2::ElectricalNode; hp::HeatPort;
       Ids = 1e-6,  Vt = 0.04,  Maxexp = 15,  R = 1e8)
@@ -939,8 +924,6 @@ characterisic is linearly continued to avoid overflow. The thermal
 power is calculated by `i*v`.
 
 ```julia
-HeatingDiode(n1::ElectricalNode, n2::ElectricalNode, 
-             T = 293.15,  Ids = 1e-6,  Maxexp = 15,  R = 1e8,  EG = 1.11,  N = 1.0,  TNOM = 300.15,  XTI = 3.0)
 HeatingDiode(n1::ElectricalNode, n2::ElectricalNode; 
              T = 293.15,  Ids = 1e-6,  Maxexp = 15,  R = 1e8,  EG = 1.11,  N = 1.0,  TNOM = 300.15,  XTI = 3.0)
 ```
@@ -999,9 +982,10 @@ HeatingDiode(n1::ElectricalNode, n2::ElectricalNode;
 ########################################
 ## Sources
 ########################################
-@comment """
+"""
 ## Sources
 """
+@comment 
 
 
 """
@@ -1011,7 +995,7 @@ signals into a source voltage.
 This voltage source may be vectorized.
 
 ```julia
-SignalVoltage(n1::ElectricalNode, n2::ElectricalNode, V::Signal)  
+SignalVoltage(n1::ElectricalNode, n2::ElectricalNode; V::Signal)  
 ```
 
 ### Arguments
@@ -1102,7 +1086,7 @@ signals into a current voltage.
 This current source may be vectorized.
 
 ```julia
-SignalCurrent(n1::ElectricalNode, n2::ElectricalNode, I::Signal)  
+SignalCurrent(n1::ElectricalNode, n2::ElectricalNode; I::Signal)  
 ```
 
 ### Arguments
@@ -1123,16 +1107,18 @@ end
 ########################################
 ## Utilities
 ########################################
-@comment """
+"""
 ## Utilities
 """
+@comment 
+
 
 """
 Connect a series current probe between two nodes. This is
 vectorizable.
 
 ```julia
-SeriesProbe(n1, n2, name::AbstractString)
+SeriesProbe(n1, n2; name::AbstractString)
 ```
 
 ### Arguments
@@ -1157,7 +1143,7 @@ end
 y = sim(model())
 ```
 """
-function SeriesProbe(n1, n2, name) 
+function SeriesProbe(n1, n2; name) 
     i = Unknown(name)
     [Branch(n1, n2, compatible_values(n1, n2), i)]
 end
@@ -1186,13 +1172,13 @@ Here's an example of a definition defining a Resistor that uses a heat
 port (a Temperature) in terms of another model:
 
 ```julia
-function ResistorWithHeating(n1::ElectricalNode, n2::ElectricalNode, R::Signal, hp::Temperature, T_ref::Signal, alpha::Signal) 
+function ResistorWithHeating(n1::ElectricalNode, n2::ElectricalNode, R::Signal, hp::Temperature; T_ref::Signal, alpha::Signal) 
     BranchHeatPort(n1, n2, hp, Resistor, R .* (1 + alpha .* (hp - T_ref)))
 end
 ```
 """
 function BranchHeatPort(n1::ElectricalNode, n2::ElectricalNode, hp::HeatPort,
-                        model::Function, args...; nargs...)
+                        model::Function, args...; kwargs...)
     i = Current()
     v = Voltage()
     n = Voltage()
@@ -1202,7 +1188,7 @@ function BranchHeatPort(n1::ElectricalNode, n2::ElectricalNode, hp::HeatPort,
         RefBranch(hp, -PowerLoss)
         v ~ n1 - n2
         Branch(n1, n, 0.0, i)
-        model(n, n2, args...; nargs...)
+        model(n, n2, args...; kwargs...)
     ]
 end
 

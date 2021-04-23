@@ -3,7 +3,7 @@ using Sims, Sims.Lib
 
 export SecondOrderSystem, SecondOrderSystemUsingSimsLib, SampleAndHold, IntervalMeasure, PulseCounting
 
-@comment """
+"""
 # Examples of speed measurement
 
 These examples show several ways of measuring speed on a rotational
@@ -16,6 +16,7 @@ The system is based on the following plant:
 ![diagram](http://book.xogeny.com/_images/PlantWithPulseCounter.svg)
 
 """
+@comment 
 
 
 """

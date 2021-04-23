@@ -1,3 +1,8 @@
+# Sims v0.3.0 Release Notes
+
+* Update to use ModelingToolkit
+* No support for events or discrete systems currently
+
 
 # Sims v0.2.0 Release Notes
 
