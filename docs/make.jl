@@ -71,8 +71,8 @@ createmd("src/lib/rotational.md",    Sims.Lib, "rotational.jl")
 createmd("src/examples/lib.md",    Sims.Examples.Lib)
 # createmd("src/examples/tiller.md", Sims.Examples.Tiller)
 
-cp("../NEWS.md", "src/NEWS.md", force=true)
-cp("../LICENSE.md", "src/LICENSE.md", force=true)
+# cp("../NEWS.md", "src/NEWS.md", force=true)
+# cp("../LICENSE.md", "src/LICENSE.md", force=true)
 
 makedocs(
     modules = [Sims],
