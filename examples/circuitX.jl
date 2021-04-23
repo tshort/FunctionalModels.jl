@@ -2,8 +2,9 @@
 # This is like the model in circuit.jl, except subsystems are not named.
 #
 
-using Sims, ModelingToolkit, DifferentialEquations, Plots
-# using Sims, ModelingToolkit
+using Sims, ModelingToolkit
+using OrdinaryDiffEq
+# using Plots
 
 Current(x = 0.0; name = :i) = Unknown(x, name = name)
 Voltage(x = 0.0; name = :v) = Unknown(x, name = name)
@@ -61,6 +62,6 @@ function runCircuitX()
     sys = system(ckt)
     prob = ODAEProblem(sys, [k => 0.0 for k in states(sys)], (0, 0.1))
     sol = solve(prob, Tsit5())
-    plot(sol)
+    # plot(sol)
     # plot(sol, vars = [v1, v2])
 end

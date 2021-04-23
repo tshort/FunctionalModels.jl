@@ -286,6 +286,16 @@ system(a)
 """
 
 function system(a; simplify = true)
+    ctx = flatten(a)
+    sys = ModelingToolkit.ODESystem(ctx.eq, t)
+    if simplify
+        return ModelingToolkit.structural_simplify(sys)
+    else
+        return sys
+    end
+end
+
+function flatten(a)
     ctx = EqCtx(Equation[], Dict(), Dict(), Dict())
     sweep_vars(a, (), ctx)
     prep_variables(ctx)
@@ -294,13 +304,7 @@ function system(a; simplify = true)
     for (key, nodeset) in ctx.nodemap
         push!(ctx.eq, 0 ~ nodeset)
     end
-    # return ctx
-    sys = ModelingToolkit.ODESystem(ctx.eq, t)
-    if simplify
-        return ModelingToolkit.structural_simplify(sys)
-    else
-        return sys
-    end
+    return ctx
 end
 
 struct EqCtx

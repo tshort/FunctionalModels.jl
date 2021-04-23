@@ -1,8 +1,7 @@
-<!-- [![Example](http://pkg.julialang.org/badges/Sims_release.svg)](http://pkg.julialang.org/?pkg=Sims&ver=release)
-[![Example](http://pkg.julialang.org/badges/Sims_nightly.svg)](http://pkg.julialang.org/?pkg=Sims&ver=nightly)
-[![Build Status](https://travis-ci.org/tshort/Sims.jl.svg?branch=master)](https://travis-ci.org/tshort/Sims.jl)
-[![Coverage Status](https://img.shields.io/coveralls/tshort/Sims.jl.svg)](https://coveralls.io/r/tshort/Sims.jl) -->
 
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://tshort.github.io/Sims.jl/stable)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://tshort.github.io/Sims.jl/dev)
+[![Build Status](https://github.com/tshort/Sims.jl/workflows/CI/badge.svg)](https://github.com/tshort/Sims.jl/actions)
 
 Sims.jl
 =======
@@ -22,7 +21,7 @@ NOTE: This is a work in progress to convert this to use [ModelingToolkit](https:
 Sims builds on top of [ModelingToolkit](https://mtk.sciml.ai/). The following
 are exported:
 
-* `t`
+* `t`: independent variable
 * `D` and `der`: aliases for `Differential(t)`
 * `system`: flattens a set of hierarchical equations and returns a simplified `ODESystem`
 * `Unknown`: helper function to create variables

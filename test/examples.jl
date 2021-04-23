@@ -1,8 +1,8 @@
 
 using Sims, Sims.Lib, Sims.Examples.Lib
 using ModelingToolkit
-using DifferentialEquations
-using Plots
+using OrdinaryDiffEq
+# using Plots
 
 function runCauerLowPass()
     res = Dict()
@@ -10,7 +10,7 @@ function runCauerLowPass()
         sys = system(m())
         prob = ODAEProblem(sys, [k => 0.0 for k in states(sys)], (0, 40.0))
         sol = solve(prob, Tsit5())
-        display(plot(sol))
+        # display(plot(sol))
         res[m] = (sys = sys, sol = sol)
     end
     res
@@ -25,7 +25,7 @@ function runChuaCircuit()
     p0[sysstates[3]] = 4.0
     prob = ODAEProblem(sys, p0, (0, 10000.0))
     sol = solve(prob, Tsit5())
-    display(plot(sol))
+    # display(plot(sol))
     (sys = sys, sol = sol) 
 end
 
@@ -33,7 +33,7 @@ function runHeatingResistor()   #### BROKEN
     sys = system(HeatingResistor())
     prob = ODAEProblem(sys, Dict(k => 0.0 for k in states(sys)), (0, 10.0))
     sol = solve(prob, Tsit5())
-    display(plot(sol))
+    # display(plot(sol))
     (sys = sys, sol = sol)
 end
 

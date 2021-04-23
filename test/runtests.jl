@@ -1,5 +1,5 @@
-using Sims
-using Sims.Lib
-using Test
+using SafeTestsets, Test
 
-include("examples.jl")
+@safetestset "Examples" begin include("examples.jl") end
+@safetestset "Flattening" begin include("flattening.jl") end
+@safetestset "Variables" begin include("variables.jl") end

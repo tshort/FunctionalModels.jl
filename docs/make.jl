@@ -56,26 +56,20 @@ function createmd(mdfile, mod, files = "")
     end
 end
 
-mkpath("src/api")
 mkpath("src/lib")
 mkpath("src/examples")
+
+createmd("src/sims.md", Sims, "Sims.jl")
 
 createmd("src/lib/types.md",         Sims.Lib, "types.jl")
 createmd("src/lib/blocks.md",        Sims.Lib, "blocks.jl")
 createmd("src/lib/electrical.md",    Sims.Lib, "electrical.jl")
-createmd("src/lib/kinetics.md",      Sims.Lib, "kinetic.jl")
 createmd("src/lib/heat_transfer.md", Sims.Lib, "heat_transfer.jl")
-createmd("src/lib/powersystems.md",  Sims.Lib, "powersystems.jl")
 createmd("src/lib/rotational.md",    Sims.Lib, "rotational.jl")
 
-createmd("src/examples/basics.md", Sims.Examples.Basics)
+# createmd("src/examples/basics.md", Sims.Examples.Basics)
 createmd("src/examples/lib.md",    Sims.Examples.Lib)
-# createmd("src/examples/neural.md", Sims.Examples.Neural)
-createmd("src/examples/tiller.md", Sims.Examples.Tiller)
-
-createmd("src/api/utils.md", Sims, "utils.jl")
-createmd("src/api/main.md",  Sims, "main.jl")
-createmd("src/api/sim.md",   Sims, ["dassl.jl","sundials.jl","sim.jl", "elaboration.jl", "simcreation.jl"])
+# createmd("src/examples/tiller.md", Sims.Examples.Tiller)
 
 cp("../NEWS.md", "src/NEWS.md")
 cp("../LICENSE.md", "src/LICENSE.md")
@@ -87,31 +81,22 @@ makedocs(
     sitename = "Sims.jl",
     authors = "Tom Short and contributors.",
     # linkcheck = !("skiplinks" in ARGS),
-    pages = Any[ # Compat: `Any` for 0.4 compat
+    pages = Any[ 
         "Home" => "index.md",
         "Basics" => "basics.md",
-        "API" => Any[
-            "api/sim.md",
-            "api/main.md",
-            "api/utils.md",
-        ],
         "Library" => Any[
             "lib/types.md",
-            "lib/kinetics.md",
             "lib/blocks.md",
             "lib/electrical.md",
             "lib/heat_transfer.md",
-            # "lib/kinetic.md",
-            "lib/powersystems.md",
             "lib/rotational.md",
         ],
         "Examples" => Any[
-            "examples/basics.md",
+            # "examples/basics.md",
             "examples/lib.md",
-            # "examples/neural.md",
-            "examples/tiller.md",
+            # "examples/tiller.md",
         ],
-        "Design" => "design.md",
+        # "Design" => "design.md",
         "Release notes" => "NEWS.md",
         "License" => "LICENSE.md",
     ]
@@ -120,9 +105,9 @@ makedocs(
 
 deploydocs(
     repo = "github.com/tshort/Sims.jl.git",
-    target = "build",
-    julia = "0.5",
-    deps = nothing,
-    make = nothing,
+    # target = "build",
+    # deps = nothing,
+    # make = nothing,   
+    push_preview = true
 )
 
