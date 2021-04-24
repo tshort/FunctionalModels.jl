@@ -56,23 +56,23 @@ function createmd(mdfile, mod, files = "")
     end
 end
 
-mkpath("src/lib")
-mkpath("src/examples")
+mkpath("docs/src/lib")
+mkpath("docs/src/examples")
 
-createmd("src/sims.md", Sims, "Sims.jl")
+createmd("docs/src/sims.md", Sims, "Sims.jl")
 
-createmd("src/lib/types.md",         Sims.Lib, "types.jl")
-createmd("src/lib/blocks.md",        Sims.Lib, "blocks.jl")
-createmd("src/lib/electrical.md",    Sims.Lib, "electrical.jl")
-createmd("src/lib/heat_transfer.md", Sims.Lib, "heat_transfer.jl")
-createmd("src/lib/rotational.md",    Sims.Lib, "rotational.jl")
+createmd("docs/src/lib/types.md",         Sims.Lib, "types.jl")
+createmd("docs/src/lib/blocks.md",        Sims.Lib, "blocks.jl")
+createmd("docs/src/lib/electrical.md",    Sims.Lib, "electrical.jl")
+createmd("docs/src/lib/heat_transfer.md", Sims.Lib, "heat_transfer.jl")
+createmd("docs/src/lib/rotational.md",    Sims.Lib, "rotational.jl")
 
-# createmd("src/examples/basics.md", Sims.Examples.Basics)
-createmd("src/examples/lib.md",    Sims.Examples.Lib)
-# createmd("src/examples/tiller.md", Sims.Examples.Tiller)
+# createmd("docs/src/examples/basics.md", Sims.Examples.Basics)
+createmd("docs/src/examples/lib.md",    Sims.Examples.Lib)
+# createmd("docs/src/examples/tiller.md", Sims.Examples.Tiller)
 
-# cp("../NEWS.md", "src/NEWS.md", force=true)
-# cp("../LICENSE.md", "src/LICENSE.md", force=true)
+cp("NEWS.md", "docs/src/NEWS.md", force=true)
+cp("LICENSE.md", "docs/src/LICENSE.md", force=true)
 
 makedocs(
     modules = [Sims],
