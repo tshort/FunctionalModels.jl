@@ -7,9 +7,10 @@
 
 export TwoMasses, Motor
 
-@comment """
+"""
 # Heat transfer
 """
+@comment 
 
 """
 Simple conduction demo
@@ -29,12 +30,12 @@ the system by the sum of the heat capacities of each element.
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Thermal_HeatTransfer_Examples.html#Modelica.Thermal.HeatTransfer.Examples.TwoMasses)
 """
 function TwoMasses()
-    t1 = Temperature(373.15, "t1")
-    t2 = Temperature(273.15, "t2")
-    Equation[
-        HeatCapacitor(t1, 15.0)
-        HeatCapacitor(t2, 15.0)
-        ThermalConductor(t1, t2, 10.0)
+    t1 = Temperature(373.15, "t1", gensym = false)
+    t2 = Temperature(273.15, "t2", gensym = false)
+    [
+        :hc1 => HeatCapacitor(t1, C = 15.0)
+        :hc2 => HeatCapacitor(t2, C = 15.0)
+        :tc1 => ThermalConductor(t1, t2, G = 10.0)
     ]
 end
 
@@ -54,18 +55,18 @@ function Motor(BROKEN)   ## needs to have `interp` defined
     TAmb = 293.15
     t = [0, 360, 360, 600]
     winding_losses = [100, 100, 1000, 1000]
-    Equation[
+    [
         # Winding
-        HeatCapacitor(p1, 2500.0)
-        PrescribedHeatFlow(p1, interp(winding_losses, t, MTime), 95 + 273.15, 3.03E-3)
+        :hc1   => HeatCapacitor(p1, C = 2500.0)
+        hf1    => PrescribedHeatFlow(p1, Q_flow = interp(winding_losses, t, t), T_ref = 95 + 273.15, alpha = 3.03E-3)
         # Core
-        HeatCapacitor(p2, 25000.0)
-        PrescribedHeatFlow(p2, 500.0)
+        :hc2   => HeatCapacitor(p2, C = 25000.0)
+        :hf2   => PrescribedHeatFlow(p2, Q_flow = 500.0)
         # conduction between the winding and core:
-        ThermalConductor(p1, p2, 10.0)
+        :tc1   => ThermalConductor(p1, p2, G = 10.0)
         # Convection to ambient 
-        Convection(p2, p3, 25.0)
-        FixedTemperature(p3, TAmb)
+        :conv1 => Convection(p2, p3, Gc = 25.0)
+        :t1    => FixedTemperature(p3, T = TAmb)
     ]
 end
 

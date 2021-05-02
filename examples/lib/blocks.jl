@@ -7,10 +7,10 @@
 
 export PID_Controller
 
-@comment """
+"""
 # Blocks
 """
-
+@comment 
 
 """
 Demonstrates the usage of a Continuous.LimPID controller
@@ -44,29 +44,27 @@ This is a simple drive train controlled by a PID controller:
 function PID_Controller()
     n1 = Angle()
     n2 = Angle()
-    setpoint = Unknown("setpoint") 
-    shaftspeed = Unknown("shaftspeed")
-    tau = Unknown("tau")
-    @equations begin
-        setpoint = ifelse((MTime < 0.5) | (MTime >= 3.2), 0.0,
-                          ifelse(MTime < 1.5, MTime - 0.5,
-                                 ifelse(MTime < 2.2, 1.0, 3.2 - MTime)))
-        SpeedSensor(n1, shaftspeed)
-        LimPID(setpoint, shaftspeed, tau, 
+    @named setpoint = Unknown() 
+    @named shaftspeed = Unknown()
+    @named tau = Unknown()
+    [
+        setpoint ~ ifelse((t < 0.5) | (t >= 3.2), 0.0,
+                          ifelse(t < 1.5, t - 0.5,
+                                 ifelse(t < 2.2, 1.0, 3.2 - t)))
+        :ss1 => SpeedSensor(n1, shaftspeed)
+        :pid => LimPID(setpoint, shaftspeed, tau, 
                controllerType = "PI",
                k  = 100.0,
                Ti = 0.1,
                Td = 0.1,
                yMax = 12.0,
                Ni = 0.1)
-        SignalTorque(n1, 0.0, tau)
-        Inertia(n1, 1.0)
-        SpringDamper(n1, n2, 1e4, 100)
-        Inertia(n2, 2.0)
-        SignalTorque(n2, 0.0, 10.0)
-    end
+         :st1 => SignalTorque(n1, 0.0, tau)
+         :in1 => Inertia(n1, 1.0)
+         :sd1 => SpringDamper(n1, n2, 1e4, 100)
+         :in2 => Inertia(n2, 2.0)
+         :st2 => SignalTorque(n2, 0.0, 10.0)
+    ]
 end
-# Results of this example match Dymola with the exception of
-# starting transients. 
 
 

@@ -4,7 +4,7 @@
 ## Heat transfer models               ##
 ########################################
 
-@comment """
+"""
 # Heat transfer models
 
 Library of 1-dimensional heat transfer with lumped elements
@@ -23,26 +23,31 @@ usually not possible).
 Note, that all temperatures of this package, including initial
 conditions, are given in Kelvin.
 """
+@comment 
 
 
 ########################################
 ## Basic
 ########################################
-@comment """
+"""
 ## Basics
 """
+@comment 
 
 
 """
 Lumped thermal element storing heat
 
 ```julia
-HeatCapacitor(hp::HeatPort, C::Signal)
+HeatCapacitor(hp::HeatPort; C::Signal)
 ```
 
 ### Arguments
 
 * `hp::HeatPort` : heat port [K]
+
+### Keyword/Optional Arguments
+
 * `C::Signal` : heat capacity of the element [J/K]
 
 ### Details
@@ -71,17 +76,17 @@ cp of the component material to compute C:
 ```
 
 NOTE: The Modelica Standard Library has an argument Tstart for the
-starting temperature [K]. You really can't used that here as in
+starting temperature [K]. You really can't use that here as in
 Modelica. You need to define the starting temperature at the top level
 for the HeatPort you define.
 
 """
-function HeatCapacitor(hp::HeatPort, C::Signal)
+function HeatCapacitor(hp::HeatPort; C::Signal)
     Q_flow = HeatFlow(compatible_values(hp))
-    @equations begin
+    [
         RefBranch(hp, Q_flow)
-        C .* der(hp) = Q_flow
-    end
+        der(hp) ~ Q_flow ./ C
+    ]
 end
 
 
@@ -89,13 +94,16 @@ end
 Lumped thermal element transporting heat without storing it
 
 ```julia
-ThermalConductor(port_a::HeatPort, port_b::HeatPort, G::Signal)
+ThermalConductor(port_a::HeatPort, port_b::HeatPort; G::Signal)
 ```
 
 ### Arguments
 
 * `port_a::HeatPort` : heat port [K]
 * `port_b::HeatPort` : heat port [K]
+
+### Keyword/Optional Arguments
+
 * `G::Signal` : Constant thermal conductance of material [W/K]
 
 ### Details
@@ -141,13 +149,13 @@ Typical values for k at 20 degC in W/(m.K):
 ```
 
 """
-function ThermalConductor(port_a::HeatPort, port_b::HeatPort, G::Signal)
-    dT = Temperature(value(port_a) - value(port_b))
+function ThermalConductor(port_a::HeatPort, port_b::HeatPort; G::Signal)
+    dT = Temperature(default_value(port_a) - default_value(port_b))
     Q_flow = HeatFlow(compatible_values(port_a, port_b))
-    @equations begin
+    [
         Branch(port_a, port_b, dT, Q_flow)
-        Q_flow = G .* dT
-    end
+        Q_flow ~ G .* dT
+    ]
 end
 
 
@@ -155,13 +163,16 @@ end
 Lumped thermal element for heat convection
 
 ```julia
-Convection(port_a::HeatPort, port_b::HeatPort, Gc::Signal)
+Convection(port_a::HeatPort, port_b::HeatPort; Gc::Signal)
 ```
 
 ### Arguments
 
 * `port_a::HeatPort` : heat port [K]
 * `port_b::HeatPort` : heat port [K]
+
+### Keyword/Optional Arguments
+
 * `Gc::Signal` : convective thermal conductance [W/K]
 
 ### Details
@@ -227,26 +238,29 @@ Transfer, 8th edition, McGraw-Hill, 1997, p.270):
 ```
 
 """
-function Convection(port_a::HeatPort, port_b::HeatPort, Gc::Signal)
-    dT = Temperature(value(port_a) - value(port_b))
+function Convection(port_a::HeatPort, port_b::HeatPort; Gc::Signal)
+    dT = Temperature(default_value(port_a) - default_value(port_b))
     Q_flow = HeatFlow(compatible_values(port_a, port_b))
-    @equations begin
+    [
         Branch(port_a, port_b, dT, Q_flow)
-        Q_flow = Gc .* dT
-    end
+        Q_flow ~ Gc .* dT
+    ]
 end
 
 
 """
 
 ```julia
-BodyRadiation(port_a::HeatPort, port_b::HeatPort, Gr::Signal)
+BodyRadiation(port_a::HeatPort, port_b::HeatPort; Gr::Signal)
 ```
 
 ### Arguments
 
 * `port_a::HeatPort` : heat port [K]
 * `port_b::HeatPort` : heat port [K]
+
+### Keyword/Optional Arguments
+
 * `Gr::Signal` : net radiation conductance between two surfaces [m2]
 
 
@@ -318,14 +332,14 @@ inner to the outer cylinder):**
 ```
 
 """
-function BodyRadiation(port_a::HeatPort, port_b::HeatPort, Gr::Signal)
+function BodyRadiation(port_a::HeatPort, port_b::HeatPort; Gr::Signal)
     Q_flow = HeatFlow(compatible_values(port_a, port_b))
     sigma = 5.67037321e-8
-    @equations begin
+    [
         RefBranch(port_a, Q_flow)
         RefBranch(port_b, -Q_flow)
-        Q_flow = sigma .* Gr .* (port_a .^ 4 - port_b .^ 4)
-    end
+        Q_flow ~ sigma .* Gr .* (port_a .^ 4 - port_b .^ 4)
+    ]
 end
 
 
@@ -346,9 +360,9 @@ ThermalCollector(port_a::HeatPort, port_b::HeatPort)
 function ThermalCollector(port_a::HeatPort, port_b::HeatPort)
     # This ends up being a short circuit.
     Q_flow = HeatFlow(compatible_values(port_a, port_b))
-    @equations begin
+    [
         Branch(port_a, port_b, 0.0, Q_flow)
-    end
+    ]
 end
 
 
@@ -357,9 +371,10 @@ end
 ## Sources
 ########################################
 
-@comment """
+"""
 ## Sources
 """
+@comment 
 
 
 """
@@ -373,20 +388,23 @@ variable. FixedTemperature and PrescribedTemperature are identical;
 naming is for Modelica compatibility.)
 
 ```julia
-FixedTemperature(port::HeatPort, T::Signal)
+FixedTemperature(port::HeatPort; T::Signal)
 ```
 
 ### Arguments
 
 * `port::HeatPort` : heat port [K]
+
+### Keyword/Optional Arguments
+
 * `T::Signal` : temperature at port [K]
 
 """
-function FixedTemperature(port::HeatPort, T::Signal)
+function FixedTemperature(port::HeatPort; T::Signal)
     Q_flow = HeatFlow(compatible_values(port, T))
-    @equations begin
+    [
         Branch(port, T, 0.0, Q_flow)
-    end
+    ]
 end
 
 """
@@ -403,12 +421,15 @@ variable. FixedTemperature and PrescribedTemperature are identical;
 naming is for Modelica compatibility.)
 
 ```julia
-PrescribedTemperature(port::HeatPort, T::Signal)
+PrescribedTemperature(port::HeatPort; T::Signal)
 ```
 
 ### Arguments
 
 * `port::HeatPort` : heat port [K]
+
+### Keyword/Optional Arguments
+
 * `T::Signal` : temperature at port [K]
 
 """
@@ -432,13 +453,15 @@ losses (which are given an reference temperature T_ref).
 variable.)
 
 ```julia
-FixedHeatFlow(port::HeatPort, Q_flow::Signal, T_ref::Signal = 293.15, alpha::Signal = 0.0)
-FixedHeatFlow(port::HeatPort, Q_flow::Signal; T_ref::Signal = 293.15, alpha::Signal = 0.0)
+FixedHeatFlow(port::HeatPort; Q_flow::Signal, T_ref::Signal = 293.15, alpha::Signal = 0.0)
 ```
 
 ### Arguments
 
 * `port::HeatPort` : heat port [K]
+
+### Keyword/Optional Arguments
+
 * `Q_flow::Signal` : heat flow [W]
 
 ### Keyword/Optional Arguments
@@ -447,14 +470,12 @@ FixedHeatFlow(port::HeatPort, Q_flow::Signal; T_ref::Signal = 293.15, alpha::Sig
 * `alpha::Signal` : temperature coefficient of heat flow rate [1/K]
 
 """
-function FixedHeatFlow(port::HeatPort, Q_flow::Signal, T_ref::Signal, alpha::Signal = 0.0)
+function FixedHeatFlow(port::HeatPort; Q_flow::Signal, T_ref::Signal = 293.15, alpha::Signal = 0.0)
     Q_flow = HeatFlow(compatible_values(port, T))
-    @equations begin
+    [
         RefBranch(port, Q_flow .* alpha .* (port - T_ref))
-    end
+    ]
 end
-FixedHeatFlow(port::HeatPort, Q_flow::Signal; T_ref::Signal = 293.15, alpha::Signal = 0.0) =
-    FixedHeatFlow(port, Q_flow, T_ref, alpha)
     
 """
 Prescribed heat flow boundary condition
@@ -473,7 +494,6 @@ losses (which are given an reference temperature T_ref).
 variable.)
 
 ```julia
-PrescribedHeatFlow(port::HeatPort, Q_flow::Signal, T_ref::Signal = 293.15, alpha::Signal = 0.0)
 PrescribedHeatFlow(port::HeatPort, Q_flow::Signal; T_ref::Signal = 293.15, alpha::Signal = 0.0)
 ```
 

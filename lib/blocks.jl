@@ -13,23 +13,26 @@
 #    DiscreteBlock(u, y, Ts, SS.TransferFunction(a,b)) # fuzzy
 
 
-@comment """
+"""
 # Control and signal blocks
 
 These components are modeled after the `Modelica.Blocks.*` library.
 """
+@comment 
 
-@comment """
+
+"""
 ## Continuous linear
 """
+@comment 
+
 
 
 """
 Output the integral of the input signals
 
 ```julia
-Integrator(u::Signal, y::Signal, k,       y_start = 0.0)
-Integrator(u::Signal, y::Signal; k = 1.0, y_start = 0.0) # keyword arg version
+Integrator(u::Signal, y::Signal; k = 1.0, y_start = 0.0)
 ```
 
 ### Arguments
@@ -43,15 +46,14 @@ Integrator(u::Signal, y::Signal; k = 1.0, y_start = 0.0) # keyword arg version
 * `y_start` : output initial value
 
 """
-function Integrator(u::Signal, y::Signal, 
-                    k,             # Gain
+function Integrator(u::Signal, y::Signal; 
+                    k = 1.0,       # Gain
                     y_start = 0.0) # output initial value
     y.value = y_start
-    @equations begin
-        der(y) = k .* u
-    end
+    [
+        der(y) ~ k .* u
+    ]
 end
-Integrator(u::Signal, y::Signal; k = 1.0, y_start = 0.0) = Integrator(u, y, k, y_start)
 
 
 """
@@ -76,7 +78,6 @@ derivative block with parameters as:
 ```
 
 ```julia
-Derivative(u::Signal, y::Signal, T = 1.0, k = 1.0, x_start = 0.0, y_start = 0.0)
 Derivative(u::Signal, y::Signal; T = 1.0, k = 1.0, x_start = 0.0, y_start = 0.0)
 ```
 
@@ -91,7 +92,7 @@ Derivative(u::Signal, y::Signal; T = 1.0, k = 1.0, x_start = 0.0, y_start = 0.0)
 * `T` : Time constants [sec]
 
 """
-function Derivative(u::Signal, y::Signal, 
+function Derivative(u::Signal, y::Signal;
                     T,         # pole's time constant
                     k = 1.0,   # Gain
                     x_start = 0.0, # initial value of state
@@ -99,16 +100,11 @@ function Derivative(u::Signal, y::Signal,
     y.value = y_start
     x = Unknown(x_start)  # state of the block
     zeroGain = abs(k) < eps()
-    @equations begin
-        der(x) = zeroGain ? 0 : (u - x) ./ T
-        y = zeroGain ? 0 : (k ./ T) .* (u - x)
-    end
+    [
+        der(x) ~ zeroGain ? 0 : (u - x) ./ T
+        y ~ zeroGain ? 0 : (k ./ T) .* (u - x)
+    ]
 end
-Derivative(u::Signal, y::Signal; 
-           T = 1.0,
-           k = 1.0,
-           x_start = 0.0,
-           y_start = 0.0) = Derivative(u, y, T, k, x_start, y_start)
 
 
 
@@ -133,7 +129,6 @@ derivative block with parameters as:
 ```
 
 ```julia
-FirstOrder(u::Signal, y::Signal, T = 1.0, k = 1.0, y_start = 0.0)
 FirstOrder(u::Signal, y::Signal; T = 1.0, k = 1.0, y_start = 0.0)
 ```
 
@@ -148,19 +143,15 @@ FirstOrder(u::Signal, y::Signal; T = 1.0, k = 1.0, y_start = 0.0)
 * `T` : Time constants [sec]
 
 """
-function FirstOrder(u::Signal, y::Signal,
-                    T,             # pole's time constant
+function FirstOrder(u::Signal, y::Signal;
+                    T = 1.0,       # pole's time constant
                     k = 1.0,       # Gain
                     y_start = 0.0) # output initial value
     y.value = y_start
-    @equations begin
-        y + T*der(y) = k*u
-    end
+    [
+        der(y) ~ (k*u - y) / T
+    ]
 end
-FirstOrder(u::Signal, y::Signal;
-           T = 1.0,
-           k = 1.0,
-           y_start = 0.0) = FirstOrder(u, T, k, y_start)
 
            
 """
@@ -169,20 +160,6 @@ PID controller with limited output, anti-windup compensation and setpoint weight
 ![diagram](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica.Blocks.Continuous.LimPIDD.png)
 
 ```julia
-LimPID(u_s::Signal, u_m::Signal, y::Signal, 
-       controllerType = "PID",
-       k = 1.0,      
-       Ti = 1.0,    
-       Td = 1.0,   
-       yMax = 1.0,   
-       yMin = -yMax, 
-       wp = 1.0,     
-       wd = 0.0,     
-       Ni = 0.9,    
-       Nd = 10.0,    
-       xi_start = 0.0, 
-       xd_start = 0.0,
-       y_start = 0.0)
 LimPID(u_s::Signal, u_m::Signal, y::Signal; 
        controllerType = "PID",
        k = 1.0,      
@@ -245,38 +222,6 @@ this controller, the following practical aspects are included:
   derivative part to zero, if steps may occur in the setpoint signal.
 
 """
-function LimPID(u_s::Signal, u_m::Signal, y::Signal, 
-                controllerType,
-                k = 1.0,      # Gain of controller
-                Ti = 1.0,     # Time constant fo the Integrator block, s 
-                Td = 1.0,     # Time constant fo the Derivative block, s 
-                yMax = 1.0,   # Upper limit of the output
-                yMin = -yMax, # Lower limit of the output
-                wp = 1.0,     # Set-point weight for the Proportional block [0..1]
-                wd = 0.0,     # Set-point weight for the Derivative block [0..1]
-                Ni = 0.9,     # Ni * Ti is the time constant of the anti-windup compensation
-                Nd = 10.0,    # The higher Nd, the more ideal the derivative block
-                xi_start = 0.0, # initial value of state
-                xd_start = 0.0, # initial value of state
-                y_start = 0.0)  # output initial value
-    with_I = any(controllerType .== ["PI", "PID"])
-    with_D = any(controllerType .== ["PD", "PID"])
-    x = Unknown(xi_start)  # node just in front of the limiter
-    d = Unknown(xd_start)  # input of derivative block
-    D = Unknown()  # output of derivative block
-    i = Unknown()  # input of integrator block
-    I = Unknown()  # output of integrator block
-    zeroGain = abs(k) < eps()
-    @equations begin
-        i = u_s - u_m + (y - x) / (k * Ni)
-        with_I ? Integrator(i, I, 1/Ti) : Equation[]
-        with_D ? Derivative(d, D, Td, max(Td/Nd, 1e-14)) : Equation[]
-        d = wd * u_s - u_m
-        Limiter(x, y, yMax, yMin)
-        x = k * ((with_I ? I : 0.0) + (with_D ? D : 0.0) + wp * u_s - u_m)
-    end
-end
-
 function LimPID(u_s::Signal, u_m::Signal, y::Signal; 
                 controllerType = "PID",
                 k = 1.0,      # Gain of controller
@@ -291,7 +236,22 @@ function LimPID(u_s::Signal, u_m::Signal, y::Signal;
                 xi_start = 0.0, # initial value of state
                 xd_start = 0.0, # initial value of state
                 y_start = 0.0)  # output initial value
-    LimPID(u_s, u_m, y, controllerType, k, Ti, Td, yMax, yMin, wp, wd, Ni, Nd, xi_start, xd_start, y_start)
+    with_I = any(controllerType .== ["PI", "PID"])
+    with_D = any(controllerType .== ["PD", "PID"])
+    @named x = Unknown(xi_start)  # node just in front of the limiter
+    @named d = Unknown(xd_start)  # input of derivative block
+    @named D = Unknown()  # output of derivative block
+    @named i = Unknown()  # input of integrator block
+    @named I = Unknown()  # output of integrator block
+    zeroGain = abs(k) < eps()
+    [
+        i ~ u_s - u_m + (y - x) / (k * Ni)
+        with_I ? Integrator(i, I, 1/Ti) : []
+        with_D ? Derivative(d, D, Td, max(Td/Nd, 1e-14)) : []
+        d ~ wd * u_s - u_m
+        Limiter(x, y, yMax, yMin)
+        x ~ k * ((with_I ? I : 0.0) + (with_D ? D : 0.0) + wp * u_s - u_m)
+    ]
 end
 
 
@@ -338,7 +298,6 @@ results in the following equations:
 
 
 ```julia
-StateSpace(u::Signal, y::Signal, A = [1.0], B = [1.0], C = [1.0], D = [0.0])
 StateSpace(u::Signal, y::Signal; A = [1.0], B = [1.0], C = [1.0], D = [0.0])
 ```
 
@@ -357,30 +316,20 @@ StateSpace(u::Signal, y::Signal; A = [1.0], B = [1.0], C = [1.0], D = [0.0])
 ### Details
 
 
-### Example
-
-```julia
-```
-
 NOTE: untested / probably broken
 
 """
-function StateSpace(u::Signal, y::Signal, 
-                    A,
+function StateSpace(u::Signal, y::Signal; 
+                    A = [1.0],
                     B = [1.0],
                     C = [1.0],
                     D = [0.0])
     x = Unknown(zeros(size(A, 1)))  # state vector
-    @equations begin
-        der(x) = A * x + B * u
-        y      = C * x + D * u
-    end
+    [
+        der(x) ~ A * x + B * u
+        y      ~ C * x + D * u
+    ]
 end
-StateSpace(u::Signal, y::Signal; 
-           A = [1.0],
-           B = [1.0],
-           C = [1.0],
-           D = [0.0]) = StateSpace(u, y, A, B, C, D)
 
 
 
@@ -415,7 +364,6 @@ results in the following transfer function:
 ```
 
 ```julia
-TransferFunction(u::Signal, y::Signal, b = [1], a = [1])
 TransferFunction(u::Signal, y::Signal; b = [1], a = [1])
 ```
 
@@ -430,7 +378,7 @@ TransferFunction(u::Signal, y::Signal; b = [1], a = [1])
 * `a` : Denominator coefficients of transfer function
 
 """
-function TransferFunction(u::Signal, y::Signal, 
+function TransferFunction(u::Signal, y::Signal;
                           b,        # Numerator; 2*s + 3 is specified as [2,3]
                           a = [1])  # Denominator
     na = length(a)
@@ -443,28 +391,27 @@ function TransferFunction(u::Signal, y::Signal,
     x = Unknown(zeros(nx))
     x_scaled = Unknown(zeros(nx))
     
-    if nx == 0
-        y - d * u
+    ;if nx == 0
+        [y ~ d * u]
     else
-        @equations begin
-            der(x_scaled[1]) = (dot(-a[2:na], x_scaled) + a_end * u) / a[1]
-            der(x_scaled[2:nx]) = x_scaled[1:nx-1]
-            y = dot(bb[2:na] - d * a[2:na], x_scaled) / a_end + d * u
-            x = x_scaled / a_end
-        end
+        [
+            der(x_scaled[1]) ~ (dot(-a[2:na], x_scaled) + a_end * u) / a[1]
+            der(x_scaled[2:nx]) ~ x_scaled[1:nx-1]
+            y ~ dot(bb[2:na] - d * a[2:na], x_scaled) / a_end + d * u
+            x ~ x_scaled / a_end
+        ]
     end
 end
-TransferFunction(u::Signal, y::Signal; 
-                 b = [1],
-                 a = [1]) = TransferFunction(u, y, b, a)
 
 
 ########################################
 ## Nonlinear Blocks
 ########################################
-@comment """
+"""
 ## Nonlinear
 """
+@comment 
+
 
 
 
@@ -476,7 +423,6 @@ the input is within the specified upper and lower limits. If this is
 not the case, the corresponding limits are passed as output.
 
 ```julia
-Limiter(u::Signal, y::Signal, uMax = 1.0, uMin = -uMax)
 Limiter(u::Signal, y::Signal; uMax = 1.0, uMin = -uMax)
 ```
 
@@ -491,29 +437,25 @@ Limiter(u::Signal, y::Signal; uMax = 1.0, uMin = -uMax)
 * `uMin` : lower limits of signals
 
 """
-function Limiter(u::Signal, y::Signal, 
+function Limiter(u::Signal, y::Signal; 
                  uMax,
                  uMin = -uMax)
     clamped_pos = Discrete(false)
     clamped_neg = Discrete(false)
-    @equations begin
+    [
         BoolEvent(clamped_pos, u - uMax)
         BoolEvent(clamped_neg, uMin - u)
-        y = ifelse(clamped_pos, uMax,
+        y ~ ifelse(clamped_pos, uMax,
                    ifelse(clamped_neg, uMin, u))
-    end
+    ]
 end
-Limiter(u::Signal, y::Signal; 
-        uMax = 1.0,
-        uMin = -uMax) = Limiter(u, y, uMax, uMin)
-VariableLimiter = Limiter
+const VariableLimiter = Limiter
 
 
 """
 Generate step signals of type Real
 
 ```julia
-Step(y::Signal, height = 1.0, offset = 0.0, startTime = 0.0)
 Step(y::Signal; height = 1.0, offset = 0.0, startTime = 0.0)
 ```
 
@@ -529,22 +471,18 @@ Step(y::Signal; height = 1.0, offset = 0.0, startTime = 0.0)
 * `startTime` : output = offset for time < startTime [s]
 
 """
-function Step(y::Signal, 
-              height,
+function Step(y::Signal; 
+              height = 1.0,
               offset = 0.0, 
               startTime = 0.0)
-    ymag = Discrete(offset)
-    @equations begin
-        y = ymag  
-        Event(MTime - startTime,
-              Equation[reinit(ymag, offset + height)],   # positive crossing
-              Equation[reinit(ymag, offset)])            # negative crossing
-    end
+    # ymag = Discrete(offset)
+    [
+        y ~ ifelse(t > startTime, offset, 0.0)  
+        # Event(t - startTime,
+        #       [reinit(ymag, offset + height)],   # positive crossing
+        #       [reinit(ymag, offset)])            # negative crossing
+    ]
 end
-Step(y::Signal; 
-     height = 1.0,
-     offset = 0.0, 
-     startTime = 0.0) = Step(y, height, offset, startTime)
 
 
 """
@@ -557,7 +495,6 @@ this zone, the output is a linear function of the input with a slope
 of 1.
 
 ```julia
-DeadZone(u::Signal, y::Signal, uMax = 1.0, uMin = -uMax)
 DeadZone(u::Signal, y::Signal; uMax = 1.0, uMin = -uMax)
 ```
 
@@ -572,29 +509,25 @@ DeadZone(u::Signal, y::Signal; uMax = 1.0, uMin = -uMax)
 * `uMin` : lower limits of signals
 
 """
-function DeadZone(u::Signal, y::Signal, 
-                  uMax,
+function DeadZone(u::Signal, y::Signal;
+                  uMax = 1.0,
                   uMin = -uMax)
     pos = Discrete(false)
     neg = Discrete(false)
-    @equations begin
+    [
         BoolEvent(pos, u - uMax)
         BoolEvent(neg, uMin - u)
-        y = ifelse(pos, u - uMax,
+        y ~ ifelse(pos, u - uMax,
                    ifelse(neg, u - uMin,
                           0.0))
-    end
+    ]
 end
-DeadZone(u::Signal, y::Signal; 
-         uMax = 1.0,
-         uMin = -uMax) = DeadZone(u, y, uMax, uMin)
 
 
 """
 Generate a Discrete boolean pulse signal
 
 ```julia
-BooleanPulse(y, width = 50.0, period = 1.0, startTime = 0.0)
 BooleanPulse(y; width = 50.0, period = 1.0, startTime = 0.0)
 ```
 
@@ -609,30 +542,26 @@ BooleanPulse(y; width = 50.0, period = 1.0, startTime = 0.0)
 * `startTime` : time instant of the first pulse [sec]
 
 """
-function BooleanPulse(x, width, period = 1.0, startTime = 0.0)
-    BoolEvent(x, ifelse(MTime > startTime,
-                        trianglewave(MTime - startTime, width, period),
-                        -1.0))
+function BooleanPulse(x; width, period = 1.0, startTime = 0.0)
+    [BoolEvent(x, ifelse(t > startTime,
+                        trianglewave(t - startTime, width, period),
+                        -1.0))]
 end
-BooleanPulse(x; width = 50.0, period = 1.0, startTime = 0.0) =
-    BooleanPulse(x, width, period, startTime)
     
 
-function Pulse(d, amplitude, width = 50.0, period = 1.0, offset = 0.0, startTime = 0.0)
-    @equations begin
-        Event(ifelse(MTime > startTime,
-                     trianglewave(MTime - startTime, width, period),
+function Pulse(d; amplitude, width = 50.0, period = 1.0, offset = 0.0, startTime = 0.0)
+    [
+        Event(ifelse(t > startTime,
+                     trianglewave(t - startTime, width, period),
                      -1.0),
               reinit(d, amplitude + offset),
               reinit(d, offset))
-    end
+    ]
 end
-Pulse(x; amplitude = 1.0, width = 50.0, period = 1.0, offset = 0.0, startTime = 0.0) =
-    Pulse(x, amplitude, width, period, offset, startTime)
     
 ## function Pulse(x, amplitude = 1.0, width = 50.0, period = 1.0, offset = 0.0, startTime = 0.0)
 ##     b = Discrete(false)
-##     @equations begin
+##     [
 ##         BooleanPulse(b, width, period, startTime)
 ##         x = ifelse(b, amplitude + offset, offset)
 ##     end

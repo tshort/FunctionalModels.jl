@@ -26,26 +26,26 @@ typealias ComplexCurrent Unknown{UComplexCurrent}
 function RL(n1, n2, Z::Complex)
     i = Unknown(0.im, "RL i")
     v = Unknown(0.im)
-    @equations begin
+    [
         Branch(n1, n2, v, i)
-        v = Z * i     # Note that this doesn't include time variation (L di/dt) effects
-    end
+        v ~ Z * i     # Note that this doesn't include time variation (L di/dt) effects
+    ]
 end
 
 function VCmplxSrc(n1, n2, V::Number)
     i = Unknown(0.im)
     v = Unknown(0.im)
-    @equations begin
+    [
         Branch(n1, n2, v, i)
-        v = V
-    end
+        v ~ V
+    ]
 end
 
 # This is just a static circuit. Nothing is time varying.
 function CmplxCkt()
     n = ComplexElectricalNode(0.im, "node voltage")
     g = 0.0
-    Equation[
+    [
         VCmplxSrc(n, g, 10.+2im)
         RL(n, g, 3 + 4im)
     ]

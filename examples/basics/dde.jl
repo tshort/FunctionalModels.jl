@@ -17,12 +17,12 @@ function DDE(; tau=3.0)
     a   = 4
     p   = -0.8
     
-    x = Unknown("x",1.0)
+    @named x = Unknown(1.0)
     
     # The following gives the return value which is a list of equations.
     # Expressions with Unknowns are kept as expressions. Expressions of
     # regular variables are evaluated immediately (like normal).
-    @equations begin
+    [
         der(x,-1.0) = -x + f(a * x - b * delay(x,tau) + p)
-    end
+    ]
 end

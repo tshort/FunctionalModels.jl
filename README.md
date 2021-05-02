@@ -1,8 +1,7 @@
-[![Example](http://pkg.julialang.org/badges/Sims_release.svg)](http://pkg.julialang.org/?pkg=Sims&ver=release)
-[![Example](http://pkg.julialang.org/badges/Sims_nightly.svg)](http://pkg.julialang.org/?pkg=Sims&ver=nightly)
-[![Build Status](https://travis-ci.org/tshort/Sims.jl.svg?branch=master)](https://travis-ci.org/tshort/Sims.jl)
-[![Coverage Status](https://img.shields.io/coveralls/tshort/Sims.jl.svg)](https://coveralls.io/r/tshort/Sims.jl)
 
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://tshort.github.io/Sims.jl/stable)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://tshort.github.io/Sims.jl/dev)
+[![Build Status](https://github.com/tshort/Sims.jl/workflows/CI/badge.svg)](https://github.com/tshort/Sims.jl/actions)
 
 Sims.jl
 =======
@@ -12,6 +11,36 @@ and simulations. For more information, see the documentation:
 
 * **[Documentation for the released version](https://tshort.github.io/Sims.jl/stable)**.
 * **[Documentation for the development version](https://tshort.github.io/Sims.jl/latest)**.
+
+---
+
+NOTE: This is a work in progress to convert the package to use [ModelingToolkit](https://mtk.sciml.ai/).
+
+Some of the components and/or examples do not work, yet. This especially includes models requiring events and discrete systems.
+
+---
+
+Sims builds on top of [ModelingToolkit](https://mtk.sciml.ai/). The following
+are exported:
+
+* `t`: independent variable
+* `D` and `der`: aliases for `Differential(t)`
+* `system`: flattens a set of hierarchical equations and returns a simplified `ODESystem`
+* `Unknown`: helper function to create variables
+* `default_value`: return the default (starting) value of a variable
+* `compatible_values`: return the base value from a variable to use when creating other variables
+* `RefBranch` and `Branch`: marks nodes and flow variables
+
+Equations are standard ModelingToolkit equations. The main difference in Sims is
+that variables should be created with `Unknown(val; name)` or one of the helpers like `Voltage()`.
+Variables created this way include metadata to ensure that variable names don't clash.
+Multiple subcomponents can all have a `v(t)` variable for example.
+Once the model is flattened, the variable names will be normalized.
+
+Sims uses a functional style as opposed to the more object-oriented
+approach of ModelingToolkit, Modia, and Modelica. Because `system`
+return an `ODESystem`, models can be built up of Sims components and
+standard ModelingToolkit components.
 
 
 Background
@@ -47,10 +76,6 @@ functional hybrid modeling. Sims is most similar to
 [Modelyze](https://github.com/david-broman/modelyze) by David Broman
 ([report](http://www.eecs.berkeley.edu/Pubs/TechRpts/2012/EECS-2012-173.pdf)).
 
-Two solvers are available to solve the implicit DAE's generated. The
-default is DASKR, a derivative of DASSL with root finding. A solver
-based on the [Sundials](https://github.com/tshort/Sundials.jl) package
-is also available.
     
 Installation
 ------------
@@ -60,6 +85,9 @@ Sims is an installable package. To install Sims, use the following:
 ```julia
 Pkg.add("Sims")
 ```
+
+Model Libraries
+---------------
 
 Sims.jl has one main module named `Sims` and the following submodules:
 
@@ -73,92 +101,19 @@ Sims.jl has one main module named `Sims` and the following submodules:
 Basic example
 -------------
 
-Sims defines a basic symbolic class used for unknown variables in
-the model. As unknown variables are evaluated, expressions (of
-type `MExpr`) are built up.
-
-``` julia
-julia> using Sims
-
-julia> a = Unknown()
-##1243
-
-julia> a * (a + 1)
-MExpr(*(##1243,+(##1243,1)))
-```
-
+Sims uses ModelingToolkit to build up models. All equations use the
+ModelingToolkit variables and syntax.
 In a simulation, the unknowns are to be solved based on a set of
 equations. Equations are built from device models. 
 
 A device model is a function that returns a vector of equations or
-other devices that also return lists of equations. The equations
-each are assumed equal to zero. So,
-
-``` julia
-der(y) = x + 1
-```
-
-Should be entered as:
-
-``` julia
-der(y) - (x+1)
-```
-
-`der` indicates a derivative.
-
-The Van Der Pol oscillator is a simple problem with two equations
-and two unknowns:
-
-``` julia
-function Vanderpol()
-    y = Unknown(1.0, "y")   # The 1.0 is the initial value. "y" is for plotting.
-    x = Unknown("x")        # The initial value is zero if not given.
-    # The following gives the return value which is a list of equations.
-    # Expressions with Unknowns are kept as expressions. Expressions of
-    # regular variables are evaluated immediately.
-    Equation[
-        # The -1.0 in der(x, -1.0) is the initial value for the derivative 
-        der(x, -1.0) - ((1 - y^2) * x - y)      # == 0 is assumed
-        der(y) - x
-    ]
-end
-
-y = sim(Vanderpol(), 10.0) # Run the simulation to 10 seconds and return
-                           # the result as an array.
-# plot the results with Gaston
-gplot(y)
-``` 
-
-Here are the results:
-
-![plot results](https://github.com/tshort/Sims.jl/blob/master/examples/basics/vanderpol.png?raw=true "Van Der Pol results")
-
-An `@equations` macro is provided to return `Equation[]` allowing for
-the use of equals in equations, so the example above can be:
-
-``` julia
-function Vanderpol()
-    y = Unknown(1.0, "y") 
-    x = Unknown("x")
-    @equations begin
-        der(x, -1.0) = (1 - y^2) * x - y
-        der(y) = x
-    end
-end
-
-y = sim(Vanderpol(), 10.0) # Run the simulation to 10 seconds and return
-                           # the result as an array.
-# plot the results
-plot(y)
-``` 
+other devices that also return lists of equations. 
 
 Electrical example
 ------------------
 
 This example shows definitions of several electrical components. Each
-is again a function that returns a list of equations. Equations are
-expressions (type MExpr) that includes other expressions and unknowns
-(type Unknown).
+is again a function that returns a list of equations. 
 
 Arguments to each function are model parameters. These normally include
 nodes specifying connectivity followed by parameters specifying model
@@ -172,28 +127,28 @@ equations are created to sum flows (in this case electrical currents)
 to zero at all nodes. `RefBranch` is another special function for
 marking nodes and flow variables.
 
-Nodes passed as parameters or created with `ElectricalNode()` are simply
-unknowns. For these electrical examples, a node is simply an unknown
-voltage.
+Nodes passed as parameters are unknown variables. For these
+electrical examples, a node is simply an unknown voltage.
  
-    
-```julia
-function Resistor(n1, n2, R::Real) 
-    i = Current()   # This is simply an Unknown. 
-    v = Voltage()
-    @equations begin
-        Branch(n1, n2, v, i)
-        R * i = v
-    end
-end
 
-function Capacitor(n1, n2, C::Real) 
+```julia
+
+function Resistor(n1, n2; R::Real) 
     i = Current()
     v = Voltage()
-    @equations begin
+    [
         Branch(n1, n2, v, i)
-        C * der(v) = i
-    end
+        R * i ~ v
+    ]
+end
+
+function Capacitor(n1, n2; C::Real) 
+    i = Current()
+    v = Voltage()
+    [
+        Branch(n1, n2, v, i)
+        D(v) ~ i / C
+    ]
 end
 ```
 
@@ -203,73 +158,24 @@ assigned zero volts.
 
 All of the equations returned in the list of equations are other
 models with various parameters.
+
+In this example, the model components are named (`:vs`, `:r1`, ...).
+Unnamed components can also be used, but then variables used 
+in components have anonymized naming (`c1₊i(t)` vs. `var"##i#1057"(t)`).
    
 ```julia
 function Circuit()
-    n1 = Voltage("Source voltage")   # The string indicates labeling for plots
-    n2 = Voltage("Output voltage")
-    n3 = Voltage()
+    @named n1 = Voltage()
+    @named n2 = Voltage()
     g = 0.0  # A ground has zero volts; it's not an unknown.
-    Equation[
-        SineVoltage(n1, g, 10.0, 60.0)
-        Resistor(n1, n2, 10.0)
-        Resistor(n2, g, 5.0)
-        SeriesProbe(n2, n3, "Capacitor current")
-        Capacitor(n3, g, 5.0e-3)
+    [
+        :vs => SineVoltage(n1, g, V = 10.0, f = 60.0)
+        :r1 => Resistor(n1, n2, R = 10.0)
+        :r2 => Resistor(n2, g, R = 5.0)
+        :c1 => Capacitor(n2, g, C = 5.0e-3)
     ]
 end
 
 ckt = Circuit()
-ckt_y = sim(ckt, 0.1)
-gplot(ckt_y)
-```
-Here are the results:
-
-![plot results](https://github.com/tshort/Sims.jl/blob/master/examples/basics/circuit.png?raw=true "Circuit results")
-
-Initialization and Solving Sets of Equations
---------------------------------------------
-
-Sims initialization is still weak, but it is developed enough to be
-able to solve non-differential equations. Here is a small example
-where two Unknowns, `x` and `y`, are solved based on the following two
-equations:
-
-```julia
-function test()
-    @unknown x y
-    @equations begin
-        2*x - y   = exp(-x)
-         -x + 2*y = exp(-y)
-    end
-end
-
-solution = solve(create_sim(test()))
 ```
 
-Hybrid Modeling and Structural Variability
-------------------------------------------
-
-Sims supports basic hybrid modeling, including the ability to handle
-structural model changes. Consider the following example:
-
-[Breaking pendulum](https://github.com/tshort/Sims.jl/blob/master/examples/basics/breaking_pendulum_in_box.jl)
-
-This model starts as a pendulum, then the wire breaks, and the ball
-goes into free fall. Sims handles this much like
-[Hydra](https://github.com/giorgidze/Hydra); the model is recompiled.
-Because Julia can compile code just-in-time (JIT), this happens
-relatively quickly. After the pendulum breaks, the ball bounces around
-in a box. This shows off another feature of Sims: handling
-nonstructural events. Each time the wall is hit, the velocity is
-adjusted for the "bounce".
-
-Here is an animation of the results. Note that the actual animation
-was done in R, not Julia.
-
-![plot results](https://github.com/tshort/Sims.jl/blob/master/examples/basics/pendulum.gif?raw=true "Pendulum")
-
-
-
-
-    
