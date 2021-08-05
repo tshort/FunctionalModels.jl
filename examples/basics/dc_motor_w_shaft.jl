@@ -39,9 +39,9 @@ function DCMotor(flange::Flange)
     n3 = Voltage()
     g = 0.0
     [
-        SignalVoltage(n1, g, 60.0)
-        Resistor(n1, n2, 100.0)
-        Inductor(n2, n3, 0.2)
+        SignalVoltage(n1, g, V=60.0)
+        Resistor(n1, n2, R=100.0)
+        Inductor(n2, n3, L=0.2)
         EMF(n3, g, flange, 1.0)
     ]
 end
@@ -49,9 +49,9 @@ end
 function ShaftElement(flangeA::Flange, flangeB::Flange)
     r1 = Angle()
     [
-        Spring(flangeA, r1, 8.0) 
-        Damper(flangeA, r1, 1.5) 
-        Inertia(r1, flangeB, 0.5) 
+        Spring(flangeA, r1, c=8.0) 
+        Damper(flangeA, r1, d=1.5) 
+        Inertia(r1, flangeB, J=0.5) 
     ]
 end
 
@@ -77,12 +77,12 @@ This is a smaller version of an example on p. 117 of David Broman's
 I don't know if the results are reasonable or not.
 """
 function DcMotorWithShaft()
-    r1 = Angle("Source angle") 
+    r1 = Angle(name = "Source angle") 
     r2 = Angle()
-    r3 = Angle("End-of-shaft angle")
+    r3 = Angle(name = "End-of-shaft angle")
     [
         DCMotor(r1)
-        Inertia(r1, r2, 0.02)
+        Inertia(r1, r2, J=0.02)
         FlexibleShaft(r2, r3, 5)
     ]
 end
