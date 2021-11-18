@@ -59,8 +59,8 @@ const ElectricalNode = Any
 const HeatPort = Any
 """ `Flange` is an alias for `Any` used to indicate a value or variable for a flange port (an angle). """
 const Flange = Any
-""" `Discrete` is an alias for `Any` used to indicate a value or variable that is Discrete. """
-const Discrete = Any
+# """ `Discrete` is an alias for `Any` used to indicate a value or variable that is Discrete. """
+# const Discrete = Any
 
 """ `Current(x = 0.0; name = :i)` creates an `Unknown` with a default name of `:i`. """
 Current(x = 0.0; name = :i) = Unknown(x, name = name)

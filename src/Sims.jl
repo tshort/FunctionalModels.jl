@@ -3,8 +3,9 @@ module Sims
 
 using ModelingToolkit: Equation, @parameters, @variables, ModelingToolkit, Num
 import Symbolics
+import IfElse
 
-export Unknown, Branch, RefBranch, system, t, D, der, default_value, compatible_values, @comment
+export Unknown, Branch, RefBranch, Event, BoolEvent, Discrete, system, t, D, der, default_value, compatible_values, @comment
 
 
 # Documentation helper
@@ -140,6 +141,12 @@ function Unknown(value = 0.0; name = :u)
     end
 end
 
+function Discrete(value = 0.0; name = :d) 
+    s = gensym(name)
+    x = Symbolics.setdefaultval((Symbolics.Sym){typeof(value)}(s), value)
+    x = Symbolics.setmetadata(x, NameCtx, name)
+    Symbolics.wrap(Symbolics.setmetadata(x, IdCtx, gensym()))
+end
 
 """
 A special ModelType to specify branch flows into nodes. When the model
@@ -289,9 +296,13 @@ system(a)
 * `::ODESystem` : the flattened model
 
 """
-function system(a; simplify = true)
+function system(a; simplify = true, name = :sims_system)
     ctx = flatten(a)
-    sys = ModelingToolkit.ODESystem(ctx.eq, t)
+    if length(ctx.events) > 0
+        sys = ModelingToolkit.ODESystem(ctx.eq, t; continuous_events = ctx.events, name = name)
+    else
+        sys = ModelingToolkit.ODESystem(ctx.eq, t; name = name)
+    end
     if simplify
         return ModelingToolkit.structural_simplify(sys)
     else
@@ -300,7 +311,7 @@ function system(a; simplify = true)
 end
 
 function flatten(a)
-    ctx = EqCtx(Equation[], Dict(), Dict(), Dict())
+    ctx = EqCtx(Equation[], Event[], Dict(), Dict(), Dict())
     sweep_vars(a, (), ctx)
     prep_variables(ctx)
     elaborate_unit!(a, ctx)
@@ -311,8 +322,17 @@ function flatten(a)
     return ctx
 end
 
+struct Event
+    condition::Equation
+    affect::Union{Equation, Nothing}
+end
+Event(condition, affect, affect_neg) = Event(condition, affect.lhs ~ IfElse.ifelse(condition.lhs > condition.rhs, affect.rhs, affect_neg.rhs))
+Event(condition) = Event(condition, nothing)
+BoolEvent(d, condition) = Event(condition, d ~ true, d ~ false)
+
 struct EqCtx
     eq::Vector{Equation}
+    events::Vector{Equation}
     nodemap::Dict
     varmap::IdDict
     newvars::IdDict
@@ -395,6 +415,10 @@ function elaborate_unit!(a::Vector, ctx::EqCtx)
 end
 function elaborate_unit!(a::Pair, ctx::EqCtx)
     map(x -> elaborate_unit!(x, ctx), a)
+end
+function elaborate_unit!(a::Event, ctx::EqCtx)
+    cond = ModelingToolkit.substitute(a.condition, ctx.newvars)
+    push!(ctx.events, a.affect == nothing ? cond : cond => ModelingToolkit.substitute(a.affect, ctx.newvars))
 end
 
 function elaborate_unit!(b::RefBranch, ctx::EqCtx)

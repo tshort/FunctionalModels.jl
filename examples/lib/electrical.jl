@@ -188,15 +188,15 @@ function CharacteristicIdealDiodes()
     @variables s1(t) s2(t) s3(t)
     g = 0.0
     [
-        SineVoltage(s1, g, V = 10.0, f = 1.0, ang = -pi/10.0) 
-        SineVoltage(s2, g, V = 10.0, f = 1.0, ang = -pi/15.0, offset = -9.0) 
-        SineVoltage(s3, g, V = 10.0, f = 1.0, ang = -pi/20.0) 
-        Resistor(n1, g, R = 1e-3) 
-        Resistor(n2, g, R = 1e-3) 
-        Resistor(n3, g, R = 1e-3) 
-        IdealDiode(s1, n1, Vknee = 0.0, Ron = 0.0, Goff = 0.0)
-        IdealDiode(s2, n2, Vknee = 0.0, Ron = 0.1, Goff = 0.1) 
-        IdealDiode(s3, n3, Vknee = 5.0, Ron = 0.2, Goff = 0.2) 
+        :s1 => SineVoltage(s1, g, V = 10.0, f = 1.0, ang = -pi/10.0) 
+        :s2 => SineVoltage(s2, g, V = 10.0, f = 1.0, ang = -pi/15.0, offset = -9.0) 
+        :s3 => SineVoltage(s3, g, V = 10.0, f = 1.0, ang = -pi/20.0) 
+        :r1 => Resistor(n1, g, R = 1e-3) 
+        :r2 => Resistor(n2, g, R = 1e-3) 
+        :r3 => Resistor(n3, g, R = 1e-3) 
+        :d1 => IdealDiode(s1, n1, Vknee = 0.0, Ron = 0.0, Goff = 0.0)
+        :d2 => IdealDiode(s2, n2, Vknee = 0.0, Ron = 0.1, Goff = 0.1) 
+        :d3 => IdealDiode(s3, n3, Vknee = 5.0, Ron = 0.2, Goff = 0.2) 
      ]
 end
 

@@ -8,8 +8,8 @@ using IfElse: ifelse
 export Signal, ElectricalNode, Voltage, Current,
        HeatPort, Temperature, HeatFlow,
        Angle, Torque, AngularVelocity,
-       AngularAcceleration, Flange, 
-       Discrete
+       AngularAcceleration, Flange 
+    #    Discrete
 ## Blocks
 export Integrator, Derivativ, Integrator, Derivative,
        LimPID, StateSpace, Limiter, DeadZone, BooleanPulse, Pulse

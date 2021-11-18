@@ -51,6 +51,8 @@ end
 @comment 
 
 
+using IfElse
+
 ########################################
 ## Basic
 ########################################
@@ -430,16 +432,15 @@ IdealDiode(n1::ElectricalNode, n2::ElectricalNode;
 
 """
 function IdealDiode(n1::ElectricalNode, n2::ElectricalNode; 
-                    Vknee, Ron = 1e-5, Goff = 1e-5)
+                    Vknee = 0.0, Ron = 1e-5, Goff = 1e-5)
     i = Current()
     v = Voltage()
     s = Unknown()  # dummy variable
-    openswitch = Discrete(true)  # on/off state of each diode
     [
         Branch(n1, n2, v, i)
-        BoolEvent(openswitch, -s)  # openswitch becomes true when s goes negative
-        v ~ s .* ifelse(openswitch, 1.0, Ron) + Vknee
-        i ~ s .* ifelse(openswitch, Goff, 1.0) + Goff .* Vknee
+        Event(s ~ 0.0)
+        v ~ s .* IfElse.ifelse(s < 0.0, 1.0, Ron) + Vknee
+        i ~ s .* IfElse.ifelse(s < 0.0, Goff, 1.0) + Goff .* Vknee
     ]
 end
 
@@ -459,7 +460,7 @@ displace the knee point along the `Goff`-characteristic until `v =
 Vknee`. 
 
 ```julia
-IdealThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete; 
+IdealThyristor(n1::ElectricalNode, n2::ElectricalNode, fire; 
                Vknee = 0.0, Ron = 1e-5, Goff = 1e-5)
 ```
 
@@ -467,7 +468,7 @@ IdealThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete;
 
 * `n1::ElectricalNode` : Positive electrical node [V]
 * `n2::ElectricalNode` : Negative electrical node [V]
-* `fire::Discrete` : Discrete bool variable indicating firing of the thyristor
+* `fire` : Discrete bool variable indicating firing of the thyristor
 
 ### Keyword/Optional Arguments
 
@@ -512,7 +513,7 @@ to displace the knee point along the `Goff`-characteristic until `v =
 Vknee`.
 
 ```julia
-IdealGTOThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete; 
+IdealGTOThyristor(n1::ElectricalNode, n2::ElectricalNode, fire; 
                   Vknee = 0.0, Ron = 1e-5, Goff = 1e-5)
 ```
 
@@ -520,7 +521,7 @@ IdealGTOThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete;
 
 * `n1::ElectricalNode` : Positive electrical node [V]
 * `n2::ElectricalNode` : Negative electrical node [V]
-* `fire::Discrete` : Discrete bool variable indicating firing of the thyristor
+* `fire` : Discrete bool variable indicating firing of the thyristor
 
 ### Keyword/Optional Arguments
 
@@ -528,7 +529,7 @@ IdealGTOThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete;
 * `Ron` : Closed thyristor resistance [Ohm], default = 1.E-5
 * `Goff` : Opened thyristor conductance [S], default = 1.E-5
 """
-# function IdealGTOThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete, 
+# function IdealGTOThyristor(n1::ElectricalNode, n2::ElectricalNode, fire, 
 #                            Vknee, Ron = 1e-5, Goff = 1e-5)
 #     vals = compatible_values(n1, n2) 
 #     i = Current(vals)
@@ -543,7 +544,7 @@ IdealGTOThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete;
 #         i = s .* ifelse(off, Goff, 1.0) + Goff .* Vknee
 #     ]
 # end
-# function IdealGTOThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete; 
+# function IdealGTOThyristor(n1::ElectricalNode, n2::ElectricalNode, fire; 
 #                            Vknee = 0.0, Ron = 1e-5, Goff = 1e-5)
 #     IdealGTOThyristor(n1, n2, fire, Vknee, Ron, Goff)
 # end
@@ -601,7 +602,7 @@ of the open switch could be also exactly zero. Note, there are circuits,
 where a description with zero Ron or zero Goff is not possible.
 
 ```julia
-IdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Discrete;
+IdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control;
                    Ron = 1e-5, Goff = 1e-5)
 ```
 
@@ -609,14 +610,14 @@ IdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Discrete;
 
 * `n1::ElectricalNode` : Positive electrical node [V]
 * `n2::ElectricalNode` : Negative electrical node [V]
-* `control::Discrete` : true => switch open, false => n1-n2 connected
+* `control` : true => switch open, false => n1-n2 connected
 
 ### Keyword/Optional Arguments
 
 * `Ron` : Closed switch resistance [Ohm], default = 1.E-5
 * `Goff` : Opened switch conductance [S], default = 1.E-5
 """
-function IdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Discrete;
+function IdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control;
                             Ron, Goff = 1e-5)
     vals = compatible_values(n1, n2)
     i = Current(vals)
@@ -643,7 +644,7 @@ of the open switch could be also exactly zero. Note, there are circuits,
 where a description with zero Ron or zero Goff is not possible.
 
 ```julia
-IdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Discrete;
+IdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control;
                    Ron = 1e-5, Goff = 1e-5)
 ```
 
@@ -651,14 +652,14 @@ IdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Discrete;
 
 * `n1::ElectricalNode` : Positive electrical node [V]
 * `n2::ElectricalNode` : Negative electrical node [V]
-* `control::Discrete` : true => n1-n2 connected, false => switch open
+* `control` : true => n1-n2 connected, false => switch open
 
 ### Keyword/Optional Arguments
 
 * `Ron` : Closed switch resistance [Ohm], default = 1.E-5
 * `Goff` : Opened switch conductance [S], default = 1.E-5
 """
-function IdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Discrete;
+function IdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control;
                             Ron,  Goff = 1e-5)
     vals = compatible_values(n1, n2)
     i = Current(vals)

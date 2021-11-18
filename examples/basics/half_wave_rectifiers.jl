@@ -1,5 +1,5 @@
 
-
+using IfElse
 export HalfWaveRectifier, StructuralHalfWaveRectifier
 
 
@@ -9,8 +9,8 @@ function VSource(n1::NumberOrUnknown{UVoltage}, n2::NumberOrUnknown{UVoltage}, V
     v = Voltage()
     [
         Branch(n1, n2, v, i) 
-        v = V * sin(2 * pi * f * t + ang)
-    end
+        v ~ V * sin(2 * pi * f * t + ang)
+    ]
 end
 
 
@@ -22,12 +22,12 @@ function IdealDiode(n1, n2)
     openswitch = Discrete(false)  # on/off state of diode
     [
         Branch(n1, n2, v, i)
-        BoolEvent(openswitch, -s)  # openswitch becomes true when s goes negative
-        v = ifelse(openswitch, s, 0.0) 
-        i = ifelse(openswitch, 0.0, s) 
+        BoolEvent(openswitch, -s ~ 0)  # openswitch becomes true when s goes negative
+        v ~ ifelse(openswitch, s, 0.0) 
+        i ~ ifelse(openswitch, 0.0, s) 
         ## v = s * ifelse(openswitch, 1.0, 1e-5) 
         ## i = s * ifelse(openswitch, 1e-5, 1.0) 
-     end
+    ]
 end
 
 function OpenDiode(n1, n2)
