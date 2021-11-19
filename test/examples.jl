@@ -5,7 +5,7 @@ using OrdinaryDiffEq
 function MyResistor(n1::ElectricalNode, n2::ElectricalNode; 
                   R, T = 300.15, T_ref = 300.15, alpha = 0.0)
     i = Current()
-    @parameters T=300.15
+    @named T = Parameter(300.15)
     v = Voltage(default_value(n1) - default_value(n2))
     [
         Branch(n1, n2, v, i)
@@ -15,7 +15,8 @@ end
 
 function SimpleParameter()
     @variables n1(t)
-    @parameters C=2.0 R=1.0
+    @named C = Parameter(2.0)
+    @named R = Parameter(1.0)
     g = 0.0
     [
         :vsrc => SineVoltage(n1, g, V = 1.0)

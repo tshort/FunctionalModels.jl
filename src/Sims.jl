@@ -5,7 +5,7 @@ using ModelingToolkit: Equation, @parameters, @variables, ModelingToolkit, Num
 import Symbolics
 import IfElse
 
-export Unknown, Branch, RefBranch, Event, BoolEvent, Discrete, system, t, D, der, default_value, compatible_values, @comment
+export Unknown, Branch, RefBranch, Event, BoolEvent, Variable, Parameter, system, t, D, der, default_value, compatible_values, @comment
 
 
 # Documentation helper
@@ -111,13 +111,13 @@ struct NameCtx end
 Unknown(value = 0.0; name = :u) 
 ```
 
-`Unknown` is a helper to create variables with default values.
-The default values determines the type and shape of the result.
-It also adds metadata to variables to that variable names don't clash.
+`Unknown` is a helper to create a variable with a default value.
+The default value determines the type and shape of the result.
+It also adds metadata to variables so that variable names don't clash.
 The viewable variable name is based on a `gensym`.
 `name` is stored as metadata, and when equations are flattened
 with `system`, variables are renamed to include subsystem names
-and varable base name. 
+and variable base name. 
 
 For example, `Unknown(:v)` may show as `var"##v#1057"(t)`, but
 after flattening, it will show as something like `ss₊c1₊v(t)` 
@@ -141,11 +141,37 @@ function Unknown(value = 0.0; name = :u)
     end
 end
 
-function Discrete(value = 0.0; name = :d) 
+function Variable(value = 0.0; name = :d) 
     s = gensym(name)
     x = Symbolics.setdefaultval((Symbolics.Sym){typeof(value)}(s), value)
     x = Symbolics.setmetadata(x, NameCtx, name)
     Symbolics.wrap(Symbolics.setmetadata(x, IdCtx, gensym()))
+end
+
+"""
+```julia
+Parameter(value = 0.0; name) 
+```
+
+`Parameter` is a helper to create a parameter with default values.
+The default value determines the type and shape of the result.
+It also adds metadata to variables so that variable names don't clash.
+The viewable variable name is based on a `gensym`.
+`name` is stored as metadata, and when equations are flattened
+with `system`, variables are renamed to include subsystem names
+and the variable base name. 
+
+For example, `Parameter(:R)` may show as `var"##R#1057"`, but
+after flattening, it will show as something like `ss₊r1₊R` 
+(`ss` and `r1` are subsystems).
+
+"""
+function Parameter(value = 0.0; name = :u) 
+    s = gensym(name)
+    x = Symbolics.setdefaultval((Symbolics.Sym){typeof(value)}(s), value)
+    x = Symbolics.setmetadata(x, Symbolics.VariableSource, (:parameters, name))
+    x = Symbolics.setmetadata(x, NameCtx, name)
+    ModelingToolkit.toparam(Symbolics.wrap(Symbolics.setmetadata(x, IdCtx, gensym())))
 end
 
 """
@@ -339,12 +365,16 @@ struct EqCtx
 end
 
 # Return the name stored in metadata with subscript indices included (if needed).
-function basevarname(v)
+function basevarname(v::ModelingToolkit.Term)
+    name = v.f.name
+    return Symbol(ModelingToolkit.getmetadata(v, NameCtx, name),
+                  (x for x in string(name) if x in ('₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉'))...)
+end
+function basevarname(v::ModelingToolkit.Sym)
     name = v.name
     return Symbol(ModelingToolkit.getmetadata(v, NameCtx, name),
                   (x for x in string(name) if x in ('₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉'))...)
 end
-basevarname(v::ModelingToolkit.Term) = basevarname(v.f)
 
 # Prepare the newvars map and fix up duplicate names.
 function prep_variables(ctx)
