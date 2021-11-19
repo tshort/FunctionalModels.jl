@@ -1,3 +1,34 @@
+using Sims, Sims.Lib, Sims.Examples.Lib
+using ModelingToolkit
+using OrdinaryDiffEq
+# using Plots
+function MyResistor(n1::ElectricalNode, n2::ElectricalNode; 
+                  R, T = 300.15, T_ref = 300.15, alpha = 0.0)
+    i = Current()
+    @parameters T=300.15
+    v = Voltage(default_value(n1) - default_value(n2))
+    [
+        Branch(n1, n2, v, i)
+        v ~ R .* (1 + alpha .* (T - T_ref)) .* i
+    ]
+end
+
+function SimpleParameter()
+    @variables n1(t)
+    @parameters C=2.0 R=1.0
+    g = 0.0
+    [
+        :vsrc => SineVoltage(n1, g, V = 1.0)
+        :r1 => MyResistor(n1, g, R = R, alpha = 1.0)
+        :c1 => Capacitor(n1, g, C = C)
+    ]
+end
+function runSimpleParameter()
+    m = SimpleParameter()
+    ctx = Sims.flatten(m)
+    @named sys = system(m)
+end
+
 
 using Sims, Sims.Lib, Sims.Examples.Lib
 using ModelingToolkit
