@@ -340,10 +340,11 @@ end
 
 # Return the name stored in metadata with subscript indices included (if needed).
 function basevarname(v)
-    name = v.f.name
+    name = v.name
     return Symbol(ModelingToolkit.getmetadata(v, NameCtx, name),
                   (x for x in string(name) if x in ('₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉'))...)
 end
+basevarname(v::ModelingToolkit.Term) = basevarname(v.f)
 
 # Prepare the newvars map and fix up duplicate names.
 function prep_variables(ctx)
@@ -364,8 +365,12 @@ function prep_variables(ctx)
     nothing
 end
 
-# function sweep_vars(a::Union{ModelingToolkit.Sym,ModelingToolkit.Term}, names, ctx::EqCtx)
-function sweep_vars(a::ModelingToolkit.Term, names, ctx::EqCtx)
+_nameof(a) = nameof(a)
+_nameof(a::ModelingToolkit.Term) = nameof(a.f)
+
+function sweep_vars(a::Union{ModelingToolkit.Sym,ModelingToolkit.Term}, names, ctx::EqCtx)
+# function sweep_vars(a::ModelingToolkit.Term, names, ctx::EqCtx)
+    _nameof(a) == :t && return
     if !haskey(ctx.varmap, a)
         ctx.varmap[a] = names
     else 
