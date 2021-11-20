@@ -20,12 +20,12 @@ export CauerLowPassAnalog,
        CharacteristicIdealDiodes,
        ChuaCircuit,
        HeatingResistor,
-       HeatingRectifier,
+    #    HeatingRectifier,
        Rectifier,
-       ShowSaturatingInductor,
+    #    ShowSaturatingInductor,
        ShowVariableResistor,
-       ControlledSwitchWithArc,
-       CharacteristicThyristors,
+    #    ControlledSwitchWithArc,
+    #    CharacteristicThyristors,
        run_electrical_examples
 
 """
@@ -612,12 +612,12 @@ function run_electrical_examples()
     cc    = sim(ChuaCircuit(), 5000.0)
     hr    = sim(HeatingResistor(), 5.0)
     svr   = sim(ShowVariableResistor(), 6.2832)
-    ct    = sim(CharacteristicThyristors(), 2.0)
+    # ct    = sim(CharacteristicThyristors(), 2.0)
     # s     = create_simstate(HeatingRectifier())
     # initialize!(s)
     # hr    = sim(s, 5.0)
     # r     = sim(Rectifier(), tstop = 0.1, alg = false)
-    cswa  = sunsim(ControlledSwitchWithArc(), tstop = 6.0, alg = false) # doesn't solve with DASSL
+    # cswa  = sunsim(ControlledSwitchWithArc(), tstop = 6.0, alg = false) # doesn't solve with DASSL
     ## -- Broken examples --
     ## ssi   = sim(ShowSaturatingInductor(), 6.2832)
 end

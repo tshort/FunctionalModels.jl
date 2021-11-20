@@ -15,10 +15,15 @@ export Integrator, Derivativ, Integrator, Derivative,
        LimPID, StateSpace, Limiter, DeadZone, BooleanPulse, Pulse
 ## Electrical
 export SeriesProbe, BranchHeatPort,
-       Resistor, HeatingResistor, Capacitor, Inductor, SaturatingInductor, Transformer, EMF,
-       IdealDiode, IdealThyristor, IdealGTOThyristor, IdealOpAmp,
+       Resistor, HeatingResistor, Capacitor, Inductor, 
+    #    SaturatingInductor, 
+       Transformer, EMF,
+       IdealDiode, 
+    #    IdealThyristor, IdealGTOThyristor, 
+       IdealOpAmp,
        IdealOpeningSwitch, IdealClosingSwitch,
-       ControlledIdealOpeningSwitch, ControlledIdealClosingSwitch, ControlledOpenerWithArc, ControlledCloserWithArc,
+       ControlledIdealOpeningSwitch, ControlledIdealClosingSwitch, 
+    #    ControlledOpenerWithArc, ControlledCloserWithArc,
        Diode, ZDiode, HeatingDiode,
        SignalVoltage, SineVoltage, StepVoltage, SignalCurrent
 ## Heat Transfer
