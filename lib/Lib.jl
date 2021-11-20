@@ -24,7 +24,8 @@ export SeriesProbe, BranchHeatPort,
        IdealOpeningSwitch, IdealClosingSwitch,
        ControlledIdealOpeningSwitch, ControlledIdealClosingSwitch, 
     #    ControlledOpenerWithArc, ControlledCloserWithArc,
-       Diode, ZDiode, HeatingDiode,
+       Diode, ZDiode, 
+    #    HeatingDiode,
        SignalVoltage, SineVoltage, StepVoltage, SignalCurrent
 ## Heat Transfer
 export HeatCapacitor, ThermalConductor, Convection, BodyRadiation, ThermalCollector,
