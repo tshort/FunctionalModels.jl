@@ -43,4 +43,4 @@ sys = system(m)
 
 @variables x(t) ssₓx(t) ssₓm2ₓx(t)
 
-@test isequal(states(sys), [x, ssₓx, ssₓm2ₓx])
+@test all(x in states(sys) for x in [x, ssₓx, ssₓm2ₓx])

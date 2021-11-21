@@ -4,8 +4,9 @@ module Sims
 using ModelingToolkit: Equation, @parameters, @variables, ModelingToolkit, Num
 import Symbolics
 import IfElse
+import OrdinaryDiffEq
 
-export Unknown, Branch, RefBranch, Event, BoolEvent, Variable, Parameter, system, t, D, der, default_value, compatible_values, @comment
+export Unknown, Branch, RefBranch, Event, BoolEvent, Variable, Parameter, system, t, D, der, default_value, compatible_values, sim, @comment
 
 
 # Documentation helper
@@ -518,6 +519,12 @@ compatible_values(x) = zero(default_value(x))
 # This should work for real and complex valued unknowns, including
 # arrays. For something more complicated, it may not.
 
+function sim(x, t, solver = OrdinaryDiffEq.Rosenbrock23, problem = OrdinaryDiffEq.ODEProblem)
+    sys = system(x)
+    prob = problem(sys, Dict(k => 0.0 for k in ModelingToolkit.states(sys)), (0, t))
+    ModelingToolkit.solve(prob, solver())
+end
+sim(x::Function, t, solver = OrdinaryDiffEq.Rosenbrock23, problem = OrdinaryDiffEq.ODEProblem) = sim(x(), t, solver, problem)
 
 
 # load standard Sims libraries

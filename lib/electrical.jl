@@ -32,8 +32,8 @@ function ex_ChuaCircuit()
         v = Voltage(compatible_values(n1, n2))
         [
             Branch(n1, n2, v, i)
-            i = IfElse.ifelse(v < -Ve, Gb .* (v + Ve) - Ga .* Ve,
-                              IfElse.ifelse(v > Ve, Gb .* (v - Ve) + Ga*Ve, Ga*v))
+            i = ie(v < -Ve, Gb .* (v + Ve) - Ga .* Ve,
+                   ie(v > Ve, Gb .* (v - Ve) + Ga*Ve, Ga*v))
         ]
     end
     [
@@ -50,8 +50,6 @@ end
 """
 @comment 
 
-
-using IfElse
 
 ########################################
 ## Basic
@@ -439,8 +437,8 @@ function IdealDiode(n1::ElectricalNode, n2::ElectricalNode;
     [
         Branch(n1, n2, v, i)
         Event(s ~ 0.0)
-        v ~ s .* IfElse.ifelse(s < 0.0, 1.0, Ron) + Vknee
-        i ~ s .* IfElse.ifelse(s < 0.0, Goff, 1.0) + Goff .* Vknee
+        v ~ s .* ie(s < 0.0, 1.0, Ron) + Vknee
+        i ~ s .* ie(s < 0.0, Goff, 1.0) + Goff .* Vknee
     ]
 end
 
@@ -491,8 +489,8 @@ function IdealThyristor(n1::ElectricalNode, n2::ElectricalNode, fire;
     [
         Branch(n1, n2, v, i)
         BoolEvent(spositive, s)
-        v ~ s .* IfElse.ifelse(off, 1.0, Ron) + Vknee
-        i ~ s .* IfElse.ifelse(off, Goff, 1.0) + Goff .* Vknee
+        v ~ s .* ie(off, 1.0, Ron) + Vknee
+        i ~ s .* ie(off, Goff, 1.0) + Goff .* Vknee
     ]
 end
 
@@ -540,8 +538,8 @@ IdealGTOThyristor(n1::ElectricalNode, n2::ElectricalNode, fire;
 #     [
 #         Branch(n1, n2, v, i)
 #         BoolEvent(snegative, -s)
-#         v = s .* IfElse.ifelse(off, 1.0, Ron) + Vknee
-#         i = s .* IfElse.ifelse(off, Goff, 1.0) + Goff .* Vknee
+#         v = s .* ie(off, 1.0, Ron) + Vknee
+#         i = s .* ie(off, Goff, 1.0) + Goff .* Vknee
 #     ]
 # end
 # function IdealGTOThyristor(n1::ElectricalNode, n2::ElectricalNode, fire; 
@@ -625,8 +623,8 @@ function IdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control;
     s = Unknown(vals)  # dummy variable
     [
         Branch(n1, n2, v, i)
-        v ~ s .* IfElse.ifelse(control, 1.0, Ron)
-        i ~ s .* IfElse.ifelse(control, Goff, 1.0)
+        v ~ s .* ie(control, 1.0, Ron)
+        i ~ s .* ie(control, Goff, 1.0)
     ]
 end
   
@@ -667,8 +665,8 @@ function IdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control;
     [
         Branch(n1, n2, v, i)
         ## DiscreteEvent(control)
-        v ~ s .* IfElse.ifelse(control, Ron, 1.0)
-        i ~ s .* IfElse.ifelse(control, 1.0, Goff)
+        v ~ s .* ie(control, Ron, 1.0)
+        i ~ s .* ie(control, 1.0, Goff)
     ]
 end
   
@@ -711,8 +709,8 @@ function ControlledIdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, co
     [
         Branch(n1, n2, v, i)
         Event(control ~ level)  # switch opens when control goes below level
-        v ~ s .* IfElse.ifelse(control > level, 1.0, Ron)
-        i ~ s .* IfElse.ifelse(control > level, Goff, 1.0)
+        v ~ s .* ie(control > level, 1.0, Ron)
+        i ~ s .* ie(control > level, Goff, 1.0)
     ]
 end
                                       
@@ -954,9 +952,9 @@ function Diode(n1::ElectricalNode, n2::ElectricalNode;
     v = Voltage()
     [
         Branch(n1, n2, v, i)
-        i ~ IfElse.ifelse(v ./ Vt > Maxexp,
-                          Ids .* exp(Maxexp) .* (1 + v ./ Vt - Maxexp) - 1 + v ./ R,
-                          Ids .* (exp(v ./ Vt) - 1) + v ./ R)
+        i ~ ie(v ./ Vt > Maxexp,
+               Ids .* exp(Maxexp) .* (1 + v ./ Vt - Maxexp) - 1 + v ./ R,
+               Ids .* (exp(v ./ Vt) - 1) + v ./ R)
     ]
 end
 
@@ -975,11 +973,11 @@ function ZDiode(n1::ElectricalNode, n2::ElectricalNode;
     v = Voltage(vals)
     [
         Branch(n1, n2, v, i)
-        i ~ IfElse.ifelse(v ./ Vt > Maxexp,
-                          Ids .* exp(Maxexp) .* (1 + v ./ Vt - Maxexp) - 1 + v ./ R,
-                          IfElse.ifelse((v + Bv) < -Maxexp .* (Nbv .* Vt),
-                                        -Ids - Ibv .* exp(Maxexp) .* (1 - (v+Bv) ./ (Nbv .* Vt) - Maxexp) + v ./ R,
-                                        Ids .* (exp(v ./ Vt)-1) - Ibv .* exp(-(v + Bv)/(Nbv .* Vt)) + v ./ R))
+        i ~ ie(v ./ Vt > Maxexp,
+               Ids .* exp(Maxexp) .* (1 + v ./ Vt - Maxexp) - 1 + v ./ R,
+               ie((v + Bv) < -Maxexp .* (Nbv .* Vt),
+                  -Ids - Ibv .* exp(Maxexp) .* (1 - (v+Bv) ./ (Nbv .* Vt) - Maxexp) + v ./ R,
+                  Ids .* (exp(v ./ Vt)-1) - Ibv .* exp(-(v + Bv)/(Nbv .* Vt)) + v ./ R))
     ]
 end
 
@@ -1148,7 +1146,7 @@ function StepVoltage(n1::ElectricalNode, n2::ElectricalNode;
     v = Voltage()
     [
         Branch(n1, n2, v, i) 
-        v ~ IfElse.ifelse(t > start, V + offset, offset)
+        v ~ ie(t > start, V + offset, offset)
         # Event(t - start,
         #       [reinit(v_mag, offset + V)],        # positive crossing
         #       [reinit(v_mag, offset)])            # negative crossing

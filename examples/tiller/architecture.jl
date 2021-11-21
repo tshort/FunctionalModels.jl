@@ -1,5 +1,5 @@
 
-using Sims, Sims.Lib
+using Sims, Sims.Lib, IfElse
 
 export FlatSystem, BaseSystem, IdealSensor, SampleHoldSensor,
        IdealActuator, LimitedActuator, ProportionalController,
@@ -34,17 +34,17 @@ http://book.xogeny.com/components/architectures/sensor_comparison/
 function FlatSystem(phi1 = Angle(),
                     phi2 = Angle())
     desiredspeed = AngularVelocity("desired speed")
-    d = Discrete(true)
+    d = Variable()
     omega2 = AngularVelocity("shaft speed")
     [
         der(phi2) ~ omega2
         d ~ desiredspeed
-        Inertia(phi1, 0.1) # left side
-        Inertia(phi2, 0.3) # right side
-        SpringDamper(phi1, phi2, 100.0, 3.0)
-        Damper(phi2, 0.0, 4.0)
-        BooleanPulse(d)
-        SignalTorque(phi1, 0.0, 20 * (ifelse(d, 1.0, 0.0) - omega2))
+        :in1 => Inertia(phi1, 0.1) # left side
+        :in2 => Inertia(phi2, 0.3) # right side
+        :sd  => SpringDamper(phi1, phi2, 100.0, 3.0)
+        :d   => Damper(phi2, 0.0, 4.0)
+        # BooleanPulse(d)
+        :st  => SignalTorque(phi1, 0.0, 20 * (IfElse.ifelse(d, 1.0, 0.0) - omega2))
     ]
 end
 
@@ -57,10 +57,10 @@ Basic plant for the example
 """
 function BasicPlant(phi1 = Angle(), phi2 = Angle())
     [
-        Inertia(phi1, 0.1) # left side
-        Inertia(phi2, 0.3) # right side
-        SpringDamper(phi1, phi2, 100.0, 3.0)
-        Damper(phi2, 0.0, 4.0)
+        :in1 => Inertia(phi1, 0.1) # left side
+        :in2 => Inertia(phi2, 0.3) # right side
+        :sd  => SpringDamper(phi1, phi2, 100.0, 3.0)
+        :d   => Damper(phi2, 0.0, 4.0)
     ]
 end
 
@@ -77,12 +77,12 @@ end
 Sample-and-hold velocity sensor
 """
 function SampleHoldSensor(phi, signal, sampletime)
-    omega_measured = Discrete(0.0)
+    omega_measured = Variable(0.0)
     omega = AngularVelocity()
     [
         der(phi) ~ omega
-        Event(sin(t / sampletime * 2pi ),
-              reinit(omega_measured, omega))
+        Event(sin(t / sampletime * 2pi ) ~ 0.0,
+              omega_measured ~ omega)
         signal ~ omega_measured
     end
 end
@@ -165,11 +165,11 @@ function BaseSystem(; Plant = BasicPlant,
     [
         der(phi2) ~ omega2
         BooleanPulse(d)
-        setpoint ~ ifelse(d, 1.0, 0.0)
-        Plant(phi1, phi2)
-        Sensor(phi2, measured)
-        Controller(setpoint, measured, tau)
-        Actuator(phi1, tau)
+        setpoint ~ IfElse.ifelse(d, 1.0, 0.0)
+        :plant      => Plant(phi1, phi2)
+        :sensor     => Sensor(phi2, measured)
+        :controller => Controller(setpoint, measured, tau)
+        :actuator   => Actuator(phi1, tau)
     ]
 end
 
@@ -191,8 +191,8 @@ Variant1a = () -> BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.036));
 BaseSystem variant with PID control along with a realistic actuator
 """
 Variant2() = BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.01),
-                       Controller = PIDController(yMax=15, Td=0.1, k=20, Ti=0.1),
-                       Actuator = LimitedActuator(delayTime=0.005, uMax=10));
+                        Controller = PIDController(yMax=15, Td=0.1, k=20, Ti=0.1),
+                        Actuator = LimitedActuator(delayTime=0.005, uMax=10));
 
 
 
@@ -200,6 +200,6 @@ Variant2() = BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.01),
 BaseSystem variant with a tuned PID control along with a realistic actuator
 """
 Variant2a() = BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.01),
-                        Controller = PIDController(yMax=50, Td=0.01, k=4, Ti=0.07),
-                        Actuator = LimitedActuator(delayTime=0.005, uMax=50));
+                         Controller = PIDController(yMax=50, Td=0.01, k=4, Ti=0.07),
+                         Actuator = LimitedActuator(delayTime=0.005, uMax=50));
 

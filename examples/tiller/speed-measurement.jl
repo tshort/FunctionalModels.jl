@@ -9,7 +9,7 @@ export SecondOrderSystem, SecondOrderSystemUsingSimsLib, SampleAndHold, Interval
 These examples show several ways of measuring speed on a rotational
 system. They are based on Michael's section on [Speed
 Measurement](http://book.xogeny.com/behavior/discrete/measuring/). These
-examples include use of Discrete variables and Events.
+examples include use of Variable variables and Events.
 
 The system is based on the following plant:
 
@@ -60,10 +60,10 @@ function SecondOrderSystemUsingSimsLib(; phi1 = Angle(label = "Angle of inertia 
     [
         der(phi1) ~ omega1
         der(phi2) ~ omega2
-        Inertia(phi1, J1)
-        Inertia(phi2, J2)
-        SpringDamper(phi1, phi2, k1, d1)
-        SpringDamper(phi2, 0.0, k2, d2)
+        :in1 => Inertia(phi1, J1)
+        :in2 => Inertia(phi2, J2)
+        :sd1 => SpringDamper(phi1, phi2, k1, d1)
+        :sd2 => SpringDamper(phi2, 0.0, k2, d2)
     ]
 end
 
@@ -78,11 +78,11 @@ http://book.xogeny.com/behavior/discrete/measuring/#sample-and-hold
 function SampleAndHold()
     sample_time = 0.125
     omega1 = Unknown("omega1")
-    omega1_measured = Discrete(0.0)
+    omega1_measured = Variable(0.0)
     omega1_measured_u = Unknown("omega1 measured")
     [
-        Event(sin(t / sample_time * 2pi ),
-              [reinit(omega1_measured, omega1)])
+        Event(sin(t / sample_time * 2pi) ~ 0.0,
+              omega1_measured ~ omega1)
         SecondOrderSystem(omega1 = omega1)
         omega1_measured_u ~ omega1_measured
     ]
@@ -99,19 +99,19 @@ function IntervalMeasure()
     tooth_angle = 2pi / teeth
     @named phi1 = Unknown()
     @named omega1_measured_u = Unknown()
-    omega1_measured = Discrete(0.0)
-    next_phi = Discrete(default_value(phi1) + tooth_angle)
-    prev_phi = Discrete(default_value(phi1) - tooth_angle)
-    last_time = Discrete(0.0)
+    omega1_measured = Variable(0.0)
+    next_phi = Variable(default_value(phi1) + tooth_angle)
+    prev_phi = Variable(default_value(phi1) - tooth_angle)
+    last_time = Variable(0.0)
     [
-        Event(ifelse(phi1 > next_phi, phi1 - next_phi, prev_phi - phi1),
+        Event(IfElse.ifelse(phi1 > next_phi, phi1 - next_phi, prev_phi - phi1),
               [
-                       reinit(omega1_measured, tooth_angle / (t - last_time))
-                       reinit(next_phi, phi1 + tooth_angle)
-                       reinit(prev_phi, phi1 - tooth_angle)
-                       reinit(last_time, t)
-                       ])
-        SecondOrderSystem(phi1 = phi1)
+               omega1_measured ~ tooth_angle / (t - last_time)
+               next_phi ~ phi1 + tooth_angle
+               prev_phi ~ phi1 - tooth_angle
+               last_time ~ t
+              ])
+        :sos => SecondOrderSystem(phi1 = phi1)
         omega1_measured_u ~ omega1_measured
     ]
 end
@@ -128,23 +128,23 @@ function PulseCounting()
     tooth_angle = 2pi / teeth
     phi1 = Unknown("phi1")
     omega1_measured_u = Unknown("omega1 measured")
-    omega1_measured = Discrete(0.0)
-    next_phi = Discrete(default_value(phi1) + tooth_angle)
-    prev_phi = Discrete(default_value(phi1) - tooth_angle)
-    count = Discrete(0)
+    omega1_measured = Variable(0.0)
+    next_phi = Variable(default_value(phi1) + tooth_angle)
+    prev_phi = Variable(default_value(phi1) - tooth_angle)
+    count = Variable(0)
     [
-        Event(ifelse(phi1 > next_phi, phi1 - next_phi, prev_phi - phi1),
+        Event(IfElse.ifelse(phi1 > next_phi, phi1 - next_phi, prev_phi - phi1) ~ 0.0,
               [
-                       reinit(next_phi, phi1 + tooth_angle)
-                       reinit(prev_phi, phi1 - tooth_angle)
-                       reinit(count, count + 1)
-                       ])
-        Event(sin(t / sample_time * 2pi),
+               next_phi ~ phi1 + tooth_angle
+               prev_phi ~ phi1 - tooth_angle
+               count ~ count + 1
+              ])
+        Event(sin(t / sample_time * 2pi) ~ 0.0,
               [
-                       reinit(omega1_measured, count * tooth_angle / sample_time)
-                       reinit(count, 0)
-                       ])
-        SecondOrderSystem(phi1 = phi1)
+               omega1_measured ~ count * tooth_angle / sample_time
+               count ~ 0
+              ])
+        :sos => SecondOrderSystem(phi1 = phi1)
         omega1_measured_u ~ omega1_measured
     ]
 end
