@@ -20,8 +20,7 @@ function Vanderpol()
     # Expressions with Unknowns are kept as expressions. Expressions of
     # regular variables are evaluated immediately (like normal).
     [
-        # The -1.0 in der(x, -1.0) is the initial value for the derivative 
-        D(x, -1.0) ~ (1 - y^2) * x - y 
+        D(x) ~ (1 - y^2) * x - y 
         D(y) ~ x
     ]
 end

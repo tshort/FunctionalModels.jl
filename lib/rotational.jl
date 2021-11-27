@@ -209,8 +209,8 @@ function SpringDamper(flange_a::Flange, flange_b::Flange; c::Signal, d::Signal)
     phi_rel = Angle(default_value(flange_b) - default_value(flange_a))
     tau = Torque()
     [
-        Spring(flange_a, flange_b, c)
-        Damper(flange_a, flange_b, d)
+        :s => Spring(flange_a, flange_b, c = c)
+        :d => Damper(flange_a, flange_b, d = d)
     ]
 end
 SpringDamper(flange_a::Flange, flange_b::Flange, hp::HeatPort; c::Signal, d::Signal) =
@@ -368,7 +368,7 @@ MBranchHeatPort(flange_a::Flange, flange_b::Flange, hp::HeatPort,
 
 """
 function MBranchHeatPort(flange_a::Flange, flange_b::Flange, hp::HeatPort,
-                         model::Function, args...)
+                         model::Function; args...)
     phi_rel = Angle(default_value(flange_b) - default_value(flange_a))
     w_rel = AngularVelocity()
     tau = Torque()
@@ -467,7 +467,7 @@ The input signal tau defines an external torque in [Nm] which acts
 connected to this flange is driven by torque tau.
 
 ```julia
-SignalTorque(flange_a::Flange, flange_b::Flange, tau)
+SignalTorque(flange_a::Flange, flange_b::Flange; tau)
 ```
 
 ### Arguments

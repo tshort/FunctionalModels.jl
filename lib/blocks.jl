@@ -49,9 +49,10 @@ Integrator(u::Signal, y::Signal; k = 1.0, y_start = 0.0)
 function Integrator(u::Signal, y::Signal; 
                     k = 1.0,       # Gain
                     y_start = 0.0) # output initial value
-    y.value = y_start
+    @named a = Unknown(y_start)
     [
         der(y) ~ k .* u
+        a ~ y
     ]
 end
 
@@ -97,12 +98,13 @@ function Derivative(u::Signal, y::Signal;
                     k = 1.0,   # Gain
                     x_start = 0.0, # initial value of state
                     y_start = 0.0) # output initial value
-    y.value = y_start
-    x = Unknown(x_start)  # state of the block
+    @named yval = Unknown(y_start)
+    @named x = Unknown(x_start)  # state of the block
     zeroGain = abs(k) < eps()
     [
         der(x) ~ zeroGain ? 0 : (u - x) ./ T
         y ~ zeroGain ? 0 : (k ./ T) .* (u - x)
+        y ~ yval
     ]
 end
 
@@ -246,10 +248,10 @@ function LimPID(u_s::Signal, u_m::Signal, y::Signal;
     zeroGain = abs(k) < eps()
     [
         i ~ u_s - u_m + (y - x) / (k * Ni)
-        with_I ? Integrator(i, I, 1/Ti) : []
-        with_D ? Derivative(d, D, Td, max(Td/Nd, 1e-14)) : []
+        with_I ? :int => Integrator(i, I, k = 1/Ti) : []
+        with_D ? :der => Derivative(d, D, T = Td, k = max(Td/Nd, 1e-14)) : []
         d ~ wd * u_s - u_m
-        Limiter(x, y, yMax, yMin)
+        :lim => Limiter(x, y, uMax = yMax, uMin = yMin)
         x ~ k * ((with_I ? I : 0.0) + (with_D ? D : 0.0) + wp * u_s - u_m)
     ]
 end

@@ -84,6 +84,20 @@ function runHeatingResistor()   #### BROKEN
     (sys = sys, sol = sol)
 end
 
+function runShowVariableResistor()
+    sys = system(ShowVariableResistor())
+    prob = ODAEProblem(sys, Dict(k => 0.0 for k in states(sys)), (0, 6.0))
+    sol = solve(prob, Tsit5())
+    for m in (CauerLowPassAnalog, CauerLowPassOPV, CauerLowPassOPV2)
+        sys = system(m())
+        prob = ODAEProblem(sys, [k => 0.0 for k in states(sys)], (0, 40.0))
+        sol = solve(prob, Tsit5())
+        # display(plot(sol))
+        res[m] = (sys = sys, sol = sol)
+    end
+    res
+end
+
 
 
 runCauerLowPass()

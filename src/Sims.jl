@@ -2,6 +2,7 @@
 module Sims
 
 using ModelingToolkit: Equation, @parameters, @variables, ModelingToolkit, Num
+const MTK = ModelingToolkit
 import Symbolics
 import IfElse
 import OrdinaryDiffEq
@@ -100,7 +101,7 @@ and functions.
 t
 
 """ Differential(t) """
-const D = ModelingToolkit.Differential(t)
+const D = MTK.Differential(t)
 """ Differential(t) """
 const der = D
 
@@ -129,13 +130,13 @@ function Unknown(value = 0.0; name = :u)
     s = gensym(name)
     if length(value) > 1    # array
         map(Iterators.product(1:length(value))) do ind
-            x = Symbolics.setmetadata(ModelingToolkit.Num(ModelingToolkit.Sym{(ModelingToolkit.FnType){NTuple{1, Any}, Real}}(s, ind...))(Symbolics.value(t)), 
+            x = Symbolics.setmetadata(MTK.Num(MTK.Sym{(MTK.FnType){NTuple{1, Any}, Real}}(s, ind...))(Symbolics.value(t)), 
                                   Symbolics.VariableDefaultValue, value[ind...])
             x = Symbolics.setmetadata(x, NameCtx, name)
             Symbolics.setmetadata(x, IdCtx, gensym())
         end
     else
-        x = Symbolics.setmetadata(ModelingToolkit.Num(ModelingToolkit.Variable{ModelingToolkit.FnType{Tuple{Any},Real}}(s))(t), 
+        x = Symbolics.setmetadata(MTK.Num(MTK.Variable{MTK.FnType{Tuple{Any},Real}}(s))(t), 
                               Symbolics.VariableDefaultValue, value)
         x = Symbolics.setmetadata(x, NameCtx, name)
         Symbolics.setmetadata(x, IdCtx, gensym())
@@ -172,7 +173,7 @@ function Parameter(value = 0.0; name = :u)
     x = Symbolics.setdefaultval((Symbolics.Sym){typeof(value)}(s), value)
     x = Symbolics.setmetadata(x, Symbolics.VariableSource, (:parameters, name))
     x = Symbolics.setmetadata(x, NameCtx, name)
-    ModelingToolkit.toparam(Symbolics.wrap(Symbolics.setmetadata(x, IdCtx, gensym())))
+    MTK.toparam(Symbolics.wrap(Symbolics.setmetadata(x, IdCtx, gensym())))
 end
 
 """
@@ -325,16 +326,35 @@ system(a)
 """
 function system(a; simplify = true, name = :sims_system)
     ctx = flatten(a)
-    if length(ctx.events) > 0
-        sys = ModelingToolkit.ODESystem(ctx.eq, t; continuous_events = ctx.events, name = name)
-    else
-        sys = ModelingToolkit.ODESystem(ctx.eq, t; name = name)
-    end
+    eqs = separate_duplicate_diffs(ctx.eq)
+    sys = MTK.ODESystem(eqs,
+                        name = name, 
+                        continuous_events = length(ctx.events) > 0 ? ctx.events : nothing)
     if simplify
-        return ModelingToolkit.structural_simplify(sys)
+        return MTK.structural_simplify(sys)
     else
         return sys
     end
+end
+
+function separate_duplicate_diffs(eqs)
+    diffeqs = Dict()
+    # collect diff terms
+    neweqs = Equation[]
+    for eq in eqs
+        if MTK.isdiffeq(eq)
+            diffvar, _ = MTK.var_from_nested_derivative(eq.lhs)
+            if haskey(diffeqs, diffvar)
+                push!(neweqs, eq.rhs ~ diffeqs[diffvar]) 
+            else
+                push!(neweqs, eq) 
+                diffeqs[diffvar] = eq.rhs 
+            end
+        else
+            push!(neweqs, eq) 
+        end
+    end
+    return neweqs
 end
 
 function flatten(a)
@@ -349,47 +369,41 @@ function flatten(a)
     return ctx
 end
 
-struct Event
-    condition::Equation
-    affect::Union{Equation, Nothing}
-end
-Event(condition, affect, affect_neg) = Event(condition, affect.lhs ~ IfElse.ifelse(condition.lhs > condition.rhs, affect.rhs, affect_neg.rhs))
-Event(condition) = Event(condition, nothing)
-BoolEvent(d, condition) = Event(condition, d ~ true, d ~ false)
+const Event = MTK.SymbolicContinuousCallback
 
 struct EqCtx
     eq::Vector{Equation}
-    events::Vector{Equation}
+    events::Vector{Event}
     nodemap::Dict
     varmap::IdDict
     newvars::IdDict
 end
 
 # Return the name stored in metadata with subscript indices included (if needed).
-function basevarname(v::ModelingToolkit.Term)
+function basevarname(v::MTK.Term)
     name = v.f.name
-    return Symbol(ModelingToolkit.getmetadata(v, NameCtx, name),
+    return Symbol(MTK.getmetadata(v, NameCtx, name),
                   (x for x in string(name) if x in ('₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉'))...)
 end
-function basevarname(v::ModelingToolkit.Sym)
+function basevarname(v::MTK.Sym)
     name = v.name
-    return Symbol(ModelingToolkit.getmetadata(v, NameCtx, name),
+    return Symbol(MTK.getmetadata(v, NameCtx, name),
                   (x for x in string(name) if x in ('₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉'))...)
 end
 
 # Prepare the newvars map and fix up duplicate names.
 function prep_variables(ctx)
     for (k, v) in ctx.varmap
-        kval = ModelingToolkit.value(k)
-        ctx.newvars[k] = Num(ModelingToolkit.rename(kval, Symbol(join((v..., basevarname(kval)), "ₓ"))))
+        kval = MTK.value(k)
+        ctx.newvars[k] = Num(MTK.rename(kval, Symbol(join((v..., basevarname(kval)), "ₓ"))))
     end
     vars = collect(keys(ctx.newvars))
     newvars = collect(values(ctx.newvars))
     for i in 1:length(vars)-1
         for j in i+1:length(vars)
-            name = ModelingToolkit.tosymbol(newvars[j])
-            if ModelingToolkit.tosymbol(newvars[i]) == name
-                ctx.newvars[vars[j]] = newvars[j] = Num(ModelingToolkit.rename(ModelingToolkit.value(newvars[j]), gensym(ModelingToolkit.value(newvars[j]).f.name)))
+            name = MTK.tosymbol(newvars[j])
+            if MTK.tosymbol(newvars[i]) == name
+                ctx.newvars[vars[j]] = newvars[j] = Num(MTK.rename(MTK.value(newvars[j]), gensym(MTK.value(newvars[j]).f.name)))
             end
         end
     end
@@ -397,10 +411,10 @@ function prep_variables(ctx)
 end
 
 _nameof(a) = nameof(a)
-_nameof(a::ModelingToolkit.Term) = nameof(a.f)
+_nameof(a::MTK.Term) = nameof(a.f)
 
-function sweep_vars(a::Union{ModelingToolkit.Sym,ModelingToolkit.Term}, names, ctx::EqCtx)
-# function sweep_vars(a::ModelingToolkit.Term, names, ctx::EqCtx)
+function sweep_vars(a::Union{MTK.Sym,MTK.Term}, names, ctx::EqCtx)
+# function sweep_vars(a::MTK.Term, names, ctx::EqCtx)
     _nameof(a) == :t && return
     if !haskey(ctx.varmap, a)
         ctx.varmap[a] = names
@@ -413,7 +427,7 @@ function sweep_vars(a::Union{ModelingToolkit.Sym,ModelingToolkit.Term}, names, c
     nothing
 end
 sweep_vars(a, names, ctx::EqCtx) = nothing
-sweep_vars(a::Num, names, ctx::EqCtx) = sweep_vars(ModelingToolkit.value(a), names, ctx)
+sweep_vars(a::Num, names, ctx::EqCtx) = sweep_vars(MTK.value(a), names, ctx)
 sweep_vars(a::Pair, names, ctx::EqCtx) = sweep_vars(a[2], (names..., a[1]), ctx)
 sweep_vars(a::Vector, names, ctx::EqCtx) = map(x -> sweep_vars(x, names, ctx), a)
 function sweep_vars(a::RefBranch, names, ctx::EqCtx)
@@ -421,8 +435,8 @@ function sweep_vars(a::RefBranch, names, ctx::EqCtx)
     sweep_vars(a.i, names, ctx)
 end
 function sweep_vars(a::Equation, names, ctx::EqCtx)
-    sweep_vars(ModelingToolkit.get_variables(a.lhs), names, ctx)
-    sweep_vars(ModelingToolkit.get_variables(a.rhs), names, ctx)
+    sweep_vars(MTK.get_variables(a.lhs), names, ctx)
+    sweep_vars(MTK.get_variables(a.rhs), names, ctx)
 end
 
 function common_root(a, b)
@@ -444,7 +458,7 @@ end
 #
 elaborate_unit!(a::Any, ctx::EqCtx) = nothing # The default is to ignore undefined types.
 function elaborate_unit!(a::Equation, ctx::EqCtx)
-    push!(ctx.eq, ModelingToolkit.substitute(a, ctx.newvars))
+    push!(ctx.eq, MTK.substitute(a, ctx.newvars))
 end
 function elaborate_unit!(a::Vector, ctx::EqCtx)
     map(x -> elaborate_unit!(x, ctx), a)
@@ -453,13 +467,14 @@ function elaborate_unit!(a::Pair, ctx::EqCtx)
     map(x -> elaborate_unit!(x, ctx), a)
 end
 function elaborate_unit!(a::Event, ctx::EqCtx)
-    cond = ModelingToolkit.substitute(a.condition, ctx.newvars)
-    push!(ctx.events, a.affect == nothing ? cond : cond => ModelingToolkit.substitute(a.affect, ctx.newvars))
+    eqs = MTK.substitute(a.eqs, ctx.newvars)
+    push!(ctx.events, Event(eqs, a.affect == nothing ? MTK.NULL_AFFECT : 
+                                                       MTK.substitute(a.affect, ctx.newvars)))
 end
 
 function elaborate_unit!(b::RefBranch, ctx::EqCtx)
-    if b.n isa ModelingToolkit.Num
-        ctx.nodemap[b.n] = get(ctx.nodemap, b.n, 0.0) + ModelingToolkit.substitute(ModelingToolkit.value(b.i), ctx.newvars)
+    if b.n isa MTK.Num
+        ctx.nodemap[b.n] = get(ctx.nodemap, b.n, 0.0) + MTK.substitute(MTK.value(b.i), ctx.newvars)
     end
 end
 
@@ -475,8 +490,8 @@ default_value(x)
 
 * `x` : the reference variable or numeric value.
 """
-default_value(x::ModelingToolkit.Num) = default_value(x.val)
-default_value(x::ModelingToolkit.Term) = Symbolics.getmetadata(x, Symbolics.VariableDefaultValue, 0.0)
+default_value(x::MTK.Num) = default_value(x.val)
+default_value(x::MTK.Term) = Symbolics.getmetadata(x, Symbolics.VariableDefaultValue, 0.0)
 default_value(x::Array) = default_value.(x)
 default_value(x) = x
 
@@ -519,12 +534,14 @@ compatible_values(x) = zero(default_value(x))
 # This should work for real and complex valued unknowns, including
 # arrays. For something more complicated, it may not.
 
-function sim(x, t, solver = OrdinaryDiffEq.Rosenbrock23, problem = OrdinaryDiffEq.ODEProblem)
+function sim(x, t, solver = OrdinaryDiffEq.Rosenbrock23(), problem = MTK.ODAEProblem; simplify = true, init = nothing)
     sys = system(x)
-    prob = problem(sys, Dict(k => 0.0 for k in ModelingToolkit.states(sys)), (0, t))
-    ModelingToolkit.solve(prob, solver())
+    u0 = isnothing(init) ? Dict(k => default_value(k) for k in MTK.states(sys)) : init
+    prob = problem(sys, u0, (0, t))
+    MTK.solve(prob, solver)
 end
-sim(x::Function, t, solver = OrdinaryDiffEq.Rosenbrock23, problem = OrdinaryDiffEq.ODEProblem) = sim(x(), t, solver, problem)
+sim(x::Function, t, solver = OrdinaryDiffEq.Rosenbrock23(), problem = MTK.ODAEProblem; simplify = true, init = nothing) = 
+    sim(x(), t, solver, problem; simplify = simplify, init = init)
 
 
 # load standard Sims libraries

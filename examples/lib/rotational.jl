@@ -41,13 +41,13 @@ function First()
     ratio = 10.0
     damping = 10.0
     [
-        SignalTorque(n1, g, tau = amplitude * sin(2pi * freqHz * t))
-        Inertia(n1, n2, J = Jmotor)
-        IdealGear(n2, n3, ratio = ratio)
-        Inertia(n3, n4, J = 2.0)
-        Damper(n4, g, d = damping)
-        Spring(n4, n5, c = 1e4)
-        Inertia(n5, n6, J = Jload)
+        :st  => SignalTorque(n1, g, tau = amplitude * sin(2pi * freqHz * t))
+        :in1 => Inertia(n1, n2, J = Jmotor)
+        :ig  => IdealGear(n2, n3, ratio = ratio)
+        :in2 => Inertia(n3, n4, J = 2.0)
+        :d   => Damper(n4, g, d = damping)
+        :s   => Spring(n4, n5, c = 1e4)
+        :in3 => Inertia(n5, n6, J = Jload)
     ]
 end
 

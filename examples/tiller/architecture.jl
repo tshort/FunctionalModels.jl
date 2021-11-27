@@ -31,24 +31,24 @@ http://book.xogeny.com/components/architectures/sensor_comparison/
 ![diagram](http://book.xogeny.com/_images/FlatSystem.svg)
 
 """
-function FlatSystem(phi1 = Angle(),
-                    phi2 = Angle())
-    desiredspeed = AngularVelocity("desired speed")
-    d = Variable()
-    omega2 = AngularVelocity("shaft speed")
+function FlatSystem(phi1 = Angle(name = :phi1),
+                    phi2 = Angle(name = :phi2))
+
+    @named omega2 = AngularVelocity()
+    @named tau = Torque()
     [
         der(phi2) ~ omega2
-        d ~ desiredspeed
-        :in1 => Inertia(phi1, 0.1) # left side
-        :in2 => Inertia(phi2, 0.3) # right side
-        :sd  => SpringDamper(phi1, phi2, 100.0, 3.0)
-        :d   => Damper(phi2, 0.0, 4.0)
-        # BooleanPulse(d)
-        :st  => SignalTorque(phi1, 0.0, 20 * (IfElse.ifelse(d, 1.0, 0.0) - omega2))
+        :in1 => Inertia(phi1, J = 0.1) # left side
+        :in2 => Inertia(phi2, J = 0.3) # right side
+        :sd  => SpringDamper(phi1, phi2, c = 100.0, d = 3.0)
+        :d   => Damper(phi2, 0.0, d = 4.0)
+        Event(sin(2pi*t) ~ 0.0)
+        tau ~ 20 * (IfElse.ifelse(sin(2pi*t) > 0.0, 1.0, 0.0) - omega2)
+        :st  => SignalTorque(phi1, 0.0, tau = tau)
     ]
 end
 
-## y = dasslsim(FlatSystem(), tstop = 5.0)
+## y = sim(FlatSystem(), 5.0)
 ## plot(y)
 
 
@@ -57,10 +57,10 @@ Basic plant for the example
 """
 function BasicPlant(phi1 = Angle(), phi2 = Angle())
     [
-        :in1 => Inertia(phi1, 0.1) # left side
-        :in2 => Inertia(phi2, 0.3) # right side
-        :sd  => SpringDamper(phi1, phi2, 100.0, 3.0)
-        :d   => Damper(phi2, 0.0, 4.0)
+        :in1 => Inertia(phi1, J = 0.1) # left side
+        :in2 => Inertia(phi2, J = 0.3) # right side
+        :sd  => SpringDamper(phi1, phi2, c = 100.0, d = 3.0)
+        :d   => Damper(phi2, 0.0, d = 4.0)
     ]
 end
 
@@ -77,14 +77,13 @@ end
 Sample-and-hold velocity sensor
 """
 function SampleHoldSensor(phi, signal, sampletime)
-    omega_measured = Variable(0.0)
-    omega = AngularVelocity()
+    @named omega = AngularVelocity()
     [
         der(phi) ~ omega
         Event(sin(t / sampletime * 2pi ) ~ 0.0,
-              omega_measured ~ omega)
-        signal ~ omega_measured
-    end
+              signal ~ omega)
+        der(signal) ~ 0.0
+    ]
 end
 ## Create a closure to handle samplerate adjustments
 SampleHoldSensor(; sampletime = 1.0) = (phi, signal) -> SampleHoldSensor(phi, signal, sampletime)
@@ -94,7 +93,7 @@ Ideal actuator
 """
 function IdealActuator(phi, tau)
     [
-        SignalTorque(phi, 0.0, tau)
+        SignalTorque(phi, 0.0, tau = tau)
     ]
 end
 
@@ -107,8 +106,8 @@ function LimitedActuator(phi, tau, delayTime, uMax)
     [
         ## delayedtau = delay(tau, delayTime)   # broken (#36)
         ## Limiter(delayedtau, clippedtau, uMax)
-        Limiter(tau, clippedtau, uMax)
-        SignalTorque(phi, 0.0, tau)
+        :lim => Limiter(tau, clippedtau, uMax = uMax)
+        :st  => SignalTorque(phi, 0.0, tau = tau)
     ]
 end
 LimitedActuator(; delayTime = 0.0, uMax = Inf) = (phi, tau) -> LimitedActuator(phi, tau, delayTime, uMax)
@@ -160,12 +159,11 @@ function BaseSystem(; Plant = BasicPlant,
     @named omega2 = AngularVelocity()
     @named setpoint = Unknown()
     @named measured = Unknown()
-    d = Discrete(true)
     @named tau = Unknown()
     [
-        der(phi2) ~ omega2
-        BooleanPulse(d)
-        setpoint ~ IfElse.ifelse(d, 1.0, 0.0)
+#        der(phi2) ~ omega2
+        Event(sin(2pi*t) ~ 0.0)
+        setpoint ~ IfElse.ifelse(sin(2pi*t) > 0.0, 1.0, 0.0)
         :plant      => Plant(phi1, phi2)
         :sensor     => Sensor(phi2, measured)
         :controller => Controller(setpoint, measured, tau)
@@ -173,7 +171,8 @@ function BaseSystem(; Plant = BasicPlant,
     ]
 end
 
-## bs = dasslsim(BaseSystem(), tstop = 5.0)
+
+## bs = sim(BaseSystem(), 5.0)
 ## plot(bs)
 
 """
@@ -181,7 +180,7 @@ BaseSystem variant with sample-hold sensing
 """
 Variant1 = () -> BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.01));
 
-## v1 = dasslsim(Variant1(), tstop = 5.0)
+## v1 = sim(Variant1(), 5.0)
 ## plot(v1)
 
 Variant1a = () -> BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.036));
