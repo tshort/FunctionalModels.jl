@@ -7,7 +7,8 @@ import Symbolics
 import IfElse
 import OrdinaryDiffEq
 
-export Unknown, Branch, RefBranch, Event, BoolEvent, Variable, Parameter, system, t, D, der, default_value, compatible_values, sim, @comment
+export Unknown, Branch, RefBranch, Event, Parameter, system, t, D, der, 
+       default_value, compatible_values, compatible_shape, sim, @comment
 
 
 # Documentation helper
@@ -96,7 +97,7 @@ and functions.
 """
 @comment
 
-@parameters t
+@variables t
 """ Independent variable """
 t
 
@@ -110,7 +111,7 @@ struct NameCtx end
 
 """
 ```julia
-Unknown(value = 0.0; name = :u) 
+Unknown(value = NaN; name = :u) 
 ```
 
 `Unknown` is a helper to create a variable with a default value.
@@ -121,34 +122,50 @@ The viewable variable name is based on a `gensym`.
 with `system`, variables are renamed to include subsystem names
 and variable base name. 
 
-For example, `Unknown(:v)` may show as `var"##v#1057"(t)`, but
+For example, `Unknown(name = :v)` may show as `var"##v#1057"(t)`, but
 after flattening, it will show as something like `ss₊c1₊v(t)` 
 (`ss` and `c1` are subsystems).
 
 """
-function Unknown(value = 0.0; name = :u) 
+function Unknown(value = NaN; name = :u) 
     s = gensym(name)
-    if length(value) > 1    # array
-        map(Iterators.product(1:length(value))) do ind
-            x = Symbolics.setmetadata(MTK.Num(MTK.Sym{(MTK.FnType){NTuple{1, Any}, Real}}(s, ind...))(Symbolics.value(t)), 
-                                  Symbolics.VariableDefaultValue, value[ind...])
+    n = length(value)
+    if length(value) > 1
+        if !isnan(value[1])    # array with value
+            x = Symbolics.scalarize_getindex(
+                    Symbolics.setmetadata(
+                        Symbolics.setdefaultval(
+                            map(Symbolics.CallWith((t,)), 
+                                Symbolics.setmetadata(Symbolics.Sym{Array{Symbolics.FnType{Tuple, Real}, length((1:n,))}}(s), 
+                                                          Symbolics.ArrayShapeCtx, (1:n,))), 
+                            value), 
+                        Symbolics.VariableSource, 
+                        (:variables, :x)))
             x = Symbolics.setmetadata(x, NameCtx, name)
-            Symbolics.setmetadata(x, IdCtx, gensym())
+            x = Symbolics.setmetadata(x, IdCtx, gensym())
+            Symbolics.wrap(x)
+        else                   # array without value
+            x =  Symbolics.scalarize_getindex(
+                        Symbolics.setmetadata(
+                            map(Symbolics.CallWith((t,)), 
+                                Symbolics.setmetadata(Symbolics.Sym{Array{Symbolics.FnType{Tuple, Real}, length((1:n,))}}(s), 
+                                                          Symbolics.ArrayShapeCtx, (1:n,))), 
+                            Symbolics.VariableSource, 
+                            (:variables, s)))
+            x = Symbolics.setmetadata(x, NameCtx, name)
+            x = Symbolics.setmetadata(x, IdCtx, gensym())
+            Symbolics.wrap(x)
         end
     else
-        x = Symbolics.setmetadata(MTK.Num(MTK.Variable{MTK.FnType{Tuple{Any},Real}}(s))(t), 
-                              Symbolics.VariableDefaultValue, value)
+        x = MTK.variable(s, T = MTK.FnType{Tuple{Any},Real})(t)
+        if !isnan(value)
+            x = Symbolics.setdefaultval(x, value)
+        end
         x = Symbolics.setmetadata(x, NameCtx, name)
         Symbolics.setmetadata(x, IdCtx, gensym())
     end
 end
 
-function Variable(value = 0.0; name = :d) 
-    s = gensym(name)
-    x = Symbolics.setdefaultval((Symbolics.Sym){typeof(value)}(s), value)
-    x = Symbolics.setmetadata(x, NameCtx, name)
-    Symbolics.wrap(Symbolics.setmetadata(x, IdCtx, gensym()))
-end
 
 """
 ```julia
@@ -163,7 +180,7 @@ The viewable variable name is based on a `gensym`.
 with `system`, variables are renamed to include subsystem names
 and the variable base name. 
 
-For example, `Parameter(:R)` may show as `var"##R#1057"`, but
+For example, `Parameter(name = :R)` may show as `var"##R#1057"`, but
 after flattening, it will show as something like `ss₊r1₊R` 
 (`ss` and `r1` are subsystems).
 
@@ -379,14 +396,8 @@ struct EqCtx
     newvars::IdDict
 end
 
-# Return the name stored in metadata with subscript indices included (if needed).
-function basevarname(v::MTK.Term)
-    name = v.f.name
-    return Symbol(MTK.getmetadata(v, NameCtx, name),
-                  (x for x in string(name) if x in ('₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉'))...)
-end
-function basevarname(v::MTK.Sym)
-    name = v.name
+function basevarname(v)
+    name = Symbolics.getname(v)
     return Symbol(MTK.getmetadata(v, NameCtx, name),
                   (x for x in string(name) if x in ('₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉'))...)
 end
@@ -410,12 +421,8 @@ function prep_variables(ctx)
     nothing
 end
 
-_nameof(a) = nameof(a)
-_nameof(a::MTK.Term) = nameof(a.f)
-
 function sweep_vars(a::Union{MTK.Sym,MTK.Term}, names, ctx::EqCtx)
-# function sweep_vars(a::MTK.Term, names, ctx::EqCtx)
-    _nameof(a) == :t && return
+    isequal(a, t) && return 
     if !haskey(ctx.varmap, a)
         ctx.varmap[a] = names
     else 
@@ -491,8 +498,9 @@ default_value(x)
 * `x` : the reference variable or numeric value.
 """
 default_value(x::MTK.Num) = default_value(x.val)
-default_value(x::MTK.Term) = Symbolics.getmetadata(x, Symbolics.VariableDefaultValue, 0.0)
+default_value(x::MTK.Term) = Symbolics.getmetadata(x, Symbolics.VariableDefaultValue, NaN)
 default_value(x::Array) = default_value.(x)
+default_value(x::Symbolics.Arr) = [MTK.hasdefault(y) ? Symbolics.getdefaultval(y) : NaN for y in x]
 default_value(x) = x
 
 
@@ -531,12 +539,50 @@ y = Unknown(compatible_values(a,b)) # Initialized to [0.0, 0.0].
 """
 compatible_values(x,y) = length(x) > length(y) ? zero(default_value(x)) : zero(default_value(y))
 compatible_values(x) = zero(default_value(x))
+
+"""
+A helper functions to return the base NaN value from a variable to use
+when creating other variables. It is especially useful for taking two
+model arguments and creating a new variable compatible with both
+arguments. This differs fron `compatible_values` in that it returns 
+values filled with NaNs to indicate a variable without a default value.
+
+```julia
+compatible_shape(x,y)
+compatible_shape(x)
+```
+
+It's still somewhat broken but works for basic cases. No type
+promotion is currently done.
+
+### Arguments
+
+* `x`, `y` : objects or variables
+
+### Returns
+
+The returned object has NaNs of type and length common to both `x`
+and `y`.
+
+### Examples
+
+```julia
+a = Unknown(45.0 + 10im)
+x = Unknown(compatible_shape(a))   # Initialized to NaN + NaNim.
+a = Unknown()
+b = Unknown([1., 0.])
+y = Unknown(compatible_shape(a,b)) # Initialized to [NaN, NaN].
+```
+"""
+compatible_shape(x,y) = NaN .* zero(length(x) > length(y) ? default_value(x) : default_value(y))
+compatible_shape(x) = NaN .* zero(default_value(x))
+
 # This should work for real and complex valued unknowns, including
 # arrays. For something more complicated, it may not.
 
 function sim(x, t, solver = OrdinaryDiffEq.Rosenbrock23(), problem = MTK.ODAEProblem; simplify = true, init = nothing)
     sys = system(x)
-    u0 = isnothing(init) ? Dict(k => default_value(k) for k in MTK.states(sys)) : init
+    u0 = isnothing(init) ? Dict(k => isnan(default_value(k)) ? 0.0 : default_value(k) for k in MTK.states(sys)) : init
     prob = problem(sys, u0, (0, t))
     MTK.solve(prob, solver)
 end
