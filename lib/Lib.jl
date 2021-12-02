@@ -3,6 +3,7 @@ using ..Sims, ModelingToolkit
 import IfElse
 const ie = IfElse.ifelse
 
+const t = Sims.t
 
 # Note: broken or experimental objects are not exported.
 

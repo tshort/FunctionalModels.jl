@@ -1,7 +1,7 @@
 using Sims, Sims.Lib
 using ModelingToolkit
 using IfElse
-
+const t = Sims.t
 
 ########################################
 ## Electrical examples

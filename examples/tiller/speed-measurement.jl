@@ -1,5 +1,7 @@
 
 using Sims, Sims.Lib
+const D = Sims.D
+const t = Sims.t
 
 export SecondOrderSystem, SecondOrderSystemUsingSimsLib, SampleAndHold, IntervalMeasure, PulseCounting
 
@@ -96,7 +98,7 @@ function SampleAndHold()
     @named omega1_measured = Unknown()
     [
         SecondOrderSystem(omega1 = omega1)
-        Event(sin(t / sample_time * 2pi) ~ 0.0,
+        Event(sin(Sims.t / sample_time * 2pi) ~ 0.0,
               omega1_measured ~ omega1)
         der(omega1_measured) ~ 0.0
     ]
@@ -123,7 +125,7 @@ function IntervalMeasure()
                omega1_measured ~ tooth_angle / (t - last_time)
                next_phi ~ phi1 + tooth_angle
                prev_phi ~ phi1 - tooth_angle
-               last_time ~ t
+               last_time ~ Sims.t
               ])
         :sos => SecondOrderSystem(phi1 = phi1)
         omega1_measured_u ~ omega1_measured

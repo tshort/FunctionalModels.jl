@@ -7,7 +7,7 @@ import Symbolics
 import IfElse
 import OrdinaryDiffEq
 
-export Unknown, Branch, RefBranch, Event, Parameter, system, t, D, der, 
+export Unknown, Branch, RefBranch, Event, Parameter, system, der, 
        default_value, compatible_values, compatible_shape, sim, @comment
 
 
@@ -127,17 +127,18 @@ after flattening, it will show as something like `ss₊c1₊v(t)`
 (`ss` and `c1` are subsystems).
 
 """
-function Unknown(value = NaN; name = :u) 
+function Unknown(value = NaN; name = :u, T = nothing) 
     s = gensym(name)
     n = length(value)
+    Tt = isnothing(T) ? value isa Complex ? Complex{Real} : Real : T
     if length(value) > 1
         if !isnan(value[1])    # array with value
             x = Symbolics.scalarize_getindex(
                     Symbolics.setmetadata(
                         Symbolics.setdefaultval(
                             map(Symbolics.CallWith((t,)), 
-                                Symbolics.setmetadata(Symbolics.Sym{Array{Symbolics.FnType{Tuple, Real}, length((1:n,))}}(s), 
-                                                          Symbolics.ArrayShapeCtx, (1:n,))), 
+                                Symbolics.setmetadata(Symbolics.Sym{Array{Symbolics.FnType{Tuple, Tt}, length((1:n,))}}(s), 
+                                                      Symbolics.ArrayShapeCtx, (1:n,))), 
                             value), 
                         Symbolics.VariableSource, 
                         (:variables, :x)))
@@ -148,8 +149,8 @@ function Unknown(value = NaN; name = :u)
             x =  Symbolics.scalarize_getindex(
                         Symbolics.setmetadata(
                             map(Symbolics.CallWith((t,)), 
-                                Symbolics.setmetadata(Symbolics.Sym{Array{Symbolics.FnType{Tuple, Real}, length((1:n,))}}(s), 
-                                                          Symbolics.ArrayShapeCtx, (1:n,))), 
+                                Symbolics.setmetadata(Symbolics.Sym{Array{Symbolics.FnType{Tuple, Tt}, length((1:n,))}}(s), 
+                                                      Symbolics.ArrayShapeCtx, (1:n,))), 
                             Symbolics.VariableSource, 
                             (:variables, s)))
             x = Symbolics.setmetadata(x, NameCtx, name)
@@ -157,12 +158,15 @@ function Unknown(value = NaN; name = :u)
             Symbolics.wrap(x)
         end
     else
-        x = MTK.variable(s, T = MTK.FnType{Tuple{Any},Real})(t)
+        x = Symbolics.Sym{Symbolics.FnType{NTuple{1, Any}, Tt}}(s)(Symbolics.value(t))
+        x = Symbolics.setmetadata(x, Symbolics.VariableSource, (:variables, s))
+        # x = MTK.variable(s, T = MTK.FnType{Tuple{Any}, Real})(t)
         if !isnan(value)
             x = Symbolics.setdefaultval(x, value)
         end
         x = Symbolics.setmetadata(x, NameCtx, name)
-        Symbolics.setmetadata(x, IdCtx, gensym())
+        x = Symbolics.setmetadata(x, IdCtx, gensym())
+        Symbolics.wrap(x)
     end
 end
 
@@ -319,6 +323,16 @@ end
 # This converts a hierarchical model into a flat set of equations.
 # 
 
+const Event = MTK.SymbolicContinuousCallback
+
+struct EqCtx
+    eq::Vector{Equation}
+    events::Vector{Event}
+    nodemap::Dict
+    varmap::IdDict
+    newvars::IdDict
+end
+
 
 """
 `system` is the main elaboration/flattening function that returns
@@ -341,8 +355,7 @@ system(a)
 * `::ODESystem` : the flattened model
 
 """
-function system(a; simplify = true, name = :sims_system)
-    ctx = flatten(a)
+function system(ctx::EqCtx; simplify = true, name = :sims_system)
     eqs = separate_duplicate_diffs(ctx.eq)
     sys = MTK.ODESystem(eqs,
                         name = name, 
@@ -353,6 +366,7 @@ function system(a; simplify = true, name = :sims_system)
         return sys
     end
 end
+system(a; args...) = system(flatten(a); args...)
 
 function separate_duplicate_diffs(eqs)
     diffeqs = Dict()
@@ -384,16 +398,6 @@ function flatten(a)
         push!(ctx.eq, 0 ~ nodeset)
     end
     return ctx
-end
-
-const Event = MTK.SymbolicContinuousCallback
-
-struct EqCtx
-    eq::Vector{Equation}
-    events::Vector{Event}
-    nodemap::Dict
-    varmap::IdDict
-    newvars::IdDict
 end
 
 function basevarname(v)

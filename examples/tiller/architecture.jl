@@ -42,8 +42,8 @@ function FlatSystem(phi1 = Angle(name = :phi1),
         :in2 => Inertia(phi2, J = 0.3) # right side
         :sd  => SpringDamper(phi1, phi2, c = 100.0, d = 3.0)
         :d   => Damper(phi2, 0.0, d = 4.0)
-        Event(sin(2pi*t) ~ 0.0)
-        tau ~ 20 * (IfElse.ifelse(sin(2pi*t) > 0.0, 1.0, 0.0) - omega2)
+        Event(sin(2pi*Sims.t) ~ 0.0)
+        tau ~ 20 * (IfElse.ifelse(sin(2pi*Sims.t) > 0.0, 1.0, 0.0) - omega2)
         :st  => SignalTorque(phi1, 0.0, tau = tau)
     ]
 end
@@ -80,7 +80,7 @@ function SampleHoldSensor(phi, signal, sampletime)
     @named omega = AngularVelocity()
     [
         der(phi) ~ omega
-        Event(sin(t / sampletime * 2pi ) ~ 0.0,
+        Event(sin(Sims.t / sampletime * 2pi ) ~ 0.0,
               signal ~ omega)
         der(signal) ~ 0.0
     ]
@@ -162,8 +162,8 @@ function BaseSystem(; Plant = BasicPlant,
     @named tau = Unknown()
     [
 #        der(phi2) ~ omega2
-        Event(sin(2pi*t) ~ 0.0)
-        setpoint ~ IfElse.ifelse(sin(2pi*t) > 0.0, 1.0, 0.0)
+        Event(sin(2pi*Sims.t) ~ 0.0)
+        setpoint ~ IfElse.ifelse(sin(2pi*Sims.t) > 0.0, 1.0, 0.0)
         :plant      => Plant(phi1, phi2)
         :sensor     => Sensor(phi2, measured)
         :controller => Controller(setpoint, measured, tau)

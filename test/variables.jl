@@ -1,4 +1,5 @@
 using Sims, ModelingToolkit, Test
+const t = Sims.t
 
 struct TstCtx end
 

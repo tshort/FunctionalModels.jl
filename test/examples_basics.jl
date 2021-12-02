@@ -1,6 +1,7 @@
 using Sims, Sims.Lib
 using ModelingToolkit, OrdinaryDiffEq
-
+const t = Sims.t
+const D = Sims.D
 
 include("../examples/basics/dc_motor_w_shaft.jl")
 dmws = sim(DcMotorWithShaft, 4.0)

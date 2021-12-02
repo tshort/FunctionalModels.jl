@@ -1,4 +1,6 @@
 using Sims, ModelingToolkit, Test
+const t = Sims.t
+const D = Sims.D
 
 function m1(a, b)
     @named x = Unknown()

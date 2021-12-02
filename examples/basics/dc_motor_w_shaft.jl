@@ -19,7 +19,7 @@ export DcMotorWithShaft
 # The FlexibleShaft shows how to build up several elements.
 # 
 
-function EMF(n1::ElectricalNode, n2::ElectricalNode, flange::Flange, k::Real)
+function EMF(n1::ElectricalNode, n2::ElectricalNode, flange::Flange; k::Real)
     tau = Angle()
     i = Current()
     v = Voltage()
@@ -42,7 +42,7 @@ function DCMotor(flange::Flange)
         SignalVoltage(n1, g, V=60.0)
         Resistor(n1, n2, R=100.0)
         Inductor(n2, n3, L=0.2)
-        EMF(n3, g, flange, 1.0)
+        EMF(n3, g, flange, k=1.0)
     ]
 end
 
@@ -55,7 +55,7 @@ function ShaftElement(flangeA::Flange, flangeB::Flange)
     ]
 end
 
-function FlexibleShaft(flangeA::Flange, flangeB::Flange, n::Int)
+function FlexibleShaft(flangeA::Flange, flangeB::Flange; n::Int)
     # n is the number of elements
     r = [Angle() for i in 1:n]
     r[1] = flangeA
@@ -83,7 +83,7 @@ function DcMotorWithShaft()
     [
         DCMotor(r1)
         Inertia(r1, r2, J=0.02)
-        FlexibleShaft(r2, r3, 5)
+        FlexibleShaft(r2, r3, n=5)
     ]
 end
 

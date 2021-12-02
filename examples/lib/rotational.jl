@@ -1,4 +1,4 @@
-
+const t = Sims.t
 
 ########################################
 ## Rotational mechanical examples
