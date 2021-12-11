@@ -12,7 +12,6 @@ jobs:
         version:
           - '1.6'
           - '1.7'
-          - 'nightly'
         os:
           - ubuntu-latest
         arch:
