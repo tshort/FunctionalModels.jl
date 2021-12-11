@@ -10,12 +10,12 @@ export SecondOrderSystem, SecondOrderSystemUsingSimsLib, SampleAndHold, Interval
 
 These examples show several ways of measuring speed on a rotational
 system. They are based on Michael's section on [Speed
-Measurement](http://book.xogeny.com/behavior/discrete/measuring/). These
+Measurement](http://mbe.modelica.university/behavior/discrete/measuring/). These
 examples include use of Variable variables and Events.
 
 The system is based on the following plant:
 
-![diagram](http://book.xogeny.com/_images/PlantWithPulseCounter.svg)
+![diagram](http://mbe.modelica.university/static/_images/PlantWithPulseCounter.svg)
 
 """
 @comment 
@@ -24,7 +24,7 @@ The system is based on the following plant:
 """
 Rotational example
 
-http://book.xogeny.com/behavior/equations/mechanical/
+http://mbe.modelica.university/behavior/equations/mechanical/
 
 """
 function SecondOrderSystem(; phi1 = Unknown(name = :phi1),
@@ -64,9 +64,9 @@ end
 """
 Rotational example based on components in Sims.Lib
 
-http://book.xogeny.com/behavior/equations/mechanical/
+http://mbe.modelica.university/behavior/equations/mechanical/
 
-![diagram](http://book.xogeny.com/_images/PlantWithPulseCounter.svg)
+![diagram](http://mbe.modelica.university/static/_images/PlantWithPulseCounter.svg)
 
 """
 function SecondOrderSystemUsingSimsLib(; phi1 = Angle(0.0, name = :phi1),
@@ -89,7 +89,7 @@ end
 """
 Rotational example with sample-and-hold measurement
 
-http://book.xogeny.com/behavior/discrete/measuring/#sample-and-hold
+http://mbe.modelica.university/behavior/discrete/measuring/#sample-and-hold
 
 """
 function SampleAndHold()
@@ -107,7 +107,7 @@ end
 """
 Rotational example with interval measurements
 
-http://book.xogeny.com/behavior/discrete/measuring/#interval-measurement
+http://mbe.modelica.university/behavior/discrete/measuring/#interval-measurement
 
 """
 function IntervalMeasure()
@@ -135,7 +135,7 @@ end
 """
 Rotational example with pulse counting
 
-http://book.xogeny.com/behavior/discrete/measuring/#pulse-counting
+http://mbe.modelica.university/behavior/discrete/measuring/#pulse-counting
 
 """
 function PulseCounting()

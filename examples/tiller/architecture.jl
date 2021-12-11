@@ -9,12 +9,12 @@ export FlatSystem, BaseSystem, IdealSensor, SampleHoldSensor,
 # Architectures
 
 These examples from the following sections from the [Architectures
-chapter](http://book.xogeny.com/components/architectures/):
+chapter](http://mbe.modelica.university/components/architectures/):
 
-* [Sensor Comparison](http://book.xogeny.com/components/architectures/sensor_comparison/)
-* [Architecture Driven Approach](http://book.xogeny.com/components/architectures/sensor_comparison_ad/)
+* [Sensor Comparison](http://mbe.modelica.university/components/architectures/sensor_comparison/)
+* [Architecture Driven Approach](http://mbe.modelica.university/components/architectures/sensor_comparison_ad/)
 
-In [Modelica by Example](http://book.xogeny.com/), Tiller shows how
+In [Modelica by Example](http://mbe.modelica.university/), Tiller shows how
 components can be connected together in a reusable fashion. This is
 also possible in Sims.jl. Because Sims.jl is functional, the approach
 is different than Modelica's object-oriented approach. The functional
@@ -26,9 +26,9 @@ approach is generally cleaner.
 """
 Sensor comparison for a rotational example
 
-http://book.xogeny.com/components/architectures/sensor_comparison/
+http://mbe.modelica.university/components/architectures/sensor_comparison/
 
-![diagram](http://book.xogeny.com/_images/FlatSystem.svg)
+![diagram](http://mbe.modelica.university/static/_images/FlatSystem.svg)
 
 """
 function FlatSystem(phi1 = Angle(name = :phi1),

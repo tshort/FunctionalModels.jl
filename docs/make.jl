@@ -76,7 +76,7 @@ cp("NEWS.md", "docs/src/NEWS.md", force=true)
 cp("LICENSE.md", "docs/src/LICENSE.md", force=true)
 
 makedocs(
-    modules = [Sims],
+    modules = [Sims, Examples],
     clean = false,
     format = Documenter.HTML(),
     sitename = "Sims.jl",
@@ -94,9 +94,9 @@ makedocs(
             "lib/rotational.md",
         ],
         "Examples" => Any[
-            # "examples/basics.md",
+            "examples/basics.md",
             "examples/lib.md",
-            # "examples/tiller.md",
+            "examples/tiller.md",
         ],
         # "Design" => "design.md",
         "Release notes" => "NEWS.md",
