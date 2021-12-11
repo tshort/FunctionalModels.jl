@@ -1,5 +1,5 @@
-using Sims, ModelingToolkit, Test
-const t = Sims.t
+using FunctionalModels, ModelingToolkit, Test
+const t = FunctionalModels.t
 
 struct TstCtx end
 

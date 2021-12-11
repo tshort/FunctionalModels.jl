@@ -6,9 +6,9 @@ MTK has an approach for composing models.
 It follows the approach used by Modelica (and Modia).
 Components have `Pin`s, and `connect` is used to tie them together ([example](https://mtk.sciml.ai/dev/tutorials/acausal_components/)).
 
-[Sims](http://tshort.github.io/Sims.jl/latest/) is a (rather old) Julia package that uses a functional approach to composing models. 
-I updated Sims to use MTK.
-The core code in Sims is now almost nothing.
+[FunctionalModels](http://tshort.github.io/FunctionalModels.jl/latest/) is a (rather old) Julia package that uses a functional approach to composing models. 
+I updated FunctionalModels to use MTK.
+The core code in FunctionalModels is now almost nothing.
 MTK does all of the work.
 
 With the functional approach, models are functions that return a list of equations and subcomponents.
@@ -51,7 +51,7 @@ sys = system(Circuit())
 Each component returns a set of equations. As components are put together, a nested list of equation is built up.
 The `system` method flattens the equations and returns a `ModelingToolkit.ODESystem`.
 
-See [here](https://github.com/tshort/Sims.jl/blob/7829b580a3f1f0f6ca0169d6fc2078a933a52718/examples/circuit.jl) for a full example.
+See [here](https://github.com/tshort/FunctionalModels.jl/blob/7829b580a3f1f0f6ca0169d6fc2078a933a52718/examples/circuit.jl) for a full example.
 
 My key takeaway is that MTK is easy to adapt to different modeling approaches.
 Equations, variables, and parameters all work great. 

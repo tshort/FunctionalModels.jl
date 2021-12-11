@@ -1,19 +1,19 @@
 module Basics
 
-using ....Sims
-using ....Sims.Lib
+using ....FunctionalModels
+using ....FunctionalModels.Lib
 using ModelingToolkit
 
 """
 # Examples using basic models
 
-These are available in **Sims.Examples.Basics**.
+These are available in **FunctionalModels.Examples.Basics**.
 
 Here is an example of use:
 
 ```julia
-using Sims
-m = Sims.Examples.Basics.Vanderpol()
+using FunctionalModels
+m = FunctionalModels.Examples.Basics.Vanderpol()
 v = sim(m, 50.0)
 
 

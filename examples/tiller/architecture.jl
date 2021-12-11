@@ -1,5 +1,5 @@
 
-using Sims, Sims.Lib, IfElse
+using FunctionalModels, FunctionalModels.Lib, IfElse
 
 export FlatSystem, BaseSystem, IdealSensor, SampleHoldSensor,
        IdealActuator, LimitedActuator, ProportionalController,
@@ -16,7 +16,7 @@ chapter](http://mbe.modelica.university/components/architectures/):
 
 In [Modelica by Example](http://mbe.modelica.university/), Tiller shows how
 components can be connected together in a reusable fashion. This is
-also possible in Sims.jl. Because Sims.jl is functional, the approach
+also possible in FunctionalModels.jl. Because FunctionalModels.jl is functional, the approach
 is different than Modelica's object-oriented approach. The functional
 approach is generally cleaner.
 """
@@ -42,8 +42,8 @@ function FlatSystem(phi1 = Angle(name = :phi1),
         :in2 => Inertia(phi2, J = 0.3) # right side
         :sd  => SpringDamper(phi1, phi2, c = 100.0, d = 3.0)
         :d   => Damper(phi2, 0.0, d = 4.0)
-        Event(sin(2pi*Sims.t) ~ 0.0)
-        tau ~ 20 * (IfElse.ifelse(sin(2pi*Sims.t) > 0.0, 1.0, 0.0) - omega2)
+        Event(sin(2pi*FunctionalModels.t) ~ 0.0)
+        tau ~ 20 * (IfElse.ifelse(sin(2pi*FunctionalModels.t) > 0.0, 1.0, 0.0) - omega2)
         :st  => SignalTorque(phi1, 0.0, tau = tau)
     ]
 end
@@ -80,7 +80,7 @@ function SampleHoldSensor(phi, signal, sampletime)
     @named omega = AngularVelocity()
     [
         der(phi) ~ omega
-        Event(sin(Sims.t / sampletime * 2pi ) ~ 0.0,
+        Event(sin(FunctionalModels.t / sampletime * 2pi ) ~ 0.0,
               signal ~ omega)
         der(signal) ~ 0.0
     ]
@@ -162,8 +162,8 @@ function BaseSystem(; Plant = BasicPlant,
     @named tau = Unknown()
     [
 #        der(phi2) ~ omega2
-        Event(sin(2pi*Sims.t) ~ 0.0)
-        setpoint ~ IfElse.ifelse(sin(2pi*Sims.t) > 0.0, 1.0, 0.0)
+        Event(sin(2pi*FunctionalModels.t) ~ 0.0)
+        setpoint ~ IfElse.ifelse(sin(2pi*FunctionalModels.t) > 0.0, 1.0, 0.0)
         :plant      => Plant(phi1, phi2)
         :sensor     => Sensor(phi2, measured)
         :controller => Controller(setpoint, measured, tau)

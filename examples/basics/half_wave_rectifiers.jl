@@ -74,7 +74,7 @@ end
 
 """
 This is the same circuit used in
-Sims.Examples.Basics.HalfWaveRectifier, but a structurally variable
+FunctionalModels.Examples.Basics.HalfWaveRectifier, but a structurally variable
 diode is used instead of a diode that uses Events.
 """
 function StructuralHalfWaveRectifier()

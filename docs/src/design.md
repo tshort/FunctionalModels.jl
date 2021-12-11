@@ -1,6 +1,6 @@
 # Design Documentation
 
-This documentation is an overview of the design of Sims, particularly
+This documentation is an overview of the design of FunctionalModels, particularly
 the input specification. Some of the internals are also discussed.
 
 ## Overview
@@ -25,11 +25,11 @@ Here is David's code and home page:
 * http://www.bromans.com/software/mkl/mkl-source-1.0.0.zip
 * https://github.com/david-broman/modelyze
 
-Sims implements something like David's approach in MKL and
-Modelyze. Modelyze models in particular look quite similar to Sims
+FunctionalModels implements something like David's approach in MKL and
+Modelyze. Modelyze models in particular look quite similar to FunctionalModels
 models. A model constructor returns a list of equations. Models are
 made of models, so this builds up a hierarchical structure of
-equations that then needs to be flattened. Like David's approach, Sims
+equations that then needs to be flattened. Like David's approach, FunctionalModels
 is nodal; nodes are passed in as parameters to models to perform
 connections between devices. 
 

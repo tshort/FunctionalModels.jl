@@ -1,9 +1,9 @@
 
-using Sims, Sims.Lib
-const D = Sims.D
-const t = Sims.t
+using FunctionalModels, FunctionalModels.Lib
+const D = FunctionalModels.D
+const t = FunctionalModels.t
 
-export SecondOrderSystem, SecondOrderSystemUsingSimsLib, SampleAndHold, IntervalMeasure, PulseCounting
+export SecondOrderSystem, SecondOrderSystemUsingFunctionalModelsLib, SampleAndHold, IntervalMeasure, PulseCounting
 
 """
 # Examples of speed measurement
@@ -62,14 +62,14 @@ end
 
 
 """
-Rotational example based on components in Sims.Lib
+Rotational example based on components in FunctionalModels.Lib
 
 http://mbe.modelica.university/behavior/equations/mechanical/
 
 ![diagram](http://mbe.modelica.university/static/_images/PlantWithPulseCounter.svg)
 
 """
-function SecondOrderSystemUsingSimsLib(; phi1 = Angle(0.0, name = :phi1),
+function SecondOrderSystemUsingFunctionalModelsLib(; phi1 = Angle(0.0, name = :phi1),
                                          phi2 = Angle(1.0, name = :phi2),
                                          omega1 = Unknown(0.0, name = :omega1),
                                          omega2 = Unknown(0.0, name = :omega2),
@@ -98,7 +98,7 @@ function SampleAndHold()
     @named omega1_measured = Unknown()
     [
         SecondOrderSystem(omega1 = omega1)
-        Event(sin(Sims.t / sample_time * 2pi) ~ 0.0,
+        Event(sin(FunctionalModels.t / sample_time * 2pi) ~ 0.0,
               omega1_measured ~ omega1)
         der(omega1_measured) ~ 0.0
     ]
@@ -125,7 +125,7 @@ function IntervalMeasure()
                omega1_measured ~ tooth_angle / (t - last_time)
                next_phi ~ phi1 + tooth_angle
                prev_phi ~ phi1 - tooth_angle
-               last_time ~ Sims.t
+               last_time ~ FunctionalModels.t
               ])
         :sos => SecondOrderSystem(phi1 = phi1)
         omega1_measured_u ~ omega1_measured

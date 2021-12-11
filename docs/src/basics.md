@@ -1,11 +1,11 @@
 # Documentation
 
-This document provides a general introduction to Sims using [ModelingToolkit](https://mtk.sciml.ai/dev/).
+This document provides a general introduction to FunctionalModels using [ModelingToolkit](https://mtk.sciml.ai/dev/).
 
 ## Unknowns
 
 Models consist of equations and unknown variables. The number of
-equations should match the number of unknowns. In Sims, the function
+equations should match the number of unknowns. In FunctionalModels, the function
 `Unknown` is used to define unknown 
 [Symbolics.jl](https://symbolics.juliasymbolics.org/dev/manual/variables/) variables. 
 
@@ -18,7 +18,7 @@ Unknowns are not included in results.
 Here are several ways to define Unknowns:
 
 ```julia
-using Sims, ModelingToolkit
+using FunctionalModels, ModelingToolkit
 x = Unknown()          # An initial value of 0.0 with an anonymous name.
 y = Unknown(1.0, name = :y)  # An initial value of 1.0 and a name of `y`.
 @named y = Unknown(1.0)       # Same.
@@ -109,7 +109,7 @@ through the capacitor.
 Steps to building and simulating a model are straightforward.
 
 ```julia
-using Sims, ModelingToolkit
+using FunctionalModels, ModelingToolkit
 v = Vanderpol()  # returns the hierarchical model
 v_sys = system(v)     # returns the flattened model as a ModelingToolkit.ODEProblem
 ```

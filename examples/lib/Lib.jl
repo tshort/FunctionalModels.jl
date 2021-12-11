@@ -1,15 +1,15 @@
 module Lib
 
-using Sims
-using Sims.Lib
+using FunctionalModels
+using FunctionalModels.Lib
 using ModelingToolkit
 using IfElse: ifelse
 
 
 """
-# Sims.Lib
+# FunctionalModels.Lib
 
-Examples using models from the Sims standard library (Sims.Lib).
+Examples using models from the FunctionalModels standard library (FunctionalModels.Lib).
 
 Many of these are patterned after the examples in the Modelica
 Standard Library.

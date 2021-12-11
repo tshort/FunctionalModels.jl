@@ -1,4 +1,4 @@
-using Sims, ModelingToolkit
+using FunctionalModels, ModelingToolkit
 using OrdinaryDiffEq
 # using Plots
 
@@ -64,6 +64,6 @@ end
 function tstCircuit()
     @variables v1(t) v2(t)
     ckt = Circuit(v1, v2)
-    ctx = Sims.flatten(ckt)
+    ctx = FunctionalModels.flatten(ckt)
     sys = system(ckt)
 end

@@ -1,10 +1,10 @@
 module X
 
 # This is based on the MTK tutorial at https://mtk.sciml.ai/dev/tutorials/acausal_components/.
-# The difference is that the capacitor is replaced with a `Sims.Lib.Capacitor` using `mtk_object`.
+# The difference is that the capacitor is replaced with a `FunctionalModels.Lib.Capacitor` using `mtk_object`.
 
 
-using Sims, ModelingToolkit
+using FunctionalModels, ModelingToolkit
 using OrdinaryDiffEq
 
 @variables t
@@ -79,7 +79,7 @@ C = 1.0
 V = 1.0
 @named resistor = Resistor(R=R)
 @named capacitor = Capacitor(C=C)
-@named capacitor = mtk_object(Sims.Lib.Capacitor, Pin, C=Parameter(C, name=:C))
+@named capacitor = mtk_object(FunctionalModels.Lib.Capacitor, Pin, C=Parameter(C, name=:C))
 @named source = ConstantVoltage(V=V)
 @named ground = Ground()
 

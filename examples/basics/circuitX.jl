@@ -2,7 +2,7 @@
 # This is like the model in circuit.jl, except subsystems are not named.
 #
 
-using Sims, ModelingToolkit
+using FunctionalModels, ModelingToolkit
 using OrdinaryDiffEq
 # using Plots
 

@@ -1,4 +1,4 @@
-const t = Sims.t
+const t = FunctionalModels.t
 
 ########################################
 ## Rotational mechanical examples

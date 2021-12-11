@@ -1,5 +1,5 @@
 
-module Sims
+module FunctionalModels
 
 using ModelingToolkit: Equation, @parameters, @variables, ModelingToolkit, Num
 const MTK = ModelingToolkit
@@ -42,7 +42,7 @@ end
 # highest-profile example.
 # 
 # The highest profile noncausal modeling tools are in the Modelica
-# (www.modelica.org) family. The MathWorks also has Simscape that uses
+# (www.modelica.org) family. The MathWorks also has FunctionalModelscape that uses
 # Matlab notation. Modelica is an object-oriented, open language with
 # multiple implementations. It is a large, complex, powerful language
 # with an extensive standard library of components.
@@ -93,7 +93,7 @@ end
 #
 
 """
-The API for building models with Sims. Includes basic types, models,
+The API for building models with FunctionalModels. Includes basic types, models,
 and functions.
 """
 @comment
@@ -611,15 +611,15 @@ sim(x::Function, t, solver = OrdinaryDiffEq.Rosenbrock23(), problem = MTK.ODAEPr
     sim(x(), t, solver, problem; simplify = simplify, init = init)
 
 
-# load standard Sims libraries
+# load standard FunctionalModels libraries
 
 include("../lib/Lib.jl")
 
-# load standard Sims examples
+# load standard FunctionalModels examples
 
 # include("../examples/Examples.jl")
 
 
-end # module Sims
+end # module FunctionalModels
 
 
