@@ -2,7 +2,7 @@ module Basics
 
 using ....Sims
 using ....Sims.Lib
-
+using ModelingToolkit
 
 """
 # Examples using basic models

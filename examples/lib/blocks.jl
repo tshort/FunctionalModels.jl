@@ -7,6 +7,8 @@
 
 export PID_Controller
 
+using IfElse
+
 """
 # Blocks
 """
@@ -48,17 +50,18 @@ function PID_Controller()
     @named shaftspeed = Unknown()
     @named tau = Unknown()
     [
-        setpoint ~ ifelse((t < 0.5) | (t >= 3.2), 0.0,
-                          ifelse(t < 1.5, t - 0.5,
-                                 ifelse(t < 2.2, 1.0, 3.2 - t)))
+        Event([t ~ 0.5, t ~ 1.5, t ~ 2.2, t ~ 3.2])
+        setpoint ~ IfElse.ifelse((t < 0.5) || (t >= 3.2), 0.0,
+                   IfElse.ifelse(t < 1.5, t - 0.5,
+                   IfElse.ifelse(t < 2.2, 1.0, 3.2 - t)))
         :ss1 => SpeedSensor(n1, shaftspeed)
         :pid => LimPID(setpoint, shaftspeed, tau, 
-               controllerType = "PI",
-               k  = 100.0,
-               Ti = 0.1,
-               Td = 0.1,
-               yMax = 12.0,
-               Ni = 0.1)
+                       controllerType = "PI",
+                       k  = 100.0,
+                       Ti = 0.1,
+                       Td = 0.1,
+                       yMax = 12.0,
+                       Ni = 0.1)
          :st1 => SignalTorque(n1, 0.0, tau)
          :in1 => Inertia(n1, 1.0)
          :sd1 => SpringDamper(n1, n2, 1e4, 100)

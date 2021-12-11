@@ -32,17 +32,17 @@ function ex_ChuaCircuit()
         v = Voltage(compatible_values(n1, n2))
         [
             Branch(n1, n2, v, i)
-            i = ifelse(v < -Ve, Gb .* (v + Ve) - Ga .* Ve,
-                       ifelse(v > Ve, Gb .* (v - Ve) + Ga*Ve, Ga*v))
+            i = ie(v < -Ve, Gb .* (v + Ve) - Ga .* Ve,
+                   ie(v > Ve, Gb .* (v - Ve) + Ga*Ve, Ga*v))
         ]
     end
     [
-        Resistor(n1, g,  R = 12.5e-3) 
-        Inductor(n1, n2, L = 18.0)
-        Resistor(n2, n3, R = 1 / 0.565) 
-        Capacitor(n2, g, C = 100.0)
-        Capacitor(n3, g, C = 10.0)
-        NonlinearResistor(n3, g, Ga = -0.757576, Gb = -0.409091, Ve = 1.0)
+        :r1 => Resistor(n1, g,  R = 12.5e-3) 
+        :l1 => Inductor(n1, n2, L = 18.0)
+        :r2 => Resistor(n2, n3, R = 1 / 0.565) 
+        :c1 => Capacitor(n2, g, C = 100.0)
+        :c2 => Capacitor(n3, g, C = 10.0)
+        :r3 => NonlinearResistor(n3, g, Ga = -0.757576, Gb = -0.409091, Ve = 1.0)
     ]
 end
 
@@ -164,9 +164,9 @@ function model()
     @variables n1(t)
     g = 0.0
     [
-        SineVoltage(n1, g, V = 100.0)
-        Resistor(n1, g, R = 3.0)
-        Capacitor(n1, g, C = 1.0)
+        :vsrc => SineVoltage(n1, g, V = 100.0)
+        :r    => Resistor(n1, g, R = 3.0)
+        :c    => Capacitor(n1, g, C = 1.0)
     ]
 end
 ```
@@ -215,9 +215,9 @@ function model()
     @variables n1(t)
     g = 0.0
     [
-        SineVoltage(n1, g, V = 100.0)
-        Resistor(n1, g, R = 3.0)
-        Inductor(n1, g, L = 6.0)
+        :vsrc => SineVoltage(n1, g, V = 100.0)
+        :r    => Resistor(n1, g, R = 3.0)
+        :c    => Inductor(n1, g, L = 6.0)
     ]
 end
 ```
@@ -430,16 +430,15 @@ IdealDiode(n1::ElectricalNode, n2::ElectricalNode;
 
 """
 function IdealDiode(n1::ElectricalNode, n2::ElectricalNode; 
-                    Vknee, Ron = 1e-5, Goff = 1e-5)
+                    Vknee = 0.0, Ron = 1e-5, Goff = 1e-5)
     i = Current()
     v = Voltage()
     s = Unknown()  # dummy variable
-    openswitch = Discrete(true)  # on/off state of each diode
     [
         Branch(n1, n2, v, i)
-        BoolEvent(openswitch, -s)  # openswitch becomes true when s goes negative
-        v ~ s .* ifelse(openswitch, 1.0, Ron) + Vknee
-        i ~ s .* ifelse(openswitch, Goff, 1.0) + Goff .* Vknee
+        Event(s ~ 0.0)
+        v ~ s .* ie(s < 0.0, 1.0, Ron) + Vknee
+        i ~ s .* ie(s < 0.0, Goff, 1.0) + Goff .* Vknee
     ]
 end
 
@@ -459,7 +458,7 @@ displace the knee point along the `Goff`-characteristic until `v =
 Vknee`. 
 
 ```julia
-IdealThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete; 
+IdealThyristor(n1::ElectricalNode, n2::ElectricalNode, fire; 
                Vknee = 0.0, Ron = 1e-5, Goff = 1e-5)
 ```
 
@@ -467,7 +466,7 @@ IdealThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete;
 
 * `n1::ElectricalNode` : Positive electrical node [V]
 * `n2::ElectricalNode` : Negative electrical node [V]
-* `fire::Discrete` : Discrete bool variable indicating firing of the thyristor
+* `fire` : Discrete bool variable indicating firing of the thyristor
 
 ### Keyword/Optional Arguments
 
@@ -490,8 +489,8 @@ function IdealThyristor(n1::ElectricalNode, n2::ElectricalNode, fire;
     [
         Branch(n1, n2, v, i)
         BoolEvent(spositive, s)
-        v ~ s .* ifelse(off, 1.0, Ron) + Vknee
-        i ~ s .* ifelse(off, Goff, 1.0) + Goff .* Vknee
+        v ~ s .* ie(off, 1.0, Ron) + Vknee
+        i ~ s .* ie(off, Goff, 1.0) + Goff .* Vknee
     ]
 end
 
@@ -512,7 +511,7 @@ to displace the knee point along the `Goff`-characteristic until `v =
 Vknee`.
 
 ```julia
-IdealGTOThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete; 
+IdealGTOThyristor(n1::ElectricalNode, n2::ElectricalNode, fire; 
                   Vknee = 0.0, Ron = 1e-5, Goff = 1e-5)
 ```
 
@@ -520,7 +519,7 @@ IdealGTOThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete;
 
 * `n1::ElectricalNode` : Positive electrical node [V]
 * `n2::ElectricalNode` : Negative electrical node [V]
-* `fire::Discrete` : Discrete bool variable indicating firing of the thyristor
+* `fire` : Discrete bool variable indicating firing of the thyristor
 
 ### Keyword/Optional Arguments
 
@@ -528,7 +527,7 @@ IdealGTOThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete;
 * `Ron` : Closed thyristor resistance [Ohm], default = 1.E-5
 * `Goff` : Opened thyristor conductance [S], default = 1.E-5
 """
-# function IdealGTOThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete, 
+# function IdealGTOThyristor(n1::ElectricalNode, n2::ElectricalNode, fire, 
 #                            Vknee, Ron = 1e-5, Goff = 1e-5)
 #     vals = compatible_values(n1, n2) 
 #     i = Current(vals)
@@ -539,11 +538,11 @@ IdealGTOThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete;
 #     [
 #         Branch(n1, n2, v, i)
 #         BoolEvent(snegative, -s)
-#         v = s .* ifelse(off, 1.0, Ron) + Vknee
-#         i = s .* ifelse(off, Goff, 1.0) + Goff .* Vknee
+#         v = s .* ie(off, 1.0, Ron) + Vknee
+#         i = s .* ie(off, Goff, 1.0) + Goff .* Vknee
 #     ]
 # end
-# function IdealGTOThyristor(n1::ElectricalNode, n2::ElectricalNode, fire::Discrete; 
+# function IdealGTOThyristor(n1::ElectricalNode, n2::ElectricalNode, fire; 
 #                            Vknee = 0.0, Ron = 1e-5, Goff = 1e-5)
 #     IdealGTOThyristor(n1, n2, fire, Vknee, Ron, Goff)
 # end
@@ -601,7 +600,7 @@ of the open switch could be also exactly zero. Note, there are circuits,
 where a description with zero Ron or zero Goff is not possible.
 
 ```julia
-IdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Discrete;
+IdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control;
                    Ron = 1e-5, Goff = 1e-5)
 ```
 
@@ -609,14 +608,14 @@ IdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Discrete;
 
 * `n1::ElectricalNode` : Positive electrical node [V]
 * `n2::ElectricalNode` : Negative electrical node [V]
-* `control::Discrete` : true => switch open, false => n1-n2 connected
+* `control` : true => switch open, false => n1-n2 connected
 
 ### Keyword/Optional Arguments
 
 * `Ron` : Closed switch resistance [Ohm], default = 1.E-5
 * `Goff` : Opened switch conductance [S], default = 1.E-5
 """
-function IdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Discrete;
+function IdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control;
                             Ron, Goff = 1e-5)
     vals = compatible_values(n1, n2)
     i = Current(vals)
@@ -624,16 +623,15 @@ function IdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Dis
     s = Unknown(vals)  # dummy variable
     [
         Branch(n1, n2, v, i)
-        v ~ s .* ifelse(control, 1.0, Ron)
-        i ~ s .* ifelse(control, Goff, 1.0)
+        v ~ s .* ie(control, 1.0, Ron)
+        i ~ s .* ie(control, Goff, 1.0)
     ]
 end
   
 """
-The ideal closing switch has a positive pin `p` and a negative pin `n`. The
-switching behaviour is controlled by input signal `control`. If control is
-true, pin p is connected with negative pin n. Otherwise, pin p is not
-connected with negative pin n.
+The ideal closing switch has a positive node `n1` and a negative node `n2`. The
+switching behaviour is controlled by input signal `control`. If `control` is
+true, `n1` and `n2` are connected. 
 
 In order to prevent singularities during switching, the opened switch
 has a (very low) conductance `Goff` and the closed switch has a (very low)
@@ -643,7 +641,7 @@ of the open switch could be also exactly zero. Note, there are circuits,
 where a description with zero Ron or zero Goff is not possible.
 
 ```julia
-IdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Discrete;
+IdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control;
                    Ron = 1e-5, Goff = 1e-5)
 ```
 
@@ -651,14 +649,14 @@ IdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Discrete;
 
 * `n1::ElectricalNode` : Positive electrical node [V]
 * `n2::ElectricalNode` : Negative electrical node [V]
-* `control::Discrete` : true => n1-n2 connected, false => switch open
+* `control` : true => n1 & n2 connected, false => switch open
 
 ### Keyword/Optional Arguments
 
 * `Ron` : Closed switch resistance [Ohm], default = 1.E-5
 * `Goff` : Opened switch conductance [S], default = 1.E-5
 """
-function IdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Discrete;
+function IdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control;
                             Ron,  Goff = 1e-5)
     vals = compatible_values(n1, n2)
     i = Current(vals)
@@ -666,13 +664,41 @@ function IdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control::Dis
     s = Unknown(vals)  # dummy variable
     [
         Branch(n1, n2, v, i)
-        v ~ s .* ifelse(control, Ron, 1.0)
-        i ~ s .* ifelse(control, 1.0, Goff)
+        ## DiscreteEvent(control)
+        v ~ s .* ie(control, Ron, 1.0)
+        i ~ s .* ie(control, 1.0, Goff)
     ]
 end
   
 """
-TBD
+This ideal opening switch has a positive node `n1` and a negative node `n2`. The
+switching behaviour is controlled by the voltage `control`. If `control` is
+greater than `level`, `n1` and `n2` are not connected (open switch). 
+If `control` is less than `level`, the switch is closed.
+
+In order to prevent singularities during switching, the opened switch
+has a (very low) conductance `Goff` and the closed switch has a (very low)
+resistance `Ron`. The limiting case is also allowed, i.e., the resistance
+Ron of the closed switch could be exactly zero and the conductance Goff
+of the open switch could be also exactly zero. Note, there are circuits,
+where a description with zero Ron or zero Goff is not possible.
+
+```
+ControlledIdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control;
+                   level, Ron = 1e-5, Goff = 1e-5)
+```
+
+### Arguments
+
+* `n1::ElectricalNode` : Positive electrical node [V]
+* `n2::ElectricalNode` : Negative electrical node [V]
+* `control` : Control voltage [V]
+
+### Keyword/Optional Arguments
+
+* `level` : Switching voltage [V]
+* `Ron` : Closed switch resistance [Ohm], default = 1.E-5
+* `Goff` : Opened switch conductance [S], default = 1.E-5
 """
 function ControlledIdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control;
                                       level,  Ron = 1e-5,  Goff = 1e-5)
@@ -680,18 +706,44 @@ function ControlledIdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, co
     i = Current(vals)
     v = Voltage(vals)
     s = Unknown(vals)  # dummy variable
-    openswitch = Discrete(true)  # on/off state of diode
     [
         Branch(n1, n2, v, i)
-        BoolEvent(openswitch, control - level)  # openswitch becomes false when control goes below level
-        v ~ s .* ifelse(openswitch, 1.0, Ron)
-        i ~ s .* ifelse(openswitch, Goff, 1.0)
+        Event(control ~ level)  # switch opens when control goes below level
+        v ~ s .* ie(control > level, 1.0, Ron)
+        i ~ s .* ie(control > level, Goff, 1.0)
     ]
 end
                                       
 
 """
-TBD
+This ideal opening switch has a positive node `n1` and a negative node `n2`. The
+switching behaviour is controlled by the voltage `control`. If `control` is
+greater than `level`, `n1` and `n2` are connected (closed switch). 
+If `control` is less than `level`, the switch is open.
+
+In order to prevent singularities during switching, the opened switch
+has a (very low) conductance `Goff` and the closed switch has a (very low)
+resistance `Ron`. The limiting case is also allowed, i.e., the resistance
+Ron of the closed switch could be exactly zero and the conductance Goff
+of the open switch could be also exactly zero. Note, there are circuits,
+where a description with zero Ron or zero Goff is not possible.
+
+```
+ControlledIdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control;
+                   level, Ron = 1e-5, Goff = 1e-5)
+```
+
+### Arguments
+
+* `n1::ElectricalNode` : Positive electrical node [V]
+* `n2::ElectricalNode` : Negative electrical node [V]
+* `control` : Control voltage [V]
+
+### Keyword/Optional Arguments
+
+* `level` : Switching voltage [V]
+* `Ron` : Closed switch resistance [Ohm], default = 1.E-5
+* `Goff` : Opened switch conductance [S], default = 1.E-5
 """
 function ControlledIdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control;
                                       level,  Ron = 1e-5,  Goff = 1e-5)
@@ -760,6 +812,29 @@ ControlledOpenerWithArc(n1::ElectricalNode, n2::ElectricalNode, control;
 * `dVdt` : Arc voltage slope [V/s], default = 10e3
 * `Vmax` : Max. arc voltage [V], default = 60.0
 """
+# MSL equations:
+#   control.i = 0;
+#   0 = p.i + n.i;
+#   i = p.i;
+#   p.v - n.v = v;
+#   when edge(off) then
+#     tSwitch=time;
+#   end when;
+#   quenched=off and (abs(i)<=abs(v)*Goff or pre(quenched));
+#   if on then
+#     v=Ron*i;
+#   else
+#     if quenched then
+#       i=Goff*v;
+#     else
+#       v=min(Vmax, V0 + dVdt*(time - tSwitch))*sign(i);
+#     end if;
+#   end if;
+#  LossPower = v*i;
+# function ControlledOpenerWithArc(n1::ElectricalNode, n2::ElectricalNode, control;
+#                                  level = 0.5,  Ron = 1e-5,  Goff = 1e-5,  V0 = 30.0,  dVdt = 10e3,  Vmax = 60.0)
+#     ControlledOpenerWithArc(n1, n2, control, level, Ron, Goff, V0, dVdt, Vmax)
+# end
 # function ControlledOpenerWithArc(n1::ElectricalNode, n2::ElectricalNode, control,
 #                                  level,  Ron = 1e-5,  Goff = 1e-5,  V0 = 30.0,  dVdt = 10e3,  Vmax = 60.0)
 #     i = Current()
@@ -877,9 +952,9 @@ function Diode(n1::ElectricalNode, n2::ElectricalNode;
     v = Voltage()
     [
         Branch(n1, n2, v, i)
-        i ~ ifelse(v ./ Vt > Maxexp,
-                   Ids .* exp(Maxexp) .* (1 + v ./ Vt - Maxexp) - 1 + v ./ R,
-                   Ids .* (exp(v ./ Vt) - 1) + v ./ R)
+        i ~ ie(v ./ Vt > Maxexp,
+               Ids .* exp(Maxexp) .* (1 + v ./ Vt - Maxexp) - 1 + v ./ R,
+               Ids .* (exp(v ./ Vt) - 1) + v ./ R)
     ]
 end
 
@@ -898,11 +973,11 @@ function ZDiode(n1::ElectricalNode, n2::ElectricalNode;
     v = Voltage(vals)
     [
         Branch(n1, n2, v, i)
-        i ~ ifelse(v ./ Vt > Maxexp,
-                   Ids .* exp(Maxexp) .* (1 + v ./ Vt - Maxexp) - 1 + v ./ R,
-                   ifelse((v + Bv) < -Maxexp .* (Nbv .* Vt),
-                          -Ids - Ibv .* exp(Maxexp) .* (1 - (v+Bv) ./ (Nbv .* Vt) - Maxexp) + v ./ R,
-                          Ids .* (exp(v ./ Vt)-1) - Ibv .* exp(-(v + Bv)/(Nbv .* Vt)) + v ./ R))
+        i ~ ie(v ./ Vt > Maxexp,
+               Ids .* exp(Maxexp) .* (1 + v ./ Vt - Maxexp) - 1 + v ./ R,
+               ie((v + Bv) < -Maxexp .* (Nbv .* Vt),
+                  -Ids - Ibv .* exp(Maxexp) .* (1 - (v+Bv) ./ (Nbv .* Vt) - Maxexp) + v ./ R,
+                  Ids .* (exp(v ./ Vt)-1) - Ibv .* exp(-(v + Bv)/(Nbv .* Vt)) + v ./ R))
     ]
 end
 
@@ -1071,7 +1146,7 @@ function StepVoltage(n1::ElectricalNode, n2::ElectricalNode;
     v = Voltage()
     [
         Branch(n1, n2, v, i) 
-        v ~ ifelse(t > start, V + offset, offset)
+        v ~ ie(t > start, V + offset, offset)
         # Event(t - start,
         #       [reinit(v_mag, offset + V)],        # positive crossing
         #       [reinit(v_mag, offset)])            # negative crossing
@@ -1131,16 +1206,15 @@ SeriesProbe(n1, n2; name::AbstractString)
 
 ```julia
 function model()
-    n1 = Voltage("n1")
-    n2 = Voltage()
+    @named n1 = Voltage()
+    @named n2 = Voltage()
     g = 0.0
     [
-        SineVoltage(n1, g, V = 100.0)
-        SeriesProbe(n1, n2, "current")
-        Resistor(n2, g, R = 2.0)
+        :vsrc => SineVoltage(n1, g, V = 100.0)
+        :i => SeriesProbe(n1, n2, "current")
+        :r => Resistor(n2, g, R = 2.0)
     ]
 end
-y = sim(model())
 ```
 """
 function SeriesProbe(n1, n2; name) 

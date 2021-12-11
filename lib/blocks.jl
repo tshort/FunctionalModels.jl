@@ -49,9 +49,10 @@ Integrator(u::Signal, y::Signal; k = 1.0, y_start = 0.0)
 function Integrator(u::Signal, y::Signal; 
                     k = 1.0,       # Gain
                     y_start = 0.0) # output initial value
-    y.value = y_start
+    @named a = Unknown(y_start)
     [
         der(y) ~ k .* u
+        a ~ y
     ]
 end
 
@@ -97,12 +98,13 @@ function Derivative(u::Signal, y::Signal;
                     k = 1.0,   # Gain
                     x_start = 0.0, # initial value of state
                     y_start = 0.0) # output initial value
-    y.value = y_start
-    x = Unknown(x_start)  # state of the block
+    @named yval = Unknown(y_start)
+    @named x = Unknown(x_start)  # state of the block
     zeroGain = abs(k) < eps()
     [
         der(x) ~ zeroGain ? 0 : (u - x) ./ T
         y ~ zeroGain ? 0 : (k ./ T) .* (u - x)
+        y ~ yval
     ]
 end
 
@@ -246,10 +248,10 @@ function LimPID(u_s::Signal, u_m::Signal, y::Signal;
     zeroGain = abs(k) < eps()
     [
         i ~ u_s - u_m + (y - x) / (k * Ni)
-        with_I ? Integrator(i, I, 1/Ti) : []
-        with_D ? Derivative(d, D, Td, max(Td/Nd, 1e-14)) : []
+        with_I ? :int => Integrator(i, I, k = 1/Ti) : []
+        with_D ? :der => Derivative(d, D, T = Td, k = max(Td/Nd, 1e-14)) : []
         d ~ wd * u_s - u_m
-        Limiter(x, y, yMax, yMin)
+        :lim => Limiter(x, y, uMax = yMax, uMin = yMin)
         x ~ k * ((with_I ? I : 0.0) + (with_D ? D : 0.0) + wp * u_s - u_m)
     ]
 end
@@ -391,7 +393,7 @@ function TransferFunction(u::Signal, y::Signal;
     x = Unknown(zeros(nx))
     x_scaled = Unknown(zeros(nx))
     
-    ;if nx == 0
+    if nx == 0
         [y ~ d * u]
     else
         [
@@ -440,13 +442,11 @@ Limiter(u::Signal, y::Signal; uMax = 1.0, uMin = -uMax)
 function Limiter(u::Signal, y::Signal; 
                  uMax,
                  uMin = -uMax)
-    clamped_pos = Discrete(false)
-    clamped_neg = Discrete(false)
     [
-        BoolEvent(clamped_pos, u - uMax)
-        BoolEvent(clamped_neg, uMin - u)
-        y ~ ifelse(clamped_pos, uMax,
-                   ifelse(clamped_neg, uMin, u))
+        Event([u ~ uMin, u ~ uMax])
+        y ~ ie(u > uMax, uMax,
+            ie(u < uMin, uMin, 
+                         u))
     ]
 end
 const VariableLimiter = Limiter
@@ -475,12 +475,9 @@ function Step(y::Signal;
               height = 1.0,
               offset = 0.0, 
               startTime = 0.0)
-    # ymag = Discrete(offset)
     [
-        y ~ ifelse(t > startTime, offset, 0.0)  
-        # Event(t - startTime,
-        #       [reinit(ymag, offset + height)],   # positive crossing
-        #       [reinit(ymag, offset)])            # negative crossing
+        Event(t ~ startTime)
+        y ~ ie(t > startTime, height + offset, offset)  
     ]
 end
 
@@ -515,11 +512,10 @@ function DeadZone(u::Signal, y::Signal;
     pos = Discrete(false)
     neg = Discrete(false)
     [
-        BoolEvent(pos, u - uMax)
-        BoolEvent(neg, uMin - u)
-        y ~ ifelse(pos, u - uMax,
-                   ifelse(neg, u - uMin,
-                          0.0))
+        Event([u ~ uMin, u ~ uMax])
+        y ~ ie(u > uMax, u - uMax,
+            ie(u < uMin, u - uMin,
+                         0.0))
     ]
 end
 
@@ -541,37 +537,26 @@ BooleanPulse(y; width = 50.0, period = 1.0, startTime = 0.0)
 * `period` : time for one period [sec]
 * `startTime` : time instant of the first pulse [sec]
 
+BROKEN
+
 """
 function BooleanPulse(x; width, period = 1.0, startTime = 0.0)
-    [BoolEvent(x, ifelse(t > startTime,
-                        trianglewave(t - startTime, width, period),
-                        -1.0))]
+    [BoolEvent(x, ie(t > startTime,
+                     trianglewave(t - startTime, width, period),
+                     -1.0))]
 end
     
 
 function Pulse(d; amplitude, width = 50.0, period = 1.0, offset = 0.0, startTime = 0.0)
     [
-        Event(ifelse(t > startTime,
-                     trianglewave(t - startTime, width, period),
-                     -1.0),
-              reinit(d, amplitude + offset),
-              reinit(d, offset))
+        Event(trianglewave(t - startTime, width, period),
+              d ~ ie(trianglewave(t - startTime, width, period) > 0.0, amplitude + offset, offset))
     ]
 end
-    
-## function Pulse(x, amplitude = 1.0, width = 50.0, period = 1.0, offset = 0.0, startTime = 0.0)
-##     b = Discrete(false)
-##     [
-##         BooleanPulse(b, width, period, startTime)
-##         x = ifelse(b, amplitude + offset, offset)
-##     end
-## end
-## Pulse(x; amplitude = 1.0, width = 50.0, period = 1.0, offset = 0.0, startTime = 0.0) =
-##     Pulse(x, amplitude, width, period, offset, startTime)
     
 
 function trianglewave(t, width, a)
     # handle offset:
     t = t - (width - 100) / 200 * a
-    y = 2 * abs(2 * (t/a - floor(t/a + 1/2))) - 2 * (100 - width) / 100
+    2 * abs(2 * (t/a - floor(t/a + 1/2))) - 2 * (100 - width) / 100
 end

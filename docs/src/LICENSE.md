@@ -1,4 +1,4 @@
-Sims.jl is licensed under the MIT License:
+FunctionalModels.jl is licensed under the MIT License:
 
 > Copyright (c) 2012 - 2021, Electric Power Research Institute
 >

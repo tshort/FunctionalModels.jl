@@ -1,11 +1,12 @@
+using Sims, Sims.Lib
+using ModelingToolkit
+
 
 ########################################
 ## Heat transfer examples
 ##
 ## These attempt to mimic the Modelica.Thermal.HeatTransfer.Examples
 ########################################
-
-export TwoMasses, Motor
 
 """
 # Heat transfer
@@ -30,8 +31,8 @@ the system by the sum of the heat capacities of each element.
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Thermal_HeatTransfer_Examples.html#Modelica.Thermal.HeatTransfer.Examples.TwoMasses)
 """
 function TwoMasses()
-    t1 = Temperature(373.15, "t1", gensym = false)
-    t2 = Temperature(273.15, "t2", gensym = false)
+    @named t1 = Temperature(373.15)
+    @named t2 = Temperature(273.15)
     [
         :hc1 => HeatCapacitor(t1, C = 15.0)
         :hc2 => HeatCapacitor(t2, C = 15.0)

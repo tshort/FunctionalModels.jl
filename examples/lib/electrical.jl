@@ -1,7 +1,7 @@
-using Sims
-using Sims.Lib
+using Sims, Sims.Lib
 using ModelingToolkit
-
+using IfElse
+const t = Sims.t
 
 ########################################
 ## Electrical examples
@@ -13,20 +13,6 @@ using ModelingToolkit
 # Electrical
 """
 @comment   
-
-export CauerLowPassAnalog,
-       CauerLowPassOPV,
-       CauerLowPassOPV2,
-       CharacteristicIdealDiodes,
-       ChuaCircuit,
-       HeatingResistor,
-       HeatingRectifier,
-       Rectifier,
-       ShowSaturatingInductor,
-       ShowVariableResistor,
-       ControlledSwitchWithArc,
-       CharacteristicThyristors,
-       run_electrical_examples
 
 """
 Cauer low-pass filter with analog components
@@ -188,15 +174,15 @@ function CharacteristicIdealDiodes()
     @variables s1(t) s2(t) s3(t)
     g = 0.0
     [
-        SineVoltage(s1, g, V = 10.0, f = 1.0, ang = -pi/10.0) 
-        SineVoltage(s2, g, V = 10.0, f = 1.0, ang = -pi/15.0, offset = -9.0) 
-        SineVoltage(s3, g, V = 10.0, f = 1.0, ang = -pi/20.0) 
-        Resistor(n1, g, R = 1e-3) 
-        Resistor(n2, g, R = 1e-3) 
-        Resistor(n3, g, R = 1e-3) 
-        IdealDiode(s1, n1, Vknee = 0.0, Ron = 0.0, Goff = 0.0)
-        IdealDiode(s2, n2, Vknee = 0.0, Ron = 0.1, Goff = 0.1) 
-        IdealDiode(s3, n3, Vknee = 5.0, Ron = 0.2, Goff = 0.2) 
+        :s1 => SineVoltage(s1, g, V = 10.0, f = 1.0, ang = -pi/10.0) 
+        :s2 => SineVoltage(s2, g, V = 10.0, f = 1.0, ang = -pi/15.0, offset = -9.0) 
+        :s3 => SineVoltage(s3, g, V = 10.0, f = 1.0, ang = -pi/20.0) 
+        :r1 => Resistor(n1, g, R = 1e-3) 
+        :r2 => Resistor(n2, g, R = 1e-3) 
+        :r3 => Resistor(n3, g, R = 1e-3) 
+        :d1 => IdealDiode(s1, n1, Vknee = 0.0, Ron = 0.0, Goff = 0.0)
+        :d2 => IdealDiode(s2, n2, Vknee = 0.0, Ron = 0.1, Goff = 0.1) 
+        :d3 => IdealDiode(s3, n3, Vknee = 5.0, Ron = 0.2, Goff = 0.2) 
      ]
 end
 
@@ -227,8 +213,8 @@ function ChuaCircuit()
         v = Voltage(compatible_values(n1, n2))
         [
             Branch(n1, n2, v, i)
-            i ~ ifelse(v < -Ve, Gb .* (v + Ve) - Ga .* Ve,
-                       ifelse(v > Ve, Gb .* (v - Ve) + Ga*Ve, Ga*v))
+            i ~ IfElse.ifelse(v < -Ve, Gb .* (v + Ve) - Ga .* Ve,
+                       IfElse.ifelse(v > Ve, Gb .* (v - Ve) + Ga*Ve, Ga*v))
         ]
     end
     [
@@ -374,7 +360,7 @@ function ShowSaturatingInductor()
     phase = pi/2
     phase = 0.0
     [
-        :vsrc => SineVoltage(n1, g, V = U, f = f, angle = phase)
+        :vsrc => SineVoltage(n1, g, V = U, f = f, ang = phase)
         ## SaturatingInductor(n1, g, Inom, Lnom, Linf, Lzer)
         :i1 => SaturatingInductor(n1, g, Inom = Inom, Lnom = Lnom)
     ]
@@ -388,7 +374,7 @@ function ShowSaturatingInductor2()
     f = 1/(2pi)
     phase = 0.0
     [
-        :vsrc => SineVoltage(n1, g, V = U, f = f, angle = phase)
+        :vsrc => SineVoltage(n1, g, V = U, f = f, ang = phase)
         :i1 => SaturatingInductor2(n1, g, a = 71.0, b = 0.1, c = 0.04)
     ]
 end
@@ -422,7 +408,7 @@ function ShowSaturatingInductor4()
     f = 1/(2pi)
     phase = 0.0
     [
-        SineVoltage(n1, g, U, f, phase)
+        SineVoltage(n1, g, V = U, f = f, ang = phase)
         SaturatingInductor4(n1, g, .50, 0.7, 0.0)
     ]
 end
@@ -446,27 +432,16 @@ current monitors
  | [MapleSoft doc link](http://www.maplesoft.com/documentation_center/online_manuals/modelica/Modelica_Electrical_Analog_Examples.html#Modelica.Electrical.Analog.Examples.ShowVariableResistor)
 """
 function ShowVariableResistor()
-    n = Voltage("Vs")
-    n1 = Voltage("n1")
-    n2 = Voltage("n2")
-    n3 = Voltage("n3")
-    n4 = Voltage("n4")
-    n5 = Voltage("n5")
-    isig1 = Voltage("Ir1")
-    isig2 = Voltage("Ir2")
-    vres = Voltage("Vres")
+    @variables n(t) n1(t) n2(t) n3(t) n4(t)
     g = 0.0
     [
-        n2 ~ n3 + isig1    # current monitor
-        n5 ~ n3 + isig2    # current monitor
-        n5 ~ n4 + vres 
         :vx => SineVoltage(n, g, V = 1.0, f = 1.0)
-        :r1 => Resistor(n, n1,  R = 1.0)
+        :r1 => Resistor(n,  n1, R = 1.0)
         :r2 => Resistor(n1, n2, R = 1.0)
-        :r3 => Resistor(n2, n3, R = 1.0)
-        :r4 => Resistor(n, n4,  R = 1.0)
-        :r5 => Resistor(n4, n5, R = 2 + 2.5 * t)
-        :r6 => Resistor(n5, n3, R = 1.0)
+        :r3 => Resistor(n2, g,  R = 1.0)
+        # :r4 => Resistor(n,  n3, R = 1.0)
+        # :rv => Resistor(n3, n4, R = 2 + 2.5 * t)
+        # :r5 => Resistor(n4, g,  R = 1.0)
     ]
 end
 
@@ -540,7 +515,7 @@ function CharacteristicThyristors()
     [
         x - sig
         BooleanPulse(sig, width = 20.0, period = 1.0, startTime = 0.15)
-        SineVoltage(n1, g, 10.0, 1.0, -0.006) 
+        SineVoltage(n1, g, V = 10.0, f = 1.0, ang = -0.006) 
         IdealThyristor(n1, n2, sig, 5.0)
         IdealGTOThyristor(n1, n3, sig, 0.0)
         BoolEvent(sig, t - 1.25)  
@@ -602,24 +577,3 @@ function docutil()
     
 end    
     
-
-## Run the electrical examples from Examples.Lib
-function run_electrical_examples()
-    clpa  = sim(CauerLowPassAnalog(), 60.0)
-    clpo  = sim(CauerLowPassOPV(), 60.0)
-    clpo2 = sim(CauerLowPassOPV2(), 60.0)
-    cid   = sim(CharacteristicIdealDiodes(), 1.0)
-    cc    = sim(ChuaCircuit(), 5000.0)
-    hr    = sim(HeatingResistor(), 5.0)
-    svr   = sim(ShowVariableResistor(), 6.2832)
-    ct    = sim(CharacteristicThyristors(), 2.0)
-    # s     = create_simstate(HeatingRectifier())
-    # initialize!(s)
-    # hr    = sim(s, 5.0)
-    # r     = sim(Rectifier(), tstop = 0.1, alg = false)
-    cswa  = sunsim(ControlledSwitchWithArc(), tstop = 6.0, alg = false) # doesn't solve with DASSL
-    ## -- Broken examples --
-    ## ssi   = sim(ShowSaturatingInductor(), 6.2832)
-end
-
-

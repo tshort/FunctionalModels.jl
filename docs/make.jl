@@ -67,9 +67,10 @@ createmd("docs/src/lib/electrical.md",    Sims.Lib, "electrical.jl")
 createmd("docs/src/lib/heat_transfer.md", Sims.Lib, "heat_transfer.jl")
 createmd("docs/src/lib/rotational.md",    Sims.Lib, "rotational.jl")
 
-# createmd("docs/src/examples/basics.md", Sims.Examples.Basics)
-createmd("docs/src/examples/lib.md",    Sims.Examples.Lib)
-# createmd("docs/src/examples/tiller.md", Sims.Examples.Tiller)
+include("../examples/Examples.jl")
+createmd("docs/src/examples/basics.md", Examples.Basics)
+createmd("docs/src/examples/lib.md",    Examples.Lib)
+createmd("docs/src/examples/tiller.md", Examples.Tiller)
 
 cp("NEWS.md", "docs/src/NEWS.md", force=true)
 cp("LICENSE.md", "docs/src/LICENSE.md", force=true)

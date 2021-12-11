@@ -22,26 +22,26 @@ include("electrical.jl")
 include("heat_transfer.jl")
 include("rotational.jl")
 
+# Electrical
 
-# function runall()
-#     ## Electrical
-#     run_electrical_examples()
-    
-#     ## Heat transfer
-#     ## m  = sim(Motor(), 7200.0)
-#     tm    = sim(TwoMasses(), 1.0)
-    
-#     ## Power systems
-#     rlm   = sim(RLModel(), 0.2)
-#     ## pim   = sim(PiModel(), 0.02)
-#     ## mm    = sim(ModalModel(), 0.2)
-    
-#     ## Rotational
-#     fst   = sim(First())
-    
-#     ## Blocks
-#     pidc  = sim(PID_Controller(), tstop = 4.0, alg = false)
-# end
+export CauerLowPassAnalog,
+       CauerLowPassOPV,
+       CauerLowPassOPV2,
+       CharacteristicIdealDiodes,
+       ChuaCircuit,
+       HeatingResistor,
+       Rectifier,
+       ShowVariableResistor
+    #    HeatingRectifier,
+    #    ShowSaturatingInductor,
+    #    ControlledSwitchWithArc,
+    #    CharacteristicThyristors,
+
+# Heat transfer
+
+export TwoMasses 
+    #    Motor
+
 
 end # module
 

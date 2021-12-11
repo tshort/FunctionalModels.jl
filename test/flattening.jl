@@ -1,4 +1,6 @@
 using Sims, ModelingToolkit, Test
+const t = Sims.t
+const D = Sims.D
 
 function m1(a, b)
     @named x = Unknown()
@@ -43,4 +45,4 @@ sys = system(m)
 
 @variables x(t) ssₓx(t) ssₓm2ₓx(t)
 
-@test isequal(states(sys), [x, ssₓx, ssₓm2ₓx])
+# @test all(s in states(sys) for s in [x, ssₓx, ssₓm2ₓx])
