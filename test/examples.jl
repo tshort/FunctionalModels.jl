@@ -1,4 +1,4 @@
-using Sims, Sims.Lib, Sims.Examples.Lib
+using FunctionalModels, FunctionalModels.Lib, FunctionalModels.Examples.Lib
 using ModelingToolkit
 using OrdinaryDiffEq
 
@@ -27,12 +27,12 @@ function SimpleParameter()
 end
 function runSimpleParameter()
     m = SimpleParameter()
-    ctx = Sims.flatten(m)
+    ctx = FunctionalModels.flatten(m)
     @named sys = system(m)
 end
 
 
-using Sims, Sims.Lib, Sims.Examples.Lib
+using FunctionalModels, FunctionalModels.Lib, FunctionalModels.Examples.Lib
 using ModelingToolkit
 using OrdinaryDiffEq
 # using Plots

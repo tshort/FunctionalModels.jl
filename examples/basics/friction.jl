@@ -1,4 +1,4 @@
-using Sims, ModelingToolkit
+using FunctionalModels, ModelingToolkit
 
 function UnitMassWithFriction(k)
     v = Unknown(0.0, name = :v)

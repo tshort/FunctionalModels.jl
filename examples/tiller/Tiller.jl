@@ -1,8 +1,8 @@
 
 module Tiller
 
-using ....Sims
-using ....Sims.Lib
+using ....FunctionalModels
+using ....FunctionalModels.Lib
 using ModelingToolkit
 
 
@@ -14,14 +14,14 @@ using ModelingToolkit
 These examples are from the online book [Modelica by
 Example](http://mbe.modelica.university/) by Michael M. Tiller. Michael
 explains modeling and simulations very well, and it's easy to compare
-Sims.jl results to those online.
+FunctionalModels.jl results to those online.
 
-These are available in **Sims.Examples.Tiller**. Here is an example of
+These are available in **FunctionalModels.Examples.Tiller**. Here is an example of
 use:
 
 ```julia
-using Sims
-m = Sims.Examples.Tiller.SecondOrderSystem()
+using FunctionalModels
+m = FunctionalModels.Examples.Tiller.SecondOrderSystem()
 y = dasslsim(m, tstop = 5.0)
 
 

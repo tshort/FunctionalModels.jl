@@ -8,7 +8,7 @@ export VanderpolWithEvents
 
 
 """
-An extension of Sims.Examples.Basics.Vanderpol. Events are triggered
+An extension of FunctionalModels.Examples.Basics.Vanderpol. Events are triggered
 every 2 sec that change the quantity `mu`.
 """
 function VanderpolWithEvents()

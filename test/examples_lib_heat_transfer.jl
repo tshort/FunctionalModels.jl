@@ -1,4 +1,4 @@
-using Sims, Sims.Lib
+using FunctionalModels, FunctionalModels.Lib
 using ModelingToolkit, OrdinaryDiffEq
 
 include("../examples/lib/heat_transfer.jl")

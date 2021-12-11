@@ -1,5 +1,5 @@
 """
-# The Sims standard library
+# The FunctionalModels standard library
 
 ---
 
@@ -8,13 +8,13 @@
 ---
 
 
-These components are available with **Sims.Lib**.
+These components are available with **FunctionalModels.Lib**.
 
 Normal usage is:
 
 ```julia
-using Sims
-using Sims.Lib
+using FunctionalModels
+using FunctionalModels.Lib
 
 # modeling...
 ```
@@ -27,7 +27,7 @@ Library components include models for:
 
 Most of the components mimic those in the Modelica Standard Library.
 
-The main types for Unknowns and signals defined in Sims.Lib include:
+The main types for Unknowns and signals defined in FunctionalModels.Lib include:
 
 |                     | Flow/through variable | Node/across variable | Node helper type |
 | ------------------- | --------------------- | -------------------- | ---------------- |

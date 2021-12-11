@@ -1,7 +1,7 @@
-using Sims, Sims.Lib
+using FunctionalModels, FunctionalModels.Lib
 using ModelingToolkit
 using IfElse
-const t = Sims.t
+const t = FunctionalModels.t
 
 ########################################
 ## Electrical examples

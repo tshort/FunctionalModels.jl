@@ -4,6 +4,6 @@ NOTE: Most of these have not been updated for MTK.
 
 ---
 
-# Sims examples
+# FunctionalModels examples
 
-These are available in Sims.Examples.
+These are available in FunctionalModels.Examples.

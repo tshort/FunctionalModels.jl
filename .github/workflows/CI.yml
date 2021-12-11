@@ -50,9 +50,9 @@ jobs:
       - run: |
           julia --project=docs -e '
             using Documenter: DocMeta, doctest
-            using Sims
-            DocMeta.setdocmeta!(Sims, :DocTestSetup, :(using Sims); recursive=true)
-            doctest(Sims)'
+            using FunctionalModels
+            DocMeta.setdocmeta!(FunctionalModels, :DocTestSetup, :(using FunctionalModels); recursive=true)
+            doctest(FunctionalModels)'
       - run: julia --project=docs docs/make.jl
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,9 +1,9 @@
 module Lib
-using ..Sims, ModelingToolkit
+using ..FunctionalModels, ModelingToolkit
 import IfElse
 const ie = IfElse.ifelse
 
-const t = Sims.t
+const t = FunctionalModels.t
 
 # Note: broken or experimental objects are not exported.
 
@@ -45,7 +45,7 @@ export Inertia, Disc, Spring, BranchHeatPort, Damper, SpringDamper,
        IdealGear, SpeedSensor, AccSensor, SignalTorque
 
 
-# load standard Sims libraries
+# load standard FunctionalModels libraries
 include("types.jl")
 include("blocks.jl")
 include("heat_transfer.jl")

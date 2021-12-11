@@ -1,6 +1,6 @@
-using Sims, ModelingToolkit, Test
-const t = Sims.t
-const D = Sims.D
+using FunctionalModels, ModelingToolkit, Test
+const t = FunctionalModels.t
+const D = FunctionalModels.D
 
 function m1(a, b)
     @named x = Unknown()
@@ -37,7 +37,7 @@ end
 
 m = mod()
 
-ctx = Sims.flatten(m)
+ctx = FunctionalModels.flatten(m)
 
 sys = system(m)
 

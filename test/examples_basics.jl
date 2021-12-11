@@ -1,7 +1,7 @@
-using Sims, Sims.Lib
+using FunctionalModels, FunctionalModels.Lib
 using ModelingToolkit, OrdinaryDiffEq
-const t = Sims.t
-const D = Sims.D
+const t = FunctionalModels.t
+const D = FunctionalModels.D
 
 include("../examples/basics/mtk_interop.jl")
 

@@ -1,16 +1,16 @@
 
-[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://tshort.github.io/Sims.jl/stable)
-[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://tshort.github.io/Sims.jl/dev)
-[![Build Status](https://github.com/tshort/Sims.jl/workflows/CI/badge.svg)](https://github.com/tshort/Sims.jl/actions)
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://tshort.github.io/FunctionalModels.jl/stable)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://tshort.github.io/FunctionalModels.jl/dev)
+[![Build Status](https://github.com/tshort/FunctionalModels.jl/workflows/CI/badge.svg)](https://github.com/tshort/FunctionalModels.jl/actions)
 
-Sims.jl
+FunctionalModels.jl (formerly Sims.jl)
 =======
 
 A [Julia](http://julialang.org) package for equation-based modeling
 and simulations. For more information, see the documentation:
 
-* **[Documentation for the released version](https://tshort.github.io/Sims.jl/stable)**.
-* **[Documentation for the development version](https://tshort.github.io/Sims.jl/latest)**.
+* **[Documentation for the released version](https://tshort.github.io/FunctionalModels.jl/stable)**.
+* **[Documentation for the development version](https://tshort.github.io/FunctionalModels.jl/latest)**.
 
 ---
 
@@ -20,7 +20,7 @@ Some of the components and/or examples do not work, yet. This especially include
 
 ---
 
-Sims builds on top of [ModelingToolkit](https://mtk.sciml.ai/). The following
+FunctionalModels builds on top of [ModelingToolkit](https://mtk.sciml.ai/). The following
 are exported:
 
 * `t`: independent variable
@@ -31,15 +31,15 @@ are exported:
 * `compatible_values`: return the base value from a variable to use when creating other variables
 * `RefBranch` and `Branch`: marks nodes and flow variables
 
-Equations are standard ModelingToolkit equations. The main difference in Sims is
+Equations are standard ModelingToolkit equations. The main difference in FunctionalModels is
 that variables should be created with `Unknown(val; name)` or one of the helpers like `Voltage()`.
 Variables created this way include metadata to ensure that variable names don't clash.
 Multiple subcomponents can all have a `v(t)` variable for example.
 Once the model is flattened, the variable names will be normalized.
 
-Sims uses a functional style as opposed to the more object-oriented
+FunctionalModels uses a functional style as opposed to the more object-oriented
 approach of ModelingToolkit, Modia, and Modelica. Because `system`
-return an `ODESystem`, models can be built up of Sims components and
+return an `ODESystem`, models can be built up of FunctionalModels components and
 standard ModelingToolkit components.
 
 
@@ -60,7 +60,7 @@ build up models from components.
 
 The highest profile noncausal modeling tools are in the
 [Modelica](https://www.modelica.org/) family. The MathWorks company also has
-Simscape that uses Matlab notation. Modelica is an object-oriented,
+FunctionalModelscape that uses Matlab notation. Modelica is an object-oriented,
 open language with multiple implementations. It is a large, complex,
 powerful language with an extensive standard library of components.
 
@@ -72,7 +72,7 @@ and [George Giorgidze](http://db.inf.uni-tuebingen.de/team/giorgidze)
 ([Hydra code](https://github.com/giorgidze/Hydra) and
 [thesis](http://db.inf.uni-tuebingen.de/files/giorgidze/phd_thesis.pdf))
 and [Henrik Nilsson](http://www.cs.nott.ac.uk/~nhn/) and their
-functional hybrid modeling. Sims is most similar to
+functional hybrid modeling. FunctionalModels is most similar to
 [Modelyze](https://github.com/david-broman/modelyze) by David Broman
 ([report](http://www.eecs.berkeley.edu/Pubs/TechRpts/2012/EECS-2012-173.pdf)).
 
@@ -80,28 +80,28 @@ functional hybrid modeling. Sims is most similar to
 Installation
 ------------
 
-Sims is an installable package. To install Sims, use the following:
+FunctionalModels is an installable package. To install FunctionalModels, use the following:
 
 ```julia
-Pkg.add("Sims")
+Pkg.add("FunctionalModels")
 ```
 
 Model Libraries
 ---------------
 
-Sims.jl has one main module named `Sims` and the following submodules:
+FunctionalModels.jl has one main module named `FunctionalModels` and the following submodules:
 
-* `Sims.Lib` -- the standard library
+* `FunctionalModels.Lib` -- the standard library
 
-* `Sims.Examples` -- example models, including:
-  * `Sims.Examples.Basics`
-  * `Sims.Examples.Lib`
-  * `Sims.Examples.Neural`
+* `FunctionalModels.Examples` -- example models, including:
+  * `FunctionalModels.Examples.Basics`
+  * `FunctionalModels.Examples.Lib`
+  * `FunctionalModels.Examples.Neural`
 
 Basic example
 -------------
 
-Sims uses ModelingToolkit to build up models. All equations use the
+FunctionalModels uses ModelingToolkit to build up models. All equations use the
 ModelingToolkit variables and syntax.
 In a simulation, the unknowns are to be solved based on a set of
 equations. Equations are built from device models. 

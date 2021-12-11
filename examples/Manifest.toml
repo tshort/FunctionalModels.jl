@@ -959,9 +959,9 @@ git-tree-sha1 = "daf7aec3fe3acb2131388f93a4c409b8c7f62226"
 uuid = "699a6c99-e7fa-54fc-8d76-47d257e15c1d"
 version = "0.9.3"
 
-[[Sims]]
+[[FunctionalModels]]
 deps = ["IfElse", "ModelingToolkit", "Symbolics"]
-path = "/Users/ptsh003/.julia/dev/Sims"
+path = "/Users/ptsh003/.julia/dev/FunctionalModels"
 uuid = "c42448f0-9baa-11eb-2295-650722d739d2"
 version = "0.3.0"
 

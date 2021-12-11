@@ -1,4 +1,4 @@
-using Documenter, Sims
+using Documenter, FunctionalModels
 
 function sorteddocs(mod)
     path = String[]
@@ -59,13 +59,13 @@ end
 mkpath("docs/src/lib")
 mkpath("docs/src/examples")
 
-createmd("docs/src/sims.md", Sims, "Sims.jl")
+createmd("docs/src/sims.md", FunctionalModels, "FunctionalModels.jl")
 
-createmd("docs/src/lib/types.md",         Sims.Lib, "types.jl")
-createmd("docs/src/lib/blocks.md",        Sims.Lib, "blocks.jl")
-createmd("docs/src/lib/electrical.md",    Sims.Lib, "electrical.jl")
-createmd("docs/src/lib/heat_transfer.md", Sims.Lib, "heat_transfer.jl")
-createmd("docs/src/lib/rotational.md",    Sims.Lib, "rotational.jl")
+createmd("docs/src/lib/types.md",         FunctionalModels.Lib, "types.jl")
+createmd("docs/src/lib/blocks.md",        FunctionalModels.Lib, "blocks.jl")
+createmd("docs/src/lib/electrical.md",    FunctionalModels.Lib, "electrical.jl")
+createmd("docs/src/lib/heat_transfer.md", FunctionalModels.Lib, "heat_transfer.jl")
+createmd("docs/src/lib/rotational.md",    FunctionalModels.Lib, "rotational.jl")
 
 include("../examples/Examples.jl")
 createmd("docs/src/examples/basics.md", Examples.Basics)
@@ -76,10 +76,10 @@ cp("NEWS.md", "docs/src/NEWS.md", force=true)
 cp("LICENSE.md", "docs/src/LICENSE.md", force=true)
 
 makedocs(
-    modules = [Sims, Examples],
+    modules = [FunctionalModels, Examples],
     clean = false,
     format = Documenter.HTML(),
-    sitename = "Sims.jl",
+    sitename = "FunctionalModels.jl",
     authors = "Tom Short and contributors.",
     # linkcheck = !("skiplinks" in ARGS),
     pages = Any[ 
@@ -106,7 +106,7 @@ makedocs(
 
 
 deploydocs(
-    repo = "github.com/tshort/Sims.jl.git",
+    repo = "github.com/tshort/FunctionalModels.jl.git",
     # target = "build",
     # deps = nothing,
     # make = nothing,   

@@ -1,11 +1,11 @@
-using Sims, Sims.Lib
+using FunctionalModels, FunctionalModels.Lib
 using ModelingToolkit, OrdinaryDiffEq
 
 include("../examples/tiller/speed-measurement.jl")
 
 tstop = 5.0
 so   = sim(SecondOrderSystem, tstop)
-sosl = sim(SecondOrderSystemUsingSimsLib, tstop, Tsit5())
+sosl = sim(SecondOrderSystemUsingFunctionalModelsLib, tstop, Tsit5())
 # sh   = sim(SampleAndHold, tstop, Tsit5())
 # im   = sim(IntervalMeasure, tstop)
 # pc   = sim(PulseCounting, tstop)

@@ -1,4 +1,4 @@
-using Sims, ModelingToolkit
+using FunctionalModels, ModelingToolkit
 using OrdinaryDiffEq
 # using Plots
 
@@ -122,6 +122,6 @@ function runCircuitConnect()
 end
 function tstCircuitConnect()
     ckt = CircuitConnect()
-    ctx = Sims.flatten(ckt)
+    ctx = FunctionalModels.flatten(ckt)
     sys = system(ckt)
 end
