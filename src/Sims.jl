@@ -617,7 +617,7 @@ include("../lib/Lib.jl")
 
 # load standard Sims examples
 
-include("../examples/Examples.jl")
+# include("../examples/Examples.jl")
 
 
 end # module Sims
