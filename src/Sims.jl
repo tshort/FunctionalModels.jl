@@ -8,7 +8,8 @@ import IfElse
 import OrdinaryDiffEq
 
 export Unknown, Branch, RefBranch, Event, Parameter, system, der, 
-       default_value, compatible_values, compatible_shape, sim, @comment
+       default_value, compatible_values, compatible_shape, sim, mtk_object,
+       @comment
 
 
 # Documentation helper
@@ -355,18 +356,19 @@ system(a)
 * `::ODESystem` : the flattened model
 
 """
-function system(ctx::EqCtx; simplify = true, name = :sims_system)
+function system(a; simplify = true, name = :sims_system, args...)
+    ctx = flatten(a)
     eqs = separate_duplicate_diffs(ctx.eq)
-    sys = MTK.ODESystem(eqs,
+    sys = MTK.ODESystem(eqs;
                         name = name, 
-                        continuous_events = length(ctx.events) > 0 ? ctx.events : nothing)
+                        continuous_events = length(ctx.events) > 0 ? ctx.events : nothing,
+                        args...)
     if simplify
         return MTK.structural_simplify(sys)
     else
         return sys
     end
 end
-system(a; args...) = system(flatten(a); args...)
 
 function separate_duplicate_diffs(eqs)
     diffeqs = Dict()
@@ -583,6 +585,21 @@ compatible_shape(x) = NaN .* zero(default_value(x))
 
 # This should work for real and complex valued unknowns, including
 # arrays. For something more complicated, it may not.
+
+getfieldn(n) = x -> getproperty(x, MTK.getname(MTK.states(x)[n]))
+
+function mtk_object(model, connector; name, simplify = true, cnames = (:p, :n), getnode = getfieldn(1), getflow = getfieldn(2), args...)
+    p = connector(;name = cnames[1])
+    n = connector(;name = cnames[2])
+    pv = getnode(p)
+    nv = getnode(n)
+    eqs = append!(model(pv, nv; args...), [
+        RefBranch(pv, -getflow(p))
+        RefBranch(nv, -getflow(n))
+    ])
+    system(eqs, name = name, simplify = false, systems = [p, n])
+end
+
 
 function sim(x, t, solver = OrdinaryDiffEq.Rosenbrock23(), problem = MTK.ODAEProblem; simplify = true, init = nothing)
     sys = system(x)
