@@ -311,7 +311,7 @@ function Branch(n1, n2, v, i)
     [
         RefBranch(n1, i)
         RefBranch(n2, -i)
-        v ~ n1 - n2
+        @. v ~ n1 - n2
     ]
 end
 
@@ -411,6 +411,7 @@ end
 # Prepare the newvars map and fix up duplicate names.
 function prep_variables(ctx)
     for (k, v) in ctx.varmap
+        @show k, v
         kval = MTK.value(k)
         ctx.newvars[k] = Num(MTK.rename(kval, Symbol(join((v..., basevarname(kval)), "ₓ"))))
     end
@@ -429,7 +430,20 @@ end
 
 function sweep_vars(a::Union{MTK.Sym,MTK.Term}, names, ctx::EqCtx)
     isequal(a, t) && return 
+    if Symbolics.istree(a) && !(Symbolics.operation(a) isa Symbolics.Sym)
+        @show a
+        @show Symbolics.operation(a)
+        sweep_vars(Symbolics.operation(a), names, ctx)
+        for arg in Symbolics.arguments(a)
+            @show arg
+            @show typeof(arg)
+            @show Symbolics.get_variables(arg)
+            sweep_vars(arg, names, ctx)
+        end
+        return
+    end
     if !haskey(ctx.varmap, a)
+        @show a, names
         ctx.varmap[a] = names
     else 
         original = ctx.varmap[a]

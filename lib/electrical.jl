@@ -117,11 +117,11 @@ end
 """
 function Resistor(n1::ElectricalNode, n2::ElectricalNode; 
                   R::Signal, T = 300.15, T_ref = 300.15, alpha = 0.0)
-    i = Current()
-    v = Voltage(default_value(n1) - default_value(n2))
+    i = Current(compatible_values(n1, n2))
+    v = Voltage(compatible_values(n1, n2))
     [
         Branch(n1, n2, v, i)
-        v ~ R .* (1 + alpha .* (T - T_ref)) .* i
+        @. v ~ R * (1 + alpha * (T - T_ref)) * i
     ]
 end
 
@@ -1080,11 +1080,11 @@ SignalVoltage(n1::ElectricalNode, n2::ElectricalNode; V::Signal)
 * `V::Signal` : Voltage between n1 and n2 (= n1 - n2) as an input signal
 """
 function SignalVoltage(n1::ElectricalNode, n2::ElectricalNode; V::Signal)  
-    i = Current()
-    v = Voltage()
+    i = Current(compatible_values(n1, n2))
+    v = Voltage(compatible_values(n1, n2))
     [
         Branch(n1, n2, v, i) 
-        v ~ V
+        v .~ V
     ]
 end
 
@@ -1116,7 +1116,7 @@ SineVoltage(n1::ElectricalNode, n2::ElectricalNode;
 """
 function SineVoltage(n1::ElectricalNode, n2::ElectricalNode; 
                      V = 1.0,  f = 1.0,  ang = 0.0,  offset = 0.0)
-    SignalVoltage(n1, n2, V = V .* sin(2pi .* f .* t + ang) + offset)
+    SignalVoltage(n1, n2, V = V .* sin.(2pi .* f .* t .+ ang) .+ offset)
 end
 
 
