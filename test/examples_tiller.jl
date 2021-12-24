@@ -14,6 +14,7 @@ include("../examples/tiller/architecture.jl")
 
 fs   = sim(FlatSystem, tstop, Tsit5())
 bs   = sim(BaseSystem, tstop, Tsit5())
+sys = BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.01))
 v1   = sim(BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.01)),  tstop, Tsit5())
 v1a  = sim(BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.036)),  tstop, Tsit5())
 # v2   = sim(BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.01),
