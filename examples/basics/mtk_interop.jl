@@ -9,21 +9,21 @@ using OrdinaryDiffEq
 
 @variables t
 @connector function Pin(;name)
-    sts = @variables v(t)=1.0 i(t)=1.0
+    sts = @variables v(t)=1.0 i(t)=1.0 [connect = Flow]
     ODESystem(Equation[], t, sts, []; name=name)
 end
 
-function ModelingToolkit.connect(::Type{Pin}, ps...)
-    eqs = [
-           0 ~ sum(p->p.i, ps) # KCL
-          ]
-    # KVL
-    for i in 1:length(ps)-1
-        push!(eqs, ps[i].v ~ ps[i+1].v)
-    end
-
-    return eqs
-end
+# function ModelingToolkit.connect(::Type{Pin}, ps...)
+#     eqs = [
+#            0 ~ sum(p->p.i, ps) # KCL
+#           ]
+#     # KVL
+#     for i in 1:length(ps)-1
+#         push!(eqs, ps[i].v ~ ps[i+1].v)
+#     end
+# 
+#     return eqs
+# end
 
 function Ground(;name)
     @named g = Pin()
@@ -92,12 +92,13 @@ rc_eqs = [
 @named _rc_model = ODESystem(rc_eqs, t)
 @named rc_model = compose(_rc_model,
                           [resistor, capacitor, source, ground])
+# @show equations(rc_model)
 sys = structural_simplify(rc_model)
-
+# @show sys
 u0 = [
       capacitor.v => 0.0
      ]
 prob = ODAEProblem(sys, u0, (0, 10.0))
 sol = solve(prob, Tsit5())
-
+# @show sol
 end
