@@ -14,9 +14,9 @@ include("../examples/tiller/architecture.jl")
 
 fs   = sim(FlatSystem, tstop, Tsit5())
 bs   = sim(BaseSystem, tstop, Tsit5())
-sys = BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.01))
-v1   = sim(BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.01)),  tstop, Tsit5())
-v1a  = sim(BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.036)),  tstop, Tsit5())
+## Waiting on https://github.com/SciML/ModelingToolkit.jl/issues/1396
+# v1   = sim(BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.01)),  tstop, Tsit5())
+# v1a  = sim(BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.036)),  tstop, Tsit5())
 # v2   = sim(BaseSystem(Sensor = SampleHoldSensor(sampletime = 0.01),
 #                       Controller = PIDController(yMax=15, Td=0.1, k=20, Ti=0.1),
 #                       Actuator = LimitedActuator(delayTime=0.005, uMax=10)), tstop, Tsit5())
