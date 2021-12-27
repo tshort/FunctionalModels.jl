@@ -123,7 +123,7 @@ The viewable variable name is based on a `gensym`.
 with `system`, variables are renamed to include subsystem names
 and variable base name. 
 
-For example, `Unknown(name = :v)` may show as `var"##v#1057"(t)`, but
+For example, `Unknown(name = :v)` may show as `var"v1057"(t)`, but
 after flattening, it will show as something like `ss₊c1₊v(t)` 
 (`ss` and `c1` are subsystems).
 
@@ -185,7 +185,7 @@ The viewable variable name is based on a `gensym`.
 with `system`, variables are renamed to include subsystem names
 and the variable base name. 
 
-For example, `Parameter(name = :R)` may show as `var"##R#1057"`, but
+For example, `Parameter(name = :R)` may show as `var"R1057"`, but
 after flattening, it will show as something like `ss₊r1₊R` 
 (`ss` and `r1` are subsystems).
 
@@ -327,7 +327,7 @@ end
 const Event = MTK.SymbolicContinuousCallback
 
 struct EqCtx
-    eq::Vector{Equation}
+    eq::Vector{Any}
     events::Vector{Event}
     nodemap::Dict
     varmap::IdDict
@@ -391,13 +391,14 @@ function separate_duplicate_diffs(eqs)
 end
 
 function flatten(a)
-    ctx = EqCtx(Equation[], Event[], Dict(), Dict(), Dict())
+    global ctx = EqCtx(Equation[], Event[], Dict(), Dict(), Dict())
     sweep_vars(a, (), ctx)
     prep_variables(ctx)
     elaborate_unit!(a, ctx)
     # Add in equations for each node to sum flows to zero:
     for (key, nodeset) in ctx.nodemap
-        push!(ctx.eq, 0 ~ nodeset)
+        push!(ctx.eq, 0 .~ nodeset)
+        # push!(ctx.eq, collect(0 .~ nodeset))
     end
     return ctx
 end
@@ -412,6 +413,7 @@ end
 function prep_variables(ctx)
     for (k, v) in ctx.varmap
         @show k, v
+        @show typeof(k)
         kval = MTK.value(k)
         ctx.newvars[k] = Num(MTK.rename(kval, Symbol(join((v..., basevarname(kval)), "ₓ"))))
     end
@@ -428,27 +430,22 @@ function prep_variables(ctx)
     nothing
 end
 
-function sweep_vars(a::Union{MTK.Sym,MTK.Term}, names, ctx::EqCtx)
+function sweep_vars(a::Union{MTK.Sym,MTK.Term,Symbolics.ArrayOp}, names, ctx::EqCtx)
     isequal(a, t) && return 
-    if Symbolics.istree(a) && !(Symbolics.operation(a) isa Symbolics.Sym)
-        @show a
-        @show Symbolics.operation(a)
-        sweep_vars(Symbolics.operation(a), names, ctx)
-        for arg in Symbolics.arguments(a)
-            @show arg
-            @show typeof(arg)
-            @show Symbolics.get_variables(arg)
-            sweep_vars(arg, names, ctx)
+    if Symbolics.hasmetadata(a, NameCtx)
+        if !haskey(ctx.varmap, a)
+            ctx.varmap[a] = names
+        else 
+            original = ctx.varmap[a]
+            if original != names
+                ctx.varmap[a] = common_root(original, names)
+            end
         end
         return
     end
-    if !haskey(ctx.varmap, a)
-        @show a, names
-        ctx.varmap[a] = names
-    else 
-        original = ctx.varmap[a]
-        if original != names
-            ctx.varmap[a] = common_root(original, names)
+    if Symbolics.istree(a)
+        for arg in Symbolics.arguments(a)
+            sweep_vars(arg, names, ctx)
         end
     end
     nothing
@@ -476,7 +473,21 @@ function common_root(a, b)
     return a[rng]
 end
 
-
+function Symbolics.substitute(x::Symbolics.ArrayOp{T}, rules; kw...) where T
+    haskey(rules, x) && return rules[x]
+    sub = Symbolics.substituter(rules)
+    Symbolics.ArrayOp{T}(x.output_idx, sub(x.expr; kw...), x.reduce, sub(x.term; kw...), x.shape, x.ranges, x.metadata)
+end
+function Symbolics.substitute(x::Symbolics.Arr, rules; kw...)
+@show x
+dump(x, maxdepth=3)
+@show Symbolics.unwrap(x)
+@show z =  Symbolics.Arr(Symbolics.substitute(Symbolics.unwrap(x), rules; kw...))
+#@show z =  Symbolics.maybewrap(Symbolics.substitute(Symbolics.unwrap(x), rules; kw...))
+dump(z, maxdepth=3)
+dump(Symbolics.substitute(Symbolics.unwrap(x), rules; kw...), maxdepth=2)
+    Symbolics.Arr(Symbolics.value(Symbolics.substitute(Symbolics.unwrap(x), rules; kw...)))
+end
 
 
 #
@@ -485,6 +496,11 @@ end
 #
 elaborate_unit!(a::Any, ctx::EqCtx) = nothing # The default is to ignore undefined types.
 function elaborate_unit!(a::Equation, ctx::EqCtx)
+    push!(ctx.eq, MTK.substitute(a, ctx.newvars))
+end
+function elaborate_unit!(a::Symbolics.Symbolic, ctx::EqCtx)
+    @show a
+    @show typeof(a)
     push!(ctx.eq, MTK.substitute(a, ctx.newvars))
 end
 function elaborate_unit!(a::Vector, ctx::EqCtx)
@@ -500,8 +516,8 @@ function elaborate_unit!(a::Event, ctx::EqCtx)
 end
 
 function elaborate_unit!(b::RefBranch, ctx::EqCtx)
-    if b.n isa MTK.Num
-        ctx.nodemap[b.n] = get(ctx.nodemap, b.n, 0.0) + MTK.substitute(MTK.value(b.i), ctx.newvars)
+    if b.n isa Symbolics.Num || b.n isa Symbolics.Arr
+        ctx.nodemap[b.n] = get(ctx.nodemap, b.n, 0.0) .+ Symbolics.substitute(MTK.value(b.i), ctx.newvars)
     end
 end
 
