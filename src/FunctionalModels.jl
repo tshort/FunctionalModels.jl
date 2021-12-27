@@ -479,13 +479,6 @@ function Symbolics.substitute(x::Symbolics.ArrayOp{T}, rules; kw...) where T
     Symbolics.ArrayOp{T}(x.output_idx, sub(x.expr; kw...), x.reduce, sub(x.term; kw...), x.shape, x.ranges, x.metadata)
 end
 function Symbolics.substitute(x::Symbolics.Arr, rules; kw...)
-@show x
-dump(x, maxdepth=3)
-@show Symbolics.unwrap(x)
-@show z =  Symbolics.Arr(Symbolics.substitute(Symbolics.unwrap(x), rules; kw...))
-#@show z =  Symbolics.maybewrap(Symbolics.substitute(Symbolics.unwrap(x), rules; kw...))
-dump(z, maxdepth=3)
-dump(Symbolics.substitute(Symbolics.unwrap(x), rules; kw...), maxdepth=2)
     Symbolics.Arr(Symbolics.value(Symbolics.substitute(Symbolics.unwrap(x), rules; kw...)))
 end
 

@@ -84,9 +84,9 @@ Resistor(n1::ElectricalNode, n2::ElectricalNode, hp::HeatPort;
 * `T_ref::Signal` : Reference temperature [K], default = 300.15K
 * `alpha::Signal` : Temperature coefficient of resistance (`R_actual = R*(1 + alpha*(T_heatPort - T_ref))`) [1/K], default = 0.0
 
-### Details
+ails
 
-The resistance `R` is optionally temperature dependent according to
+Theance `R` is optionally temperature dependent according to
 the following equation:
 
     R = R_ref*(1 + alpha*(hp.T - T_ref))
@@ -138,8 +138,7 @@ current `i` by `i = C * dv/dt`.
 ```julia
 Capacitor(n1::ElectricalNode, n2::ElectricalNode; C::Signal) 
 ```
-
-### Arguments
+med  Arguments
 
 * `n1::ElectricalNode` : Positive electrical node [V]
 * `n2::ElectricalNode` : Negative electrical node [V]
@@ -172,11 +171,11 @@ end
 ```
 """
 function Capacitor(n1::ElectricalNode, n2::ElectricalNode; C::Signal) 
-    i = Current()
+    i = Current(compatible_values(n1, n2))
     v = Voltage(default_value(n1) - default_value(n2))
     [
         Branch(n1, n2, v, i) 
-        der(v) ~ i ./ C
+        @. der(v) ~ i / C
     ]
 end
 
@@ -188,8 +187,7 @@ current `i` by `v = L * di/dt`.
 ```julia
 Inductor(n1::ElectricalNode, n2::ElectricalNode; L::Signal)
 ```
-
-### Arguments
+g@named uments
 
 * `n1::ElectricalNode` : Positive electrical node [V]
 * `n2::ElectricalNode` : Negative electrical node [V]
@@ -223,11 +221,11 @@ end
 ```
 """
 function Inductor(n1::ElectricalNode, n2::ElectricalNode; L::Signal) 
-    i = Current()
+    i = Current(compatible_values(n1, n2))
     v = Voltage(default_value(n1) - default_value(n2))
     [
         Branch(n1, n2, v, i) 
-        der(i) ~ v ./ L
+        @. der(i) ~ v / L
     ]
 end
 
@@ -258,9 +256,9 @@ function SaturatingInductor(n1::ElectricalNode, n2::ElectricalNode;
     println("Ipar: ", Ipar)
     [
         Branch(n1, n2, v, i)
-        (Lact - Linf) .* i ./ Ipar ~ (Lzer - Linf) .* atan2(i, Ipar)
-        psi ~ Lact .* i
-        der(psi) ~ v
+        @. (Lact - Linf) * i / Ipar ~ (Lzer - Linf) * atan2(i, Ipar)
+        @. psi ~ Lact * i
+        @. der(psi) ~ v
     ]
 end
 
@@ -331,19 +329,20 @@ Transformer(p1::ElectricalNode, n1::ElectricalNode, p2::ElectricalNode, n2::Elec
 """
 function Transformer(p1::ElectricalNode, n1::ElectricalNode, p2::ElectricalNode, n2::ElectricalNode; 
                      L1, L2 = L1, M = L1)
-    v1 = Voltage(default_value(p1) - default_value(n1))
-    i1 = Current()
-    v2 = Voltage()
-    i2 = Current()
-    di1 = Unknown()
-    di2 = Unknown()
+    vals = compatible_values(n1, n2)
+    @named v1 = Voltage(default_value(p1) - default_value(n1))
+    @named i1 = Current(vals)
+    @named v2 = Voltage(vals)
+    @named i2 = Current(vals)
+    @named di1 = Unknown(vals)
+    @named di2 = Unknown(vals)
     [
         Branch(p1, n1, v1, i1)
         Branch(p2, n2, v2, i2)
-        der(i1) ~ di1
-        der(i2) ~ di2
-        L1 .* di1 + M  .* di2 ~ v1
-        M  .* di1 + L2 .* di2 ~ v2
+        @. der(i1) ~ di1
+        @. der(i2) ~ di2
+        @. L1 * di1 + M  * di2 ~ v1
+        @. M  * di1 + L2 * di2 ~ v2
     ]
 end
 
@@ -381,9 +380,9 @@ function EMF(n1::ElectricalNode, n2::ElectricalNode, flange::Flange;
     [
         Branch(n1, n2, i, v)
         Branch(flange, support_flange, phi, tau)
-        der(phi) ~ w
-        v ~ k * w
-        tau ~ -k * i
+        @. der(phi) ~ w
+        @. v ~ k * w
+        @. tau ~ -k * i
     ]
 end
 
@@ -433,12 +432,12 @@ function IdealDiode(n1::ElectricalNode, n2::ElectricalNode;
                     Vknee = 0.0, Ron = 1e-5, Goff = 1e-5)
     i = Current()
     v = Voltage()
-    s = Unknown()  # dummy variable
+    @named s = Unknown()  # dummy variable
     [
         Branch(n1, n2, v, i)
         Event(s ~ 0.0)
-        v ~ s .* ie(s < 0.0, 1.0, Ron) + Vknee
-        i ~ s .* ie(s < 0.0, Goff, 1.0) + Goff .* Vknee
+        @. v ~ s * ie(s < 0.0, 1.0, Ron) + Vknee
+        @. i ~ s * ie(s < 0.0, Goff, 1.0) + Goff * Vknee
     ]
 end
 
@@ -480,7 +479,7 @@ function IdealThyristor(n1::ElectricalNode, n2::ElectricalNode, fire;
     vals = compatible_values(n1, n2) 
     i = Current(vals)
     v = Voltage(vals)
-    s = Unknown(vals)  # dummy variable
+    @named s = Unknown(vals)  # dummy variable
     spositive = Discrete(default_value(s) > 0.0)
     ## off = @map !spositive | (off & !fire) # on/off state of each switch
     off = map(x -> x[1],
@@ -489,8 +488,8 @@ function IdealThyristor(n1::ElectricalNode, n2::ElectricalNode, fire;
     [
         Branch(n1, n2, v, i)
         BoolEvent(spositive, s)
-        v ~ s .* ie(off, 1.0, Ron) + Vknee
-        i ~ s .* ie(off, Goff, 1.0) + Goff .* Vknee
+        @. v ~ s * ie(off, 1.0, Ron) + Vknee
+        @. i ~ s * ie(off, Goff, 1.0) + Goff * Vknee
     ]
 end
 
@@ -573,15 +572,15 @@ function IdealOpAmp(p1::ElectricalNode, n1::ElectricalNode, p2::ElectricalNode, 
     i = Current(compatible_values(p2, n2))
     v = Voltage(compatible_values(p2, n2))
     [
-        p1 ~ n1      # voltages at the input are equal
-                     # currents at the input are zero, so leave out
+        @. p1 ~ n1      # voltages at the input are equal
+                        # currents at the input are zero, so leave out
         Branch(p2, n2, v, i) # at the output, make the currents equal
     ]
 end
 function IdealOpAmp(p1::ElectricalNode, n1::ElectricalNode, p2::ElectricalNode)
     i = Current(compatible_values(p2))
     [
-        p1 ~ n1
+        @. p1 ~ n1
         RefBranch(p2, i)
     ]
 end
@@ -620,11 +619,11 @@ function IdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, control;
     vals = compatible_values(n1, n2)
     i = Current(vals)
     v = Voltage(vals)
-    s = Unknown(vals)  # dummy variable
+    @named s = Unknown(vals)  # dummy variable
     [
         Branch(n1, n2, v, i)
-        v ~ s .* ie(control, 1.0, Ron)
-        i ~ s .* ie(control, Goff, 1.0)
+        @. v ~ s * ie(control, 1.0, Ron)
+        @. i ~ s * ie(control, Goff, 1.0)
     ]
 end
   
@@ -661,12 +660,12 @@ function IdealClosingSwitch(n1::ElectricalNode, n2::ElectricalNode, control;
     vals = compatible_values(n1, n2)
     i = Current(vals)
     v = Voltage(vals)
-    s = Unknown(vals)  # dummy variable
+    @named s = Unknown(vals)  # dummy variable
     [
         Branch(n1, n2, v, i)
         ## DiscreteEvent(control)
-        v ~ s .* ie(control, Ron, 1.0)
-        i ~ s .* ie(control, 1.0, Goff)
+        @. v ~ s * ie(control, Ron, 1.0)
+        @. i ~ s * ie(control, 1.0, Goff)
     ]
 end
   
@@ -705,12 +704,12 @@ function ControlledIdealOpeningSwitch(n1::ElectricalNode, n2::ElectricalNode, co
     vals = compatible_values(n1, n2)
     i = Current(vals)
     v = Voltage(vals)
-    s = Unknown(vals)  # dummy variable
+    @named s = Unknown(vals)  # dummy variable
     [
         Branch(n1, n2, v, i)
         Event(control ~ level)  # switch opens when control goes below level
-        v ~ s .* ie(control > level, 1.0, Ron)
-        i ~ s .* ie(control > level, Goff, 1.0)
+        @. v ~ s * ie(control > level, 1.0, Ron)
+        @. i ~ s * ie(control > level, Goff, 1.0)
     ]
 end
                                       
@@ -952,9 +951,9 @@ function Diode(n1::ElectricalNode, n2::ElectricalNode;
     v = Voltage()
     [
         Branch(n1, n2, v, i)
-        i ~ ie(v ./ Vt > Maxexp,
-               Ids .* exp(Maxexp) .* (1 + v ./ Vt - Maxexp) - 1 + v ./ R,
-               Ids .* (exp(v ./ Vt) - 1) + v ./ R)
+        @. i ~ ie(v / Vt > Maxexp,
+                  Ids * exp(Maxexp) * (1 + v / Vt - Maxexp) - 1 + v / R,
+                  Ids * (exp(v / Vt) - 1) + v / R)
     ]
 end
 
@@ -973,11 +972,11 @@ function ZDiode(n1::ElectricalNode, n2::ElectricalNode;
     v = Voltage(vals)
     [
         Branch(n1, n2, v, i)
-        i ~ ie(v ./ Vt > Maxexp,
-               Ids .* exp(Maxexp) .* (1 + v ./ Vt - Maxexp) - 1 + v ./ R,
-               ie((v + Bv) < -Maxexp .* (Nbv .* Vt),
-                  -Ids - Ibv .* exp(Maxexp) .* (1 - (v+Bv) ./ (Nbv .* Vt) - Maxexp) + v ./ R,
-                  Ids .* (exp(v ./ Vt)-1) - Ibv .* exp(-(v + Bv)/(Nbv .* Vt)) + v ./ R))
+        @. i ~ ie(v / Vt > Maxexp,
+                  Ids * exp(Maxexp) * (1 + v / Vt - Maxexp) - 1 + v / R,
+                  ie((v + Bv) < -Maxexp * (Nbv * Vt),
+                     -Ids - Ibv * exp(Maxexp) * (1 - (v+Bv) / (Nbv * Vt) - Maxexp) + v / R,
+                     Ids * (exp(v / Vt)-1) - Ibv * exp(-(v + Bv)/(Nbv * Vt)) + v / R))
     ]
 end
 
@@ -1116,7 +1115,7 @@ SineVoltage(n1::ElectricalNode, n2::ElectricalNode;
 """
 function SineVoltage(n1::ElectricalNode, n2::ElectricalNode; 
                      V = 1.0,  f = 1.0,  ang = 0.0,  offset = 0.0)
-    SignalVoltage(n1, n2, V = V .* sin.(2pi .* f .* t .+ ang) .+ offset)
+    SignalVoltage(n1, n2, V = @. V * sin(2pi * f * t + ang) + offset)
 end
 
 
@@ -1146,7 +1145,7 @@ function StepVoltage(n1::ElectricalNode, n2::ElectricalNode;
     v = Voltage()
     [
         Branch(n1, n2, v, i) 
-        v ~ ie(t > start, V + offset, offset)
+        @. v ~ ie(t > start, V + offset, offset)
         # Event(t - start,
         #       [reinit(v_mag, offset + V)],        # positive crossing
         #       [reinit(v_mag, offset)])            # negative crossing
@@ -1255,12 +1254,12 @@ function BranchHeatPort(n1::ElectricalNode, n2::ElectricalNode, hp::HeatPort,
                         model::Function, args...; kwargs...)
     i = Current()
     v = Voltage()
-    n = Voltage()
-    PowerLoss = HeatFlow()
+    @named n = Voltage()
+    @named PowerLoss = HeatFlow()
     hp => [
-        PowerLoss ~ sum(v .* i)
+        @. PowerLoss ~ sum(v * i)
         RefBranch(hp, -PowerLoss)
-        v ~ n1 - n2
+        @. v ~ n1 - n2
         Branch(n1, n, 0.0, i)
         model(n, n2, args...; kwargs...)
     ]
