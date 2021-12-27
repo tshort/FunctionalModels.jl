@@ -412,8 +412,6 @@ end
 # Prepare the newvars map and fix up duplicate names.
 function prep_variables(ctx)
     for (k, v) in ctx.varmap
-        @show k, v
-        @show typeof(k)
         kval = MTK.value(k)
         ctx.newvars[k] = Num(MTK.rename(kval, Symbol(join((v..., basevarname(kval)), "ₓ"))))
     end
@@ -492,8 +490,6 @@ function elaborate_unit!(a::Equation, ctx::EqCtx)
     push!(ctx.eq, MTK.substitute(a, ctx.newvars))
 end
 function elaborate_unit!(a::Symbolics.Symbolic, ctx::EqCtx)
-    @show a
-    @show typeof(a)
     push!(ctx.eq, MTK.substitute(a, ctx.newvars))
 end
 function elaborate_unit!(a::Vector, ctx::EqCtx)
